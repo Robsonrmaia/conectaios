@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface Property {
@@ -51,6 +51,7 @@ export default function Imoveis() {
     listing_type: 'venda',
     property_type: 'apartamento',
     visibility: 'public_site',
+    broker_minisite_enabled: false,
     descricao: '',
     fotos: '',
     videos: '',
@@ -129,6 +130,7 @@ export default function Imoveis() {
           listing_type: formData.listing_type,
           property_type: formData.property_type,
           visibility: formData.visibility,
+          broker_minisite_enabled: formData.broker_minisite_enabled,
           descricao: formData.descricao,
           fotos: formData.fotos ? formData.fotos.split(',').map(f => f.trim()) : [],
           videos: formData.videos ? formData.videos.split(',').map(v => v.trim()) : [],
@@ -157,6 +159,7 @@ export default function Imoveis() {
         listing_type: 'venda',
         property_type: 'apartamento',
         visibility: 'public_site',
+        broker_minisite_enabled: false,
         descricao: '',
         fotos: '',
         videos: '',
@@ -374,13 +377,24 @@ export default function Imoveis() {
                 />
               </div>
 
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="visibility"
-                  checked={formData.visibility === 'public_site'}
-                  onCheckedChange={(checked) => setFormData({...formData, visibility: checked ? 'public_site' : 'hidden'})}
-                />
-                <Label htmlFor="visibility">Visível no Marketplace</Label>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="marketplace"
+                    checked={formData.visibility === 'public_site'}
+                    onCheckedChange={(checked) => setFormData({...formData, visibility: checked ? 'public_site' : 'hidden'})}
+                  />
+                  <Label htmlFor="marketplace">Mostrar no Marketplace</Label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="minisite"
+                    checked={formData.broker_minisite_enabled}
+                    onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
+                  />
+                  <Label htmlFor="minisite">Mostrar no Meu Site</Label>
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -461,14 +475,22 @@ export default function Imoveis() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center">
-                <div className="flex gap-1">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
                   <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
-                  {property.visibility === 'public_site' && (
-                    <Badge variant="outline" className="text-xs">Marketplace</Badge>
+                  {property.visibility === 'public_site' ? (
+                    <Badge variant="default" className="text-xs">
+                      <Eye className="h-3 w-3 mr-1" />
+                      Marketplace
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-xs">
+                      <EyeOff className="h-3 w-3 mr-1" />
+                      Oculto
+                    </Badge>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <Button 
                     variant="outline" 
                     size="sm"
@@ -478,9 +500,6 @@ export default function Imoveis() {
                     }}
                   >
                     <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Globe className="h-3 w-3" />
                   </Button>
                   <Button variant="outline" size="sm">
                     <Edit className="h-3 w-3" />
@@ -569,12 +588,12 @@ export default function Imoveis() {
                 
                 <div className="space-y-4">
                   <div>
+                    <h3 className="font-semibold mb-2">Tipo de Imóvel</h3>
+                    <Badge variant="outline">{selectedProperty.property_type}</Badge>
+                  </div>
+                  <div>
                     <h3 className="font-semibold mb-2">Ações</h3>
                     <div className="space-y-2">
-                      <Button className="w-full" variant="outline">
-                        <Globe className="h-4 w-4 mr-2" />
-                        Gerar Mini Site
-                      </Button>
                       <Button className="w-full" variant="outline">
                         <Edit className="h-4 w-4 mr-2" />
                         Editar Imóvel

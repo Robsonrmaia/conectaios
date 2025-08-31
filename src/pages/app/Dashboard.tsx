@@ -1,16 +1,64 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe, ExternalLink } from 'lucide-react';
+import { useBroker } from '@/hooks/useBroker';
+import { toast } from '@/components/ui/use-toast';
 
 const Dashboard = () => {
+  const { broker } = useBroker();
+
+  const handleMinisiteAccess = () => {
+    if (broker) {
+      const minisiteUrl = `${window.location.origin}/minisite/${broker.id}`;
+      window.open(minisiteUrl, '_blank');
+      toast({
+        title: "Minisite aberto",
+        description: "Seu minisite foi aberto em uma nova aba",
+      });
+    }
+  };
+
+  const copyMinisiteUrl = () => {
+    if (broker) {
+      const minisiteUrl = `${window.location.origin}/minisite/${broker.id}`;
+      navigator.clipboard.writeText(minisiteUrl);
+      toast({
+        title: "URL copiada",
+        description: "URL do seu minisite copiada para a área de transferência",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Acompanhe o desempenho do seu negócio imobiliário
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <p className="text-muted-foreground">
+            Acompanhe o desempenho do seu negócio imobiliário
+          </p>
+        </div>
+        
+        {/* Minisite Actions */}
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={copyMinisiteUrl}
+            className="flex items-center gap-2"
+          >
+            <Globe className="h-4 w-4" />
+            Copiar URL do Minisite
+          </Button>
+          <Button 
+            onClick={handleMinisiteAccess}
+            className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2"
+          >
+            <ExternalLink className="h-4 w-4" />
+            Ver Meu Minisite
+          </Button>
+        </div>
       </div>
 
       {/* KPIs */}

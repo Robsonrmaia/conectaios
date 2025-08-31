@@ -109,7 +109,14 @@ export default function Match() {
 
       if (error) throw error;
       
-      setMatches(data || []);
+      // Convert the data to proper MatchResult format
+      const matches = (data || []).map((match: any) => ({
+        property_id: match.property_id,
+        match_score: match.match_score,
+        property_data: match.property_data as Property
+      }));
+      
+      setMatches(matches);
       setCurrentIndex(0);
     } catch (error) {
       console.error('Error finding matches:', error);
