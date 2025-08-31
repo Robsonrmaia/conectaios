@@ -1021,6 +1021,7 @@ export type Database = {
           price_per_m2: number | null
           property_type: string | null
           quartos: number | null
+          reference_code: string | null
           state: string | null
           titulo: string
           updated_at: string
@@ -1055,6 +1056,7 @@ export type Database = {
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
+          reference_code?: string | null
           state?: string | null
           titulo: string
           updated_at?: string
@@ -1089,6 +1091,7 @@ export type Database = {
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
+          reference_code?: string | null
           state?: string | null
           titulo?: string
           updated_at?: string
@@ -1458,6 +1461,10 @@ export type Database = {
           property_data: Json
           property_id: string
         }[]
+      }
+      generate_property_reference_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
