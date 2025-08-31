@@ -34,11 +34,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  // If user exists but no broker profile, show setup
-  if (user && !broker) {
-    console.log('ProtectedRoute - User exists but no broker, showing setup');
-    return <BrokerSetup />;
-  }
+  // Allow navigation even without broker profile
+  // BrokerSetup will be shown only when accessing profile-related pages
 
   console.log('ProtectedRoute - All good, rendering children');
   return <>{children}</>;

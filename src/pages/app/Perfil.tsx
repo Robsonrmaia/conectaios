@@ -9,6 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useBroker } from '@/hooks/useBroker';
+import BrokerSetup from '@/components/BrokerSetup';
 import { 
   User, 
   Mail, 
@@ -24,6 +26,13 @@ import {
 } from 'lucide-react';
 
 export default function Perfil() {
+  const { broker } = useBroker();
+  
+  // If no broker profile exists, show the setup form
+  if (!broker) {
+    return <BrokerSetup />;
+  }
+
   const [profile, setProfile] = useState({
     name: 'João Silva',
     email: 'joao.silva@email.com',
