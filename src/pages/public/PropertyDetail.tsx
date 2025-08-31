@@ -60,24 +60,39 @@ export default function PropertyDetail() {
 
   const fetchProperty = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the property
+      const { data: propertyData, error: propertyError } = await supabase
         .from('properties')
-        .select(`
-          *,
-          brokers:user_id (
-            name,
-            phone,
-            email,
-            avatar_url,
-            creci
-          )
-        `)
+        .select('*')
         .eq('id', id)
         .eq('visibility', 'public_site')
         .single();
 
-      if (error) throw error;
-      setProperty(data);
+      if (propertyError) throw propertyError;
+
+      // Then get the broker info
+      const { data: brokerData, error: brokerError } = await supabase
+        .from('brokers')
+        .select('name, phone, email, avatar_url, creci')
+        .eq('user_id', propertyData.user_id)
+        .single();
+
+      if (brokerError) {
+        console.error('Error fetching broker:', brokerError);
+        // Set default broker data if not found
+        setProperty({
+          ...propertyData,
+          brokers: {
+            name: 'Corretor',
+            email: 'contato@exemplo.com'
+          }
+        });
+      } else {
+        setProperty({
+          ...propertyData,
+          brokers: brokerData
+        });
+      }
     } catch (error) {
       console.error('Error fetching property:', error);
       toast({
