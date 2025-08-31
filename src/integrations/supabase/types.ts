@@ -14,6 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
+      brokers: {
+        Row: {
+          asaas_customer_id: string | null
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string
+          creci: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          plan_id: string | null
+          referral_code: string | null
+          region_id: string | null
+          status: string
+          subscription_expires_at: string | null
+          subscription_status: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creci?: string | null
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creci?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brokers_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brokers_region_id_fkey"
+            columns: ["region_id"]
+            isOneToOne: false
+            referencedRelation: "regions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cards: {
         Row: {
           client_id: string | null
@@ -248,6 +329,48 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          match_limit: number
+          name: string
+          price: number
+          property_limit: number
+          slug: string
+          thread_limit: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_limit?: number
+          name: string
+          price?: number
+          property_limit?: number
+          slug: string
+          thread_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_limit?: number
+          name?: string
+          price?: number
+          property_limit?: number
+          slug?: string
+          thread_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -379,6 +502,33 @@ export type Database = {
         }
         Relationships: []
       }
+      regions: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          state: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       responsibles: {
         Row: {
           avatar_url: string | null
@@ -497,6 +647,10 @@ export type Database = {
       cleanup_old_login_events: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
     }
     Enums: {
