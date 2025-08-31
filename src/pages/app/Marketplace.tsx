@@ -21,6 +21,8 @@ interface Property {
   valor: number;
   area: number;
   quartos: number;
+  bathrooms?: number;
+  parking_spots?: number;
   finalidade: string;
   descricao: string;
   fotos: string[];
@@ -28,6 +30,7 @@ interface Property {
   user_id: string;
   created_at: string;
   listing_type: string;
+  neighborhood?: string;
   profiles?: {
     nome: string;
   };
@@ -44,6 +47,8 @@ export default function Marketplace() {
   const [maxValue, setMaxValue] = useState('');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+  const [bedroomsFilter, setBedroomsFilter] = useState('');
 
   useEffect(() => {
     fetchPublicProperties();
@@ -90,12 +95,15 @@ export default function Marketplace() {
 
   const filteredProperties = properties.filter(property => {
     const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
+                         property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.finalidade === finalidadeFilter;
     const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
     const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
+    const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
+    const matchesBedrooms = !bedroomsFilter || property.quartos === parseInt(bedroomsFilter);
 
-    return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue;
+    return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
   });
 
   const handleContactBroker = (brokerName: string) => {
@@ -187,7 +195,7 @@ export default function Marketplace() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-card rounded-lg border"
+          className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-card rounded-lg border"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -226,6 +234,25 @@ export default function Marketplace() {
             value={maxValue}
             onChange={(e) => setMaxValue(e.target.value)}
           />
+          
+          <Input
+            placeholder="Buscar por bairro..."
+            value={neighborhoodFilter}
+            onChange={(e) => setNeighborhoodFilter(e.target.value)}
+          />
+
+          <Select value={bedroomsFilter} onValueChange={setBedroomsFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Quartos" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="1">1 quarto</SelectItem>
+              <SelectItem value="2">2 quartos</SelectItem>
+              <SelectItem value="3">3 quartos</SelectItem>
+              <SelectItem value="4">4+ quartos</SelectItem>
+            </SelectContent>
+          </Select>
         </motion.div>
 
         {/* Properties Grid */}
@@ -273,16 +300,24 @@ export default function Marketplace() {
                     R$ {property.valor?.toLocaleString('pt-BR')}
                   </div>
                   
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Building2 className="h-3 w-3" />
-                      {property.area}m²
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Bed className="h-3 w-3" />
-                      {property.quartos}
-                    </div>
-                  </div>
+                   <div className="flex justify-between text-sm text-muted-foreground">
+                     <div className="flex items-center gap-1">
+                       <Building2 className="h-3 w-3" />
+                       {property.area}m²
+                     </div>
+                     <div className="flex items-center gap-1">
+                       <Bed className="h-3 w-3" />
+                       {property.quartos}
+                     </div>
+                     <div className="flex items-center gap-1">
+                       <Bath className="h-3 w-3" />
+                       {property.bathrooms || 0}
+                     </div>
+                     <div className="flex items-center gap-1">
+                       <Car className="h-3 w-3" />
+                       {property.parking_spots || 0}
+                     </div>
+                   </div>
 
                   {property.descricao && (
                     <p className="text-sm text-muted-foreground line-clamp-2">

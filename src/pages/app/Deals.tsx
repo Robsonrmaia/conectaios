@@ -326,15 +326,14 @@ export default function Deals() {
               <Label htmlFor="offerAmount">Valor da Proposta (R$)</Label>
               <Input
                 id="offerAmount"
-                type="number"
                 value={proposalData.offerAmount}
                 onChange={(e) => setProposalData({...proposalData, offerAmount: e.target.value})}
-                placeholder="650000"
+                placeholder="650.000,00"
               />
             </div>
             
             <div>
-              <Label htmlFor="commissionPercent">Percentual de Comissão (%)</Label>
+              <Label htmlFor="commissionSplit">Divisão da Comissão</Label>
               <Select 
                 value={proposalData.commissionPercent} 
                 onValueChange={(value) => setProposalData({...proposalData, commissionPercent: value})}
@@ -343,12 +342,11 @@ export default function Deals() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3">3%</SelectItem>
-                  <SelectItem value="4">4%</SelectItem>
-                  <SelectItem value="5">5%</SelectItem>
-                  <SelectItem value="6">6%</SelectItem>
-                  <SelectItem value="7">7%</SelectItem>
-                  <SelectItem value="8">8%</SelectItem>
+                  <SelectItem value="50/50">50% / 50%</SelectItem>
+                  <SelectItem value="60/40">60% / 40%</SelectItem>
+                  <SelectItem value="70/30">70% / 30%</SelectItem>
+                  <SelectItem value="80/20">80% / 20%</SelectItem>
+                  <SelectItem value="custom">Personalizado</SelectItem>
                 </SelectContent>
               </Select>
             </div>

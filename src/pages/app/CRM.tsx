@@ -52,6 +52,14 @@ interface Note {
   client_id: string;
 }
 
+interface ClientHistory {
+  id: string;
+  client_id: string;
+  action: string;
+  description: string;
+  created_at: string;
+}
+
 const defaultStages = ['novo_lead', 'qualificado', 'proposta', 'negociacao', 'finalizado', 'perdido'];
 
 export default function CRM() {
@@ -60,6 +68,7 @@ export default function CRM() {
   const [clients, setClients] = useState<Client[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
   const [pipelines, setPipelines] = useState<Pipeline[]>([]);
   const [activePipeline, setActivePipeline] = useState<Pipeline | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,6 +76,7 @@ export default function CRM() {
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   
   const [clientFormData, setClientFormData] = useState({
@@ -86,6 +96,12 @@ export default function CRM() {
 
   const [noteFormData, setNoteFormData] = useState({
     content: '',
+    client_id: ''
+  });
+
+  const [historyFormData, setHistoryFormData] = useState({
+    action: '',
+    description: '',
     client_id: ''
   });
 

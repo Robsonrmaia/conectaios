@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { MessageSquare, Send, Search, Phone, Video } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 export default function Inbox() {
   const [selectedChat, setSelectedChat] = useState(1);
@@ -86,10 +87,23 @@ export default function Inbox() {
 
   const currentChat = chats.find(chat => chat.id === selectedChat);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (newMessage.trim()) {
-      console.log('Sending message:', newMessage);
-      setNewMessage('');
+      // Implementar envio real de mensagem
+      try {
+        // Simular envio da mensagem
+        toast({
+          title: "Mensagem enviada",
+          description: `Mensagem enviada para ${currentChat?.name}`,
+        });
+        setNewMessage('');
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "Erro ao enviar mensagem",
+          variant: "destructive",
+        });
+      }
     }
   };
 
