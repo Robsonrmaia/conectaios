@@ -138,11 +138,11 @@ export default function BrokerMinisite() {
       filtered = filtered.filter(prop => prop.valor <= parseFloat(priceRange.max));
     }
 
-    if (propertyType) {
+    if (propertyType && propertyType !== 'all') {
       filtered = filtered.filter(prop => prop.property_type === propertyType);
     }
 
-    if (listingType) {
+    if (listingType && listingType !== 'all') {
       filtered = filtered.filter(prop => prop.listing_type === listingType);
     }
 
@@ -307,7 +307,7 @@ export default function BrokerMinisite() {
                         <SelectValue placeholder="Todas" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todas</SelectItem>
+                        <SelectItem value="all">Todas</SelectItem>
                         <SelectItem value="venda">Venda</SelectItem>
                         <SelectItem value="locacao">Locação</SelectItem>
                       </SelectContent>
@@ -321,7 +321,7 @@ export default function BrokerMinisite() {
                         <SelectValue placeholder="Todos" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Todos</SelectItem>
+                        <SelectItem value="all">Todos</SelectItem>
                         <SelectItem value="apartamento">Apartamento</SelectItem>
                         <SelectItem value="casa">Casa</SelectItem>
                         <SelectItem value="terreno">Terreno</SelectItem>

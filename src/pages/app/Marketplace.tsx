@@ -101,7 +101,7 @@ export default function Marketplace() {
     const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
     const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
     const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
-    const matchesBedrooms = !bedroomsFilter || property.quartos === parseInt(bedroomsFilter);
+    const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
 
     return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
   });
@@ -246,7 +246,7 @@ export default function Marketplace() {
               <SelectValue placeholder="Quartos" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Todos</SelectItem>
+              <SelectItem value="all">Todos</SelectItem>
               <SelectItem value="1">1 quarto</SelectItem>
               <SelectItem value="2">2 quartos</SelectItem>
               <SelectItem value="3">3 quartos</SelectItem>
