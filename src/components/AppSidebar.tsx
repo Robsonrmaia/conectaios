@@ -1,0 +1,205 @@
+import { NavLink, useLocation } from 'react-router-dom';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from '@/components/ui/sidebar';
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  MessageSquare,
+  HandHeart,
+  Wrench,
+  Video,
+  Gift,
+  Handshake,
+  Settings,
+  User,
+  Bot,
+  Shield,
+  Search,
+  FileText,
+} from 'lucide-react';
+
+const navigationItems = [
+  {
+    title: 'Dashboard',
+    url: '/app',
+    icon: LayoutDashboard,
+    exact: true,
+  },
+  {
+    title: 'Imóveis',
+    url: '/app/imoveis',
+    icon: Building2,
+  },
+  {
+    title: 'Match',
+    url: '/app/match',
+    icon: Search,
+  },
+  {
+    title: 'Negociações',
+    url: '/app/deals',
+    icon: FileText,
+  },
+  {
+    title: 'Mensagens',
+    url: '/app/inbox',
+    icon: MessageSquare,
+  },
+  {
+    title: 'CRM',
+    url: '/app/crm',
+    icon: Users,
+  },
+];
+
+const toolsItems = [
+  {
+    title: 'Ferramentas',
+    url: '/app/ferramentas',
+    icon: Wrench,
+  },
+  {
+    title: 'Vídeos',
+    url: '/app/videos',
+    icon: Video,
+  },
+  {
+    title: 'Indique e Ganhe',
+    url: '/app/indicacoes',
+    icon: Gift,
+  },
+  {
+    title: 'Patrocínios',
+    url: '/app/patrocinios',
+    icon: Handshake,
+  },
+  {
+    title: 'IA Assistant',
+    url: '/app/ai-assistant',
+    icon: Bot,
+  },
+];
+
+const configItems = [
+  {
+    title: 'Perfil',
+    url: '/app/perfil',
+    icon: User,
+  },
+  {
+    title: 'Admin',
+    url: '/app/admin',
+    icon: Shield,
+  },
+];
+
+export function AppSidebar() {
+  const { state } = useSidebar();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const isActive = (url: string, exact = false) => {
+    if (exact) return currentPath === url;
+    return currentPath.startsWith(url);
+  };
+
+  const getNavClassName = (url: string, exact = false) => {
+    return isActive(url, exact) 
+      ? 'bg-primary text-primary-foreground font-medium' 
+      : 'hover:bg-accent hover:text-accent-foreground';
+  };
+
+  return (
+    <Sidebar className={state === 'collapsed' ? 'w-14' : 'w-64'}>
+      <SidebarContent className="bg-card border-r">
+        {/* Logo */}
+        <div className="p-4 border-b">
+          <div className="flex items-center space-x-2">
+            <Building2 className="h-6 w-6 text-primary" />
+            {state !== 'collapsed' && (
+              <span className="font-bold text-lg bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+                ConectaIOS
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Main Navigation */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url, item.exact)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {state !== 'collapsed' && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Tools */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {state !== 'collapsed' && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Configuration */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Configurações</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {configItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      {state !== 'collapsed' && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
