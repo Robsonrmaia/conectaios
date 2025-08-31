@@ -5,7 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageCircle, Share2, Eye } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface Property {
@@ -103,19 +105,33 @@ export default function Marketplace() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+    <div className="space-y-8">
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-r from-primary/10 via-brand-secondary/10 to-primary/10 rounded-2xl p-8 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent"></div>
+        <div className="relative z-10">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent mb-4">
             Marketplace de Imóveis
           </h1>
-          <p className="text-muted-foreground">
-            Explore imóveis disponibilizados por outros corretores da rede
+          <p className="text-lg text-muted-foreground mb-6 max-w-2xl">
+            Conecte-se com outros corretores e descubra oportunidades exclusivas. 
+            Encontre o imóvel perfeito para seus clientes em nossa rede colaborativa.
           </p>
+          <div className="flex gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-primary" />
+              <span>{filteredProperties.length} imóveis disponíveis</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              <span>Rede de corretores</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Heart className="h-4 w-4 text-primary" />
+              <span>Sistema de matches</span>
+            </div>
+          </div>
         </div>
-        <Badge variant="outline" className="text-sm">
-          {filteredProperties.length} imóveis disponíveis
-        </Badge>
       </div>
 
       {/* Search and Filters */}
@@ -207,7 +223,7 @@ export default function Marketplace() {
                 </p>
               )}
 
-              <div className="flex gap-2">
+              <div className="flex gap-2 mb-4">
                 <Button 
                   onClick={() => handleContactBroker(property)}
                   className="flex-1 bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
@@ -215,9 +231,45 @@ export default function Marketplace() {
                   <Phone className="h-4 w-4 mr-2" />
                   Contatar
                 </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Enviar Mensagem</DialogTitle>
+                      <DialogDescription>
+                        Envie uma mensagem para {property.profiles?.nome} sobre o imóvel "{property.titulo}"
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <Textarea 
+                        placeholder="Digite sua mensagem..."
+                        className="min-h-[100px]"
+                      />
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline">Cancelar</Button>
+                        <Button>Enviar Mensagem</Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 <Button variant="outline" size="icon">
-                  <ExternalLink className="h-4 w-4" />
+                  <Heart className="h-4 w-4" />
                 </Button>
+                <Button variant="outline" size="icon">
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              <div className="flex justify-between items-center text-xs text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span>Ver detalhes</span>
+                </div>
+                <span>ID: {property.id.substring(0, 8)}</span>
               </div>
             </CardContent>
           </Card>
