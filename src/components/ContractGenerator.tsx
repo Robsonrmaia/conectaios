@@ -140,7 +140,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
                 <h1 className="text-lg font-bold mb-2 text-indigo-600">Contrato Simples de Parceria – Conecta IOS</h1>
                 <div className="text-gray-600 text-sm">Acordo de cavalheiros para intermediação imobiliária</div>
               </div>
-              <div className="font-bold text-indigo-600">#{contractData.contractDetails.contractId.slice(0, 8)}</div>
+              <div className="font-bold text-indigo-600">#{String(contractData.contractDetails.contractId).slice(0, 8)}</div>
             </header>
 
             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-4">
@@ -193,7 +193,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
               <table className="w-full border-collapse text-sm">
                 <tr>
                   <th className="border border-gray-200 p-2 bg-gray-50 text-left font-semibold w-1/4">Código/ID</th>
-                  <td className="border border-gray-200 p-2">{deal?.id?.slice(0, 8) || 'N/A'}</td>
+                  <td className="border border-gray-200 p-2">{String(deal?.id || '').slice(0, 8) || 'N/A'}</td>
                 </tr>
                 <tr>
                   <th className="border border-gray-200 p-2 bg-gray-50 text-left font-semibold">Título</th>
