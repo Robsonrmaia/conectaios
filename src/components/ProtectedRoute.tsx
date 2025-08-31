@@ -13,8 +13,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { broker, loading: brokerLoading } = useBroker();
 
   // Debug logs
-  console.log('ProtectedRoute - authLoading:', authLoading, 'brokerLoading:', brokerLoading);
-  console.log('ProtectedRoute - user:', !!user, 'broker:', !!broker);
   console.log('Current URL:', window.location.pathname);
 
   if (authLoading || brokerLoading) {
@@ -37,6 +35,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Allow navigation even without broker profile
   // BrokerSetup will be shown only when accessing profile-related pages
 
-  console.log('ProtectedRoute - All good, rendering children');
+  
   return <>{children}</>;
 }
