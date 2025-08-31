@@ -29,21 +29,24 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-const AppLayout = ({ children }: { children: React.ReactNode }) => (
-  <SidebarProvider>
-    <div className="flex min-h-screen w-full">
-      <AppSidebar />
-      <div className="flex-1 flex flex-col">
-        <header className="h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <SidebarTrigger className="ml-4" />
-        </header>
-        <main className="flex-1 p-6">
-          {children}
-        </main>
+const AppLayout = ({ children }: { children: React.ReactNode }) => {
+  console.log('AppLayout rendering, children:', children);
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <div className="flex-1 flex flex-col">
+          <header className="h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <SidebarTrigger className="ml-4" />
+          </header>
+          <main className="flex-1 p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
-  </SidebarProvider>
-);
+    </SidebarProvider>
+  )
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -59,24 +62,104 @@ const App = () => (
             <Route path="/app/*" element={
               <ProtectedRoute>
                 <AppLayout>
-                  <Routes>
-                    <Route index element={<Dashboard />} />
-                    <Route path="imoveis" element={<Imoveis />} />
-                    <Route path="marketplace" element={<Marketplace />} />
-                    <Route path="minisite/:brokerId" element={<Minisite />} />
-                    <Route path="match" element={<Match />} />
-                    <Route path="deals" element={<Deals />} />
-                    <Route path="inbox" element={<Inbox />} />
-                    <Route path="crm" element={<CRM />} />
-                    <Route path="ferramentas" element={<Ferramentas />} />
-                    <Route path="videos" element={<Videos />} />
-                    <Route path="indicacoes" element={<Indicacoes />} />
-                    <Route path="patrocinios" element={<Patrocinios />} />
-                    <Route path="ai-assistant" element={<AIAssistant />} />
-                    <Route path="perfil" element={<Perfil />} />
-                    <Route path="admin" element={<Admin />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+            <Routes>
+              <Route index element={
+                <>
+                  {console.log('Rendering Dashboard route')}
+                  <Dashboard />
+                </>
+              } />
+              <Route path="imoveis" element={
+                <>
+                  {console.log('Rendering Imoveis route')}
+                  <Imoveis />
+                </>
+              } />
+              <Route path="marketplace" element={
+                <>
+                  {console.log('Rendering Marketplace route')}
+                  <Marketplace />
+                </>
+              } />
+              <Route path="minisite/:brokerId" element={
+                <>
+                  {console.log('Rendering Minisite route')}
+                  <Minisite />
+                </>
+              } />
+              <Route path="match" element={
+                <>
+                  {console.log('Rendering Match route')}
+                  <Match />
+                </>
+              } />
+              <Route path="deals" element={
+                <>
+                  {console.log('Rendering Deals route')}
+                  <Deals />
+                </>
+              } />
+              <Route path="inbox" element={
+                <>
+                  {console.log('Rendering Inbox route')}
+                  <Inbox />
+                </>
+              } />
+              <Route path="crm" element={
+                <>
+                  {console.log('Rendering CRM route')}
+                  <CRM />
+                </>
+              } />
+              <Route path="ferramentas" element={
+                <>
+                  {console.log('Rendering Ferramentas route')}
+                  <Ferramentas />
+                </>
+              } />
+              <Route path="videos" element={
+                <>
+                  {console.log('Rendering Videos route')}
+                  <Videos />
+                </>
+              } />
+              <Route path="indicacoes" element={
+                <>
+                  {console.log('Rendering Indicacoes route')}
+                  <Indicacoes />
+                </>
+              } />
+              <Route path="patrocinios" element={
+                <>
+                  {console.log('Rendering Patrocinios route')}
+                  <Patrocinios />
+                </>
+              } />
+              <Route path="ai-assistant" element={
+                <>
+                  {console.log('Rendering AIAssistant route')}
+                  <AIAssistant />
+                </>
+              } />
+              <Route path="perfil" element={
+                <>
+                  {console.log('Rendering Perfil route')}
+                  <Perfil />
+                </>
+              } />
+              <Route path="admin" element={
+                <>
+                  {console.log('Rendering Admin route')}
+                  <Admin />
+                </>
+              } />
+              <Route path="*" element={
+                <>
+                  {console.log('Rendering NotFound route')}
+                  <NotFound />
+                </>
+              } />
+            </Routes>
                 </AppLayout>
               </ProtectedRoute>
             } />
