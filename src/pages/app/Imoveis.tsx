@@ -73,7 +73,7 @@ export default function Imoveis() {
   const fetchProperties = async () => {
     try {
       const { data, error } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -123,7 +123,7 @@ export default function Imoveis() {
 
     try {
       const { error } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .insert({
           user_id: user.id,
           titulo: formData.titulo,
@@ -188,7 +188,7 @@ export default function Imoveis() {
   const handleDeleteProperty = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('properties')
+        .from('conectaios_properties' as any)
         .delete()
         .eq('id', id);
 
@@ -212,7 +212,7 @@ export default function Imoveis() {
   const updatePropertyVisibility = async (id: string, visibility: string) => {
     try {
       const { error } = await supabase
-        .from('properties')
+        .from('conectaios_properties' as any)
         .update({ visibility })
         .eq('id', id);
 

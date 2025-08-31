@@ -57,7 +57,7 @@ export default function Marketplace() {
   const fetchPublicProperties = async () => {
     try {
       const { data: propertiesData, error: propertiesError } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('is_public', true)
         .order('created_at', { ascending: false });
@@ -68,7 +68,7 @@ export default function Marketplace() {
       const propertiesWithProfiles = await Promise.all(
         (propertiesData || []).map(async (property) => {
           const { data: profileData } = await supabase
-            .from('profiles')
+            .from('conectaios_profiles')
             .select('nome')
             .eq('user_id', property.user_id)
             .single();

@@ -468,6 +468,96 @@ export type Database = {
         }
         Relationships: []
       }
+      conectaios_clients: {
+        Row: {
+          classificacao: string | null
+          created_at: string
+          documents: string[] | null
+          historico: Json | null
+          id: string
+          last_contact_at: string | null
+          nome: string
+          opp: string | null
+          photo: string | null
+          pipeline_id: string | null
+          responsavel: string | null
+          score: number | null
+          stage: string | null
+          telefone: string
+          tipo: string
+          updated_at: string
+          user_id: string | null
+          valor: number | null
+        }
+        Insert: {
+          classificacao?: string | null
+          created_at?: string
+          documents?: string[] | null
+          historico?: Json | null
+          id?: string
+          last_contact_at?: string | null
+          nome: string
+          opp?: string | null
+          photo?: string | null
+          pipeline_id?: string | null
+          responsavel?: string | null
+          score?: number | null
+          stage?: string | null
+          telefone: string
+          tipo: string
+          updated_at?: string
+          user_id?: string | null
+          valor?: number | null
+        }
+        Update: {
+          classificacao?: string | null
+          created_at?: string
+          documents?: string[] | null
+          historico?: Json | null
+          id?: string
+          last_contact_at?: string | null
+          nome?: string
+          opp?: string | null
+          photo?: string | null
+          pipeline_id?: string | null
+          responsavel?: string | null
+          score?: number | null
+          stage?: string | null
+          telefone?: string
+          tipo?: string
+          updated_at?: string
+          user_id?: string | null
+          valor?: number | null
+        }
+        Relationships: []
+      }
+      conectaios_notes: {
+        Row: {
+          client_id: string | null
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conectaios_plans: {
         Row: {
           created_at: string
@@ -642,6 +732,48 @@ export type Database = {
           views_count?: number | null
           visibility?: string | null
           zipcode?: string | null
+        }
+        Relationships: []
+      }
+      conectaios_tasks: {
+        Row: {
+          created_at: string
+          done: boolean | null
+          id: string
+          onde: string | null
+          porque: string | null
+          quando: string | null
+          quem: string | null
+          responsavel: string | null
+          txt: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          done?: boolean | null
+          id?: string
+          onde?: string | null
+          porque?: string | null
+          quando?: string | null
+          quem?: string | null
+          responsavel?: string | null
+          txt: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          done?: boolean | null
+          id?: string
+          onde?: string | null
+          porque?: string | null
+          quando?: string | null
+          quem?: string | null
+          responsavel?: string | null
+          txt?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
