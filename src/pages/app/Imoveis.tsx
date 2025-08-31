@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2 } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface Property {
@@ -30,10 +32,15 @@ interface Property {
 }
 
 export default function Imoveis() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -99,10 +106,20 @@ export default function Imoveis() {
   };
 
   const handleAddProperty = async () => {
+    if (!user) {
+      toast({
+        title: "Erro",
+        description: "Você precisa estar logado para adicionar imóveis",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('properties')
         .insert({
+          user_id: user.id,
           titulo: formData.titulo,
           valor: parseFloat(formData.valor),
           area: parseFloat(formData.area),
@@ -200,13 +217,23 @@ export default function Imoveis() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Imóveis
-          </h1>
-          <p className="text-muted-foreground">
-            Gerencie seu portfólio de imóveis
-          </p>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/app')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-primary">
+              Imóveis
+            </h1>
+            <p className="text-muted-foreground">
+              Gerencie seu portfólio de imóveis
+            </p>
+          </div>
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
@@ -275,6 +302,7 @@ export default function Imoveis() {
                     <SelectContent>
                       <SelectItem value="venda">Venda</SelectItem>
                       <SelectItem value="locacao">Locação</SelectItem>
+                      <SelectItem value="temporada">Temporada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -291,13 +319,49 @@ export default function Imoveis() {
               </div>
 
               <div>
-                <Label htmlFor="fotos">URLs das Fotos (separadas por vírgula)</Label>
-                <Textarea
-                  id="fotos"
-                  value={formData.fotos}
-                  onChange={(e) => setFormData({...formData, fotos: e.target.value})}
-                  placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg"
-                />
+                <Label htmlFor="fotos">Fotos do Imóvel</Label>
+                <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setUploadedImages(Array.from(e.target.files));
+                      }
+                    }}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label htmlFor="image-upload" className="cursor-pointer">
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-muted-foreground mb-2">Clique para selecionar fotos</p>
+                    <p className="text-xs text-muted-foreground">PNG, JPG até 10MB cada</p>
+                  </label>
+                  {uploadedImages.length > 0 && (
+                    <div className="mt-4">
+                      <p className="text-sm font-medium">{uploadedImages.length} foto(s) selecionada(s)</p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {uploadedImages.map((file, index) => (
+                          <div key={index} className="flex items-center gap-2 bg-muted rounded p-2">
+                            <FileImage className="h-4 w-4" />
+                            <span className="text-xs truncate max-w-20">{file.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2">
+                  <Label htmlFor="fotos-url">Ou URLs das Fotos (separadas por vírgula)</Label>
+                  <Textarea
+                    id="fotos-url"
+                    value={formData.fotos}
+                    onChange={(e) => setFormData({...formData, fotos: e.target.value})}
+                    placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg"
+                    rows={3}
+                  />
+                </div>
               </div>
 
               <div>
@@ -405,6 +469,19 @@ export default function Imoveis() {
                   )}
                 </div>
                 <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      setSelectedProperty(property);
+                      setIsDetailDialogOpen(true);
+                    }}
+                  >
+                    <Eye className="h-3 w-3" />
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Globe className="h-3 w-3" />
+                  </Button>
                   <Button variant="outline" size="sm">
                     <Edit className="h-3 w-3" />
                   </Button>
@@ -431,6 +508,104 @@ export default function Imoveis() {
           </p>
         </div>
       )}
+
+      {/* Property Detail Dialog */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedProperty?.titulo}</DialogTitle>
+            <DialogDescription>
+              Detalhes completos do imóvel
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProperty && (
+            <div className="space-y-6">
+              {/* Image Gallery */}
+              <div className="grid grid-cols-2 gap-4">
+                {selectedProperty.fotos?.map((foto, index) => (
+                  <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                    <img 
+                      src={foto} 
+                      alt={`Foto ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Property Details */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Informações Básicas</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Valor:</span>
+                        <span className="font-semibold">R$ {selectedProperty.valor?.toLocaleString('pt-BR')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Área:</span>
+                        <span>{selectedProperty.area}m²</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Quartos:</span>
+                        <span>{selectedProperty.quartos}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Banheiros:</span>
+                        <span>{selectedProperty.bathrooms}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Garagem:</span>
+                        <span>{selectedProperty.parking_spots}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Tipo:</span>
+                        <span>{selectedProperty.listing_type === 'venda' ? 'Venda' : selectedProperty.listing_type === 'locacao' ? 'Locação' : 'Temporada'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Ações</h3>
+                    <div className="space-y-2">
+                      <Button className="w-full" variant="outline">
+                        <Globe className="h-4 w-4 mr-2" />
+                        Gerar Mini Site
+                      </Button>
+                      <Button className="w-full" variant="outline">
+                        <Edit className="h-4 w-4 mr-2" />
+                        Editar Imóvel
+                      </Button>
+                      <Button 
+                        className="w-full" 
+                        variant="destructive"
+                        onClick={() => {
+                          handleDeleteProperty(selectedProperty.id);
+                          setIsDetailDialogOpen(false);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Excluir Imóvel
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Description */}
+              {selectedProperty.descricao && (
+                <div>
+                  <h3 className="font-semibold mb-2">Descrição</h3>
+                  <p className="text-muted-foreground">{selectedProperty.descricao}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

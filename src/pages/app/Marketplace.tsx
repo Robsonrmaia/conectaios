@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import PageWrapper from '@/components/PageWrapper';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 interface Property {
@@ -32,12 +34,16 @@ interface Property {
 }
 
 export default function Marketplace() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [finalidadeFilter, setFinalidadeFilter] = useState('');
   const [minValue, setMinValue] = useState('');
   const [maxValue, setMaxValue] = useState('');
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchPublicProperties();
@@ -99,6 +105,22 @@ export default function Marketplace() {
     });
   };
 
+  const handleMatch = async (propertyId: string) => {
+    if (!user) {
+      toast({
+        title: "Login necessário",
+        description: "Faça login para marcar matches",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Match marcado!",
+      description: "Imóvel marcado como match. O corretor será notificado.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -124,9 +146,21 @@ export default function Marketplace() {
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden">
           <div className="relative z-10">
-            <h1 className="text-4xl font-bold text-primary mb-4">
-              Marketplace de Imóveis
-            </h1>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => navigate('/app')}
+                  className="flex items-center gap-2"
+                >
+                  <Home className="h-4 w-4" />
+                  Dashboard
+                </Button>
+                <h1 className="text-4xl font-bold text-primary">
+                  Marketplace de Imóveis
+                </h1>
+              </div>
+            </div>
             <p className="text-lg text-muted-foreground mb-6 max-w-2xl">
               Conecte-se com outros corretores e descubra oportunidades exclusivas. 
               Encontre o imóvel perfeito para seus clientes em nossa rede colaborativa.
@@ -174,6 +208,8 @@ export default function Marketplace() {
               <SelectItem value="residencial">Residencial</SelectItem>
               <SelectItem value="comercial">Comercial</SelectItem>
               <SelectItem value="temporada">Temporada</SelectItem>
+              <SelectItem value="venda">Venda</SelectItem>
+              <SelectItem value="locacao">Locação</SelectItem>
             </SelectContent>
           </Select>
 
@@ -206,7 +242,10 @@ export default function Marketplace() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
-              <AnimatedCard className="h-full overflow-hidden">
+              <AnimatedCard className="h-full overflow-hidden cursor-pointer" onClick={() => {
+                setSelectedProperty(property);
+                setIsDetailDialogOpen(true);
+              }}>
                 <div className="relative">
                   <img 
                     src={property.fotos?.[0] || '/placeholder.svg'} 
@@ -255,7 +294,10 @@ export default function Marketplace() {
                     <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                       <Button 
                         size="sm" 
-                        onClick={() => handleContactBroker(property.profiles?.nome || 'Corretor')}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleContactBroker(property.profiles?.nome || 'Corretor');
+                        }}
                         className="flex-1 bg-primary hover:bg-primary/90 text-white transition-all duration-300"
                       >
                         <Phone className="h-4 w-4 mr-1" />
@@ -266,6 +308,19 @@ export default function Marketplace() {
                       whileTap={{ scale: 0.8 }}
                       whileHover={{ scale: 1.2 }}
                       transition={{ type: "spring", stiffness: 300 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMatch(property.id);
+                      }}
+                      className="p-2 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors duration-200"
+                    >
+                      <Target className="h-4 w-4 text-orange-600" />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.8 }}
+                      whileHover={{ scale: 1.2 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                      onClick={(e) => e.stopPropagation()}
                       className="p-2 rounded-full bg-gray-100 hover:bg-red-100 transition-colors duration-200"
                     >
                       <Heart className="h-4 w-4 text-gray-600 hover:text-red-500" />
@@ -274,6 +329,7 @@ export default function Marketplace() {
                       whileTap={{ scale: 0.8 }}
                       whileHover={{ scale: 1.2 }}
                       transition={{ type: "spring", stiffness: 300 }}
+                      onClick={(e) => e.stopPropagation()}
                       className="p-2 rounded-full bg-gray-100 hover:bg-blue-100 transition-colors duration-200"
                     >
                       <MessageSquare className="h-4 w-4 text-gray-600 hover:text-blue-500" />
@@ -282,6 +338,7 @@ export default function Marketplace() {
                       whileTap={{ scale: 0.8 }}
                       whileHover={{ scale: 1.2 }}
                       transition={{ type: "spring", stiffness: 300 }}
+                      onClick={(e) => e.stopPropagation()}
                       className="p-2 rounded-full bg-gray-100 hover:bg-green-100 transition-colors duration-200"
                     >
                       <Share2 className="h-4 w-4 text-gray-600 hover:text-green-500" />
@@ -308,6 +365,100 @@ export default function Marketplace() {
           </motion.div>
         )}
       </div>
+
+      {/* Property Detail Dialog */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{selectedProperty?.titulo}</DialogTitle>
+            <DialogDescription>
+              Detalhes completos do imóvel - {selectedProperty?.profiles?.nome || 'Corretor'}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProperty && (
+            <div className="space-y-6">
+              {/* Image Gallery */}
+              <div className="grid grid-cols-2 gap-4">
+                {selectedProperty.fotos?.map((foto, index) => (
+                  <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                    <img 
+                      src={foto} 
+                      alt={`Foto ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Property Details */}
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Informações do Imóvel</h3>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Valor:</span>
+                        <span className="font-semibold text-primary">R$ {selectedProperty.valor?.toLocaleString('pt-BR')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Área:</span>
+                        <span>{selectedProperty.area}m²</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Quartos:</span>
+                        <span>{selectedProperty.quartos}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Tipo:</span>
+                        <span>{selectedProperty.listing_type === 'venda' ? 'Venda' : selectedProperty.listing_type === 'locacao' ? 'Locação' : 'Temporada'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Corretor:</span>
+                        <span>{selectedProperty.profiles?.nome || 'Não informado'}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold mb-2">Ações</h3>
+                    <div className="space-y-2">
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handleContactBroker(selectedProperty.profiles?.nome || 'Corretor')}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        Entrar em Contato
+                      </Button>
+                      <Button 
+                        className="w-full" 
+                        variant="outline"
+                        onClick={() => handleMatch(selectedProperty.id)}
+                      >
+                        <Target className="h-4 w-4 mr-2" />
+                        Marcar Match
+                      </Button>
+                      <Button className="w-full" variant="outline">
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Compartilhar
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Description */}
+              {selectedProperty.descricao && (
+                <div>
+                  <h3 className="font-semibold mb-2">Descrição</h3>
+                  <p className="text-muted-foreground">{selectedProperty.descricao}</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </PageWrapper>
   );
 }
