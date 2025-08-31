@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { FavoritesManager } from '@/components/FavoritesManager';
+import { ShareButton } from '@/components/ShareButton';
 
 interface Property {
   id: string;
@@ -29,6 +31,7 @@ interface Property {
   fotos: string[];
   videos: string[];
   created_at: string;
+  reference_code?: string;
 }
 
 export default function Imoveis() {
@@ -90,7 +93,8 @@ export default function Imoveis() {
         descricao: prop.descricao,
         fotos: prop.fotos || [],
         videos: prop.videos || [],
-        created_at: prop.created_at
+        created_at: prop.created_at,
+        reference_code: prop.reference_code
       }));
       
       setProperties(mappedData);
@@ -453,10 +457,19 @@ export default function Imoveis() {
             </div>
             
             <CardHeader>
-              <CardTitle className="text-lg">{property.titulo}</CardTitle>
-              <CardDescription>
-                {property.descricao && property.descricao.substring(0, 100)}...
-              </CardDescription>
+              <div className="flex justify-between items-start">
+                <div>
+                  <CardTitle className="text-lg">{property.titulo}</CardTitle>
+                  <CardDescription>
+                    {property.descricao && property.descricao.substring(0, 100)}...
+                  </CardDescription>
+                </div>
+                {property.reference_code && (
+                  <Badge variant="outline" className="text-xs">
+                    {property.reference_code}
+                  </Badge>
+                )}
+              </div>
             </CardHeader>
             
             <CardContent className="space-y-4">
@@ -489,28 +502,39 @@ export default function Imoveis() {
                       Oculto
                     </Badge>
                   )}
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Bath className="h-3 w-3" />
+                    {property.bathrooms} | <Car className="h-3 w-3" /> {property.parking_spots}
+                  </div>
                 </div>
-                <div className="flex gap-1">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      setSelectedProperty(property);
-                      setIsDetailDialogOpen(true);
-                    }}
-                  >
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleDeleteProperty(property.id)}
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
+                <div className="text-right space-y-2">
+                  {property.reference_code && (
+                    <Badge variant="outline" className="text-xs font-mono">
+                      {property.reference_code}
+                    </Badge>
+                  )}
+                  <div className="flex gap-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedProperty(property);
+                        setIsDetailDialogOpen(true);
+                      }}
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDeleteProperty(property.id)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>

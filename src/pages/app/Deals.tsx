@@ -383,10 +383,27 @@ export default function Deals() {
             </div>
 
             {proposalData.offerAmount && (
-              <div className="p-3 bg-muted rounded-lg">
-                <div className="text-sm text-muted-foreground">Comissão estimada:</div>
-                <div className="text-lg font-semibold text-primary">
-                  R$ {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) / 100).toLocaleString('pt-BR')}
+              <div className="p-3 bg-muted rounded-lg space-y-2">
+                <div className="text-sm text-muted-foreground">Rateio de Comissão:</div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Corretor Comprador ({proposalData.commissionPercent}%):</span>
+                    <span className="font-semibold">
+                      R$ {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) / 100).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Corretor Vendedor ({proposalData.commissionPercent}%):</span>
+                    <span className="font-semibold">
+                      R$ {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) / 100).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
+                  <div className="border-t pt-1 flex justify-between text-sm font-bold">
+                    <span>Total da Comissão:</span>
+                    <span className="text-primary">
+                      R$ {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) * 2 / 100).toLocaleString('pt-BR')}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}

@@ -14,9 +14,12 @@ import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/components/ui/use-toast';
+import { FavoritesManager } from '@/components/FavoritesManager';
+import { ShareButton } from '@/components/ShareButton';
 
 interface BrokerProfile {
   id: string;
+  user_id: string;
   name: string;
   email: string;
   phone: string;
@@ -391,9 +394,15 @@ export default function BrokerMinisite() {
                             {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
                           </Badge>
                         </div>
-                        <button className="absolute top-3 right-3 p-2 bg-white/90 rounded-full hover:bg-white transition-colors">
-                          <Heart className="h-4 w-4" />
-                        </button>
+                        <div className="absolute top-3 right-3 flex gap-1">
+                          <ShareButton 
+                            propertyId={property.id}
+                            propertyTitle={property.titulo}
+                            ownerUserId={broker?.user_id}
+                            isOwner={true}
+                          />
+                          <FavoritesManager propertyId={property.id} />
+                        </div>
                       </div>
                       
                       <CardContent className="p-4">
@@ -460,8 +469,8 @@ export default function BrokerMinisite() {
                       onClick={openWhatsApp}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
-                      <Phone className="h-4 w-4 mr-2" />
-                      WhatsApp
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Conversar Online
                     </Button>
                   )}
                   

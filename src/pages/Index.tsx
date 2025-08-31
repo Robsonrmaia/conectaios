@@ -2,6 +2,10 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -191,7 +195,60 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Partnerships Section */}
+          {/* Assinatura Digital */}
+          <div className="mt-16">
+            <h2 className="text-3xl font-bold text-center mb-8">Seja Nosso Parceiro</h2>
+            <Card className="max-w-2xl mx-auto">
+              <CardHeader>
+                <CardTitle className="text-center">Cadastre-se como Corretor</CardTitle>
+                <CardDescription className="text-center">
+                  Tenha acesso completo à plataforma e comece a vender mais
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="broker-name">Nome Completo</Label>
+                      <Input id="broker-name" placeholder="Seu nome completo" />
+                    </div>
+                    <div>
+                      <Label htmlFor="broker-email">E-mail</Label>
+                      <Input id="broker-email" type="email" placeholder="seu@email.com" />
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="broker-phone">Telefone</Label>
+                      <Input id="broker-phone" placeholder="(11) 99999-9999" />
+                    </div>
+                    <div>
+                      <Label htmlFor="broker-creci">CRECI</Label>
+                      <Input id="broker-creci" placeholder="12345-J" />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="broker-bio">Apresentação</Label>
+                    <Textarea id="broker-bio" placeholder="Conte um pouco sobre sua experiência..." />
+                  </div>
+                  
+                  <div className="text-center pt-4">
+                    <Button 
+                      size="lg"
+                      className="bg-primary hover:bg-primary/90 px-8"
+                    >
+                      Começar Gratuitamente
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Integração com Asaas para pagamentos • Teste grátis por 30 dias
+                    </p>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
           {partnerships.length > 0 && (
             <div className="mt-16">
               <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>

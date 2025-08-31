@@ -7,10 +7,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
-import { Building2, MapPin, Bed, Bath, Car, Calendar, Share2, Phone, Mail, User, Heart, ArrowLeft } from 'lucide-react';
+import { Building2, MapPin, Bed, Bath, Car, Calendar, Share2, Phone, Mail, User, Heart, ArrowLeft, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { FavoritesManager } from '@/components/FavoritesManager';
+import { ShareButton } from '@/components/ShareButton';
 
 interface Property {
   id: string;
@@ -37,6 +39,7 @@ interface Property {
     email: string;
     avatar_url?: string;
     creci?: string;
+    user_id?: string;
   };
 }
 
@@ -73,7 +76,7 @@ export default function PropertyDetail() {
       // Then get the broker info
       const { data: brokerData, error: brokerError } = await supabase
         .from('brokers')
-        .select('name, phone, email, avatar_url, creci')
+        .select('name, phone, email, avatar_url, creci, user_id')
         .eq('user_id', propertyData.user_id)
         .single();
 
@@ -225,13 +228,12 @@ export default function PropertyDetail() {
               </Link>
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={shareProperty}>
-                <Share2 className="h-4 w-4 mr-2" />
-                Compartilhar
-              </Button>
-              <Button variant="outline" size="sm">
-                <Heart className="h-4 w-4" />
-              </Button>
+              <ShareButton 
+                propertyId={property.id}
+                propertyTitle={property.titulo}
+                ownerUserId={property.brokers?.user_id}
+              />
+              <FavoritesManager propertyId={property.id} />
             </div>
           </div>
         </div>
@@ -418,13 +420,13 @@ export default function PropertyDetail() {
                   
                   <div className="space-y-2">
                     {property.brokers.phone && (
-                      <Button
-                        onClick={openWhatsApp}
-                        className="w-full bg-green-600 hover:bg-green-700"
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        WhatsApp: {property.brokers.phone}
-                      </Button>
+                    <Button
+                      onClick={openWhatsApp}
+                      className="w-full bg-green-600 hover:bg-green-700"
+                    >
+                      <MessageSquare className="h-4 w-4 mr-2" />
+                      Conversar Online
+                    </Button>
                     )}
                     
                     <Button variant="outline" className="w-full">
