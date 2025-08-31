@@ -331,11 +331,13 @@ export type Database = {
       properties: {
         Row: {
           area: number | null
+          broker_minisite_enabled: boolean | null
           created_at: string
           descricao: string | null
           finalidade: string | null
           fotos: string[] | null
           id: string
+          is_public: boolean | null
           quartos: number | null
           titulo: string
           updated_at: string
@@ -345,11 +347,13 @@ export type Database = {
         }
         Insert: {
           area?: number | null
+          broker_minisite_enabled?: boolean | null
           created_at?: string
           descricao?: string | null
           finalidade?: string | null
           fotos?: string[] | null
           id?: string
+          is_public?: boolean | null
           quartos?: number | null
           titulo: string
           updated_at?: string
@@ -359,11 +363,13 @@ export type Database = {
         }
         Update: {
           area?: number | null
+          broker_minisite_enabled?: boolean | null
           created_at?: string
           descricao?: string | null
           finalidade?: string | null
           fotos?: string[] | null
           id?: string
+          is_public?: boolean | null
           quartos?: number | null
           titulo?: string
           updated_at?: string

@@ -11,6 +11,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
 import Imoveis from "./pages/app/Imoveis";
+import Marketplace from "./pages/app/Marketplace";
+import Minisite from "./pages/app/Minisite";
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";
@@ -58,6 +60,8 @@ const App = () => (
                   <Routes>
                     <Route index element={<Dashboard />} />
                     <Route path="imoveis" element={<Imoveis />} />
+                    <Route path="marketplace" element={<Marketplace />} />
+                    <Route path="minisite/:brokerId" element={<Minisite />} />
                     <Route path="match" element={<Match />} />
                     <Route path="deals" element={<Deals />} />
                     <Route path="inbox" element={<Inbox />} />

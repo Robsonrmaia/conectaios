@@ -36,14 +36,19 @@ const navigationItems = [
     exact: true,
   },
   {
-    title: 'Imóveis',
+    title: 'Meus Imóveis',
     url: '/app/imoveis',
     icon: Building2,
   },
   {
+    title: 'Marketplace',
+    url: '/app/marketplace',
+    icon: Search,
+  },
+  {
     title: 'Match',
     url: '/app/match',
-    icon: Search,
+    icon: HandHeart,
   },
   {
     title: 'Negociações',
