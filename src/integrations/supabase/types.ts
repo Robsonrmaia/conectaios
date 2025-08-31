@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          broker_id: string | null
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          broker_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          broker_id?: string | null
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       banners: {
         Row: {
           created_at: string
@@ -261,10 +303,14 @@ export type Database = {
           documents: string[] | null
           historico: Json | null
           id: string
+          last_contact_at: string | null
           nome: string
           opp: string | null
           photo: string | null
+          pipeline_id: string | null
           responsavel: string | null
+          score: number | null
+          stage: string | null
           telefone: string
           tipo: string
           updated_at: string
@@ -277,10 +323,14 @@ export type Database = {
           documents?: string[] | null
           historico?: Json | null
           id?: string
+          last_contact_at?: string | null
           nome: string
           opp?: string | null
           photo?: string | null
+          pipeline_id?: string | null
           responsavel?: string | null
+          score?: number | null
+          stage?: string | null
           telefone: string
           tipo: string
           updated_at?: string
@@ -293,17 +343,29 @@ export type Database = {
           documents?: string[] | null
           historico?: Json | null
           id?: string
+          last_contact_at?: string | null
           nome?: string
           opp?: string | null
           photo?: string | null
+          pipeline_id?: string | null
           responsavel?: string | null
+          score?: number | null
+          stage?: string | null
           telefone?: string
           tipo?: string
           updated_at?: string
           user_id?: string | null
           valor?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contacts: {
         Row: {
@@ -547,6 +609,53 @@ export type Database = {
         }
         Relationships: []
       }
+      media: {
+        Row: {
+          created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          is_cover: boolean | null
+          property_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          is_cover?: boolean | null
+          property_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          is_cover?: boolean | null
+          property_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "media_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           broker_id: string | null
@@ -623,6 +732,41 @@ export type Database = {
           },
         ]
       }
+      notes: {
+        Row: {
+          client_id: string | null
+          content: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          client_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notes_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partnerships: {
         Row: {
           created_at: string
@@ -650,6 +794,36 @@ export type Database = {
           logo_url?: string
           name?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      pipelines: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          stages: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          stages?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          stages?: Json
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -764,9 +938,12 @@ export type Database = {
         Row: {
           created_at: string
           descricao: string | null
+          documents: string[] | null
+          historico: Json | null
           id: string
           notebooklm: string | null
           people: Json | null
+          photos: string[] | null
           prop_id: string | null
           status: string
           tags: string[] | null
@@ -778,9 +955,12 @@ export type Database = {
         Insert: {
           created_at?: string
           descricao?: string | null
+          documents?: string[] | null
+          historico?: Json | null
           id?: string
           notebooklm?: string | null
           people?: Json | null
+          photos?: string[] | null
           prop_id?: string | null
           status?: string
           tags?: string[] | null
@@ -792,9 +972,12 @@ export type Database = {
         Update: {
           created_at?: string
           descricao?: string | null
+          documents?: string[] | null
+          historico?: Json | null
           id?: string
           notebooklm?: string | null
           people?: Json | null
+          photos?: string[] | null
           prop_id?: string | null
           status?: string
           tags?: string[] | null
@@ -829,7 +1012,9 @@ export type Database = {
           fotos: string[] | null
           id: string
           iptu: number | null
+          is_featured: boolean | null
           is_public: boolean | null
+          last_viewed_at: string | null
           listing_type: string | null
           neighborhood: string | null
           parking_spots: number | null
@@ -842,6 +1027,7 @@ export type Database = {
           user_id: string | null
           valor: number | null
           videos: string[] | null
+          views_count: number | null
           visibility: string | null
           zipcode: string | null
         }
@@ -860,7 +1046,9 @@ export type Database = {
           fotos?: string[] | null
           id?: string
           iptu?: number | null
+          is_featured?: boolean | null
           is_public?: boolean | null
+          last_viewed_at?: string | null
           listing_type?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
@@ -873,6 +1061,7 @@ export type Database = {
           user_id?: string | null
           valor?: number | null
           videos?: string[] | null
+          views_count?: number | null
           visibility?: string | null
           zipcode?: string | null
         }
@@ -891,7 +1080,9 @@ export type Database = {
           fotos?: string[] | null
           id?: string
           iptu?: number | null
+          is_featured?: boolean | null
           is_public?: boolean | null
+          last_viewed_at?: string | null
           listing_type?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
@@ -904,6 +1095,7 @@ export type Database = {
           user_id?: string | null
           valor?: number | null
           videos?: string[] | null
+          views_count?: number | null
           visibility?: string | null
           zipcode?: string | null
         }
@@ -1046,6 +1238,60 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          asaas_customer_id: string | null
+          asaas_subscription_id: string | null
+          broker_id: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          asaas_subscription_id?: string | null
+          broker_id?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          asaas_subscription_id?: string | null
+          broker_id?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
