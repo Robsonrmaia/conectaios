@@ -1,12 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe, ExternalLink } from 'lucide-react';
+import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe, ExternalLink, Home } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { toast } from '@/components/ui/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { broker } = useBroker();
+  const navigate = useNavigate();
 
   const handleMinisiteAccess = () => {
     if (broker) {
@@ -41,12 +43,21 @@ const Dashboard = () => {
           </p>
         </div>
         
-        {/* Minisite Actions */}
+        {/* Actions */}
         <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Voltar ao Site
+          </Button>
           <Button 
             variant="outline"
             onClick={copyMinisiteUrl}
             className="flex items-center gap-2"
+            disabled={!broker}
           >
             <Globe className="h-4 w-4" />
             Copiar URL do Minisite
@@ -54,6 +65,7 @@ const Dashboard = () => {
           <Button 
             onClick={handleMinisiteAccess}
             className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2"
+            disabled={!broker}
           >
             <ExternalLink className="h-4 w-4" />
             Ver Meu Minisite
