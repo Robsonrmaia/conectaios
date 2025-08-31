@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from "@/hooks/useAuth";
+import { useBroker } from "@/hooks/useBroker";
+import { Navigate } from "react-router-dom";
+import BrokerSetup from "./BrokerSetup";
 import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
@@ -8,16 +9,10 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const { broker, loading: brokerLoading } = useBroker();
 
-  useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    }
-  }, [user, loading, navigate]);
-
-  if (loading) {
+  if (authLoading || brokerLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -29,7 +24,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    return null;
+    return <Navigate to="/auth" replace />;
+  }
+
+  // If user exists but no broker profile, show setup
+  if (user && !broker) {
+    return <BrokerSetup />;
   }
 
   return <>{children}</>;

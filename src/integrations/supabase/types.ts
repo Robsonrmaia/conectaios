@@ -549,47 +549,76 @@ export type Database = {
       }
       messages: {
         Row: {
+          broker_id: string | null
           content: string
           created_at: string
+          file_url: string | null
           id: string
           is_read: boolean | null
           mentions: string[] | null
+          message_type: string | null
           parent_message_id: string | null
+          read_by: string[] | null
           recipient_name: string | null
           sender_name: string
+          thread_id: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          broker_id?: string | null
           content: string
           created_at?: string
+          file_url?: string | null
           id?: string
           is_read?: boolean | null
           mentions?: string[] | null
+          message_type?: string | null
           parent_message_id?: string | null
+          read_by?: string[] | null
           recipient_name?: string | null
           sender_name: string
+          thread_id?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          broker_id?: string | null
           content?: string
           created_at?: string
+          file_url?: string | null
           id?: string
           is_read?: boolean | null
           mentions?: string[] | null
+          message_type?: string | null
           parent_message_id?: string | null
+          read_by?: string[] | null
           recipient_name?: string | null
           sender_name?: string
+          thread_id?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
+            foreignKeyName: "messages_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_parent_message_id_fkey"
             columns: ["parent_message_id"]
             isOneToOne: false
             referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "threads"
             referencedColumns: ["id"]
           },
         ]

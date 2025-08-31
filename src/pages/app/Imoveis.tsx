@@ -18,12 +18,14 @@ interface Property {
   valor: number;
   area: number;
   quartos: number;
-  finalidade: string;
+  bathrooms: number;
+  parking_spots: number;
+  listing_type: string;
+  property_type: string;
+  visibility: string;
   descricao: string;
   fotos: string[];
   videos: string[];
-  is_public: boolean;
-  broker_minisite_enabled: boolean;
   created_at: string;
 }
 
@@ -37,12 +39,19 @@ export default function Imoveis() {
     valor: '',
     area: '',
     quartos: '',
-    finalidade: 'venda',
+    bathrooms: '',
+    parking_spots: '',
+    listing_type: 'venda',
+    property_type: 'apartamento',
+    visibility: 'public_site',
     descricao: '',
     fotos: '',
     videos: '',
-    is_public: true,
-    broker_minisite_enabled: false
+    address: '',
+    neighborhood: '',
+    city: '',
+    condominium_fee: '',
+    iptu: ''
   });
 
   useEffect(() => {
@@ -53,7 +62,22 @@ export default function Imoveis() {
     try {
       const { data, error } = await supabase
         .from('properties')
-        .select('*')
+        .select(`
+          id,
+          titulo,
+          valor,
+          area,
+          quartos,
+          bathrooms,
+          parking_spots,
+          listing_type,
+          property_type,
+          visibility,
+          descricao,
+          fotos,
+          videos,
+          created_at
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -79,12 +103,19 @@ export default function Imoveis() {
           valor: parseFloat(formData.valor),
           area: parseFloat(formData.area),
           quartos: parseInt(formData.quartos),
-          finalidade: formData.finalidade,
+          bathrooms: parseInt(formData.bathrooms) || 0,
+          parking_spots: parseInt(formData.parking_spots) || 0,
+          listing_type: formData.listing_type,
+          property_type: formData.property_type,
+          visibility: formData.visibility,
           descricao: formData.descricao,
           fotos: formData.fotos ? formData.fotos.split(',').map(f => f.trim()) : [],
           videos: formData.videos ? formData.videos.split(',').map(v => v.trim()) : [],
-          is_public: formData.is_public,
-          broker_minisite_enabled: formData.broker_minisite_enabled
+          address: formData.address,
+          neighborhood: formData.neighborhood,
+          city: formData.city,
+          condominium_fee: formData.condominium_fee ? parseFloat(formData.condominium_fee) : null,
+          iptu: formData.iptu ? parseFloat(formData.iptu) : null
         });
 
       if (error) throw error;
@@ -100,12 +131,19 @@ export default function Imoveis() {
         valor: '',
         area: '',
         quartos: '',
-        finalidade: 'venda',
+        bathrooms: '',
+        parking_spots: '',
+        listing_type: 'venda',
+        property_type: 'apartamento',
+        visibility: 'public_site',
         descricao: '',
         fotos: '',
         videos: '',
-        is_public: true,
-        broker_minisite_enabled: false
+        address: '',
+        neighborhood: '',
+        city: '',
+        condominium_fee: '',
+        iptu: ''
       });
       fetchProperties();
     } catch (error) {
@@ -225,8 +263,8 @@ export default function Imoveis() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="finalidade">Finalidade</Label>
-                  <Select value={formData.finalidade} onValueChange={(value) => setFormData({...formData, finalidade: value})}>
+                  <Label htmlFor="listing_type">Finalidade</Label>
+                  <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -270,20 +308,11 @@ export default function Imoveis() {
 
               <div className="flex items-center space-x-2">
                 <Switch
-                  id="is_public"
-                  checked={formData.is_public}
-                  onCheckedChange={(checked) => setFormData({...formData, is_public: checked})}
+                  id="visibility"
+                  checked={formData.visibility === 'public_site'}
+                  onCheckedChange={(checked) => setFormData({...formData, visibility: checked ? 'public_site' : 'hidden'})}
                 />
-                <Label htmlFor="is_public">Visível no Marketplace</Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="broker_minisite_enabled"
-                  checked={formData.broker_minisite_enabled}
-                  onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
-                />
-                <Label htmlFor="broker_minisite_enabled">Habilitar Minisite do Corretor</Label>
+                <Label htmlFor="visibility">Visível no Marketplace</Label>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -333,9 +362,9 @@ export default function Imoveis() {
               )}
               <div className="absolute top-3 right-3 flex gap-2">
                 <Badge className="bg-primary/90 text-primary-foreground">
-                  {property.finalidade === 'venda' ? 'Venda' : 'Locação'}
+                  {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
                 </Badge>
-                {property.is_public && (
+                {property.visibility === 'public_site' && (
                   <Badge variant="secondary">Público</Badge>
                 )}
               </div>
@@ -366,8 +395,9 @@ export default function Imoveis() {
 
               <div className="flex justify-between items-center">
                 <div className="flex gap-1">
-                  {property.broker_minisite_enabled && (
-                    <Badge variant="outline" className="text-xs">Minisite</Badge>
+                  <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
+                  {property.visibility === 'public_site' && (
+                    <Badge variant="outline" className="text-xs">Marketplace</Badge>
                   )}
                 </div>
                 <div className="flex gap-2">
