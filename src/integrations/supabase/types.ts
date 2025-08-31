@@ -402,6 +402,141 @@ export type Database = {
           },
         ]
       }
+      conectaios_brokers: {
+        Row: {
+          asaas_customer_id: string | null
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string
+          creci: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          plan_id: string | null
+          referral_code: string | null
+          region_id: string | null
+          status: string
+          subscription_expires_at: string | null
+          subscription_status: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creci?: string | null
+          email: string
+          id?: string
+          name: string
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          creci?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      conectaios_plans: {
+        Row: {
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          match_limit: number
+          name: string
+          price: number
+          property_limit: number
+          slug: string
+          thread_limit: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_limit?: number
+          name: string
+          price?: number
+          property_limit?: number
+          slug: string
+          thread_limit?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_limit?: number
+          name?: string
+          price?: number
+          property_limit?: number
+          slug?: string
+          thread_limit?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      conectaios_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          nome: string
+          role: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nome: string
+          role?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nome?: string
+          role?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
