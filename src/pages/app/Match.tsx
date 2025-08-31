@@ -75,7 +75,7 @@ export default function Match() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="text-center">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold text-primary">
           Match IA
         </h1>
         <p className="text-muted-foreground">
@@ -162,7 +162,7 @@ export default function Match() {
               </Button>
               <Button
                 size="lg"
-                className="flex-1 bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+                className="flex-1 bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 onClick={handleLike}
               >
                 <Heart className="h-5 w-5 mr-2" />

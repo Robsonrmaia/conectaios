@@ -239,7 +239,7 @@ export default function Minisite() {
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <Building2 className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+            <span className="font-bold text-lg text-primary">
               ConectaIOS
             </span>
           </div>

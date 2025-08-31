@@ -49,7 +49,7 @@ const Index = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Building2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+            <span className="text-2xl font-bold text-primary">
               ConectaIOS
             </span>
           </div>
@@ -68,7 +68,7 @@ const Index = () => {
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
             A plataforma dos{' '}
-            <span className="bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+            <span className="text-primary font-semibold">
               corretores de Ilhéus
             </span>
           </h1>
@@ -82,7 +82,7 @@ const Index = () => {
             <Button 
               size="lg"
               onClick={() => navigate('/auth')}
-              className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 text-lg px-8 py-6"
+              className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 transition-all duration-300 hover:scale-105 hover:shadow-lg"
             >
               Começar Agora
               <ArrowRight className="ml-2 h-5 w-5" />

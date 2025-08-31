@@ -83,7 +83,7 @@ const Auth = () => {
           <CardHeader className="text-center space-y-4">
             <div className="flex items-center justify-center space-x-2">
               <Building2 className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold text-primary">
                 ConectaIOS
               </h1>
             </div>
@@ -138,7 +138,7 @@ const Auth = () => {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+                    className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     disabled={loading}
                   >
                     {loading ? 'Entrando...' : 'Entrar'}
@@ -231,7 +231,7 @@ const Auth = () => {
 
                   <Button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+                    className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     disabled={loading}
                   >
                     {loading ? 'Criando conta...' : 'Criar Conta'}

@@ -92,7 +92,7 @@ export default function Perfil() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-primary">
             Meu Perfil
           </h1>
           <p className="text-muted-foreground">
@@ -226,7 +226,7 @@ export default function Perfil() {
                     rows={3}
                   />
                 </div>
-                <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+                <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
                   Salvar Alterações
                 </Button>
               </CardContent>

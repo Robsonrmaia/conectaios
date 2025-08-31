@@ -215,7 +215,7 @@ export default function Patrocinios() {
             ))}
           </div>
 
-          <Button className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+          <Button className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
             Patrocinar Imóvel
           </Button>
         </CardContent>
@@ -227,14 +227,14 @@ export default function Patrocinios() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-primary">
             Patrocínios
           </h1>
           <p className="text-muted-foreground">
             Patrocine imóveis para aumentar sua visibilidade e gerar mais leads
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+        <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
           <Plus className="h-4 w-4 mr-2" />
           Novo Patrocínio
         </Button>

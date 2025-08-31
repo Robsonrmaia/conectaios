@@ -227,7 +227,7 @@ export default function AIAssistant() {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     msg.type === 'user' 
                       ? 'bg-primary text-primary-foreground' 
-                      : 'bg-gradient-to-r from-primary to-brand-secondary text-white'
+                      : 'bg-primary text-white'
                   }`}>
                     {msg.type === 'user' ? (
                       <span className="text-sm font-semibold">Eu</span>
@@ -267,7 +267,7 @@ export default function AIAssistant() {
               onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
               className="flex-1"
             />
-            <Button onClick={handleSendMessage} className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+            <Button onClick={handleSendMessage} className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
               <Send className="h-4 w-4" />
             </Button>
           </div>
