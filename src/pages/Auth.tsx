@@ -22,7 +22,7 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate('/app');
+      navigate('/app/marketplace');
     }
   }, [user, navigate]);
 

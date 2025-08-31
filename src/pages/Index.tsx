@@ -1,18 +1,46 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [banners, setBanners] = useState<any[]>([]);
+  const [partnerships, setPartnerships] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
-      navigate('/app');
+      navigate('/app/marketplace');
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    fetchBanners();
+    fetchPartnerships();
+  }, []);
+
+  const fetchBanners = async () => {
+    const { data } = await supabase
+      .from('banners')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order');
+    
+    if (data) setBanners(data);
+  };
+
+  const fetchPartnerships = async () => {
+    const { data } = await supabase
+      .from('partnerships')
+      .select('*')
+      .eq('is_active', true)
+      .limit(8);
+    
+    if (data) setPartnerships(data);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
@@ -67,6 +95,38 @@ const Index = () => {
               Saiba Mais
             </Button>
           </div>
+
+          {/* Banners Section */}
+          {banners.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-center mb-8">Destaques & Empreendimentos</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {banners.map((banner) => (
+                  <div key={banner.id} className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg transition-shadow">
+                    <img 
+                      src={banner.image_url} 
+                      alt={banner.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="p-6">
+                      <h3 className="text-xl font-semibold mb-2">{banner.title}</h3>
+                      {banner.link_url && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => window.open(banner.link_url, '_blank')}
+                          className="w-full"
+                        >
+                          Ver mais
+                          <ExternalLink className="ml-2 h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
@@ -130,6 +190,34 @@ const Index = () => {
               </p>
             </div>
           </div>
+
+          {/* Partnerships Section */}
+          {partnerships.length > 0 && (
+            <div className="mt-16">
+              <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                {partnerships.map((partnership) => (
+                  <div key={partnership.id} className="text-center group">
+                    {partnership.logo_url ? (
+                      <div className="p-4 bg-card border rounded-lg hover:shadow-md transition-shadow">
+                        <img 
+                          src={partnership.logo_url} 
+                          alt={partnership.name}
+                          className="w-full h-16 object-contain grayscale group-hover:grayscale-0 transition-all"
+                        />
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-card border rounded-lg hover:shadow-md transition-shadow">
+                        <div className="w-full h-16 flex items-center justify-center">
+                          <span className="text-sm font-medium text-muted-foreground">{partnership.name}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
