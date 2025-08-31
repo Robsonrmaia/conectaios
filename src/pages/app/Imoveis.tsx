@@ -62,26 +62,30 @@ export default function Imoveis() {
     try {
       const { data, error } = await supabase
         .from('properties')
-        .select(`
-          id,
-          titulo,
-          valor,
-          area,
-          quartos,
-          bathrooms,
-          parking_spots,
-          listing_type,
-          property_type,
-          visibility,
-          descricao,
-          fotos,
-          videos,
-          created_at
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProperties(data || []);
+      
+      // Map the data to match our interface
+      const mappedData = (data || []).map(prop => ({
+        id: prop.id,
+        titulo: prop.titulo,
+        valor: prop.valor,
+        area: prop.area,
+        quartos: prop.quartos,
+        bathrooms: prop.bathrooms || 0,
+        parking_spots: prop.parking_spots || 0,
+        listing_type: prop.listing_type || 'venda',
+        property_type: prop.property_type || 'apartamento',
+        visibility: prop.visibility || 'public_site',
+        descricao: prop.descricao,
+        fotos: prop.fotos || [],
+        videos: prop.videos || [],
+        created_at: prop.created_at
+      }));
+      
+      setProperties(mappedData);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
