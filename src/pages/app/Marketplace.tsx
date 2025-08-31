@@ -79,7 +79,7 @@ export default function Marketplace() {
   const filteredProperties = properties.filter(property => {
     const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          property.descricao?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFinalidade = !finalidadeFilter || property.finalidade === finalidadeFilter;
+    const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.finalidade === finalidadeFilter;
     const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
     const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
 
@@ -135,7 +135,7 @@ export default function Marketplace() {
             <SelectValue placeholder="Finalidade" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas</SelectItem>
+            <SelectItem value="todas">Todas</SelectItem>
             <SelectItem value="venda">Venda</SelectItem>
             <SelectItem value="locacao">Locação</SelectItem>
           </SelectContent>
