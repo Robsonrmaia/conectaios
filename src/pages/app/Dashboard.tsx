@@ -5,10 +5,21 @@ import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe,
 import { useBroker } from '@/hooks/useBroker';
 import { toast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { formatCurrency } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Dashboard = () => {
   const { broker } = useBroker();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [stats, setStats] = useState({
+    properties: 0,
+    clients: 0,
+    messages: 0,
+    deals: 0
+  });
 
   const handleMinisiteAccess = () => {
     if (broker) {
@@ -29,6 +40,43 @@ const Dashboard = () => {
         title: "URL copiada",
         description: "URL do seu minisite copiada para a área de transferência",
       });
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchStats();
+    }
+  }, [user]);
+
+  const fetchStats = async () => {
+    try {
+      // Fetch properties count
+      const { count: propertiesCount } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+
+      // Fetch clients count
+      const { count: clientsCount } = await supabase
+        .from('clients')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user?.id);
+
+      // Fetch deals count
+      const { count: dealsCount } = await supabase
+        .from('deals')
+        .select('*', { count: 'exact', head: true })
+        .or(`buyer_broker_id.eq.${user?.id},seller_broker_id.eq.${user?.id},listing_broker_id.eq.${user?.id}`);
+
+      setStats({
+        properties: propertiesCount || 0,
+        clients: clientsCount || 0,
+        messages: 156, // Mock data
+        deals: dealsCount || 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
   };
 
@@ -57,7 +105,6 @@ const Dashboard = () => {
             variant="outline"
             onClick={copyMinisiteUrl}
             className="flex items-center gap-2"
-            disabled={!broker}
           >
             <Globe className="h-4 w-4" />
             Copiar URL do Minisite
@@ -65,7 +112,6 @@ const Dashboard = () => {
           <Button 
             onClick={handleMinisiteAccess}
             className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2"
-            disabled={!broker}
           >
             <ExternalLink className="h-4 w-4" />
             Ver Meu Minisite
@@ -75,54 +121,66 @@ const Dashboard = () => {
 
       {/* KPIs */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate('/app/imoveis')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Imóveis Ativos</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            <div className="text-2xl font-bold">{stats.properties}</div>
             <p className="text-xs text-muted-foreground">
-              +2 desde ontem
+              Clique para gerenciar
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate('/app/crm')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Clientes Ativos</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">18</div>
+            <div className="text-2xl font-bold">{stats.clients}</div>
             <p className="text-xs text-muted-foreground">
-              +4 esta semana
+              Clique para ver CRM
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate('/app/inbox')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Mensagens</CardTitle>
             <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            <div className="text-2xl font-bold">{stats.messages}</div>
             <p className="text-xs text-muted-foreground">
-              +12 hoje
+              Clique para abrir
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => navigate('/app/deals')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Negociações</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">7</div>
+            <div className="text-2xl font-bold">{stats.deals}</div>
             <p className="text-xs text-muted-foreground">
-              3 em andamento
+              Clique para ver todas
             </p>
           </CardContent>
         </Card>
@@ -135,7 +193,10 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="bg-gradient-to-br from-primary/10 to-brand-secondary/10 border-primary/20">
+            <Card 
+              className="bg-gradient-to-br from-primary/10 to-brand-secondary/10 border-primary/20 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/app/marketplace')}
+            >
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <Badge variant="secondary">Lançamento</Badge>
@@ -147,7 +208,10 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20">
+            <Card 
+              className="bg-gradient-to-br from-accent/10 to-primary/10 border-accent/20 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/app/marketplace')}
+            >
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <Badge variant="outline">Oportunidade</Badge>
@@ -159,7 +223,10 @@ const Dashboard = () => {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-success/10 to-accent/10 border-success/20">
+            <Card 
+              className="bg-gradient-to-br from-success/10 to-accent/10 border-success/20 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate('/app/match')}
+            >
               <CardContent className="p-4">
                 <div className="space-y-2">
                   <Badge className="bg-success text-success-foreground">Match</Badge>

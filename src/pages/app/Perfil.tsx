@@ -120,9 +120,9 @@ export default function Perfil() {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-success">
-                  R$ {stats.comissaoTotal.toLocaleString('pt-BR')}
-                </div>
+              <div className="text-2xl font-bold text-success">
+                {stats.comissaoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </div>
                 <div className="text-sm text-muted-foreground">Comissão Total</div>
               </CardContent>
             </Card>
@@ -140,25 +140,30 @@ export default function Perfil() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Profile Photo */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Foto do Perfil</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="w-32 h-32">
-                    <AvatarImage src={profile.avatar} />
-                    <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <Button variant="outline" size="sm">
-                    <Camera className="h-4 w-4 mr-2" />
-                    Alterar Foto
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Profile Photo */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Foto do Perfil</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col items-center space-y-4">
+                    <Avatar className="w-32 h-32">
+                      <AvatarImage src={profile.avatar} />
+                      <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                      <Button variant="outline" size="sm">
+                        <Camera className="h-4 w-4 mr-2" />
+                        Alterar Foto
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        PNG, JPG até 5MB
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
             {/* Basic Info */}
             <Card className="lg:col-span-2">

@@ -95,9 +95,9 @@ export default function Indicacoes() {
           <h1 className="text-3xl font-bold text-primary">
             Indique e Ganhe
           </h1>
-          <p className="text-muted-foreground">
-            Convide outros corretores e ganhe comissões sobre as vendas deles
-          </p>
+            <p className="text-muted-foreground">
+              Convide outros corretores e ganhe descontos nas mensalidades
+            </p>
         </div>
         <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
           <Share2 className="h-4 w-4 mr-2" />
@@ -131,10 +131,10 @@ export default function Indicacoes() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">
-              R$ {stats.comissaoTotal.toLocaleString('pt-BR')}
-            </div>
-            <div className="text-sm text-muted-foreground">Comissão Total</div>
+          <div className="text-2xl font-bold text-primary">
+            {stats.comissaoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+          </div>
+          <div className="text-sm text-muted-foreground">Desconto Total em Mensalidades</div>
           </CardContent>
         </Card>
         <Card>
@@ -194,7 +194,7 @@ export default function Indicacoes() {
                   <div className="text-sm">
                     <div>{indicacao.vendas} vendas</div>
                     <div className="text-primary font-medium">
-                      R$ {indicacao.comissaoGerada.toLocaleString('pt-BR')}
+                      {indicacao.comissaoGerada.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} desconto
                     </div>
                   </div>
                 </div>
@@ -280,7 +280,7 @@ export default function Indicacoes() {
               </div>
               <h3 className="font-semibold mb-2">3. Você Ganha</h3>
               <p className="text-sm text-muted-foreground">
-                Receba 10% das comissões geradas pelos seus indicados
+                Receba descontos na mensalidade do seu plano
               </p>
             </div>
           </div>

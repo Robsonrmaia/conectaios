@@ -31,35 +31,83 @@ export default function Ferramentas() {
     },
     {
       id: 3,
+      title: 'Blog',
+      description: 'Publique artigos e conteúdo para seus clientes',
+      icon: FileText,
+      category: 'Marketing',
+      available: true
+    },
+    {
+      id: 4,
+      title: 'Guia de Bairros',
+      description: 'Informações completas sobre bairros da região',
+      icon: QrCode,
+      category: 'Relatórios',
+      available: true
+    },
+    {
+      id: 5,
+      title: 'Avaliação de Imóveis',
+      description: 'Ferramenta de avaliação automática de imóveis',
+      icon: Calculator,
+      category: 'Simuladores',
+      available: true
+    },
+    {
+      id: 6,
+      title: 'Gerador de Orçamento Temporada',
+      description: 'Calcule preços para locação de temporada',
+      icon: Calculator,
+      category: 'Simuladores',
+      available: true
+    },
+    {
+      id: 7,
+      title: 'Avaliação Entrada/Saída Locação',
+      description: 'Gere relatórios de vistoria para locação',
+      icon: FileText,
+      category: 'Documentos',
+      available: true
+    },
+    {
+      id: 8,
+      title: 'Simulador de Empreendimentos',
+      description: 'Simule valores e viabilidade de empreendimentos',
+      icon: Calculator,
+      category: 'Simuladores',
+      available: true
+    },
+    {
+      id: 9,
+      title: 'Guia de Regularização Documental',
+      description: 'Orientações para regularização de documentos',
+      icon: FileText,
+      category: 'Documentos',
+      available: true
+    },
+    {
+      id: 10,
+      title: 'Portal de Envios WhatsApp',
+      description: 'Envie materiais automaticamente via WhatsApp',
+      icon: Share2,
+      category: 'Marketing',
+      available: true
+    },
+    {
+      id: 11,
+      title: 'Guia do Comprador',
+      description: 'Material educativo completo para compradores',
+      icon: Download,
+      category: 'Relatórios',
+      available: true
+    },
+    {
+      id: 12,
       title: 'Editor de Imagens',
       description: 'Edite e otimize fotos dos seus imóveis',
       icon: Image,
       category: 'Marketing',
       available: false
-    },
-    {
-      id: 4,
-      title: 'Gerador de QR Code',
-      description: 'Crie QR codes para seus imóveis e materiais',
-      icon: QrCode,
-      category: 'Marketing',
-      available: true
-    },
-    {
-      id: 5,
-      title: 'Compartilhamento Social',
-      description: 'Publique automaticamente nas redes sociais',
-      icon: Share2,
-      category: 'Marketing',
-      available: false
-    },
-    {
-      id: 6,
-      title: 'Relatórios PDF',
-      description: 'Gere relatórios personalizados dos seus imóveis',
-      icon: Download,
-      category: 'Relatórios',
-      available: true
     }
   ];
 

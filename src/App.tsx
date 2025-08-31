@@ -4,10 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import { BrokerProvider } from "@/hooks/useBroker";
+import { AuthProvider, useAuth } from "@/hooks/useAuth";
+import { BrokerProvider, useBroker } from "@/hooks/useBroker";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { LogOut, User } from "lucide-react";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
@@ -29,6 +32,31 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const UserInfo = () => {
+  const { user, signOut } = useAuth();
+  const { broker } = useBroker();
+
+  if (!user) return null;
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="text-right">
+        <div className="text-sm font-medium">{broker?.name || user.email?.split('@')[0]}</div>
+        <div className="text-xs text-muted-foreground">{broker?.creci || 'Corretor'}</div>
+      </div>
+      <Avatar className="h-8 w-8">
+        <AvatarImage src={broker?.avatar_url} />
+        <AvatarFallback>
+          <User className="h-4 w-4" />
+        </AvatarFallback>
+      </Avatar>
+      <Button variant="ghost" size="sm" onClick={signOut}>
+        <LogOut className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+};
+
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   
   return (
@@ -36,8 +64,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 flex items-center border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarTrigger className="ml-4" />
+          <header className="h-14 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4">
+            <SidebarTrigger />
+            <UserInfo />
           </header>
           <main className="flex-1 p-6">
             {children}

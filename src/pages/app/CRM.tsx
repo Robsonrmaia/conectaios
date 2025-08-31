@@ -413,7 +413,7 @@ export default function CRM() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-primary">
-              R$ {clients.reduce((sum, c) => sum + (c.valor || 0), 0).toLocaleString('pt-BR')}
+              {clients.reduce((sum, c) => sum + (c.valor || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </div>
             <div className="text-sm text-muted-foreground">Valor Total Pipeline</div>
           </CardContent>
@@ -479,11 +479,11 @@ export default function CRM() {
                                           ))}
                                         </div>
                                       </div>
-                                      {client.valor > 0 && (
-                                        <div className="text-xs text-primary font-semibold mt-1">
-                                          R$ {client.valor.toLocaleString('pt-BR')}
-                                        </div>
-                                      )}
+                                       {client.valor > 0 && (
+                                         <div className="text-xs text-primary font-semibold mt-1">
+                                           {client.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                         </div>
+                                       )}
                                     </CardContent>
                                   </Card>
                                 )}
@@ -511,72 +511,78 @@ export default function CRM() {
                 className="pl-10"
               />
             </div>
-            <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Novo Cliente
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Adicionar Cliente</DialogTitle>
-                  <DialogDescription>Preencha as informações do cliente</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="nome">Nome</Label>
-                    <Input
-                      id="nome"
-                      value={clientFormData.nome}
-                      onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
-                      placeholder="Nome completo"
-                    />
+            <div className="flex gap-2">
+              <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Novo Cliente
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Adicionar Cliente</DialogTitle>
+                    <DialogDescription>Preencha as informações do cliente</DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="nome">Nome</Label>
+                      <Input
+                        id="nome"
+                        value={clientFormData.nome}
+                        onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
+                        placeholder="Nome completo"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="telefone">Telefone</Label>
+                      <Input
+                        id="telefone"
+                        value={clientFormData.telefone}
+                        onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
+                        placeholder="(11) 99999-9999"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="tipo">Tipo</Label>
+                      <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="comprador">Comprador</SelectItem>
+                          <SelectItem value="vendedor">Vendedor</SelectItem>
+                          <SelectItem value="locatario">Locatário</SelectItem>
+                          <SelectItem value="proprietario">Proprietário</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="valor">Valor Interesse (R$)</Label>
+                      <Input
+                        id="valor"
+                        type="number"
+                        value={clientFormData.valor}
+                        onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
+                        placeholder="500000"
+                      />
+                    </div>
+                    <div className="flex gap-2 pt-4">
+                      <Button variant="outline" onClick={() => setIsClientDialogOpen(false)} className="flex-1">
+                        Cancelar
+                      </Button>
+                      <Button onClick={handleAddClient} className="flex-1">
+                        Adicionar
+                      </Button>
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="telefone">Telefone</Label>
-                    <Input
-                      id="telefone"
-                      value={clientFormData.telefone}
-                      onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
-                      placeholder="(11) 99999-9999"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tipo">Tipo</Label>
-                    <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="comprador">Comprador</SelectItem>
-                        <SelectItem value="vendedor">Vendedor</SelectItem>
-                        <SelectItem value="locatario">Locatário</SelectItem>
-                        <SelectItem value="proprietario">Proprietário</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="valor">Valor Interesse (R$)</Label>
-                    <Input
-                      id="valor"
-                      type="number"
-                      value={clientFormData.valor}
-                      onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
-                      placeholder="500000"
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button variant="outline" onClick={() => setIsClientDialogOpen(false)} className="flex-1">
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleAddClient} className="flex-1">
-                      Adicionar
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
+                </DialogContent>
+              </Dialog>
+              <Button variant="outline" onClick={() => navigate('/app/imoveis')}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Imóvel
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

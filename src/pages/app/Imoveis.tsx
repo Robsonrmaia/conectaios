@@ -15,6 +15,7 @@ import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, 
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
+import { formatCurrency } from '@/lib/utils';
 
 interface Property {
   id: string;
@@ -203,6 +204,30 @@ export default function Imoveis() {
       toast({
         title: "Erro",
         description: "Erro ao excluir imóvel",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updatePropertyVisibility = async (id: string, visibility: string) => {
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .update({ visibility })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Sucesso",
+        description: "Visibilidade do imóvel atualizada!",
+      });
+      fetchProperties();
+    } catch (error) {
+      console.error('Error updating property visibility:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao atualizar visibilidade",
         variant: "destructive",
       });
     }
@@ -474,7 +499,7 @@ export default function Imoveis() {
             
             <CardContent className="space-y-4">
               <div className="text-2xl font-bold text-primary">
-                R$ {property.valor?.toLocaleString('pt-BR')}
+                {formatCurrency(property.valor || 0)}
               </div>
               
               <div className="flex justify-between text-sm text-muted-foreground">
@@ -486,9 +511,17 @@ export default function Imoveis() {
                   <Bed className="h-3 w-3" />
                   {property.quartos}
                 </div>
+                <div className="flex items-center gap-1">
+                  <Bath className="h-3 w-3" />
+                  {property.bathrooms}
+                </div>
+                <div className="flex items-center gap-1">
+                  <Car className="h-3 w-3" />
+                  {property.parking_spots}
+                </div>
               </div>
 
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-center">
                 <div className="space-y-2">
                   <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
                   {property.visibility === 'public_site' ? (
@@ -496,16 +529,17 @@ export default function Imoveis() {
                       <Eye className="h-3 w-3 mr-1" />
                       Marketplace
                     </Badge>
+                  ) : property.visibility === 'match_only' ? (
+                    <Badge variant="secondary" className="text-xs">
+                      <Globe className="h-3 w-3 mr-1" />
+                      Match
+                    </Badge>
                   ) : (
                     <Badge variant="secondary" className="text-xs">
                       <EyeOff className="h-3 w-3 mr-1" />
                       Oculto
                     </Badge>
                   )}
-                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Bath className="h-3 w-3" />
-                    {property.bathrooms} | <Car className="h-3 w-3" /> {property.parking_spots}
-                  </div>
                 </div>
                 <div className="text-right space-y-2">
                   {property.reference_code && (
@@ -533,6 +567,34 @@ export default function Imoveis() {
                       onClick={() => handleDeleteProperty(property.id)}
                     >
                       <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  
+                  {/* Visibility Toggle Buttons */}
+                  <div className="flex gap-1">
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
+                      onClick={() => updatePropertyVisibility(property.id, 'hidden')}
+                      title="Ocultar"
+                    >
+                      <EyeOff className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'match_only' ? 'default' : 'outline'}
+                      onClick={() => updatePropertyVisibility(property.id, 'match_only')}
+                      title="Apenas Match"
+                    >
+                      <Globe className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                      onClick={() => updatePropertyVisibility(property.id, 'public_site')}
+                      title="Site Público"
+                    >
+                      <Eye className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -584,7 +646,7 @@ export default function Imoveis() {
                     <div className="space-y-2">
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Valor:</span>
-                        <span className="font-semibold">R$ {selectedProperty.valor?.toLocaleString('pt-BR')}</span>
+                        <span className="font-semibold">{formatCurrency(selectedProperty.valor || 0)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">Área:</span>
