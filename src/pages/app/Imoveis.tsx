@@ -218,11 +218,18 @@ export default function Imoveis() {
 
       if (error) throw error;
 
+      // Update local state
+      setProperties(prev => prev.map(prop => 
+        prop.id === id ? { ...prop, visibility } : prop
+      ));
+
       toast({
-        title: "Sucesso",
-        description: "Visibilidade do imóvel atualizada!",
+        title: "Visibilidade atualizada",
+        description: `Imóvel agora está configurado como: ${
+          visibility === 'public_site' ? 'Marketplace' :
+          visibility === 'match_only' ? 'Apenas Match' : 'Oculto'
+        }`,
       });
-      fetchProperties();
     } catch (error) {
       console.error('Error updating property visibility:', error);
       toast({
@@ -296,10 +303,9 @@ export default function Imoveis() {
                   <Label htmlFor="valor">Valor (R$)</Label>
                   <Input
                     id="valor"
-                    type="number"
                     value={formData.valor}
                     onChange={(e) => setFormData({...formData, valor: e.target.value})}
-                    placeholder="500000"
+                    placeholder="650.000,00"
                   />
                 </div>
               </div>
@@ -574,8 +580,11 @@ export default function Imoveis() {
                   <div className="flex gap-1">
                     <Button
                       size="sm"
-                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                      onClick={() => updatePropertyVisibility(property.id, 'hidden')}
+                      variant={property.visibility === 'private' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'private');
+                      }}
                       title="Ocultar"
                     >
                       <EyeOff className="h-3 w-3" />
@@ -583,7 +592,10 @@ export default function Imoveis() {
                     <Button
                       size="sm"
                       variant={property.visibility === 'match_only' ? 'default' : 'outline'}
-                      onClick={() => updatePropertyVisibility(property.id, 'match_only')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'match_only');
+                      }}
                       title="Apenas Match"
                     >
                       <Globe className="h-3 w-3" />
@@ -591,7 +603,10 @@ export default function Imoveis() {
                     <Button
                       size="sm"
                       variant={property.visibility === 'public_site' ? 'default' : 'outline'}
-                      onClick={() => updatePropertyVisibility(property.id, 'public_site')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'public_site');
+                      }}
                       title="Site Público"
                     >
                       <Eye className="h-3 w-3" />

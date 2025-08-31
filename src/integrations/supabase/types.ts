@@ -237,6 +237,41 @@ export type Database = {
           },
         ]
       }
+      client_history: {
+        Row: {
+          action: string
+          client_id: string
+          created_at: string
+          description: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          client_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_history_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_preferences: {
         Row: {
           bathrooms: number[] | null

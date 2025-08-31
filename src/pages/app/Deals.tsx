@@ -4,21 +4,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { FileText, Clock, CheckCircle, XCircle, User, Building2, Calendar, Home, Printer, Plus, Percent } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { ContractGenerator } from '@/components/ContractGenerator';
+import { parseValueInput } from '@/lib/utils';
 
 export default function Deals() {
   const navigate = useNavigate();
   const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+  const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<any>(null);
   const [proposalData, setProposalData] = useState({
     offerAmount: '',
-    commissionPercent: '5',
+    commissionPercent: '50/50',
     notes: '',
     expiryDays: '15'
   });
@@ -111,11 +114,8 @@ export default function Deals() {
     .reduce((total, deal) => total + deal.commission, 0);
 
   const handlePrintContract = (deal: any) => {
-    toast({
-      title: "Imprimindo Contrato",
-      description: `Gerando contrato para ${deal.propertyTitle}`,
-    });
-    // Aqui você implementaria a lógica para gerar e imprimir o contrato
+    setSelectedDeal(deal);
+    setIsContractDialogOpen(true);
   };
 
   const handleCreateProposal = (deal: any) => {
@@ -124,15 +124,16 @@ export default function Deals() {
   };
 
   const handleSubmitProposal = () => {
+    const parsedAmount = parseValueInput(proposalData.offerAmount);
     toast({
       title: "Proposta Enviada",
-      description: `Proposta de R$ ${parseFloat(proposalData.offerAmount).toLocaleString('pt-BR')} enviada com sucesso!`,
+      description: `Proposta de ${parsedAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} enviada com sucesso!`,
     });
     
     setIsProposalDialogOpen(false);
     setProposalData({
       offerAmount: '',
-      commissionPercent: '5',
+      commissionPercent: '50/50',
       notes: '',
       expiryDays: '15'
     });
@@ -383,26 +384,38 @@ export default function Deals() {
             {proposalData.offerAmount && (
               <div className="p-3 bg-muted rounded-lg space-y-2">
                 <div className="text-sm text-muted-foreground">Rateio de Comissão:</div>
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-sm">
-                      <span>Corretor Comprador ({proposalData.commissionPercent}%):</span>
-                      <span className="font-semibold">
-                        {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </span>
+                {(() => {
+                  const parsedAmount = parseValueInput(proposalData.offerAmount);
+                  const [buyerPercent, sellerPercent] = proposalData.commissionPercent.includes('/') 
+                    ? proposalData.commissionPercent.split('/').map(p => parseInt(p.trim())) 
+                    : [50, 50];
+                  
+                  const buyerCommission = (parsedAmount * buyerPercent / 100);
+                  const sellerCommission = (parsedAmount * sellerPercent / 100);
+                  
+                  return (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Corretor Comprador ({buyerPercent}%):</span>
+                        <span className="font-semibold">
+                          {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Corretor Vendedor ({sellerPercent}%):</span>
+                        <span className="font-semibold">
+                          {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </span>
+                      </div>
+                      <div className="border-t pt-1 flex justify-between text-sm font-bold">
+                        <span>Total da Comissão:</span>
+                        <span className="text-primary">
+                          {(buyerCommission + sellerCommission).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex justify-between text-sm">
-                      <span>Corretor Vendedor ({proposalData.commissionPercent}%):</span>
-                      <span className="font-semibold">
-                        {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </span>
-                    </div>
-                    <div className="border-t pt-1 flex justify-between text-sm font-bold">
-                      <span>Total da Comissão:</span>
-                      <span className="text-primary">
-                        {(parseFloat(proposalData.offerAmount) * parseFloat(proposalData.commissionPercent) * 2 / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                      </span>
-                    </div>
-                  </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -426,6 +439,13 @@ export default function Deals() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Contract Generator Dialog */}
+      <ContractGenerator 
+        deal={selectedDeal}
+        isOpen={isContractDialogOpen}
+        onClose={() => setIsContractDialogOpen(false)}
+      />
     </div>
   );
 }
