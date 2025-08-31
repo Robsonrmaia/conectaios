@@ -10,6 +10,18 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
+import Imoveis from "./pages/app/Imoveis";
+import Match from "./pages/app/Match";
+import Deals from "./pages/app/Deals";
+import Inbox from "./pages/app/Inbox";
+import CRM from "./pages/app/CRM";
+import Ferramentas from "./pages/app/Ferramentas";
+import Videos from "./pages/app/Videos";
+import Indicacoes from "./pages/app/Indicacoes";
+import Patrocinios from "./pages/app/Patrocinios";
+import AIAssistant from "./pages/app/AIAssistant";
+import Perfil from "./pages/app/Perfil";
+import Admin from "./pages/app/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +57,18 @@ const App = () => (
                 <AppLayout>
                   <Routes>
                     <Route index element={<Dashboard />} />
+                    <Route path="imoveis" element={<Imoveis />} />
+                    <Route path="match" element={<Match />} />
+                    <Route path="deals" element={<Deals />} />
+                    <Route path="inbox" element={<Inbox />} />
+                    <Route path="crm" element={<CRM />} />
+                    <Route path="ferramentas" element={<Ferramentas />} />
+                    <Route path="videos" element={<Videos />} />
+                    <Route path="indicacoes" element={<Indicacoes />} />
+                    <Route path="patrocinios" element={<Patrocinios />} />
+                    <Route path="ai-assistant" element={<AIAssistant />} />
+                    <Route path="perfil" element={<Perfil />} />
+                    <Route path="admin" element={<Admin />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>
