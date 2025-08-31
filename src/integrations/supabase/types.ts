@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_active: boolean | null
+          link_url: string | null
+          sort_order: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_active?: boolean | null
+          link_url?: string | null
+          sort_order?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean | null
+          link_url?: string | null
+          sort_order?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
       brokers: {
         Row: {
           asaas_customer_id: string | null
@@ -165,6 +195,65 @@ export type Database = {
           },
         ]
       }
+      client_preferences: {
+        Row: {
+          bathrooms: number[] | null
+          bedrooms: number[] | null
+          client_id: string
+          created_at: string
+          features: string[] | null
+          id: string
+          max_area: number | null
+          max_price: number | null
+          min_area: number | null
+          min_price: number | null
+          neighborhoods: string[] | null
+          parking_spots: number[] | null
+          property_type: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          bathrooms?: number[] | null
+          bedrooms?: number[] | null
+          client_id: string
+          created_at?: string
+          features?: string[] | null
+          id?: string
+          max_area?: number | null
+          max_price?: number | null
+          min_area?: number | null
+          min_price?: number | null
+          neighborhoods?: string[] | null
+          parking_spots?: number[] | null
+          property_type?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          bathrooms?: number[] | null
+          bedrooms?: number[] | null
+          client_id?: string
+          created_at?: string
+          features?: string[] | null
+          id?: string
+          max_area?: number | null
+          max_price?: number | null
+          min_area?: number | null
+          min_price?: number | null
+          neighborhoods?: string[] | null
+          parking_spots?: number[] | null
+          property_type?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_preferences_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           classificacao: string | null
@@ -255,6 +344,182 @@ export type Database = {
         }
         Relationships: []
       }
+      contracts: {
+        Row: {
+          contract_data: Json
+          created_at: string
+          deal_id: string
+          id: string
+          pdf_url: string | null
+          signed_at: string | null
+          status: string
+          template_name: string
+          updated_at: string
+        }
+        Insert: {
+          contract_data?: Json
+          created_at?: string
+          deal_id: string
+          id?: string
+          pdf_url?: string | null
+          signed_at?: string | null
+          status?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Update: {
+          contract_data?: Json
+          created_at?: string
+          deal_id?: string
+          id?: string
+          pdf_url?: string | null
+          signed_at?: string | null
+          status?: string
+          template_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_history: {
+        Row: {
+          action: string
+          amount: number | null
+          broker_id: string
+          created_at: string
+          deal_id: string
+          id: string
+          message: string | null
+        }
+        Insert: {
+          action: string
+          amount?: number | null
+          broker_id: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          message?: string | null
+        }
+        Update: {
+          action?: string
+          amount?: number | null
+          broker_id?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          message?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_history_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_history_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          buyer_broker_id: string
+          client_id: string | null
+          commission_split: Json
+          created_at: string
+          expires_at: string | null
+          id: string
+          listing_broker_id: string | null
+          notes: string | null
+          offer_amount: number
+          property_id: string
+          seller_broker_id: string | null
+          signed_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_broker_id: string
+          client_id?: string | null
+          commission_split?: Json
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_broker_id?: string | null
+          notes?: string | null
+          offer_amount: number
+          property_id: string
+          seller_broker_id?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_broker_id?: string
+          client_id?: string | null
+          commission_split?: Json
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_broker_id?: string | null
+          notes?: string | null
+          offer_amount?: number
+          property_id?: string
+          seller_broker_id?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_buyer_broker_id_fkey"
+            columns: ["buyer_broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_listing_broker_id_fkey"
+            columns: ["listing_broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_seller_broker_id_fkey"
+            columns: ["seller_broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       login_events: {
         Row: {
           created_at: string
@@ -325,6 +590,74 @@ export type Database = {
             columns: ["parent_message_id"]
             isOneToOne: false
             referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnerships: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string
+          name: string
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url: string
+          name: string
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string
+          name?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
+      plan_tools: {
+        Row: {
+          created_at: string
+          daily_limit: number | null
+          id: string
+          is_enabled: boolean | null
+          monthly_limit: number | null
+          plan_id: string
+          tool_name: string
+        }
+        Insert: {
+          created_at?: string
+          daily_limit?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          monthly_limit?: number | null
+          plan_id: string
+          tool_name: string
+        }
+        Update: {
+          created_at?: string
+          daily_limit?: number | null
+          id?: string
+          is_enabled?: boolean | null
+          monthly_limit?: number | null
+          plan_id?: string
+          tool_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_tools_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
             referencedColumns: ["id"]
           },
         ]
@@ -502,6 +835,57 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          commission_amount: number | null
+          created_at: string
+          id: string
+          paid_at: string | null
+          referral_code: string
+          referred_id: string | null
+          referrer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referral_code: string
+          referred_id?: string | null
+          referrer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number | null
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          referral_code?: string
+          referred_id?: string | null
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       regions: {
         Row: {
           created_at: string
@@ -638,6 +1022,80 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      threads: {
+        Row: {
+          created_at: string
+          deal_id: string | null
+          id: string
+          last_message_at: string | null
+          participants: string[]
+          title: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          last_message_at?: string | null
+          participants?: string[]
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          last_message_at?: string | null
+          participants?: string[]
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "threads_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      videos: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_featured: boolean | null
+          thumbnail_url: string | null
+          title: string
+          video_url: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title: string
+          video_url: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_featured?: boolean | null
+          thumbnail_url?: string | null
+          title?: string
+          video_url?: string
+        }
+        Relationships: []
       }
     }
     Views: {
