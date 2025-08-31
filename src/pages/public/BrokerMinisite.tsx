@@ -1,27 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Building2, Phone, Mail, MapPin, Bed, Bath, Car, Share2, MessageSquare, User, Star, Send, Search, Filter, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, MapPin, Bed, Bath, Car, Phone, Mail, User, Search, Filter, Star, Heart } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from '@/components/ui/use-toast';
 
-interface Broker {
+interface BrokerProfile {
   id: string;
   name: string;
   email: string;
-  phone?: string;
-  creci?: string;
-  username?: string;
-  bio?: string;
-  avatar_url?: string;
-  cover_url?: string;
+  phone: string;
+  bio: string;
+  avatar_url: string;
+  cover_url: string;
+  username: string;
+  creci: string;
 }
 
 interface Property {
@@ -36,14 +39,24 @@ interface Property {
   property_type: string;
   descricao: string;
   fotos: string[];
+  videos: string[];
+  address: string;
   neighborhood: string;
   city: string;
   created_at: string;
 }
 
+interface ContactForm {
+  nome: string;
+  telefone: string;
+  email: string;
+  interesse: string;
+  mensagem: string;
+}
+
 export default function BrokerMinisite() {
   const { username } = useParams<{ username: string }>();
-  const [broker, setBroker] = useState<Broker | null>(null);
+  const [broker, setBroker] = useState<BrokerProfile | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);

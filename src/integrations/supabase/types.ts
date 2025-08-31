@@ -1384,6 +1384,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       videos: {
         Row: {
           category: string | null
@@ -1422,17 +1443,46 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_plan_limit: {
+        Args: { _limit_column: string; _resource_type: string }
+        Returns: boolean
+      }
       cleanup_old_login_events: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      find_property_matches: {
+        Args: { client_preferences: Json }
+        Returns: {
+          match_score: number
+          property_data: Json
+          property_id: string
+        }[]
       }
       generate_referral_code: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      log_audit_event: {
+        Args: {
+          _action: string
+          _new_values?: Json
+          _old_values?: Json
+          _resource_id?: string
+          _resource_type: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user" | "broker"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1559,6 +1609,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user", "broker"],
+    },
   },
 } as const
