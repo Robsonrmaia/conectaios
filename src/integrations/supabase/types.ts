@@ -537,6 +537,114 @@ export type Database = {
         }
         Relationships: []
       }
+      conectaios_properties: {
+        Row: {
+          address: string | null
+          area: number | null
+          bathrooms: number | null
+          broker_minisite_enabled: boolean | null
+          city: string | null
+          condominium_fee: number | null
+          coordinates: Json | null
+          created_at: string
+          descricao: string | null
+          features: Json | null
+          finalidade: string | null
+          fotos: string[] | null
+          id: string
+          iptu: number | null
+          is_featured: boolean | null
+          is_public: boolean | null
+          last_viewed_at: string | null
+          listing_type: string | null
+          neighborhood: string | null
+          parking_spots: number | null
+          price_per_m2: number | null
+          property_type: string | null
+          quartos: number | null
+          reference_code: string | null
+          state: string | null
+          titulo: string
+          updated_at: string
+          user_id: string | null
+          valor: number | null
+          videos: string[] | null
+          views_count: number | null
+          visibility: string | null
+          zipcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          broker_minisite_enabled?: boolean | null
+          city?: string | null
+          condominium_fee?: number | null
+          coordinates?: Json | null
+          created_at?: string
+          descricao?: string | null
+          features?: Json | null
+          finalidade?: string | null
+          fotos?: string[] | null
+          id?: string
+          iptu?: number | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          last_viewed_at?: string | null
+          listing_type?: string | null
+          neighborhood?: string | null
+          parking_spots?: number | null
+          price_per_m2?: number | null
+          property_type?: string | null
+          quartos?: number | null
+          reference_code?: string | null
+          state?: string | null
+          titulo: string
+          updated_at?: string
+          user_id?: string | null
+          valor?: number | null
+          videos?: string[] | null
+          views_count?: number | null
+          visibility?: string | null
+          zipcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          broker_minisite_enabled?: boolean | null
+          city?: string | null
+          condominium_fee?: number | null
+          coordinates?: Json | null
+          created_at?: string
+          descricao?: string | null
+          features?: Json | null
+          finalidade?: string | null
+          fotos?: string[] | null
+          id?: string
+          iptu?: number | null
+          is_featured?: boolean | null
+          is_public?: boolean | null
+          last_viewed_at?: string | null
+          listing_type?: string | null
+          neighborhood?: string | null
+          parking_spots?: number | null
+          price_per_m2?: number | null
+          property_type?: string | null
+          quartos?: number | null
+          reference_code?: string | null
+          state?: string | null
+          titulo?: string
+          updated_at?: string
+          user_id?: string | null
+          valor?: number | null
+          videos?: string[] | null
+          views_count?: number | null
+          visibility?: string | null
+          zipcode?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
