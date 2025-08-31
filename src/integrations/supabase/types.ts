@@ -816,6 +816,7 @@ export type Database = {
       properties: {
         Row: {
           area: number | null
+          bathrooms: number | null
           broker_minisite_enabled: boolean | null
           created_at: string
           descricao: string | null
@@ -823,6 +824,9 @@ export type Database = {
           fotos: string[] | null
           id: string
           is_public: boolean | null
+          listing_type: string | null
+          parking_spots: number | null
+          property_type: string | null
           quartos: number | null
           titulo: string
           updated_at: string
@@ -832,6 +836,7 @@ export type Database = {
         }
         Insert: {
           area?: number | null
+          bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           created_at?: string
           descricao?: string | null
@@ -839,6 +844,9 @@ export type Database = {
           fotos?: string[] | null
           id?: string
           is_public?: boolean | null
+          listing_type?: string | null
+          parking_spots?: number | null
+          property_type?: string | null
           quartos?: number | null
           titulo: string
           updated_at?: string
@@ -848,6 +856,7 @@ export type Database = {
         }
         Update: {
           area?: number | null
+          bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           created_at?: string
           descricao?: string | null
@@ -855,6 +864,9 @@ export type Database = {
           fotos?: string[] | null
           id?: string
           is_public?: boolean | null
+          listing_type?: string | null
+          parking_spots?: number | null
+          property_type?: string | null
           quartos?: number | null
           titulo?: string
           updated_at?: string
