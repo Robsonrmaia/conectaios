@@ -145,7 +145,7 @@ export default function CRM() {
 
       // Fetch or create default pipeline
       const { data: pipelinesData, error: pipelinesError } = await supabase
-        .from('conectaios_pipelines' as any)
+        .from('conectaios_pipelines')
         .select('*')
         .eq('user_id', user?.id);
 
@@ -154,7 +154,7 @@ export default function CRM() {
       if (!pipelinesData || pipelinesData.length === 0) {
         // Create default pipeline
         const { data: newPipeline, error: createError } = await supabase
-          .from('conectaios_pipelines' as any)
+          .from('conectaios_pipelines')
           .insert({
             user_id: user?.id,
             name: 'Pipeline Principal',
@@ -165,12 +165,12 @@ export default function CRM() {
           .single();
 
         if (createError) throw createError;
-        setPipelines([newPipeline] as any);
-        setActivePipeline(newPipeline as any);
+        setPipelines([newPipeline]);
+        setActivePipeline(newPipeline);
       } else {
-        setPipelines(pipelinesData as any);
+        setPipelines(pipelinesData);
         const defaultPipeline = pipelinesData.find((p: any) => p.is_default) || pipelinesData[0];
-        setActivePipeline(defaultPipeline as any);
+        setActivePipeline(defaultPipeline);
       }
 
     } catch (error) {
@@ -330,7 +330,7 @@ export default function CRM() {
   const toggleTask = async (taskId: string, done: boolean) => {
     try {
       const { error } = await supabase
-        .from('conectaios_tasks' as any)
+        .from('conectaios_tasks')
         .update({ done: !done })
         .eq('id', taskId);
 

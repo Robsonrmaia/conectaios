@@ -558,6 +558,36 @@ export type Database = {
         }
         Relationships: []
       }
+      conectaios_pipelines: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          name: string
+          stages: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name: string
+          stages?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          stages?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       conectaios_plans: {
         Row: {
           created_at: string

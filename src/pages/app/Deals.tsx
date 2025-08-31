@@ -393,28 +393,31 @@ export default function Deals() {
                   const buyerCommission = (parsedAmount * buyerPercent / 100);
                   const sellerCommission = (parsedAmount * sellerPercent / 100);
                   
-                  return (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-sm">
-                        <span>Corretor Comprador ({buyerPercent}%):</span>
-                        <span className="font-semibold">
-                          {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Corretor Vendedor ({sellerPercent}%):</span>
-                        <span className="font-semibold">
-                          {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                        </span>
-                      </div>
-                      <div className="border-t pt-1 flex justify-between text-sm font-bold">
-                        <span>Total da Comissão:</span>
-                        <span className="text-primary">
-                          {(buyerCommission + sellerCommission).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                        </span>
-                      </div>
-                    </div>
-                  );
+                   return (
+                     <div className="space-y-1">
+                       <div className="flex justify-between text-sm">
+                         <span>Corretor Comprador ({buyerPercent}%):</span>
+                         <span className="font-semibold">
+                           {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                         </span>
+                       </div>
+                       <div className="flex justify-between text-sm">
+                         <span>Corretor Vendedor ({sellerPercent}%):</span>
+                         <span className="font-semibold">
+                           {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                         </span>
+                       </div>
+                       <div className="border-t pt-1 flex justify-between text-sm font-bold">
+                         <span>Total da Comissão:</span>
+                         <span className="text-primary">
+                           {(buyerCommission + sellerCommission).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                         </span>
+                       </div>
+                       <div className="text-xs text-muted-foreground mt-2">
+                         * Primeiro percentual é sempre do corretor logado
+                       </div>
+                     </div>
+                   );
                 })()}
               </div>
             )}
