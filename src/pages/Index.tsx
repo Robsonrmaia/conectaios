@@ -6,8 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
+import PageWrapper from '@/components/PageWrapper';
 
 const Index = () => {
   const { user } = useAuth();
@@ -43,7 +46,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+    <PageWrapper>
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
@@ -96,41 +100,47 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Banners Section */}
+          {/* Banners Section - Carousel */}
           {banners.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold text-center mb-8">Destaques & Empreendimentos</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {banners.map((banner) => (
-                  <div key={banner.id} className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg transition-shadow">
-                    <img 
-                      src={banner.image_url} 
-                      alt={banner.title}
-                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                    />
-                    <div className="p-6">
-                      <h3 className="text-xl font-semibold mb-2">{banner.title}</h3>
-                      {banner.link_url && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => window.open(banner.link_url, '_blank')}
-                          className="w-full"
-                        >
-                          Ver mais
-                          <ExternalLink className="ml-2 h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <Carousel className="w-full max-w-5xl mx-auto">
+                <CarouselContent className="-ml-1">
+                  {banners.slice(0, 3).map((banner) => (
+                    <CarouselItem key={banner.id} className="pl-1 md:basis-1/2 lg:basis-1/3">
+                      <div className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg transition-all duration-300 hover:scale-105">
+                        <img 
+                          src={banner.image_url} 
+                          alt={banner.title}
+                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
+                        />
+                        <div className="p-6">
+                          <h3 className="text-xl font-semibold mb-2">{banner.title}</h3>
+                          {banner.link_url && (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => window.open(banner.link_url, '_blank')}
+                              className="w-full"
+                            >
+                              Ver mais
+                              <ExternalLink className="ml-2 h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious />
+                <CarouselNext />
+              </Carousel>
             </div>
           )}
 
           {/* Features Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Building2 className="h-6 w-6 text-primary" />
               </div>
@@ -140,7 +150,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-brand-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Heart className="h-6 w-6 text-brand-secondary" />
               </div>
@@ -150,7 +160,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <MessageSquare className="h-6 w-6 text-accent" />
               </div>
@@ -160,7 +170,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Users className="h-6 w-6 text-success" />
               </div>
@@ -170,7 +180,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <TrendingUp className="h-6 w-6 text-warning" />
               </div>
@@ -180,7 +190,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border">
+            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
               <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Shield className="h-6 w-6 text-info" />
               </div>
@@ -196,60 +206,34 @@ const Index = () => {
             <h2 className="text-3xl font-bold text-center mb-8">Planos & Assinatura</h2>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               
-              {/* Plano Gratuito */}
-              <Card className="relative">
-                <CardHeader>
-                  <CardTitle>Gratuito</CardTitle>
-                  <div className="text-3xl font-bold">R$ 0<span className="text-sm font-normal">/mês</span></div>
-                  <CardDescription>Ideal para começar</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">5 imóveis</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">CRM básico</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">Mini site</span>
-                  </div>
-                  <Button variant="outline" className="w-full mt-4">
-                    Começar Grátis
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Plano Profissional */}
-              <Card className="relative border-primary shadow-lg">
+              {/* Plano Básico */}
+              <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
                     Mais Popular
                   </div>
                 </div>
                 <CardHeader>
-                  <CardTitle>Profissional</CardTitle>
+                  <CardTitle>Básico</CardTitle>
                   <div className="text-3xl font-bold">R$ 97<span className="text-sm font-normal">/mês</span></div>
-                  <CardDescription>Para corretores ativos</CardDescription>
+                  <CardDescription>Até 10 imóveis</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">50 imóveis</span>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Até 10 imóveis</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">CRM completo</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Matches ilimitados</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">Contratos digitais</span>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Chat em tempo real</span>
                   </div>
                   <Button className="w-full mt-4 bg-primary">
                     Assinar via Asaas
@@ -257,29 +241,59 @@ const Index = () => {
                 </CardContent>
               </Card>
 
-              {/* Plano Premium */}
-              <Card className="relative">
+              {/* Plano Profissional */}
+              <Card className="relative animate-fade-in hover-scale">
                 <CardHeader>
-                  <CardTitle>Premium</CardTitle>
-                  <div className="text-3xl font-bold">R$ 197<span className="text-sm font-normal">/mês</span></div>
-                  <CardDescription>Para equipes</CardDescription>
+                  <CardTitle>Profissional</CardTitle>
+                  <div className="text-3xl font-bold">R$ 147<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Até 50 imóveis + site</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Até 50 imóveis</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Site personalizado</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">CRM avançado</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Contratos digitais</span>
+                  </div>
+                  <Button variant="outline" className="w-full mt-4">
+                    Assinar via Asaas
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Plano Premium */}
+              <Card className="relative animate-fade-in hover-scale">
+                <CardHeader>
+                  <CardTitle>Premium</CardTitle>
+                  <div className="text-3xl font-bold">R$ 197<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Orientação jurídica</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Imóveis ilimitados</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">Multi-usuários</span>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Orientação jurídica</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-sm">API personalizada</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Suporte prioritário</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">API personalizada</span>
                   </div>
                   <Button variant="outline" className="w-full mt-4">
                     Falar com Vendas
@@ -354,15 +368,15 @@ const Index = () => {
                   </div>
                   
                   <div className="text-center pt-4">
-                    <Button 
+                     <Button 
                       size="lg"
                       onClick={() => navigate('/auth')}
                       className="bg-primary hover:bg-primary/90 px-8"
                     >
-                      Começar Gratuitamente
+                      Começar Agora
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Integração com Asaas para pagamentos • Teste grátis por 30 dias
+                      Integração com Asaas para pagamentos • Planos a partir de R$ 97
                     </p>
                   </div>
                 </form>
@@ -398,6 +412,17 @@ const Index = () => {
         </div>
       </main>
 
+      {/* WhatsApp Floating Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          size="lg"
+          className="rounded-full w-14 h-14 bg-green-500 hover:bg-green-600 text-white shadow-lg animate-pulse"
+          onClick={() => window.open('https://wa.me/5573999999999?text=Olá! Gostaria de saber mais sobre a ConectaIOS', '_blank')}
+        >
+          <FaWhatsapp className="h-6 w-6" />
+        </Button>
+      </div>
+
       {/* Footer */}
       <footer className="border-t bg-card/30 backdrop-blur-sm mt-16">
         <div className="container mx-auto px-4 py-8">
@@ -411,7 +436,8 @@ const Index = () => {
           </p>
         </div>
       </footer>
-    </div>
+      </div>
+    </PageWrapper>
   );
 };
 

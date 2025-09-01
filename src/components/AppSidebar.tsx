@@ -26,6 +26,7 @@ import {
   Shield,
   Search,
   FileText,
+  Activity,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -100,6 +101,11 @@ const configItems = [
     title: 'Perfil',
     url: '/app/perfil',
     icon: User,
+  },
+  {
+    title: 'Logs de Auditoria',
+    url: '/app/audit-logs',
+    icon: Activity,
   },
   {
     title: 'Admin',

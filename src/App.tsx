@@ -26,6 +26,7 @@ import Videos from "./pages/app/Videos";
 import Indicacoes from "./pages/app/Indicacoes";
 import Patrocinios from "./pages/app/Patrocinios";
 import AIAssistant from "./pages/app/AIAssistant";
+import AuditLogs from "./pages/app/AuditLogs";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
 import NotFound from "./pages/NotFound";
@@ -109,6 +110,7 @@ const App = () => (
               <Route path="indicacoes" element={<Indicacoes />} />
               <Route path="patrocinios" element={<Patrocinios />} />
               <Route path="ai-assistant" element={<AIAssistant />} />
+              <Route path="audit-logs" element={<AuditLogs />} />
               <Route path="perfil" element={<Perfil />} />
               <Route path="admin" element={<Admin />} />
               <Route path="*" element={<NotFound />} />
