@@ -506,7 +506,7 @@ export default function Imoveis() {
         {filteredProperties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
-              {property.fotos && property.fotos.length > 0 && property.fotos[0] ? (
+              {property.fotos && property.fotos.length > 0 && property.fotos[0] && property.fotos[0].trim() !== '' ? (
                 <img
                   src={property.fotos[0]}
                   alt={property.titulo}
@@ -553,7 +553,7 @@ export default function Imoveis() {
             
             <CardContent className="space-y-4">
               <div className="text-2xl font-bold text-primary">
-                {formatCurrency(property.valor || 0)}
+                {formatCurrency(Number(property.valor) || 0)}
               </div>
               
               <div className="flex justify-between text-sm text-muted-foreground">

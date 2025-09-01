@@ -50,7 +50,7 @@ export function MinisiteSetupWizard({ onComplete }: MinisiteSetupWizardProps) {
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           <strong>Configuração necessária:</strong> Para ativar seu minisite público, você precisa 
-          definir um username único. Este será usado na URL do seu minisite.
+          definir um username único. Configure aqui ou vá em <strong>Perfil → Editar Username</strong>.
         </AlertDescription>
       </Alert>
 

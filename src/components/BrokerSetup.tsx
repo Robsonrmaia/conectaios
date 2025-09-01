@@ -23,6 +23,15 @@ export default function BrokerSetup() {
     region_id: ''
   });
 
+  // Auto-fill username based on first name
+  const handleNameChange = (name: string) => {
+    setFormData(prev => ({
+      ...prev, 
+      name,
+      username: prev.username || name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + 'corretor'
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -64,14 +73,14 @@ export default function BrokerSetup() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Nome Completo *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  required
-                  placeholder="Seu nome completo"
-                />
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleNameChange(e.target.value)}
+                    required
+                    placeholder="Seu nome completo"
+                  />
               </div>
               
               <div>
@@ -130,9 +139,9 @@ export default function BrokerSetup() {
                   <SelectValue placeholder="Selecione sua região" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ilheus">Ilhéus</SelectItem>
-                  <SelectItem value="itabuna">Itabuna</SelectItem>
-                  <SelectItem value="salvador">Salvador</SelectItem>
+                  <SelectItem value="9a24e8ad-4bdf-45ad-b29b-a1f8093b3692">Ilhéus</SelectItem>
+                  <SelectItem value="4a81489e-e6df-4514-931b-aa0bca8363b6">Itabuna</SelectItem>
+                  <SelectItem value="58487fff-417f-49fb-ae00-45b369c5107a">Salvador</SelectItem>
                 </SelectContent>
               </Select>
             </div>
