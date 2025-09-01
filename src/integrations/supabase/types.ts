@@ -1789,6 +1789,7 @@ export type Database = {
       threads: {
         Row: {
           created_at: string
+          created_by: string | null
           deal_id: string | null
           id: string
           last_message_at: string | null
@@ -1799,6 +1800,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           deal_id?: string | null
           id?: string
           last_message_at?: string | null
@@ -1809,6 +1811,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           deal_id?: string | null
           id?: string
           last_message_at?: string | null
