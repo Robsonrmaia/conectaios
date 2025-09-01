@@ -22,23 +22,35 @@ const Dashboard = () => {
   });
 
   const handleMinisiteAccess = () => {
-    if (broker) {
-      const minisiteUrl = `${window.location.origin}/minisite/${broker.id}`;
+    if (broker && broker.username) {
+      const minisiteUrl = `${window.location.origin}/@${broker.username}`;
       window.open(minisiteUrl, '_blank');
       toast({
         title: "Minisite aberto",
         description: "Seu minisite foi aberto em uma nova aba",
       });
+    } else {
+      toast({
+        title: "Configure seu username",
+        description: "Você precisa configurar um username primeiro",
+        variant: "destructive",
+      });
     }
   };
 
   const copyMinisiteUrl = () => {
-    if (broker) {
-      const minisiteUrl = `${window.location.origin}/minisite/${broker.id}`;
+    if (broker && broker.username) {
+      const minisiteUrl = `${window.location.origin}/@${broker.username}`;
       navigator.clipboard.writeText(minisiteUrl);
       toast({
         title: "URL copiada",
         description: "URL do seu minisite copiada para a área de transferência",
+      });
+    } else {
+      toast({
+        title: "Configure seu username",
+        description: "Você precisa configurar um username primeiro",
+        variant: "destructive",
       });
     }
   };

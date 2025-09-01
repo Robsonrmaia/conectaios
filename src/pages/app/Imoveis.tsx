@@ -122,12 +122,30 @@ export default function Imoveis() {
     }
 
     try {
+      // Parse value correctly (handle Brazilian format)
+      const parseValueBR = (value: string) => {
+        if (!value) return 0;
+        // Remove dots and replace comma with dot
+        return parseFloat(value.replace(/\./g, '').replace(',', '.'));
+      };
+
+      // Handle photos from both upload and URLs
+      let photosArray: string[] = [];
+      
+      // First add URLs if provided
+      if (formData.fotos) {
+        photosArray = formData.fotos.split(',').map(f => f.trim()).filter(f => f);
+      }
+      
+      // TODO: Upload files to storage and add URLs to array
+      // For now, we'll just use the URL inputs
+      
       const propertyData = {
         user_id: user.id,
         titulo: formData.titulo,
-        valor: parseFloat(formData.valor),
-        area: parseFloat(formData.area),
-        quartos: parseInt(formData.quartos),
+        valor: parseValueBR(formData.valor),
+        area: parseFloat(formData.area) || 0,
+        quartos: parseInt(formData.quartos) || 0,
         bathrooms: parseInt(formData.bathrooms) || 0,
         parking_spots: parseInt(formData.parking_spots) || 0,
         listing_type: formData.listing_type,
@@ -135,13 +153,13 @@ export default function Imoveis() {
         visibility: formData.visibility,
         broker_minisite_enabled: formData.broker_minisite_enabled,
         descricao: formData.descricao,
-        fotos: formData.fotos ? formData.fotos.split(',').map(f => f.trim()) : [],
-        videos: formData.videos ? formData.videos.split(',').map(v => v.trim()) : [],
+        fotos: photosArray,
+        videos: formData.videos ? formData.videos.split(',').map(v => v.trim()).filter(v => v) : [],
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
-        condominium_fee: formData.condominium_fee ? parseFloat(formData.condominium_fee) : null,
-        iptu: formData.iptu ? parseFloat(formData.iptu) : null
+        condominium_fee: formData.condominium_fee ? parseValueBR(formData.condominium_fee) : null,
+        iptu: formData.iptu ? parseValueBR(formData.iptu) : null
       };
 
       let error;
@@ -320,9 +338,16 @@ export default function Imoveis() {
                   <Input
                     id="valor"
                     value={formData.valor}
-                    onChange={(e) => setFormData({...formData, valor: e.target.value})}
+                    onChange={(e) => {
+                      // Allow only numbers, dots and commas
+                      const value = e.target.value.replace(/[^0-9.,]/g, '');
+                      setFormData({...formData, valor: value});
+                    }}
                     placeholder="650.000,00"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Use formato brasileiro: 650.000,00
+                  </p>
                 </div>
               </div>
               

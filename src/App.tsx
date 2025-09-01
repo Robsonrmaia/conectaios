@@ -100,7 +100,7 @@ const App = () => (
               <Route index element={<Dashboard />} />
               <Route path="imoveis" element={<Imoveis />} />
               <Route path="marketplace" element={<Marketplace />} />
-              <Route path="minisite/:brokerId" element={<Minisite />} />
+              <Route path="minisite" element={<Minisite />} />
               <Route path="match" element={<Match />} />
               <Route path="deals" element={<Deals />} />
               <Route path="inbox" element={<Inbox />} />
