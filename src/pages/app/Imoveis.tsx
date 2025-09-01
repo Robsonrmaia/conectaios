@@ -16,6 +16,7 @@ import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
+import { PhotoUploader } from '@/components/PhotoUploader';
 
 interface Property {
   id: string;
@@ -57,7 +58,7 @@ export default function Imoveis() {
     visibility: 'public_site',
     broker_minisite_enabled: false,
     descricao: '',
-    fotos: '',
+    fotos: [] as string[],
     videos: '',
     address: '',
     neighborhood: '',
@@ -128,10 +129,17 @@ export default function Imoveis() {
       // Handle photos from both upload and URLs
       let photosArray: string[] = [];
       
-      // First add URLs if provided
-      if (formData.fotos) {
-        photosArray = formData.fotos.split(',').map(f => f.trim()).filter(f => f);
+      // If editing, start with existing photos
+      if (selectedProperty && selectedProperty.fotos) {
+        photosArray = Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [];
       }
+      
+      // Add new photos from form data
+      if (Array.isArray(formData.fotos)) {
+        photosArray = [...photosArray, ...formData.fotos];
+      }
+      
+      console.log('Final photos array:', photosArray);
       
       // TODO: Upload files to storage and add URLs to array
       // For now, we'll just use the URL inputs
@@ -196,7 +204,7 @@ export default function Imoveis() {
         visibility: 'public_site',
         broker_minisite_enabled: false,
         descricao: '',
-        fotos: '',
+        fotos: [],
         videos: '',
         address: '',
         neighborhood: '',
@@ -432,7 +440,7 @@ export default function Imoveis() {
                   <Textarea
                     id="fotos-url"
                     value={formData.fotos}
-                    onChange={(e) => setFormData({...formData, fotos: e.target.value})}
+                    onChange={(e) => setFormData({...formData, fotos: e.target.value.split(',').map(url => url.trim()).filter(url => url.length > 0)})}
                     placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg"
                     rows={3}
                   />
@@ -651,7 +659,7 @@ export default function Imoveis() {
                           visibility: property.visibility,
                           broker_minisite_enabled: false, // Assume false por padrão
                           descricao: property.descricao || '',
-                          fotos: property.fotos.join(', '),
+                          fotos: Array.isArray(property.fotos) ? property.fotos : [],
                           videos: property.videos.join(', '),
                           address: '',
                           neighborhood: '',

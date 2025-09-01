@@ -189,6 +189,10 @@ export default function BrokerMinisite() {
     window.open(url, '_blank');
   };
 
+  console.log('BrokerMinisite - Username:', username);
+  console.log('BrokerMinisite - Broker data:', broker);
+  console.log('BrokerMinisite - Properties:', properties);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -399,7 +403,6 @@ export default function BrokerMinisite() {
                             propertyId={property.id}
                             propertyTitle={property.titulo}
                             ownerUserId={broker?.user_id}
-                            isOwner={true}
                           />
                           <FavoritesManager propertyId={property.id} />
                         </div>

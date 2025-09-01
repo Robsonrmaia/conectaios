@@ -64,7 +64,7 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
     try {
       // Fetch properties
       const { data: propertiesData } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('id, titulo, valor')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
@@ -73,7 +73,7 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
 
       // Fetch clients
       const { data: clientsData } = await supabase
-        .from('clients')
+        .from('conectaios_clients')
         .select('id, nome, telefone')
         .eq('user_id', user?.id)
         .order('nome');
@@ -82,7 +82,7 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
 
       // Fetch brokers (excluding current user)
       const { data: brokersData } = await supabase
-        .from('brokers')
+        .from('conectaios_brokers')
         .select('id, name, email')
         .neq('user_id', user?.id)
         .eq('status', 'active')

@@ -20,8 +20,8 @@ export default function Deals() {
   const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<any>(null);
   const [proposalData, setProposalData] = useState({
-    offerAmount: '',
-    commissionPercent: '50/50',
+    commissionPercent: '5',
+    commissionSplit: '50/50', 
     notes: '',
     expiryDays: '15'
   });
@@ -124,16 +124,15 @@ export default function Deals() {
   };
 
   const handleSubmitProposal = () => {
-    const parsedAmount = parseValueInput(proposalData.offerAmount);
     toast({
       title: "Proposta Enviada",
-      description: `Proposta de ${parsedAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} enviada com sucesso!`,
+      description: `Proposta com ${proposalData.commissionPercent}% de comissão enviada com sucesso!`,
     });
     
     setIsProposalDialogOpen(false);
     setProposalData({
-      offerAmount: '',
-      commissionPercent: '50/50',
+      commissionPercent: '5',
+      commissionSplit: '50/50',
       notes: '',
       expiryDays: '15'
     });
@@ -324,20 +323,27 @@ export default function Deals() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="offerAmount">Valor da Proposta (R$)</Label>
+              <Label htmlFor="commissionPercent">Percentual de Comissão (%)</Label>
               <Input
-                id="offerAmount"
-                value={proposalData.offerAmount}
-                onChange={(e) => setProposalData({...proposalData, offerAmount: e.target.value})}
-                placeholder="650.000,00"
+                id="commissionPercent"
+                type="number"
+                min="2"
+                max="15"
+                value={proposalData.commissionPercent.replace(/[^\d]/g, '')}
+                onChange={(e) => {
+                  const value = Math.min(15, Math.max(2, parseInt(e.target.value) || 2));
+                  setProposalData({...proposalData, commissionPercent: value.toString()});
+                }}
+                placeholder="5"
               />
+              <p className="text-xs text-muted-foreground">Entre 2% e 15%</p>
             </div>
             
             <div>
               <Label htmlFor="commissionSplit">Divisão da Comissão</Label>
               <Select 
-                value={proposalData.commissionPercent} 
-                onValueChange={(value) => setProposalData({...proposalData, commissionPercent: value})}
+                value={proposalData.commissionSplit} 
+                onValueChange={(value) => setProposalData({...proposalData, commissionSplit: value})}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -381,40 +387,47 @@ export default function Deals() {
               />
             </div>
 
-            {proposalData.offerAmount && (
+            {proposalData.commissionPercent && selectedDeal && (
               <div className="p-3 bg-muted rounded-lg space-y-2">
-                <div className="text-sm text-muted-foreground">Rateio de Comissão:</div>
+                <div className="text-sm text-muted-foreground">Resumo da Comissão:</div>
                 {(() => {
-                  const parsedAmount = parseValueInput(proposalData.offerAmount);
-                  const [buyerPercent, sellerPercent] = proposalData.commissionPercent.includes('/') 
-                    ? proposalData.commissionPercent.split('/').map(p => parseInt(p.trim())) 
+                  const commissionPercent = parseFloat(proposalData.commissionPercent);
+                  const propertyValue = selectedDeal.value;
+                  const totalCommission = (propertyValue * commissionPercent / 100);
+                  const [buyerPercent, sellerPercent] = proposalData.commissionSplit.includes('/') 
+                    ? proposalData.commissionSplit.split('/').map(p => parseInt(p.trim())) 
                     : [50, 50];
                   
-                  const buyerCommission = (parsedAmount * buyerPercent / 100);
-                  const sellerCommission = (parsedAmount * sellerPercent / 100);
+                  const buyerCommission = (totalCommission * buyerPercent / 100);
+                  const sellerCommission = (totalCommission * sellerPercent / 100);
                   
                    return (
                      <div className="space-y-1">
                        <div className="flex justify-between text-sm">
-                         <span>Corretor Comprador ({buyerPercent}%):</span>
+                         <span>Valor do Imóvel:</span>  
                          <span className="font-semibold">
-                           {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                           {propertyValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                          </span>
                        </div>
                        <div className="flex justify-between text-sm">
-                         <span>Corretor Vendedor ({sellerPercent}%):</span>
-                         <span className="font-semibold">
-                           {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                         <span>Comissão ({commissionPercent}%):</span>
+                         <span className="font-semibold text-primary">
+                           {totalCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                          </span>
                        </div>
-                       <div className="border-t pt-1 flex justify-between text-sm font-bold">
-                         <span>Total da Comissão:</span>
-                         <span className="text-primary">
-                           {(buyerCommission + sellerCommission).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                         </span>
-                       </div>
-                       <div className="text-xs text-muted-foreground mt-2">
-                         * Primeiro percentual é sempre do corretor logado
+                       <div className="border-t pt-1 space-y-1">
+                         <div className="flex justify-between text-sm">
+                           <span>Seu repasse ({buyerPercent}%):</span>
+                           <span className="font-semibold">
+                             {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                           </span>
+                         </div>
+                         <div className="flex justify-between text-sm">
+                           <span>Vendedor ({sellerPercent}%):</span>
+                           <span className="font-semibold">
+                             {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                           </span>
+                         </div>
                        </div>
                      </div>
                    );
@@ -433,7 +446,7 @@ export default function Deals() {
               <Button 
                 onClick={handleSubmitProposal}
                 className="flex-1"
-                disabled={!proposalData.offerAmount}
+                disabled={!proposalData.commissionPercent}
               >
                 <Percent className="h-4 w-4 mr-2" />
                 Enviar Proposta

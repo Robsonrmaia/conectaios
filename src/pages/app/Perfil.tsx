@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
 import BrokerSetup from '@/components/BrokerSetup';
+import { toast } from '@/components/ui/use-toast';
 import { 
   User, 
   Mail, 
@@ -26,7 +27,7 @@ import {
 } from 'lucide-react';
 
 export default function Perfil() {
-  const { broker } = useBroker();
+  const { broker, updateBrokerProfile } = useBroker();
   
   // If no broker profile exists, show the setup form
   if (!broker) {
@@ -34,15 +35,31 @@ export default function Perfil() {
   }
 
   const [profile, setProfile] = useState({
-    name: 'João Silva',
-    email: 'joao.silva@email.com',
-    phone: '(11) 99999-9999',
-    creci: 'CRECI-SP 123456',
-    bio: 'Corretor especializado em imóveis de alto padrão com mais de 10 anos de experiência no mercado paulistano.',
-    location: 'São Paulo, SP',
-    website: 'www.joaosilva.com.br',
-    avatar: '/placeholder.svg'
+    name: '',
+    email: '',
+    phone: '',
+    creci: '',
+    bio: '',
+    location: '',
+    website: '',
+    avatar: ''
   });
+
+  // Update profile data when broker data changes
+  useEffect(() => {
+    if (broker) {
+      setProfile({
+        name: broker.name || '',
+        email: broker.email || '',
+        phone: broker.phone || '',
+        creci: broker.creci || '',
+        bio: broker.bio || '',
+        location: '',
+        website: '',
+        avatar: broker.avatar_url || ''
+      });
+    }
+  }, [broker]);
 
   const [notifications, setNotifications] = useState({
     emailLeads: true,
@@ -231,7 +248,29 @@ export default function Perfil() {
                     rows={3}
                   />
                 </div>
-                <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                <Button 
+                  onClick={async () => {
+                    try {
+                      await updateBrokerProfile({
+                        name: profile.name,
+                        phone: profile.phone,
+                        bio: profile.bio,
+                        creci: profile.creci
+                      });
+                      toast({
+                        title: "Perfil atualizado!",
+                        description: "Suas informações foram salvas com sucesso.",
+                      });
+                    } catch (error) {
+                      toast({
+                        title: "Erro",
+                        description: "Erro ao salvar as alterações.",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                >
                   Salvar Alterações
                 </Button>
               </CardContent>

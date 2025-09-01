@@ -56,7 +56,7 @@ const AuditLogs = () => {
           ip_address,
           user_agent,
           created_at,
-          profiles:user_id(nome)
+          user_id
         `)
         .order('created_at', { ascending: false })
         .limit(100);
@@ -93,7 +93,7 @@ const AuditLogs = () => {
     const csvContent = "data:text/csv;charset=utf-8," + 
       "Data,Usuário,Ação,Recurso,IP\n" +
       filteredLogs.map(log => 
-        `${new Date(log.created_at).toLocaleString()},${log.profiles?.nome || 'Sistema'},${log.action},${log.resource_type},${log.ip_address || ''}`
+        `${new Date(log.created_at).toLocaleString()},Sistema,${log.action},${log.resource_type},${log.ip_address || ''}`
       ).join("\n");
 
     const encodedUri = encodeURI(csvContent);
@@ -196,7 +196,7 @@ const AuditLogs = () => {
                             locale: ptBR 
                           })}
                         </TableCell>
-                        <TableCell>{log.profiles?.nome || 'Sistema'}</TableCell>
+                        <TableCell>Sistema</TableCell>
                         <TableCell>
                           <Badge className={getActionColor(log.action)}>
                             {log.action}
