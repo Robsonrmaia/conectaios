@@ -1,23 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
+  ExternalLink, 
+  Star, 
+  Award, 
   Handshake, 
-  TrendingUp, 
+  Building2, 
   Eye, 
-  Clock, 
+  TrendingUp, 
   MapPin, 
-  DollarSign,
-  Search,
-  Filter,
-  Plus,
-  Star
+  Plus, 
+  Search, 
+  Filter 
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface Partnership {
+  id: string;
+  name: string;
+  description: string;
+  logo_url: string;
+  website_url: string;
+  is_active: boolean;
+  created_at: string;
+}
 
 export default function Patrocinios() {
+  const [partnerships, setPartnerships] = useState<Partnership[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   const mySponsored = [
@@ -87,6 +102,27 @@ export default function Patrocinios() {
       tags: ['Família', 'Segurança', 'Natureza']
     }
   ];
+
+  useEffect(() => {
+    fetchPartnerships();
+  }, []);
+
+  const fetchPartnerships = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('partnerships')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setPartnerships(data || []);
+    } catch (error) {
+      console.error('Error fetching partnerships:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -223,8 +259,25 @@ export default function Patrocinios() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-96" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Skeleton key={i} className="h-64 w-full" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-primary">
@@ -383,6 +436,180 @@ export default function Patrocinios() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Partnerships Section */}
+      <div className="space-y-6 pt-8 border-t">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-gradient-to-br from-primary/20 to-brand-secondary/20 rounded-lg">
+              <Handshake className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+                Parcerias e Convênios
+              </h2>
+              <p className="text-muted-foreground">
+                Descubra nossos parceiros e aproveite benefícios exclusivos
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="border-dashed">
+            <CardContent className="p-6 text-center">
+              <Award className="h-8 w-8 text-primary mx-auto mb-2" />
+              <div className="text-2xl font-bold">{partnerships.length}</div>
+              <div className="text-sm text-muted-foreground">Parceiros Ativos</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-dashed">
+            <CardContent className="p-6 text-center">
+              <Star className="h-8 w-8 text-warning mx-auto mb-2" />
+              <div className="text-2xl font-bold">100%</div>
+              <div className="text-sm text-muted-foreground">Benefícios Exclusivos</div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-dashed">
+            <CardContent className="p-6 text-center">
+              <Building2 className="h-8 w-8 text-success mx-auto mb-2" />
+              <div className="text-2xl font-bold">24/7</div>
+              <div className="text-sm text-muted-foreground">Suporte Parceiros</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Partnerships Grid */}
+        {partnerships.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Handshake className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Nenhum parceiro ativo</h3>
+              <p className="text-muted-foreground">
+                Em breve teremos parcerias disponíveis para você
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {partnerships.map((partnership) => (
+              <Card key={partnership.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 hover-scale">
+                <div className="aspect-video bg-gradient-to-br from-primary/5 to-brand-secondary/5 flex items-center justify-center p-6">
+                  {partnership.logo_url ? (
+                    <img
+                      src={partnership.logo_url}
+                      alt={partnership.name}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  ) : (
+                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+                      <Building2 className="h-10 w-10 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xl">{partnership.name}</CardTitle>
+                    <Badge variant="outline" className="bg-success/10 text-success border-success/20">
+                      Parceiro
+                    </Badge>
+                  </div>
+                  <CardDescription className="line-clamp-3">
+                    {partnership.description || 'Parceiro oficial da plataforma'}
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
+                  <div className="flex flex-col gap-2">
+                    <div className="text-sm font-medium text-success flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Benefícios Exclusivos
+                    </div>
+                    <ul className="text-sm text-muted-foreground space-y-1 pl-6">
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-primary rounded-full" />
+                        Descontos especiais para corretores
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-primary rounded-full" />
+                        Atendimento prioritário
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <div className="w-1 h-1 bg-primary rounded-full" />
+                        Suporte técnico especializado
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  {partnership.website_url && (
+                    <Button 
+                      asChild 
+                      className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+                    >
+                      <a 
+                        href={partnership.website_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Visitar Site
+                      </a>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Information Card */}
+        <Card className="bg-gradient-to-r from-primary/5 to-brand-secondary/5 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="h-5 w-5 text-primary" />
+              Como Funciona
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <span className="text-primary font-bold">1</span>
+                </div>
+                <h3 className="font-semibold">Escolha um Parceiro</h3>
+                <p className="text-sm text-muted-foreground">
+                  Navegue pelos nossos parceiros e encontre o serviço ideal
+                </p>
+              </div>
+              
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <span className="text-primary font-bold">2</span>
+                </div>
+                <h3 className="font-semibold">Acesse o Site</h3>
+                <p className="text-sm text-muted-foreground">
+                  Clique em "Visitar Site" para ser redirecionado
+                </p>
+              </div>
+              
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                  <span className="text-primary font-bold">3</span>
+                </div>
+                <h3 className="font-semibold">Aproveite os Benefícios</h3>
+                <p className="text-sm text-muted-foreground">
+                  Mencione que é corretor da nossa plataforma
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
