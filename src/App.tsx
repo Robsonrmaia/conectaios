@@ -29,6 +29,8 @@ import AIAssistant from "./pages/app/AIAssistant";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
 import NotFound from "./pages/NotFound";
+import BrokerMinisite from "./pages/public/BrokerMinisite";
+import PropertyDetail from "./pages/public/PropertyDetail";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +90,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/@:username" element={<BrokerMinisite />} />
+            <Route path="/imovel/:id" element={<PropertyDetail />} />
             <Route path="/app/*" element={
               <ProtectedRoute>
                 <AppLayout>
