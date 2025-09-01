@@ -119,7 +119,8 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         phone: data.phone || null,
         creci: data.creci || null,
         username: data.username || null,
-        bio: data.bio || null
+        bio: data.bio || null,
+        status: 'active'
       };
 
       // Only add region_id if it's provided and not empty

@@ -25,10 +25,14 @@ export default function BrokerSetup() {
 
   // Auto-fill username based on first name
   const handleNameChange = (name: string) => {
+    const firstName = name.split(' ')[0];
+    const baseUsername = firstName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const suggestedUsername = baseUsername ? `${baseUsername}corretor` : '';
+    
     setFormData(prev => ({
       ...prev, 
       name,
-      username: prev.username || name.split(' ')[0].toLowerCase().replace(/[^a-z0-9]/g, '') + 'corretor'
+      username: prev.username || suggestedUsername
     }));
   };
 
@@ -39,8 +43,9 @@ export default function BrokerSetup() {
     try {
       await createBrokerProfile(formData);
       toast({
-        title: "Perfil criado com sucesso!",
-        description: "Bem-vindo ao ConectaIOS. Vamos começar?"
+        title: "✅ Perfil criado com sucesso!",
+        description: "Bem-vindo ao ConectaIOS. Redirecionando para o painel...",
+        duration: 3000
       });
       navigate('/app');
     } catch (error) {
