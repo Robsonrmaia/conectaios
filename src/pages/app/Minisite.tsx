@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
@@ -19,17 +19,19 @@ import {
   Mail, 
   Copy, 
   ExternalLink, 
-  Camera,
-  Save,
-  AlertCircle,
-  CheckCircle,
+  BarChart3,
   Palette,
-  Layout
+  Layout,
+  TrendingUp,
+  Users
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
+import { MinisiteEditor } from '@/components/MinisiteEditor';
+import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
+import { WhatsAppButton } from '@/components/WhatsAppButton';
 
 interface BrokerProfile {
   name: string;
@@ -137,7 +139,7 @@ export default function Minisite() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -145,7 +147,7 @@ export default function Minisite() {
             Mini Site do Corretor
           </h1>
           <p className="text-muted-foreground">
-            Configure seu mini site público para mostrar seus imóveis
+            Configure e monitore seu mini site público
           </p>
         </div>
         
@@ -154,13 +156,83 @@ export default function Minisite() {
             <Copy className="h-4 w-4 mr-2" />
             Copiar Link
           </Button>
+          
+          <Button variant="outline" asChild>
+            <a 
+              href={`${window.location.origin}/@${profile.username || 'seu-usuario'}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Visualizar
+            </a>
+          </Button>
         </div>
       </div>
 
-      {/* Quick Configuration */}
+      {/* Quick Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Visitas Totais</p>
+                <p className="text-2xl font-bold">{stats.totalViews}</p>
+              </div>
+              <Eye className="h-8 w-8 text-primary/60" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Imóveis Ativos</p>
+                <p className="text-2xl font-bold">{stats.activeProperties}</p>
+              </div>
+              <Building2 className="h-8 w-8 text-primary/60" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Contatos</p>
+                <p className="text-2xl font-bold">{stats.contactsReceived}</p>
+              </div>
+              <Users className="h-8 w-8 text-primary/60" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Taxa Conversão</p>
+                <p className="text-2xl font-bold">
+                  {stats.totalViews > 0 ? ((stats.contactsReceived / stats.totalViews) * 100).toFixed(1) : '0'}%
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-primary/60" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Setup */}
       <Card>
-        <CardContent className="p-6">
-          <div className="grid md:grid-cols-2 gap-6">
+        <CardHeader>
+          <CardTitle>Configuração Básica</CardTitle>
+          <CardDescription>
+            Configure as informações essenciais do seu mini site
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="username">Username *</Label>
               <Input
@@ -170,18 +242,22 @@ export default function Minisite() {
                 placeholder="seu-nome-usuario"
                 className="font-mono"
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Seu mini site será: {window.location.origin}/@{profile.username || 'seu-usuario'}
+              </p>
             </div>
             <div>
-              <Label htmlFor="name">Nome *</Label>
+              <Label htmlFor="name">Nome Completo *</Label>
               <Input
                 id="name"
                 value={profile.name}
                 onChange={(e) => setProfile({...profile, name: e.target.value})}
-                placeholder="Seu nome"
+                placeholder="Seu nome completo"
               />
             </div>
           </div>
-          <div className="mt-4 flex justify-center">
+          
+          <div className="flex gap-2">
             <Button 
               onClick={handleSave} 
               disabled={isSaving}
@@ -192,6 +268,107 @@ export default function Minisite() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Main Tabs */}
+      <Tabs defaultValue="editor" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="editor" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Editor Visual
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="settings" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Configurações
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="editor">
+          <MinisiteEditor />
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <MinisiteAnalytics />
+        </TabsContent>
+
+        <TabsContent value="settings" className="space-y-6">
+          {/* URL Configuration */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações de URL</CardTitle>
+              <CardDescription>
+                Gerencie como seu mini site é acessado
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>URL Atual</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    value={`${window.location.origin}/@${profile.username || 'seu-usuario'}`}
+                    readOnly
+                    className="font-mono"
+                  />
+                  <Button variant="outline" onClick={copyMinisiteUrl}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Mini Site Ativo</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Tornar seu mini site público e acessível
+                  </p>
+                </div>
+                <Switch 
+                  checked={isEnabled}
+                  onCheckedChange={setIsEnabled}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Privacy & Security */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Privacidade e Segurança</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Indexação no Google</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Permitir que o Google encontre seu mini site
+                  </p>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Analytics Público</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Mostrar estatísticas básicas no mini site
+                  </p>
+                </div>
+                <Switch />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      
+      {/* WhatsApp Button */}
+      <WhatsAppButton 
+        phone={broker?.phone}
+        message={`Olá ${broker?.name}! Gostaria de saber mais sobre seu mini site.`}
+        showOnScroll={true}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -324,14 +324,15 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setOpen(false)}
-              className="flex-1"
-            >
-              Cancelar
-            </Button>
+            <DialogClose asChild>
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </DialogClose>
             <Button 
               type="submit" 
               disabled={loading}

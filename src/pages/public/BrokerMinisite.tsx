@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogClose } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Building2, Phone, Mail, MapPin, Bed, Bath, Car, Share2, MessageSquare, User, Star, Send, Search, Filter, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -535,12 +535,19 @@ export default function BrokerMinisite() {
                     />
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
-                  >
-                    Enviar Mensagem
-                  </Button>
+                  <div className="flex gap-2">
+                    <DialogClose asChild>
+                      <Button variant="outline" className="flex-1">
+                        Fechar
+                      </Button>
+                    </DialogClose>
+                    <Button 
+                      type="submit" 
+                      className="flex-1 bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+                    >
+                      Enviar Mensagem
+                    </Button>
+                  </div>
                 </form>
               </CardContent>
             </Card>
