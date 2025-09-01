@@ -507,29 +507,44 @@ export default function Imoveis() {
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
               {(() => {
-                // Handle photos array - check if it exists and has valid content
-                const hasValidPhoto = property.fotos && 
-                  Array.isArray(property.fotos) && 
-                  property.fotos.length > 0 && 
-                  property.fotos[0] && 
-                  String(property.fotos[0]).trim() !== '';
+                // Debug log to see what's in the photos
+                console.log('Property photos:', property.fotos, 'Type:', typeof property.fotos);
                 
-                return hasValidPhoto ? (
-                  <img
-                    src={String(property.fotos[0])}
-                    alt={property.titulo}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const fallback = target.parentElement?.querySelector('.photo-fallback') as HTMLElement;
-                      if (fallback) fallback.classList.remove('hidden');
-                    }}
-                  />
-                ) : (
-                  <div className="photo-fallback w-full h-full flex items-center justify-center">
-                    <Building2 className="h-12 w-12 text-muted-foreground" />
-                  </div>
+                // Handle photos - ensure it's an array and has valid content
+                const photosArray = Array.isArray(property.fotos) ? property.fotos : [];
+                
+                const hasValidPhoto = photosArray.length > 0 && 
+                  photosArray[0] && 
+                  String(photosArray[0]).trim() !== '' &&
+                  String(photosArray[0]).trim() !== '{}';
+                
+                console.log('Has valid photo:', hasValidPhoto, 'Photos array:', photosArray);
+                
+                return (
+                  <>
+                    {hasValidPhoto && (
+                      <img
+                        src={String(photosArray[0])}
+                        alt={property.titulo}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.log('Image failed to load:', String(photosArray[0]));
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    )}
+                    
+                    {/* Always render fallback, initially hidden if we have a photo */}
+                    <div 
+                      className="w-full h-full flex items-center justify-center bg-muted" 
+                      style={{ display: hasValidPhoto ? 'none' : 'flex' }}
+                    >
+                      <Building2 className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                  </>
                 );
               })()}
               <div className="absolute top-3 right-3 flex gap-2">

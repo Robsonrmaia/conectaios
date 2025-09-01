@@ -64,7 +64,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       // Fetch broker profile
       const { data: brokerData, error: brokerError } = await supabase
-        .from('brokers')
+        .from('conectaios_brokers')
         .select('*')
         .eq('user_id', user.id)
         .single();
@@ -129,7 +129,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       }
 
       const { data: brokerData, error } = await supabase
-        .from('brokers')
+        .from('conectaios_brokers')
         .insert(profileData)
         .select()
         .single();
@@ -148,7 +148,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data: updatedBroker, error } = await supabase
-        .from('brokers')
+        .from('conectaios_brokers')
         .update(data)
         .eq('id', broker.id)
         .select()
