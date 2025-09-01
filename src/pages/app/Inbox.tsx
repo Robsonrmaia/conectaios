@@ -108,9 +108,9 @@ export default function Inbox() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-6">
-      {/* Chat List */}
-      <Card className="w-80 flex flex-col">
+    <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6">
+      {/* Chat List - Mobile responsive */}
+      <Card className="w-full lg:w-80 flex flex-col max-h-96 lg:max-h-full">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="h-5 w-5" />
@@ -166,8 +166,8 @@ export default function Inbox() {
         </CardContent>
       </Card>
 
-      {/* Chat Window */}
-      <Card className="flex-1 flex flex-col">
+      {/* Chat Window - Mobile responsive */}
+      <Card className="flex-1 flex flex-col min-h-96">
         {currentChat ? (
           <>
             {/* Chat Header */}

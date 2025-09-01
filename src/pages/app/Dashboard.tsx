@@ -91,30 +91,33 @@ const Dashboard = () => {
           </p>
         </div>
         
-        {/* Actions */}
-        <div className="flex gap-2">
+        {/* Actions - Mobile Responsive */}
+        <div className="flex flex-col sm:flex-row gap-2">
           <Button 
             variant="outline"
             onClick={() => navigate('/')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <Home className="h-4 w-4" />
-            Voltar ao Site
+            <span className="hidden sm:inline">Voltar ao Site</span>
+            <span className="sm:hidden">Site</span>
           </Button>
           <Button 
             variant="outline"
             onClick={copyMinisiteUrl}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <Globe className="h-4 w-4" />
-            Copiar URL do Minisite
+            <span className="hidden sm:inline">Copiar URL</span>
+            <span className="sm:hidden">URL</span>
           </Button>
           <Button 
             onClick={handleMinisiteAccess}
-            className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2"
+            className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2 w-full sm:w-auto"
           >
             <ExternalLink className="h-4 w-4" />
-            Ver Meu Minisite
+            <span className="hidden sm:inline">Ver Meu Minisite</span>
+            <span className="sm:hidden">Minisite</span>
           </Button>
         </div>
       </div>
