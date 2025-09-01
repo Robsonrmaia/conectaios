@@ -1,217 +1,187 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Calculator, 
   FileText, 
-  Image, 
-  QrCode, 
-  Share2, 
-  Download,
-  Wrench,
-  ExternalLink
+  Camera, 
+  BarChart3, 
+  Users, 
+  Mail, 
+  Lock, 
+  Crown, 
+  Home,
+  Zap,
+  Target
 } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
+import { useBroker } from '@/hooks/useBroker';
+import { FinancingCalculator } from '@/components/FinancingCalculator';
+
+interface Tool {
+  id: string;
+  name: string;
+  description: string;
+  icon: any;
+  category: string;
+  planRequired: string;
+  isAvailable: boolean;
+}
 
 export default function Ferramentas() {
-  const tools = [
+  const navigate = useNavigate();
+  const { broker, plan } = useBroker();
+  
+  const tools: Tool[] = [
     {
-      id: 1,
-      title: 'Calculadora de Financiamento',
-      description: 'Simule financiamentos imobiliários com diferentes bancos',
+      id: 'calculator',
+      name: 'Calculadora de Financiamento',
+      description: 'Simule financiamentos e apresente opções aos clientes',
       icon: Calculator,
-      category: 'Simuladores',
-      available: true
+      category: 'Vendas',
+      planRequired: 'starter',
+      isAvailable: true
     },
     {
-      id: 2,
-      title: 'Gerador de Contratos',
-      description: 'Crie contratos personalizados para seus clientes',
+      id: 'contracts',
+      name: 'Gerador de Contratos',
+      description: 'Gere contratos personalizados automaticamente',
       icon: FileText,
       category: 'Documentos',
-      available: true
+      planRequired: 'professional',  
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
     },
     {
-      id: 3,
-      title: 'Blog',
-      description: 'Publique artigos e conteúdo para seus clientes',
-      icon: FileText,
-      category: 'Marketing',
-      available: true
-    },
-    {
-      id: 4,
-      title: 'Guia de Bairros',
-      description: 'Informações completas sobre bairros da região',
-      icon: QrCode,
-      category: 'Relatórios',
-      available: true
-    },
-    {
-      id: 5,
-      title: 'Avaliação de Imóveis',
-      description: 'Ferramenta de avaliação automática de imóveis',
-      icon: Calculator,
-      category: 'Simuladores',
-      available: true
-    },
-    {
-      id: 6,
-      title: 'Gerador de Orçamento Temporada',
-      description: 'Calcule preços para locação de temporada',
-      icon: Calculator,
-      category: 'Simuladores',
-      available: true
-    },
-    {
-      id: 7,
-      title: 'Avaliação Entrada/Saída Locação',
-      description: 'Gere relatórios de vistoria para locação',
-      icon: FileText,
-      category: 'Documentos',
-      available: true
-    },
-    {
-      id: 8,
-      title: 'Simulador de Empreendimentos',
-      description: 'Simule valores e viabilidade de empreendimentos',
-      icon: Calculator,
-      category: 'Simuladores',
-      available: true
-    },
-    {
-      id: 9,
-      title: 'Guia de Regularização Documental',
-      description: 'Orientações para regularização de documentos',
-      icon: FileText,
-      category: 'Documentos',
-      available: true
-    },
-    {
-      id: 10,
-      title: 'Portal de Envios WhatsApp',
-      description: 'Envie materiais automaticamente via WhatsApp',
-      icon: Share2,
-      category: 'Marketing',
-      available: true
-    },
-    {
-      id: 11,
-      title: 'Guia do Comprador',
-      description: 'Material educativo completo para compradores',
-      icon: Download,
-      category: 'Relatórios',
-      available: true
-    },
-    {
-      id: 12,
-      title: 'Editor de Imagens',
-      description: 'Edite e otimize fotos dos seus imóveis',
-      icon: Image,
-      category: 'Marketing',
-      available: false
+      id: 'crm-advanced',
+      name: 'CRM Avançado',
+      description: 'Gestão completa de clientes e funil de vendas',
+      icon: Users,
+      category: 'CRM',
+      planRequired: 'starter',
+      isAvailable: true
     }
   ];
 
-  const categories = ['Todos', 'Simuladores', 'Documentos', 'Marketing', 'Relatórios'];
+  const handleToolAccess = (tool: Tool) => {
+    if (!tool.isAvailable) {
+      toast({
+        title: "Upgrade Necessário",
+        description: `Esta ferramenta requer o plano ${tool.planRequired}. Faça upgrade para acessar.`,
+        variant: "destructive",
+      });
+      return;
+    }
 
-  const ToolCard = ({ tool }: { tool: any }) => {
-    const IconComponent = tool.icon;
-
-    return (
-      <Card className={`hover:shadow-md transition-all ${!tool.available ? 'opacity-60' : ''}`}>
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <IconComponent className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{tool.title}</CardTitle>
-                <CardDescription>{tool.category}</CardDescription>
-              </div>
-            </div>
-            {!tool.available && (
-              <div className="px-2 py-1 bg-warning/20 text-warning text-xs rounded-md">
-                Em breve
-              </div>
-            )}
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            {tool.description}
-          </p>
-          
-          <Button 
-            className="w-full" 
-            disabled={!tool.available}
-            variant={tool.available ? "default" : "secondary"}
-          >
-            {tool.available ? (
-              <>
-                Usar Ferramenta
-                <ExternalLink className="h-4 w-4 ml-2" />
-              </>
-            ) : (
-              'Em Desenvolvimento'
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    );
+    switch (tool.id) {
+      case 'crm-advanced':
+        navigate('/app/crm');
+        break;
+      case 'contracts':
+        navigate('/app/deals');
+        break;
+      default:
+        toast({
+          title: "Ferramenta",
+          description: `Abrindo ${tool.name}...`,
+        });
+    }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Ferramentas
-          </h1>
-          <p className="text-muted-foreground">
-            Utilize nossas ferramentas para otimizar seu trabalho
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Wrench className="h-5 w-5 text-primary" />
-          <span className="text-sm text-muted-foreground">
-            {tools.filter(t => t.available).length} de {tools.length} disponíveis
-          </span>
-        </div>
-      </div>
-
-      {/* Categories Filter */}
-      <div className="flex flex-wrap gap-2">
-        {categories.map((category) => (
-          <Button key={category} variant="outline" size="sm">
-            {category}
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/app')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
           </Button>
-        ))}
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+              Ferramentas
+            </h1>
+            <p className="text-muted-foreground">
+              Potencialize suas vendas com nossas ferramentas profissionais
+            </p>
+          </div>
+        </div>
       </div>
 
-      {/* Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {tools.map((tool) => (
-          <ToolCard key={tool.id} tool={tool} />
-        ))}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {tools.map(tool => {
+          const IconComponent = tool.icon;
+          return (
+            <Card 
+              key={tool.id} 
+              className={`cursor-pointer transition-all hover:shadow-md ${
+                !tool.isAvailable ? 'opacity-60' : ''
+              }`}
+              onClick={() => handleToolAccess(tool)}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg ${
+                    tool.isAvailable 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    <IconComponent className="h-5 w-5" />
+                  </div>
+                  <CardTitle className="text-base">{tool.name}</CardTitle>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <CardDescription className="text-sm mb-4">
+                  {tool.description}
+                </CardDescription>
+                
+                <div className="flex justify-between items-center">
+                  {tool.isAvailable ? (
+                    <Badge variant="outline" className="text-green-600">
+                      <Zap className="h-3 w-3 mr-1" />
+                      Disponível
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-orange-600">
+                      <Lock className="h-3 w-3 mr-1" />
+                      Upgrade
+                    </Badge>
+                  )}
+                  
+                  <Button size="sm" variant={tool.isAvailable ? "default" : "outline"}>
+                    {tool.isAvailable ? 'Abrir' : 'Upgrade'}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+        
+        {/* Calculator Card */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Calculator className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-base">Calculadora</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-sm mb-4">
+              Simule financiamentos imobiliários
+            </CardDescription>
+            <FinancingCalculator />
+          </CardContent>
+        </Card>
       </div>
-
-      {/* Coming Soon Section */}
-      <Card className="border-dashed">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Wrench className="h-5 w-5" />
-            Mais Ferramentas em Breve
-          </CardTitle>
-          <CardDescription>
-            Estamos constantemente desenvolvendo novas ferramentas para facilitar seu trabalho
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="text-center">
-          <Button variant="outline">
-            Sugerir Ferramenta
-          </Button>
-        </CardContent>
-      </Card>
     </div>
   );
 }
