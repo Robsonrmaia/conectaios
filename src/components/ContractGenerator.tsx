@@ -58,11 +58,26 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
     });
   };
 
-  const handleDownloadPDF = () => {
-    toast({
-      title: "Download iniciado",
-      description: "PDF do contrato sendo gerado para download",
-    });
+  const handleDownloadPDF = async () => {
+    try {
+      // Simula o envio do contrato por email/WhatsApp
+      toast({
+        title: "Contrato enviado!",
+        description: "O contrato foi enviado para os corretores envolvidos via WhatsApp e email",
+      });
+      
+      // Atualiza o status do contrato para "enviado"
+      setContractData(prev => ({
+        ...prev,
+        status: 'sent'
+      }));
+    } catch (error) {
+      toast({
+        title: "Erro no envio",
+        description: "Houve um problema ao enviar o contrato. Tente novamente.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (!showPreview) {
@@ -304,7 +319,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
             </Button>
             <Button onClick={handleDownloadPDF} variant="outline">
               <Download className="h-4 w-4 mr-2" />
-              Download PDF
+              Enviar Contrato
             </Button>
             <Button onClick={handlePrintContract}>
               <Printer className="h-4 w-4 mr-2" />

@@ -15,11 +15,7 @@ const Index = () => {
   const [banners, setBanners] = useState<any[]>([]);
   const [partnerships, setPartnerships] = useState<any[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      navigate('/app/marketplace');
-    }
-  }, [user, navigate]);
+  // Removido redirecionamento automático para permitir visualização da página inicial
 
   useEffect(() => {
     fetchBanners();
@@ -195,10 +191,133 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Assinatura Digital */}
+          {/* Planos e Assinatura */}
           <div className="mt-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Seja Nosso Parceiro</h2>
-            <Card className="max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-center mb-8">Planos & Assinatura</h2>
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              
+              {/* Plano Gratuito */}
+              <Card className="relative">
+                <CardHeader>
+                  <CardTitle>Gratuito</CardTitle>
+                  <div className="text-3xl font-bold">R$ 0<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Ideal para começar</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">5 imóveis</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">CRM básico</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Mini site</span>
+                  </div>
+                  <Button variant="outline" className="w-full mt-4">
+                    Começar Grátis
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Plano Profissional */}
+              <Card className="relative border-primary shadow-lg">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    Mais Popular
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle>Profissional</CardTitle>
+                  <div className="text-3xl font-bold">R$ 97<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Para corretores ativos</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">50 imóveis</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">CRM completo</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Matches ilimitados</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Contratos digitais</span>
+                  </div>
+                  <Button className="w-full mt-4 bg-primary">
+                    Assinar via Asaas
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Plano Premium */}
+              <Card className="relative">
+                <CardHeader>
+                  <CardTitle>Premium</CardTitle>
+                  <div className="text-3xl font-bold">R$ 197<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Para equipes</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Imóveis ilimitados</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Multi-usuários</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">API personalizada</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Suporte prioritário</span>
+                  </div>
+                  <Button variant="outline" className="w-full mt-4">
+                    Falar com Vendas
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Formas de Pagamento */}
+            <div className="bg-card/50 backdrop-blur-sm border rounded-xl p-8">
+              <h3 className="text-xl font-semibold text-center mb-6">Formas de Pagamento via Asaas</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Building2 className="h-8 w-8 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">PIX</h4>
+                  <p className="text-sm text-muted-foreground">Pagamento instantâneo com desconto de 5%</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Shield className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Cartão de Crédito</h4>
+                  <p className="text-sm text-muted-foreground">Parcelamento em até 12x sem juros</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <TrendingUp className="h-8 w-8 text-orange-600" />
+                  </div>
+                  <h4 className="font-semibold mb-2">Boleto</h4>
+                  <p className="text-sm text-muted-foreground">Vencimento em 3 dias úteis</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Cadastro */}
+            <Card className="max-w-2xl mx-auto mt-8">
               <CardHeader>
                 <CardTitle className="text-center">Cadastre-se como Corretor</CardTitle>
                 <CardDescription className="text-center">
@@ -237,6 +356,7 @@ const Index = () => {
                   <div className="text-center pt-4">
                     <Button 
                       size="lg"
+                      onClick={() => navigate('/auth')}
                       className="bg-primary hover:bg-primary/90 px-8"
                     >
                       Começar Gratuitamente

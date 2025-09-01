@@ -122,38 +122,54 @@ export default function Imoveis() {
     }
 
     try {
-      const { error } = await supabase
-        .from('conectaios_properties')
-        .insert({
-          user_id: user.id,
-          titulo: formData.titulo,
-          valor: parseFloat(formData.valor),
-          area: parseFloat(formData.area),
-          quartos: parseInt(formData.quartos),
-          bathrooms: parseInt(formData.bathrooms) || 0,
-          parking_spots: parseInt(formData.parking_spots) || 0,
-          listing_type: formData.listing_type,
-          property_type: formData.property_type,
-          visibility: formData.visibility,
-          broker_minisite_enabled: formData.broker_minisite_enabled,
-          descricao: formData.descricao,
-          fotos: formData.fotos ? formData.fotos.split(',').map(f => f.trim()) : [],
-          videos: formData.videos ? formData.videos.split(',').map(v => v.trim()) : [],
-          address: formData.address,
-          neighborhood: formData.neighborhood,
-          city: formData.city,
-          condominium_fee: formData.condominium_fee ? parseFloat(formData.condominium_fee) : null,
-          iptu: formData.iptu ? parseFloat(formData.iptu) : null
-        });
+      const propertyData = {
+        user_id: user.id,
+        titulo: formData.titulo,
+        valor: parseFloat(formData.valor),
+        area: parseFloat(formData.area),
+        quartos: parseInt(formData.quartos),
+        bathrooms: parseInt(formData.bathrooms) || 0,
+        parking_spots: parseInt(formData.parking_spots) || 0,
+        listing_type: formData.listing_type,
+        property_type: formData.property_type,
+        visibility: formData.visibility,
+        broker_minisite_enabled: formData.broker_minisite_enabled,
+        descricao: formData.descricao,
+        fotos: formData.fotos ? formData.fotos.split(',').map(f => f.trim()) : [],
+        videos: formData.videos ? formData.videos.split(',').map(v => v.trim()) : [],
+        address: formData.address,
+        neighborhood: formData.neighborhood,
+        city: formData.city,
+        condominium_fee: formData.condominium_fee ? parseFloat(formData.condominium_fee) : null,
+        iptu: formData.iptu ? parseFloat(formData.iptu) : null
+      };
+
+      let error;
+      
+      if (selectedProperty) {
+        // Editar imóvel existente
+        const { error: updateError } = await supabase
+          .from('conectaios_properties')
+          .update(propertyData)
+          .eq('id', selectedProperty.id);
+        error = updateError;
+      } else {
+        // Adicionar novo imóvel
+        const { error: insertError } = await supabase
+          .from('conectaios_properties')
+          .insert(propertyData);
+        error = insertError;
+      }
 
       if (error) throw error;
 
       toast({
         title: "Sucesso",
-        description: "Imóvel adicionado com sucesso!",
+        description: selectedProperty ? "Imóvel atualizado com sucesso!" : "Imóvel adicionado com sucesso!",
       });
 
       setIsAddDialogOpen(false);
+      setSelectedProperty(null);
       setFormData({
         titulo: '',
         valor: '',
@@ -176,10 +192,10 @@ export default function Imoveis() {
       });
       fetchProperties();
     } catch (error) {
-      console.error('Error adding property:', error);
+      console.error('Error adding/updating property:', error);
       toast({
         title: "Erro",
-        description: "Erro ao adicionar imóvel",
+        description: selectedProperty ? "Erro ao atualizar imóvel" : "Erro ao adicionar imóvel",
         variant: "destructive",
       });
     }
@@ -283,9 +299,9 @@ export default function Imoveis() {
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Adicionar Novo Imóvel</DialogTitle>
+              <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
               <DialogDescription>
-                Preencha as informações do imóvel
+                {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -433,11 +449,14 @@ export default function Imoveis() {
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              <Button variant="outline" onClick={() => {
+                setIsAddDialogOpen(false);
+                setSelectedProperty(null);
+              }}>
                 Cancelar
               </Button>
               <Button onClick={handleAddProperty}>
-                Adicionar Imóvel
+                {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
               </Button>
             </div>
           </DialogContent>
@@ -564,7 +583,35 @@ export default function Imoveis() {
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Preenche o formulário com os dados do imóvel selecionado
+                        setFormData({
+                          titulo: property.titulo,
+                          valor: property.valor.toString(),
+                          area: property.area.toString(),
+                          quartos: property.quartos.toString(),
+                          bathrooms: property.bathrooms.toString(),
+                          parking_spots: property.parking_spots.toString(),
+                          listing_type: property.listing_type,
+                          property_type: property.property_type,
+                          visibility: property.visibility,
+                          broker_minisite_enabled: false, // Assume false por padrão
+                          descricao: property.descricao || '',
+                          fotos: property.fotos.join(', '),
+                          videos: property.videos.join(', '),
+                          address: '',
+                          neighborhood: '',
+                          city: '',
+                          condominium_fee: '',
+                          iptu: ''
+                        });
+                        setSelectedProperty(property);
+                        setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
+                      }}
+                    >
                       <Edit className="h-3 w-3" />
                     </Button>
                     <Button 
