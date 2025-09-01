@@ -15,7 +15,7 @@ import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, 
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, parseValueInput } from '@/lib/utils';
 
 interface Property {
   id: string;
@@ -122,12 +122,8 @@ export default function Imoveis() {
     }
 
     try {
-      // Parse value correctly (handle Brazilian format)
-      const parseValueBR = (value: string) => {
-        if (!value) return 0;
-        // Remove dots and replace comma with dot
-        return parseFloat(value.replace(/\./g, '').replace(',', '.'));
-      };
+      // Use existing parseValueInput from utils
+      const parseValue = parseValueInput;
 
       // Handle photos from both upload and URLs
       let photosArray: string[] = [];
@@ -143,7 +139,7 @@ export default function Imoveis() {
       const propertyData = {
         user_id: user.id,
         titulo: formData.titulo,
-        valor: parseValueBR(formData.valor),
+        valor: parseValue(formData.valor),
         area: parseFloat(formData.area) || 0,
         quartos: parseInt(formData.quartos) || 0,
         bathrooms: parseInt(formData.bathrooms) || 0,
@@ -158,8 +154,8 @@ export default function Imoveis() {
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
-        condominium_fee: formData.condominium_fee ? parseValueBR(formData.condominium_fee) : null,
-        iptu: formData.iptu ? parseValueBR(formData.iptu) : null
+        condominium_fee: formData.condominium_fee ? parseValue(formData.condominium_fee) : null,
+        iptu: formData.iptu ? parseValue(formData.iptu) : null
       };
 
       let error;
@@ -339,7 +335,6 @@ export default function Imoveis() {
                     id="valor"
                     value={formData.valor}
                     onChange={(e) => {
-                      // Allow only numbers, dots and commas
                       const value = e.target.value.replace(/[^0-9.,]/g, '');
                       setFormData({...formData, valor: value});
                     }}
@@ -510,17 +505,21 @@ export default function Imoveis() {
         {filteredProperties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
-              {property.fotos?.[0] ? (
+              {property.fotos && property.fotos.length > 0 && property.fotos[0] ? (
                 <img
                   src={property.fotos[0]}
                   alt={property.titulo}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    target.nextElementSibling?.classList.remove('hidden');
+                  }}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building2 className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
+              ) : null}
+              <div className="w-full h-full flex items-center justify-center">
+                <Building2 className="h-12 w-12 text-muted-foreground" />
+              </div>
               <div className="absolute top-3 right-3 flex gap-2">
                 <Badge className="bg-primary/90 text-primary-foreground">
                   {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
