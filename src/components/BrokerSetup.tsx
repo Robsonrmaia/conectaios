@@ -123,9 +123,9 @@ export default function BrokerSetup() {
                   <SelectValue placeholder="Selecione sua região" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ilheus">Ilhéus</SelectItem>
-                  <SelectItem value="itabuna">Itabuna</SelectItem>
-                  <SelectItem value="salvador">Salvador</SelectItem>
+                  <SelectItem value="">Ilhéus</SelectItem>
+                  <SelectItem value="">Itabuna</SelectItem>
+                  <SelectItem value="">Salvador</SelectItem>
                 </SelectContent>
               </Select>
             </div>

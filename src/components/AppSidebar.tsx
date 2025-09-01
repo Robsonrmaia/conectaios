@@ -140,11 +140,9 @@ export function AppSidebar() {
         <div className="p-4 border-b">
           <div className="flex items-center space-x-2">
             <Building2 className="h-6 w-6 text-primary" />
-            {state !== 'collapsed' && (
-              <span className="font-bold text-lg text-primary">
-                ConectaIOS
-              </span>
-            )}
+            <span className="font-bold text-lg text-primary">
+              ConectaIOS
+            </span>
           </div>
         </div>
 
@@ -161,7 +159,7 @@ export function AppSidebar() {
                       className={getNavClassName(item.url, item.exact)}
                     >
                       <item.icon className="h-4 w-4" />
-                      {state !== 'collapsed' && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -183,7 +181,7 @@ export function AppSidebar() {
                       className={getNavClassName(item.url)}
                     >
                       <item.icon className="h-4 w-4" />
-                      {state !== 'collapsed' && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -205,7 +203,7 @@ export function AppSidebar() {
                       className={getNavClassName(item.url)}
                     >
                       <item.icon className="h-4 w-4" />
-                      {state !== 'collapsed' && <span>{item.title}</span>}
+                      <span>{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

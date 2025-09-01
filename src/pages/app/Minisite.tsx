@@ -32,6 +32,7 @@ import { useBroker } from '@/hooks/useBroker';
 import { MinisiteEditor } from '@/components/MinisiteEditor';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { MinisiteSetupWizard } from '@/components/MinisiteSetupWizard';
 
 interface BrokerProfile {
   name: string;
@@ -137,6 +138,24 @@ export default function Minisite() {
       description: "O link do seu mini site foi copiado.",
     });
   };
+
+  // Show setup wizard if no username is configured
+  if (!broker?.username) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+            Mini Site do Corretor
+          </h1>
+          <p className="text-muted-foreground">
+            Configure seu minisite público para compartilhar com clientes
+          </p>
+        </div>
+        
+        <MinisiteSetupWizard onComplete={() => window.location.reload()} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
