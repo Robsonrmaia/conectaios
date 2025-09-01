@@ -131,8 +131,11 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={state === 'collapsed' ? 'w-14' : 'w-64'}>
-      <SidebarContent className="bg-card border-r">
+    <Sidebar 
+      collapsible="icon"
+      className="border-r"
+    >
+      <SidebarContent>
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center space-x-2">
