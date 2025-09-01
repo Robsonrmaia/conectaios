@@ -335,6 +335,7 @@ export default function Imoveis() {
                     id="valor"
                     value={formData.valor}
                     onChange={(e) => {
+                      // Remove caracteres inválidos e aplica formatação
                       const value = e.target.value.replace(/[^0-9.,]/g, '');
                       setFormData({...formData, valor: value});
                     }}
@@ -516,8 +517,12 @@ export default function Imoveis() {
                     target.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
-              ) : null}
-              <div className="w-full h-full flex items-center justify-center">
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Building2 className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
+              <div className="w-full h-full flex items-center justify-center hidden">
                 <Building2 className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="absolute top-3 right-3 flex gap-2">
