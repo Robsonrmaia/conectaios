@@ -64,7 +64,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       // Fetch broker profile
       const { data: brokerData, error: brokerError } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('*')
         .eq('user_id', user.id)
         .single();
@@ -79,7 +79,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         // Fetch plan details if broker has plan_id
         if (brokerData.plan_id) {
           const { data: planData, error: planError } = await supabase
-            .from('conectaios_plans')
+            .from('plans')
             .select('*')
             .eq('id', brokerData.plan_id)
             .single();
@@ -104,13 +104,13 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       // Get default plan (starter)
       const { data: defaultPlan } = await supabase
-        .from('conectaios_plans')
+        .from('plans')
         .select('id')
         .eq('slug', 'starter')
         .single();
 
       const { data: brokerData, error } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .insert({
           user_id: user.id,
           name: data.name || user.email?.split('@')[0] || 'Corretor',
@@ -136,7 +136,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data: updatedBroker, error } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .update(data)
         .eq('id', broker.id)
         .select()
@@ -151,9 +151,17 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
   };
 
   const generateReferralCode = async () => {
-    const { data, error } = await supabase.rpc('generate_referral_code');
-    if (error) throw error;
-    return data;
+    try {
+      const { data, error } = await supabase.rpc('generate_referral_code');
+      if (error) {
+        // Fallback: generate a simple referral code
+        return Math.random().toString(36).substring(2, 10).toUpperCase();
+      }
+      return data;
+    } catch (error) {
+      // Fallback: generate a simple referral code  
+      return Math.random().toString(36).substring(2, 10).toUpperCase();
+    }
   };
 
   return (

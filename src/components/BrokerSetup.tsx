@@ -100,19 +100,26 @@ export default function BrokerSetup() {
               
               <div>
                 <Label htmlFor="username">Nome de usuário</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => setFormData({...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '')})}
-                  placeholder="seuusername"
-                  className="lowercase"
-                />
-                {formData.username && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Seu minisite: /@{formData.username}
-                  </p>
-                )}
+                <div className="space-y-2">
+                  <Input
+                    id="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={(e) => setFormData({...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '')})}
+                    placeholder="robsoncorretor"
+                    className="lowercase"
+                  />
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p className="font-medium text-primary">
+                      Seu site será: <span className="font-mono bg-secondary px-2 py-1 rounded">
+                        conectaios.com.br/{formData.username || 'seuusuario'}
+                      </span>
+                    </p>
+                    <p className="text-xs">
+                      ✓ Apenas letras minúsculas e números • ✓ Sem espaços ou caracteres especiais
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
