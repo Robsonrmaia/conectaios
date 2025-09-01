@@ -88,7 +88,7 @@ export default function BrokerMinisite() {
     try {
       // Fetch broker by username
       const { data: brokerData, error: brokerError } = await supabase
-        .from('brokers')
+        .from('conectaios_brokers')
         .select('*')
         .eq('username', username)
         .eq('status', 'active')
@@ -99,7 +99,7 @@ export default function BrokerMinisite() {
 
       // Fetch properties for this broker
       const { data: propertiesData, error: propertiesError } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('user_id', brokerData.user_id)
         .eq('visibility', 'public_site')
