@@ -506,23 +506,25 @@ export default function Imoveis() {
         {filteredProperties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
-              {property.fotos && property.fotos.length > 0 && property.fotos[0] && property.fotos[0].trim() !== '' ? (
+              {property.fotos && Array.isArray(property.fotos) && property.fotos.length > 0 && 
+               property.fotos[0] && property.fotos[0].toString().trim() !== '' ? (
                 <img
-                  src={property.fotos[0]}
+                  src={property.fotos[0].toString()}
                   alt={property.titulo}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     const target = e.target as HTMLImageElement;
                     target.style.display = 'none';
-                    target.nextElementSibling?.classList.remove('hidden');
+                    const fallback = target.parentElement?.querySelector('.photo-fallback') as HTMLElement;
+                    if (fallback) fallback.classList.remove('hidden');
                   }}
                 />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Building2 className="h-12 w-12 text-muted-foreground" />
-                </div>
-              )}
-              <div className="w-full h-full flex items-center justify-center hidden">
+              ) : null}
+              
+              <div className={`photo-fallback w-full h-full flex items-center justify-center ${
+                property.fotos && Array.isArray(property.fotos) && property.fotos.length > 0 && 
+                property.fotos[0] && property.fotos[0].toString().trim() !== '' ? 'hidden' : ''
+              }`}>
                 <Building2 className="h-12 w-12 text-muted-foreground" />
               </div>
               <div className="absolute top-3 right-3 flex gap-2">
@@ -553,7 +555,7 @@ export default function Imoveis() {
             
             <CardContent className="space-y-4">
               <div className="text-2xl font-bold text-primary">
-                {formatCurrency(Number(property.valor) || 0)}
+                {formatCurrency(parseFloat(property.valor?.toString() || '0'))}
               </div>
               
               <div className="flex justify-between text-sm text-muted-foreground">

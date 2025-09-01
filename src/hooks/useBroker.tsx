@@ -107,18 +107,29 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .from('plans')
         .select('id')
         .eq('slug', 'starter')
-        .single();
+        .maybeSingle();
+
+      // Validate region_id if provided
+      const profileData: any = {
+        user_id: user.id,
+        name: data.name || user.email?.split('@')[0] || 'Corretor',
+        email: user.email!,
+        plan_id: defaultPlan?.id,
+        referral_code: await generateReferralCode(),
+        phone: data.phone || null,
+        creci: data.creci || null,
+        username: data.username || null,
+        bio: data.bio || null
+      };
+
+      // Only add region_id if it's provided and not empty
+      if (data.region_id && data.region_id.trim() !== '') {
+        profileData.region_id = data.region_id;
+      }
 
       const { data: brokerData, error } = await supabase
         .from('brokers')
-        .insert({
-          user_id: user.id,
-          name: data.name || user.email?.split('@')[0] || 'Corretor',
-          email: user.email!,
-          plan_id: defaultPlan?.id,
-          referral_code: await generateReferralCode(),
-          ...data
-        })
+        .insert(profileData)
         .select()
         .single();
 
