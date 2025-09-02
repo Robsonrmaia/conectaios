@@ -513,7 +513,6 @@ export function EnhancedCRM() {
                   referencias_pessoais: '',
                   contato_emergencia_nome: '',
                   contato_emergencia_telefone: '',
-                  relacionamento_emergencia: '',
                   observacoes_gerais: ''
                 });
               }
@@ -823,7 +822,6 @@ export function EnhancedCRM() {
                           referencias_pessoais: '',
                           contato_emergencia_nome: '',
                           contato_emergencia_telefone: '',
-                          relacionamento_emergencia: '',
                           observacoes_gerais: ''
                         });
                         setIsAddDialogOpen(true);
@@ -945,7 +943,6 @@ export function EnhancedCRM() {
                         referencias_pessoais: '',
                         contato_emergencia_nome: '',
                         contato_emergencia_telefone: '',
-                        relacionamento_emergencia: '',
                         observacoes_gerais: ''
                       });
                      setIsAddDialogOpen(true);

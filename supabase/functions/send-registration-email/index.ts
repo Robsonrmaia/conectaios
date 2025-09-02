@@ -5,8 +5,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://1a061622-528a-4152-a7b5-09817795ad8f.sandbox.lovable.dev",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff"
 };
 
 interface RegistrationData {
@@ -27,7 +29,37 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const registrationData: RegistrationData = await req.json();
 
-    console.log('Registration data received:', registrationData);
+    // Input validation and sanitization
+    if (!registrationData.full_name?.trim() || !registrationData.email?.trim() || 
+        !registrationData.phone?.trim() || !registrationData.city?.trim() || 
+        !registrationData.region?.trim()) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Todos os campos obrigatórios devem ser preenchidos' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize inputs to prevent injection attacks
+    const sanitizedData = {
+      full_name: registrationData.full_name.trim().replace(/<[^>]*>/g, '').substring(0, 100),
+      email: registrationData.email.trim().toLowerCase().substring(0, 254),
+      phone: registrationData.phone.replace(/[^\d\-\(\)\s]/g, '').substring(0, 20),
+      creci: registrationData.creci?.trim().replace(/[^a-zA-Z0-9\-]/g, '').substring(0, 20) || '',
+      city: registrationData.city.trim().replace(/[<>]/g, '').substring(0, 100),
+      region: registrationData.region.trim().replace(/[<>]/g, '').substring(0, 100)
+    };
+
+    // Enhanced email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(sanitizedData.email)) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Email inválido' }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Remove sensitive data logging
+    console.log('Registration processed for:', sanitizedData.email);
 
     // Create Supabase client with service role for inserting data
     const supabaseAdmin = createClient(
@@ -35,17 +67,10 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Save registration to database
+    // Save sanitized registration to database
     const { error: dbError } = await supabaseAdmin
       .from('broker_registrations')
-      .insert([{
-        full_name: registrationData.full_name,
-        email: registrationData.email,
-        phone: registrationData.phone,
-        creci: registrationData.creci,
-        city: registrationData.city,
-        region: registrationData.region
-      }]);
+      .insert([sanitizedData]);
 
     if (dbError) {
       console.error('Database error:', dbError);
@@ -68,27 +93,27 @@ const handler = async (req: Request): Promise<Response> => {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 8px 0; font-weight: bold; width: 120px;">Nome:</td>
-                <td style="padding: 8px 0;">${registrationData.full_name}</td>
+                <td style="padding: 8px 0;">${sanitizedData.full_name}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; font-weight: bold;">Email:</td>
-                <td style="padding: 8px 0;">${registrationData.email}</td>
+                <td style="padding: 8px 0;">${sanitizedData.email}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; font-weight: bold;">Telefone:</td>
-                <td style="padding: 8px 0;">${registrationData.phone}</td>
+                <td style="padding: 8px 0;">${sanitizedData.phone}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; font-weight: bold;">CRECI:</td>
-                <td style="padding: 8px 0;">${registrationData.creci || 'Não informado'}</td>
+                <td style="padding: 8px 0;">${sanitizedData.creci || 'Não informado'}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; font-weight: bold;">Cidade:</td>
-                <td style="padding: 8px 0;">${registrationData.city}</td>
+                <td style="padding: 8px 0;">${sanitizedData.city}</td>
               </tr>
               <tr>
                 <td style="padding: 8px 0; font-weight: bold;">Região:</td>
-                <td style="padding: 8px 0;">${registrationData.region}</td>
+                <td style="padding: 8px 0;">${sanitizedData.region}</td>
               </tr>
             </table>
           </div>
@@ -119,7 +144,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Send welcome email to the broker
     const welcomeEmailResponse = await resend.emails.send({
       from: "ConectaIOS <noreply@conectaios.com.br>",
-      to: [registrationData.email],
+      to: [sanitizedData.email],
       subject: "Bem-vindo ao ConectaIOS!",
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -131,7 +156,7 @@ const handler = async (req: Request): Promise<Response> => {
           </div>
           
           <div style="background: white; padding: 30px; border-radius: 0 0 8px 8px; border: 1px solid #eee;">
-            <p>Olá <strong>${registrationData.full_name}</strong>,</p>
+            <p>Olá <strong>${sanitizedData.full_name}</strong>,</p>
             
             <p>Obrigado por se cadastrar no ConectaIOS! Recebemos sua inscrição e nossa equipe entrará em contato em breve para:</p>
             

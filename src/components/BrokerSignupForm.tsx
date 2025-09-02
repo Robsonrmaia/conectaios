@@ -29,26 +29,41 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
+    // Enhanced validation with length limits
     if (!formData.full_name.trim()) {
       newErrors.full_name = 'Nome completo é obrigatório';
+    } else if (formData.full_name.trim().length < 2) {
+      newErrors.full_name = 'Nome deve ter pelo menos 2 caracteres';
+    } else if (formData.full_name.trim().length > 100) {
+      newErrors.full_name = 'Nome não pode ter mais de 100 caracteres';
     }
 
     if (!formData.email.trim()) {
       newErrors.email = 'Email é obrigatório';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
       newErrors.email = 'Email inválido';
+    } else if (formData.email.trim().length > 254) {
+      newErrors.email = 'Email muito longo';
     }
 
     if (!formData.phone.trim()) {
       newErrors.phone = 'Telefone é obrigatório';
+    } else if (!/^\(\d{2}\)\s\d{4,5}-\d{4}$/.test(formData.phone.trim())) {
+      newErrors.phone = 'Telefone deve estar no formato (XX) XXXXX-XXXX';
     }
 
     if (!formData.city.trim()) {
       newErrors.city = 'Cidade é obrigatória';
+    } else if (formData.city.trim().length > 100) {
+      newErrors.city = 'Nome da cidade muito longo';
     }
 
     if (!formData.region.trim()) {
       newErrors.region = 'Região é obrigatória';
+    }
+
+    if (formData.creci && formData.creci.length > 20) {
+      newErrors.creci = 'CRECI muito longo';
     }
 
     setErrors(newErrors);
@@ -67,21 +82,28 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
       return;
     }
 
+    // Input sanitization
+    const sanitizedData = {
+      full_name: formData.full_name.trim().replace(/<[^>]*>/g, '').substring(0, 100),
+      email: formData.email.trim().toLowerCase().substring(0, 254),
+      phone: formData.phone.replace(/[^\d\-\(\)\s]/g, '').substring(0, 20),
+      creci: formData.creci.trim().replace(/[^a-zA-Z0-9\-]/g, '').substring(0, 20),
+      city: formData.city.trim().replace(/[<>]/g, '').substring(0, 100),
+      region: formData.region.trim().replace(/[<>]/g, '').substring(0, 100)
+    };
+
     setLoading(true);
     
     try {
-      console.log('Sending registration data:', formData);
-
+      // Remove console.log to avoid logging sensitive data
       const { data, error } = await supabase.functions.invoke('send-registration-email', {
-        body: formData
+        body: sanitizedData
       });
 
       if (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error occurred');
         throw error;
       }
-
-      console.log('Registration response:', data);
 
       if (data?.success) {
         toast({
@@ -106,7 +128,7 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
       }
 
     } catch (error: any) {
-      console.error('Registration submission error:', error);
+      console.error('Registration submission error occurred');
       
       let errorMessage = 'Erro ao processar cadastro. Tente novamente.';
       
