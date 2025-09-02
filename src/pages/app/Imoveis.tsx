@@ -24,6 +24,7 @@ import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
+import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { useBroker } from '@/hooks/useBroker';
 
 interface Property {
@@ -78,7 +79,12 @@ export default function Imoveis() {
     neighborhood: '',
     city: '',
     condominium_fee: '',
-    iptu: ''
+    iptu: '',
+    commission_percentage: 6,
+    commission_value: 0,
+    commission_split_type: '50/50',
+    commission_buyer_split: 50,
+    commission_seller_split: 50
   });
 
   useEffect(() => {
@@ -240,7 +246,12 @@ export default function Imoveis() {
         neighborhood: '',
         city: '',
         condominium_fee: '',
-        iptu: ''
+        iptu: '',
+        commission_percentage: 6,
+        commission_value: 0,
+        commission_split_type: '50/50',
+        commission_buyer_split: 50,
+        commission_seller_split: 50
       });
       fetchProperties();
     } catch (error) {
@@ -485,6 +496,31 @@ export default function Imoveis() {
                 />
               </div>
 
+              {/* Commission Calculator */}
+              {formData.valor && parseValueInput(formData.valor) > 0 && (
+                <div className="border-t pt-4">
+                  <CommissionCalculator
+                    propertyValue={parseValueInput(formData.valor)}
+                    onCommissionChange={(commission) => {
+                      setFormData({
+                        ...formData,
+                        commission_percentage: commission.percentage,
+                        commission_value: commission.value,
+                        commission_split_type: commission.splitType,
+                        commission_buyer_split: commission.buyerSplit,
+                        commission_seller_split: commission.sellerSplit
+                      });
+                    }}
+                    initialCommission={{
+                      percentage: formData.commission_percentage,
+                      splitType: formData.commission_split_type,
+                      buyerSplit: formData.commission_buyer_split,
+                      sellerSplit: formData.commission_seller_split
+                    }}
+                  />
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch
@@ -687,7 +723,7 @@ export default function Imoveis() {
                           listing_type: property.listing_type,
                           property_type: property.property_type,
                           visibility: property.visibility,
-                          broker_minisite_enabled: false, // Assume false por padrão
+                          broker_minisite_enabled: false,
                           descricao: property.descricao || '',
                           fotos: Array.isArray(property.fotos) ? property.fotos : [],
                           videos: property.videos.join(', '),
@@ -695,7 +731,12 @@ export default function Imoveis() {
                           neighborhood: '',
                           city: '',
                           condominium_fee: '',
-                          iptu: ''
+                          iptu: '',
+                          commission_percentage: 6,
+                          commission_value: 0,
+                          commission_split_type: '50/50',
+                          commission_buyer_split: 50,
+                          commission_seller_split: 50
                         });
                         setSelectedProperty(property);
                         setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
