@@ -42,22 +42,30 @@ export default function Perfil() {
     bio: '',
     location: '',
     website: '',
-    avatar: ''
+    avatar: '',
+    secondaryPhone: '',
+    instagram: '',
+    linkedin: '',
+    specialties: ''
   });
 
   // Update profile data when broker data changes
   useEffect(() => {
     if (broker) {
-      setProfile({
-        name: broker.name || '',
-        email: broker.email || '',
-        phone: broker.phone || '',
-        creci: broker.creci || '',
-        bio: broker.bio || '',
-        location: '',
-        website: '',
-        avatar: broker.avatar_url || ''
-      });
+        setProfile({
+          name: broker.name || '',
+          email: broker.email || '',
+          phone: broker.phone || '',
+          creci: broker.creci || '',
+          bio: broker.bio || '',
+          location: '',
+          website: '',
+          avatar: broker.avatar_url || '',
+          secondaryPhone: '',
+          instagram: '',
+          linkedin: '',
+          specialties: ''
+        });
     }
   }, [broker]);
 
@@ -237,6 +245,15 @@ export default function Perfil() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="secondary-phone">Telefone Secundário</Label>
+                    <Input
+                      id="secondary-phone"
+                      value={profile.secondaryPhone || ''}
+                      onChange={(e) => setProfile({...profile, secondaryPhone: e.target.value})}
+                      placeholder="(opcional)"
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="creci">CRECI</Label>
                     <Input
                       id="creci"
@@ -258,6 +275,36 @@ export default function Perfil() {
                       id="website"
                       value={profile.website}
                       onChange={(e) => setProfile({...profile, website: e.target.value})}
+                      placeholder="https://seusiteimobiliario.com"
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="instagram">Instagram</Label>
+                      <Input
+                        id="instagram"
+                        value={profile.instagram || ''}
+                        onChange={(e) => setProfile({...profile, instagram: e.target.value})}
+                        placeholder="@seuusuario"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="linkedin">LinkedIn</Label>
+                      <Input
+                        id="linkedin"
+                        value={profile.linkedin || ''}
+                        onChange={(e) => setProfile({...profile, linkedin: e.target.value})}
+                        placeholder="linkedin.com/in/perfil"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="specialties">Especialidades</Label>
+                    <Input
+                      id="specialties"
+                      value={profile.specialties || ''}
+                      onChange={(e) => setProfile({...profile, specialties: e.target.value})}
+                      placeholder="Ex: Imóveis de luxo, Comercial, Residencial..."
                     />
                   </div>
                 </div>

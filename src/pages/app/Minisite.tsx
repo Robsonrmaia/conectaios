@@ -29,10 +29,9 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
-import { MinisiteEditor } from '@/components/MinisiteEditor';
+import { FunctionalMinisite } from '@/components/FunctionalMinisite';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { FunctionalMinisite } from '@/components/FunctionalMinisite';
 
 interface BrokerProfile {
   name: string;

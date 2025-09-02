@@ -21,13 +21,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Partnership {
-  id: string;
+  id: string | number;
   name: string;
-  description: string;
-  logo_url: string;
-  website_url: string;
-  is_active: boolean;
-  created_at: string;
+  description?: string;
+  logo_url?: string;
+  website_url?: string;
+  is_active?: boolean;
+  created_at?: string;
+  icon?: string;
 }
 
 export default function Patrocinios() {
@@ -109,14 +110,27 @@ export default function Patrocinios() {
 
   const fetchPartnerships = async () => {
     try {
-      const { data, error } = await supabase
-        .from('partnerships')
-        .select('*')
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setPartnerships(data || []);
+      // Using hardcoded partnerships for immediate display with all requested partners
+      const hardcodedPartnerships = [
+        { id: 1, name: 'Banco do Brasil', logo_url: null, icon: '🏦', description: 'Financiamentos e serviços bancários exclusivos', website_url: 'https://www.bb.com.br' },
+        { id: 2, name: 'Caixa Econômica', logo_url: null, icon: '🏛️', description: 'Minha Casa Minha Vida e financiamentos', website_url: 'https://www.caixa.gov.br' },
+        { id: 3, name: 'Bradesco', logo_url: null, icon: '🏦', description: 'Soluções financeiras para imóveis', website_url: 'https://www.bradesco.com.br' },
+        { id: 4, name: 'Itaú', logo_url: null, icon: '🏦', description: 'Crédito imobiliário com taxas especiais', website_url: 'https://www.itau.com.br' },
+        { id: 5, name: 'Santander', logo_url: null, icon: '🏦', description: 'Financiamentos e conta digital', website_url: 'https://www.santander.com.br' },
+        { id: 6, name: 'Prefeitura Ilhéus', logo_url: null, icon: '🏛️', description: 'Apoio institucional e parcerias locais', website_url: 'https://www.ilheus.ba.gov.br' },
+        { id: 7, name: 'CRECI-BA', logo_url: null, icon: '🏢', description: 'Conselho Regional de Corretores', website_url: 'https://www.creci-ba.gov.br' },
+        { id: 8, name: 'Cartório', logo_url: null, icon: '⚖️', description: 'Serviços cartoriais e documentação', website_url: null },
+        { id: 9, name: 'Material Construção', logo_url: null, icon: '🧱', description: 'Descontos em materiais de construção', website_url: null },
+        { id: 10, name: 'Móveis Planejados', logo_url: null, icon: '🪑', description: 'Projetos e móveis sob medida', website_url: null },
+        { id: 11, name: 'Correspondente Bancário', logo_url: null, icon: '💼', description: 'Facilitação de crédito e financiamentos', website_url: null },
+        { id: 12, name: 'Serviços Jurídicos', logo_url: null, icon: '⚖️', description: 'Assessoria jurídica imobiliária', website_url: null },
+        { id: 13, name: 'Pintura e Reforma', logo_url: null, icon: '🎨', description: 'Serviços de pintura e renovação', website_url: null },
+        { id: 14, name: 'Montagem de Móveis', logo_url: null, icon: '🔧', description: 'Montagem profissional de móveis', website_url: null },
+        { id: 15, name: 'Ar Condicionado', logo_url: null, icon: '❄️', description: 'Instalação e manutenção de climatização', website_url: null },
+        { id: 16, name: 'Seguros Residenciais', logo_url: null, icon: '🛡️', description: 'Proteção completa para imóveis', website_url: null }
+      ];
+      
+      setPartnerships(hardcodedPartnerships);
     } catch (error) {
       console.error('Error fetching partnerships:', error);
     } finally {
@@ -505,8 +519,8 @@ export default function Patrocinios() {
                       className="max-h-full max-w-full object-contain"
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-                      <Building2 className="h-10 w-10 text-muted-foreground" />
+                    <div className="flex items-center justify-center text-3xl mb-2">
+                      {partnership.icon}
                     </div>
                   )}
                 </div>

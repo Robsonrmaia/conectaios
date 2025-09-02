@@ -861,7 +861,7 @@ export default function Imoveis() {
           </div>
           
           <Pagination>
-            <PaginationContent>
+            <PaginationContent className="flex-wrap gap-1">
               <PaginationItem>
                 <PaginationPrevious 
                   href="#" 
@@ -869,20 +869,20 @@ export default function Imoveis() {
                     e.preventDefault();
                     if (currentPage > 1) setCurrentPage(currentPage - 1);
                   }}
-                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                  className={`text-xs px-2 py-1 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
               
-              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+              {[...Array(Math.min(3, totalPages))].map((_, i) => {
                 let pageNum;
-                if (totalPages <= 5) {
+                if (totalPages <= 3) {
                   pageNum = i + 1;
-                } else if (currentPage <= 3) {
+                } else if (currentPage <= 2) {
                   pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
+                } else if (currentPage >= totalPages - 1) {
+                  pageNum = totalPages - 2 + i;
                 } else {
-                  pageNum = currentPage - 2 + i;
+                  pageNum = currentPage - 1 + i;
                 }
                 
                 return (
@@ -894,6 +894,7 @@ export default function Imoveis() {
                         setCurrentPage(pageNum);
                       }}
                       isActive={currentPage === pageNum}
+                      className="text-xs px-2 py-1 min-w-[32px]"
                     >
                       {pageNum}
                     </PaginationLink>
@@ -901,9 +902,9 @@ export default function Imoveis() {
                 );
               })}
               
-              {totalPages > 5 && currentPage < totalPages - 2 && (
+              {totalPages > 3 && currentPage < totalPages - 1 && (
                 <PaginationItem>
-                  <PaginationEllipsis />
+                  <PaginationEllipsis className="px-1" />
                 </PaginationItem>
               )}
               
@@ -914,7 +915,7 @@ export default function Imoveis() {
                     e.preventDefault();
                     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                   }}
-                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                  className={`text-xs px-2 py-1 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
             </PaginationContent>

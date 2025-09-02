@@ -22,7 +22,13 @@ import {
   TrendingUp,
   DollarSign,
   FileCheck,
-  Presentation
+  Presentation,
+  MapPin,
+  Building2,
+  BookOpen,
+  MessageSquare,
+  Search,
+  Calendar
 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
@@ -62,6 +68,69 @@ export default function Ferramentas() {
       isAvailable: true
     },
     {
+      id: 'neighborhood-guide',
+      name: 'Guia de Bairros',
+      description: 'Informações detalhadas sobre bairros e regiões',
+      icon: MapPin,
+      category: 'Análise',
+      planRequired: 'starter',
+      isAvailable: true
+    },
+    {
+      id: 'development-calc',
+      name: 'Calculadora de Empreendimento',
+      description: 'Analise ROI, viabilidade e custos de projetos',
+      icon: Building2,
+      category: 'Análise',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'buyer-guide',
+      name: 'Guia do Comprador',
+      description: 'Passo a passo completo para compra de imóveis',
+      icon: BookOpen,
+      category: 'Documentos',
+      planRequired: 'starter',
+      isAvailable: true
+    },
+    {
+      id: 'whatsapp-sender',
+      name: 'Disparador WhatsApp',
+      description: 'Envio em massa personalizado via WhatsApp',
+      icon: MessageSquare,
+      category: 'Marketing',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'property-inspection',
+      name: 'Vistoria de Imóveis',
+      description: 'Checklists e relatórios de vistoria digital',
+      icon: Search,
+      category: 'Documentos',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'property-valuation',
+      name: 'Avaliação Imobiliária',
+      description: 'Cálculo automático de valor de mercado',
+      icon: TrendingUp,
+      category: 'Análise',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'seasonal-budget',
+      name: 'Orçamento Temporada',
+      description: 'Gestão completa de locações temporárias',
+      icon: Calendar,
+      category: 'Gestão',
+      planRequired: 'premium',
+      isAvailable: plan?.slug === 'premium'
+    },
+    {
       id: 'contracts',
       name: 'Gerador de Contratos',
       description: 'Gere contratos personalizados automaticamente',
@@ -74,7 +143,7 @@ export default function Ferramentas() {
       id: 'market-analysis',
       name: 'Análise de Mercado',
       description: 'Relatórios detalhados sobre tendências imobiliárias',
-      icon: TrendingUp,
+      icon: BarChart3,
       category: 'Análise',
       planRequired: 'professional',
       isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'

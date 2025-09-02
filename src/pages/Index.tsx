@@ -82,7 +82,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="relative h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full">
           <video
@@ -90,7 +90,7 @@ const Index = () => {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-bottom"
             poster="/hero-thumbnail.jpg"
           >
             <source src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/hero-video.mp4" type="video/mp4" />
