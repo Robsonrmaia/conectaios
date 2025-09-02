@@ -493,7 +493,28 @@ export function EnhancedCRM() {
                   location_preference: '',
                   notes: '',
                   status: 'lead',
-                  source: 'website'
+                  source: 'website',
+                  cpf: '',
+                  rg: '',
+                  nacionalidade: 'brasileiro',
+                  estado_civil: 'solteiro',
+                  renda: '',
+                  comprovante_renda: '',
+                  score_serasa: '',
+                  banco_principal: '',
+                  possui_conta_banco: false,
+                  tempo_conta_banco: '',
+                  cartao_credito: false,
+                  limite_cartao: '',
+                  empregado: false,
+                  empresa: '',
+                  cargo: '',
+                  tempo_empresa: '',
+                  referencias_pessoais: '',
+                  contato_emergencia_nome: '',
+                  contato_emergencia_telefone: '',
+                  relacionamento_emergencia: '',
+                  observacoes_gerais: ''
                 });
               }
             }}>
@@ -782,7 +803,28 @@ export function EnhancedCRM() {
                           location_preference: client.location_preference || '',
                           notes: client.notes || '',
                           status: client.status,
-                          source: client.source || 'website'
+                          source: client.source || 'website',
+                          cpf: '',
+                          rg: '',
+                          nacionalidade: 'brasileiro',
+                          estado_civil: 'solteiro',
+                          renda: '',
+                          comprovante_renda: '',
+                          score_serasa: '',
+                          banco_principal: '',
+                          possui_conta_banco: false,
+                          tempo_conta_banco: '',
+                          cartao_credito: false,
+                          limite_cartao: '',
+                          empregado: false,
+                          empresa: '',
+                          cargo: '',
+                          tempo_empresa: '',
+                          referencias_pessoais: '',
+                          contato_emergencia_nome: '',
+                          contato_emergencia_telefone: '',
+                          relacionamento_emergencia: '',
+                          observacoes_gerais: ''
                         });
                         setIsAddDialogOpen(true);
                       }}
@@ -868,23 +910,44 @@ export function EnhancedCRM() {
                    variant="outline"
                    onClick={() => {
                      // Set form data with current client data
-                     setFormData({
-                       name: selectedClient.name,
-                       email: selectedClient.email,
-                       phone: selectedClient.phone,
-                       date_of_birth: '',
-                       address: '',
-                       profession: '',
-                       marital_status: 'single',
-                       lead_source: selectedClient.source || 'website',
-                       budget_min: selectedClient.budget_min?.toString() || '',
-                       budget_max: selectedClient.budget_max?.toString() || '',
-                       property_type: selectedClient.property_type || '',
-                       location_preference: selectedClient.location_preference || '',
-                       notes: selectedClient.notes || '',
-                       status: selectedClient.status,
-                       source: selectedClient.source || 'website'
-                     });
+                      setFormData({
+                        name: selectedClient.name,
+                        email: selectedClient.email,
+                        phone: selectedClient.phone,
+                        date_of_birth: '',
+                        address: '',
+                        profession: '',
+                        marital_status: 'single',
+                        lead_source: selectedClient.source || 'website',
+                        budget_min: selectedClient.budget_min?.toString() || '',
+                        budget_max: selectedClient.budget_max?.toString() || '',
+                        property_type: selectedClient.property_type || '',
+                        location_preference: selectedClient.location_preference || '',
+                        notes: selectedClient.notes || '',
+                        status: selectedClient.status,
+                        source: selectedClient.source || 'website',
+                        cpf: '',
+                        rg: '',
+                        nacionalidade: 'brasileiro',
+                        estado_civil: 'solteiro',
+                        renda: '',
+                        comprovante_renda: '',
+                        score_serasa: '',
+                        banco_principal: '',
+                        possui_conta_banco: false,
+                        tempo_conta_banco: '',
+                        cartao_credito: false,
+                        limite_cartao: '',
+                        empregado: false,
+                        empresa: '',
+                        cargo: '',
+                        tempo_empresa: '',
+                        referencias_pessoais: '',
+                        contato_emergencia_nome: '',
+                        contato_emergencia_telefone: '',
+                        relacionamento_emergencia: '',
+                        observacoes_gerais: ''
+                      });
                      setIsAddDialogOpen(true);
                    }}
                  >

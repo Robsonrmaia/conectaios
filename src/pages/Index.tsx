@@ -14,6 +14,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
+import { FooterBankLinks } from '@/components/FooterBankLinks';
 
 const Index = () => {
   const { user } = useAuth();
