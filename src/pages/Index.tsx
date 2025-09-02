@@ -43,13 +43,23 @@ const Index = () => {
   };
 
   const fetchPartnerships = async () => {
-    const { data } = await supabase
-      .from('partnerships')
-      .select('*')
-      .eq('is_active', true)
-      .limit(8);
+    // Hardcoded partnerships for immediate display
+    const hardcodedPartnerships = [
+      { id: 1, name: 'Banco do Brasil', logo_url: null, icon: '🏦' },
+      { id: 2, name: 'Caixa Econômica', logo_url: null, icon: '🏛️' },
+      { id: 3, name: 'Bradesco', logo_url: null, icon: '🏦' },
+      { id: 4, name: 'Itaú', logo_url: null, icon: '🏦' },
+      { id: 5, name: 'Santander', logo_url: null, icon: '🏦' },
+      { id: 6, name: 'Prefeitura Ilhéus', logo_url: null, icon: '🏛️' },
+      { id: 7, name: 'CRECI-BA', logo_url: null, icon: '🏢' },
+      { id: 8, name: 'Cartório', logo_url: null, icon: '⚖️' },
+      { id: 9, name: 'Material Construção', logo_url: null, icon: '🧱' },
+      { id: 10, name: 'Móveis Planejados', logo_url: null, icon: '🪑' },
+      { id: 11, name: 'Correspondente Bancário', logo_url: null, icon: '💼' },
+      { id: 12, name: 'Serviços Jurídicos', logo_url: null, icon: '⚖️' }
+    ];
     
-    if (data) setPartnerships(data);
+    setPartnerships(hardcodedPartnerships);
   };
 
   return (
@@ -72,7 +82,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <main className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full">
           <video
@@ -430,32 +440,19 @@ const Index = () => {
               <BrokerSignupForm />
             </div>
           </div>
-          {partnerships.length > 0 && (
-            <div className="mt-16">
-              <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                {partnerships.map((partnership) => (
-                  <div key={partnership.id} className="text-center group">
-                    {partnership.logo_url ? (
-                      <div className="p-4 bg-card border rounded-lg hover:shadow-md transition-shadow">
-                        <img 
-                          src={partnership.logo_url} 
-                          alt={partnership.name}
-                          className="w-full h-16 object-contain grayscale group-hover:grayscale-0 transition-all"
-                        />
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-card border rounded-lg hover:shadow-md transition-shadow">
-                        <div className="w-full h-16 flex items-center justify-center">
-                          <span className="text-sm font-medium text-muted-foreground">{partnership.name}</span>
-                        </div>
-                      </div>
-                    )}
+          <div className="mt-16">
+            <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {partnerships.map((partnership) => (
+                <div key={partnership.id} className="text-center group">
+                  <div className="p-3 bg-card border rounded-lg hover:shadow-md transition-shadow h-20 flex flex-col items-center justify-center">
+                    <div className="text-2xl mb-1">{partnership.icon}</div>
+                    <span className="text-xs font-medium text-muted-foreground leading-tight">{partnership.name}</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
