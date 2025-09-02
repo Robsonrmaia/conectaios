@@ -701,10 +701,10 @@ export default function Imoveis() {
                   <div className="flex gap-1">
                     <Button
                       size="sm"
-                      variant={property.visibility === 'private' ? 'default' : 'outline'}
+                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
                       onClick={(e) => {
                         e.stopPropagation();
-                        updatePropertyVisibility(property.id, 'private');
+                        updatePropertyVisibility(property.id, 'hidden');
                       }}
                       title="Ocultar"
                     >

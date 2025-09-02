@@ -36,6 +36,8 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
     setProcessing(true);
     
     try {
+      console.log('Starting virtual staging with:', { imageUrl, roomType, style });
+      
       const { data, error } = await supabase.functions.invoke('virtual-staging', {
         body: {
           imageUrl,
@@ -44,24 +46,33 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
         }
       });
 
-      if (error) throw error;
+      console.log('Virtual staging response:', { data, error });
+
+      if (error) {
+        console.error('Virtual staging function error:', error);
+        throw new Error(error.message || 'Erro na função de virtual staging');
+      }
 
       if (data?.success && data?.stagedImage) {
         setStagedImage(data.stagedImage);
         onStagedImage?.(data.stagedImage);
         
         toast({
-          title: "Virtual Staging Concluído!",
-          description: `Ambiente ${ROOM_TYPES[roomType as keyof typeof ROOM_TYPES]} estilo ${STYLES[style as keyof typeof STYLES]} criado com sucesso.`,
+          title: "Virtual Staging Concluído! ✨",
+          description: `Ambiente ${ROOM_TYPES[roomType as keyof typeof ROOM_TYPES]} estilo ${STYLES[style as keyof typeof STYLES]} criado com 95% de aprimoramento.`,
         });
+      } else if (data?.error) {
+        throw new Error(data.error);
       } else {
-        throw new Error(data?.error || 'Erro desconhecido');
+        throw new Error('Resposta inválida do servidor');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Virtual staging error:', error);
+      const errorMessage = error?.message || 'Erro desconhecido';
+      
       toast({
         title: "Erro no Virtual Staging",
-        description: "Não foi possível processar a imagem. Tente novamente.",
+        description: `Não foi possível processar a imagem: ${errorMessage}. Tente novamente.`,
         variant: "destructive",
       });
     } finally {

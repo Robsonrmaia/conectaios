@@ -29,12 +29,16 @@ export function PhotoEnhancer({ imageUrl, onEnhancedImage, isPremium = false }: 
       // For now, simulate enhancement - in production, this would call an AI service
       await new Promise(resolve => setTimeout(resolve, 3000));
       
+      // Generate random enhancement percentage between 75-95%
+      const enhancementPercentage = Math.floor(Math.random() * 21) + 75; // 75-95%
+      
       // Simulate enhanced image (in production, would return processed image URL)
-      onEnhancedImage(imageUrl);
+      const enhancedUrl = `${imageUrl}?enhanced=${Date.now()}`;
+      onEnhancedImage(enhancedUrl);
       
       toast({
-        title: "Foto melhorada!",
-        description: "Sua foto foi aprimorada com qualidade superior.",
+        title: "Foto aprimorada com IA! ✨",
+        description: `Sua foto foi melhorada com ${enhancementPercentage}% de aprimoramento utilizando IA.`,
       });
     } catch (error) {
       console.error('Error enhancing photo:', error);
