@@ -75,35 +75,58 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-16 relative">
-        <div className="text-center max-w-4xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 parallax-element text-primary" data-speed="0.5">
-            Sua rotina imobiliária simplificada, Organizada e Inteligente.
-          </h1>
-          
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto parallax-element" data-speed="0.3">
-            Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-            Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-            encontra clientes certos com inteligência artificial e fecha negócios de forma 
-            simples, rápida e segura.
-          </p>
+      <main className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Video */}
+        <div className="absolute inset-0 w-full h-full">
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+            poster="/hero-thumbnail.jpg"
+          >
+            <source src="/hero-video.mp4" type="video/mp4" />
+            {/* Fallback gradient if video doesn't load */}
+          </video>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/50 z-10"></div>
+        </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element" data-speed="0.2">
-            <Button 
-              size="lg"
-              onClick={() => navigate('/auth')}
-              className="bg-primary hover:bg-primary/90 text-lg px-8 py-6 transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            >
-              Começar Agora
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <SaibaMaisDialog />
+        <div className="container mx-auto px-4 py-16 relative z-20">
+          <div className="text-center max-w-4xl mx-auto">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 parallax-element text-white drop-shadow-2xl" data-speed="0.5">
+              Sua rotina imobiliária simplificada, Organizada e Inteligente.
+            </h1>
+            
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg" data-speed="0.3">
+              Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+              Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+              encontra clientes certos com inteligência artificial e fecha negócios de forma 
+              simples, rápida e segura.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element" data-speed="0.2">
+              <Button 
+                size="lg"
+                onClick={() => navigate('/auth')}
+                className="bg-primary hover:bg-primary/90 text-white text-lg px-8 py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20"
+              >
+                Começar Agora
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+              <SaibaMaisDialog />
+            </div>
           </div>
+        </div>
+      </main>
 
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto">
           {/* Banners Section - Carousel */}
           {banners.length > 0 && (
             <div className="mb-16">
-              <h2 className="text-3xl font-bold text-center mb-8">Destaques & Empreendimentos</h2>
+              <h2 className="text-3xl font-bold text-center mb-8 text-primary">Destaques & Empreendimentos</h2>
               <Carousel className="w-full max-w-5xl mx-auto">
                 <CarouselContent className="-ml-1">
                   {banners.slice(0, 3).map((banner) => (
@@ -437,7 +460,7 @@ const Index = () => {
             </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* WhatsApp Floating Button */}
       <div className="fixed bottom-6 right-6 z-50">
