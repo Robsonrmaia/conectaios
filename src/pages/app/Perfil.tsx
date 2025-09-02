@@ -170,7 +170,29 @@ export default function Perfil() {
                       <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                      <Button variant="outline" size="sm">
+                     <Button variant="outline" size="sm" onClick={() => {
+                       const input = document.createElement('input');
+                       input.type = 'file';
+                       input.accept = 'image/*';
+                       input.onchange = async (e: any) => {
+                         const file = e.target.files[0];
+                         if (file) {
+                           // Simulação de upload - em produção usar Supabase Storage
+                           const reader = new FileReader();
+                           reader.onload = (e) => {
+                             if (e.target?.result) {
+                               setProfile({...profile, avatar: e.target.result as string});
+                               toast({
+                                 title: "Foto alterada",
+                                 description: "Foto de perfil atualizada com sucesso!",
+                               });
+                             }
+                           };
+                           reader.readAsDataURL(file);
+                         }
+                       };
+                       input.click();
+                     }}>
                         <Camera className="h-4 w-4 mr-2" />
                         Alterar Foto
                       </Button>
@@ -392,13 +414,28 @@ export default function Perfil() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento",
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
                   Alterar Senha
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento", 
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
                   Configurar 2FA
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento",
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
                   Sessões Ativas
                 </Button>
                 <Separator />

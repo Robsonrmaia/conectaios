@@ -157,7 +157,7 @@ export default function Imoveis() {
         visibility: formData.visibility,
         broker_minisite_enabled: formData.broker_minisite_enabled,
         descricao: formData.descricao,
-        fotos: photosArray,
+      fotos: Array.isArray(formData.fotos) ? formData.fotos : [],
         videos: formData.videos ? formData.videos.split(',').map(v => v.trim()).filter(v => v) : [],
         address: formData.address,
         neighborhood: formData.neighborhood,
@@ -342,11 +342,7 @@ export default function Imoveis() {
                   <Input
                     id="valor"
                     value={formData.valor}
-                    onChange={(e) => {
-                      // Remove caracteres inválidos e aplica formatação
-                      const value = e.target.value.replace(/[^0-9.,]/g, '');
-                      setFormData({...formData, valor: value});
-                    }}
+                    onChange={(e) => setFormData({...formData, valor: e.target.value})}
                     placeholder="650.000,00"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
@@ -401,51 +397,10 @@ export default function Imoveis() {
                 />
               </div>
 
-              <div>
-                <Label htmlFor="fotos">Fotos do Imóvel</Label>
-                <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={(e) => {
-                      if (e.target.files) {
-                        setUploadedImages(Array.from(e.target.files));
-                      }
-                    }}
-                    className="hidden"
-                    id="image-upload"
-                  />
-                  <label htmlFor="image-upload" className="cursor-pointer">
-                    <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                    <p className="text-muted-foreground mb-2">Clique para selecionar fotos</p>
-                    <p className="text-xs text-muted-foreground">PNG, JPG até 10MB cada</p>
-                  </label>
-                  {uploadedImages.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-sm font-medium">{uploadedImages.length} foto(s) selecionada(s)</p>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {uploadedImages.map((file, index) => (
-                          <div key={index} className="flex items-center gap-2 bg-muted rounded p-2">
-                            <FileImage className="h-4 w-4" />
-                            <span className="text-xs truncate max-w-20">{file.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="mt-2">
-                  <Label htmlFor="fotos-url">Ou URLs das Fotos (separadas por vírgula)</Label>
-                  <Textarea
-                    id="fotos-url"
-                    value={formData.fotos}
-                    onChange={(e) => setFormData({...formData, fotos: e.target.value.split(',').map(url => url.trim()).filter(url => url.length > 0)})}
-                    placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg"
-                    rows={3}
-                  />
-                </div>
-              </div>
+              <PhotoUploader 
+                photos={Array.isArray(formData.fotos) ? formData.fotos : []}
+                onPhotosChange={(photos) => setFormData({...formData, fotos: photos})}
+              />
 
               <div>
                 <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
