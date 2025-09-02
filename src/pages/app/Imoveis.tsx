@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
@@ -21,6 +21,7 @@ import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
 import { PhotoGallery } from '@/components/PhotoGallery';
+import { VirtualStaging } from '@/components/VirtualStaging';
 import { useBroker } from '@/hooks/useBroker';
 
 interface Property {
@@ -48,6 +49,7 @@ export default function Imoveis() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [virtualStagingProperty, setVirtualStagingProperty] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
@@ -631,7 +633,7 @@ export default function Imoveis() {
                       {property.reference_code}
                     </Badge>
                   )}
-                  <div className="flex gap-1">
+                   <div className="flex gap-1">
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -642,6 +644,19 @@ export default function Imoveis() {
                     >
                       <Eye className="h-3 w-3" />
                     </Button>
+                    {/* Virtual Staging Button */}
+                    {Array.isArray(property.fotos) && property.fotos.length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setVirtualStagingProperty(property.id);
+                        }}
+                        title="Virtual Staging"
+                      >
+                        <Wand2 className="h-3 w-3" />
+                      </Button>
+                    )}
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -840,6 +855,75 @@ export default function Imoveis() {
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}
       />
+
+      {/* Virtual Staging Modal */}
+      {virtualStagingProperty && (
+        <Dialog open={!!virtualStagingProperty} onOpenChange={() => setVirtualStagingProperty(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Virtual Staging - {properties.find(p => p.id === virtualStagingProperty)?.titulo}</DialogTitle>
+              <DialogDescription>
+                Transforme fotos vazias em ambientes mobiliados usando IA
+              </DialogDescription>
+            </DialogHeader>
+            {(() => {
+              const property = properties.find(p => p.id === virtualStagingProperty);
+              const photos = Array.isArray(property?.fotos) ? property.fotos : [];
+              
+              return (
+                <div className="space-y-6">
+                  {photos.length > 0 ? (
+                    <div className="grid gap-4">
+                      {photos.map((photo, index) => (
+                        <div key={index} className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">Foto {index + 1}</h4>
+                            <Badge variant="outline">
+                              {photo.includes('?enhanced=true') ? 'Melhorada' : 'Original'}
+                            </Badge>
+                          </div>
+                          <VirtualStaging
+                            imageUrl={photo}
+                            onStagedImage={(stagedUrl) => {
+                              // Atualizar a propriedade adicionando a nova foto
+                              const updatedPhotos = [...photos, stagedUrl];
+                              const updatedProperty = { ...property, fotos: updatedPhotos };
+                              
+                              // Atualizar no estado local
+                              setProperties(prev => prev.map(p => 
+                                p.id === virtualStagingProperty ? updatedProperty : p
+                              ));
+                              
+                              // Opcional: salvar no banco também
+                              supabase
+                                .from('conectaios_properties')
+                                .update({ fotos: updatedPhotos })
+                                .eq('id', virtualStagingProperty)
+                                .then(() => {
+                                  toast({
+                                    title: "Virtual Staging Salvo!",
+                                    description: "A versão mobiliada foi adicionada ao imóvel.",
+                                  });
+                                });
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <FileImage className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">
+                        Nenhuma foto disponível para Virtual Staging.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

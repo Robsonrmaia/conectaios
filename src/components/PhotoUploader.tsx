@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileImage, Upload, X, Loader } from 'lucide-react';
+import { FileImage, Upload, X, Loader, Wand2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { VirtualStaging } from './VirtualStaging';
 
 interface PhotoUploaderProps {
   photos: string[];
@@ -17,6 +18,7 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [enhancing, setEnhancing] = useState<string | null>(null);
+  const [showVirtualStaging, setShowVirtualStaging] = useState<string | null>(null);
 
   const MAX_PHOTOS = 20;
 
@@ -243,6 +245,15 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
                     type="button"
                     variant="ghost"
                     size="sm"
+                    onClick={() => setShowVirtualStaging(photo)}
+                    className="bg-white/20 hover:bg-white/30 text-white"
+                  >
+                    <Wand2 className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleEnhancePhoto(photo, index)}
                     disabled={enhancing === photo}
                     className="bg-white/20 hover:bg-white/30 text-white"
@@ -306,6 +317,32 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
           rows={3}
         />
       </div>
+
+      {/* Virtual Staging */}
+      {showVirtualStaging && (
+        <div className="border-t pt-4">
+          <VirtualStaging
+            imageUrl={showVirtualStaging}
+            onStagedImage={(stagedUrl) => {
+              // Adicionar a versão com virtual staging à lista
+              onPhotosChange([...photos, stagedUrl]);
+              setShowVirtualStaging(null);
+              toast({
+                title: "Virtual Staging Adicionado!",
+                description: "A versão mobiliada foi adicionada às fotos.",
+              });
+            }}
+          />
+          <div className="mt-4 text-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowVirtualStaging(null)}
+            >
+              Fechar Virtual Staging
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
