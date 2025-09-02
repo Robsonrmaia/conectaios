@@ -86,7 +86,7 @@ const Index = () => {
             className="w-full h-full object-cover"
             poster="/hero-thumbnail.jpg"
           >
-            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/hero-video.mp4" type="video/mp4" />
             {/* Fallback gradient if video doesn't load */}
           </video>
           {/* Dark overlay for better text readability */}
