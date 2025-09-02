@@ -27,6 +27,14 @@ serve(async (req) => {
 
     const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'));
 
+    if (!Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')) {
+      console.error('HUGGING_FACE_ACCESS_TOKEN not found');
+      return new Response(
+        JSON.stringify({ error: 'Configuração de IA não encontrada' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Prompts otimizados para cada tipo de ambiente e estilo
     const prompts = {
       moderno: {

@@ -66,7 +66,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
       <div className="flex min-h-screen w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="h-14 flex items-center justify-between border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 shrink-0">
+          <header className="h-14 flex items-center justify-between border-b bg-background px-4 shrink-0">
             <SidebarTrigger />
             <UserInfo />
           </header>

@@ -15,7 +15,14 @@ import {
   Crown, 
   Home,
   Zap,
-  Target
+  Target,
+  Briefcase,
+  PieChart,
+  Building,
+  TrendingUp,
+  DollarSign,
+  FileCheck,
+  Presentation
 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
@@ -46,12 +53,39 @@ export default function Ferramentas() {
       isAvailable: true
     },
     {
+      id: 'commission-calc',
+      name: 'Calculadora de Comissão',
+      description: 'Calcule comissões e divisões entre parceiros',
+      icon: DollarSign,
+      category: 'Vendas',
+      planRequired: 'starter',
+      isAvailable: true
+    },
+    {
       id: 'contracts',
       name: 'Gerador de Contratos',
       description: 'Gere contratos personalizados automaticamente',
       icon: FileText,
       category: 'Documentos',
       planRequired: 'professional',  
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'market-analysis',
+      name: 'Análise de Mercado',
+      description: 'Relatórios detalhados sobre tendências imobiliárias',
+      icon: TrendingUp,
+      category: 'Análise',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+    },
+    {
+      id: 'presentation-builder',
+      name: 'Criador de Apresentações',
+      description: 'Monte apresentações profissionais para seus imóveis',
+      icon: Presentation,
+      category: 'Marketing',
+      planRequired: 'professional',
       isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
     },
     {

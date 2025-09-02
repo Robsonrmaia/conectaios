@@ -88,6 +88,11 @@ export function EnhancedCRM() {
     name: '',
     email: '',
     phone: '',
+    date_of_birth: '',
+    address: '',
+    profession: '',
+    marital_status: 'single',
+    lead_source: 'website',
     budget_min: '',
     budget_max: '',
     property_type: '',
@@ -297,6 +302,11 @@ export function EnhancedCRM() {
         name: '',
         email: '',
         phone: '',
+        date_of_birth: '',
+        address: '',
+        profession: '',
+        marital_status: 'single',
+        lead_source: 'website',
         budget_min: '',
         budget_max: '',
         property_type: '',
@@ -433,9 +443,9 @@ export function EnhancedCRM() {
               </DialogTrigger>
               <DialogContent className="max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Adicionar Cliente</DialogTitle>
+                  <DialogTitle>{selectedClient ? 'Editar Cliente' : 'Adicionar Cliente'}</DialogTitle>
                   <DialogDescription>
-                    Preencha as informações do novo cliente
+                    {selectedClient ? 'Atualize as informações do cliente' : 'Preencha as informações do novo cliente'}
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -465,6 +475,49 @@ export function EnhancedCRM() {
                       onChange={(e) => setFormData({...formData, phone: e.target.value})}
                       required
                     />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="date_of_birth">Data de Nascimento</Label>
+                      <Input
+                        id="date_of_birth"
+                        type="date"
+                        value={formData.date_of_birth}
+                        onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="profession">Profissão</Label>
+                      <Input
+                        id="profession"
+                        value={formData.profession}
+                        onChange={(e) => setFormData({...formData, profession: e.target.value})}
+                        placeholder="Ex: Advogado"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Endereço Completo</Label>
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      placeholder="Rua, número, bairro, cidade"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="marital_status">Estado Civil</Label>
+                    <Select value={formData.marital_status} onValueChange={(value) => setFormData({...formData, marital_status: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="single">Solteiro(a)</SelectItem>
+                        <SelectItem value="married">Casado(a)</SelectItem>
+                        <SelectItem value="divorced">Divorciado(a)</SelectItem>
+                        <SelectItem value="widowed">Viúvo(a)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
@@ -550,9 +603,9 @@ export function EnhancedCRM() {
                       </Select>
                     </div>
                   </div>
-                  <Button type="submit" className="w-full">
-                    Salvar Cliente
-                  </Button>
+                   <Button type="submit" className="w-full">
+                     {selectedClient ? 'Atualizar Cliente' : 'Salvar Cliente'}
+                   </Button>
                 </form>
               </DialogContent>
             </Dialog>
@@ -605,10 +658,36 @@ export function EnhancedCRM() {
                         <p className="text-sm text-muted-foreground">{client.email}</p>
                       </div>
                     </div>
-                    <div className="space-y-1">
-                      {getStatusBadge(client.status)}
-                      {getSourceBadge(client.source || 'website')}
-                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedClient(client);
+                        setFormData({
+                          name: client.name,
+                          email: client.email,
+                          phone: client.phone,
+                          date_of_birth: '',
+                          address: '',
+                          profession: '',
+                          marital_status: 'single',
+                          lead_source: client.source || 'website',
+                          budget_min: client.budget_min?.toString() || '',
+                          budget_max: client.budget_max?.toString() || '',
+                          property_type: client.property_type || '',
+                          location_preference: client.location_preference || '',
+                          notes: client.notes || '',
+                          status: client.status,
+                          source: client.source || 'website'
+                        });
+                        setIsAddDialogOpen(true);
+                      }}
+                      className="flex items-center gap-1"
+                    >
+                      <Edit className="h-3 w-3" />
+                      Editar
+                    </Button>
                   </div>
                 </CardHeader>
                 

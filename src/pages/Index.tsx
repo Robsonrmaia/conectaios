@@ -12,6 +12,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
+import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 
 const Index = () => {
   const { user } = useAuth();
@@ -96,13 +97,7 @@ const Index = () => {
               Começar Agora
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button 
-              variant="outline" 
-              size="lg"
-              className="text-lg px-8 py-6"
-            >
-              Saiba Mais
-            </Button>
+            <SaibaMaisDialog />
           </div>
 
           {/* Banners Section - Carousel */}
@@ -233,31 +228,46 @@ const Index = () => {
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-8">Por que o ConectaIOS é diferente?</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div 
+                className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                title="Melhoria automática de qualidade e proteção com marca d'água exclusiva"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <FileImage className="h-8 w-8 text-white" />
                 </div>
                 <p className="text-sm font-medium">Imagens mais atrativas e protegidas</p>
               </div>
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div 
+                className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                title="Transforme imóveis vazios em espaços mobiliados virtuais com IA"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Wand2 className="h-8 w-8 text-white" />
                 </div>
                 <p className="text-sm font-medium">Imóveis vazios que ganham vida</p>
               </div>
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div 
+                className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                title="Proteção completa de dados e transações seguras"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="h-8 w-8 text-white" />
                 </div>
                 <p className="text-sm font-medium">Segurança e privacidade em todas as etapas</p>
               </div>
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div 
+                className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                title="Rede colaborativa que multiplica suas oportunidades de negócio"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Users className="h-8 w-8 text-white" />
                 </div>
                 <p className="text-sm font-medium">Mais parcerias, mais negócios</p>
               </div>
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105">
+              <div 
+                className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
+                title="Automatização que acelera suas vendas e reduz trabalho manual"
+              >
                 <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-8 w-8 text-white" />
                 </div>

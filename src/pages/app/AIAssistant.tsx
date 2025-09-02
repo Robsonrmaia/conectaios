@@ -106,16 +106,29 @@ export default function AIAssistant() {
       setChatHistory([...chatHistory, newMessage]);
       setMessage('');
       
-      // Simulate AI response
+      // Simulate AI response with more intelligent content
       setTimeout(() => {
-        const aiResponse = {
+        let aiResponse = '';
+        const query = message.toLowerCase();
+        
+        if (query.includes('mercado') || query.includes('tendência')) {
+          aiResponse = 'Com base na análise de mercado atual, observo que:\n\n📈 **Apartamentos 2-3 quartos** estão em alta demanda (+12% este mês)\n💰 **Faixa de R$ 400-800k** representa 60% das transações\n🏢 **Zona Sul** lidera em valorização (+8%)\n📊 **Tempo médio de venda**: 45 dias\n\n**Recomendações:**\n- Foque em imóveis bem localizados nessa faixa\n- Invista em fotos profissionais e virtual staging\n- Precifique competitivamente nos primeiros 30 dias';
+        } else if (query.includes('preço') || query.includes('valor')) {
+          aiResponse = 'Para precificação estratégica, considere:\n\n🎯 **Análise comparativa**: Verifique 5-8 similares vendidos nos últimos 60 dias\n📍 **Localização**: Ajuste ±15% baseado no micro-local\n🏠 **Estado do imóvel**: Reformado (+10%), original (-5%)\n⏰ **Urgência**: Venda rápida (-8%), sem pressa (+5%)\n\n**Dica IA**: Comece 5% acima do valor ideal e ajuste após 15 dias se necessário.';
+        } else if (query.includes('cliente') || query.includes('lead')) {
+          aiResponse = 'Para otimizar sua gestão de clientes:\n\n🎯 **Qualificação**: Use o score automático do CRM\n📞 **Follow-up**: Contate leads em até 2 horas\n💡 **Match IA**: Nossa IA já identificou 3 clientes potenciais para seus imóveis\n📊 **Conversão**: Taxa atual de 23% - meta é 30%\n\n**Próximas ações sugeridas:**\n1. Ligar para Maria Silva (lead quente)\n2. Enviar portfólio para Carlos Santos\n3. Agendar visita com Ana Costa';
+        } else {
+          aiResponse = 'Entendi sua pergunta. Com base na análise dos seus dados:\n\n📊 **Status atual**: 12 imóveis ativos, 8 leads qualificados\n🎯 **Oportunidade**: 2 matches de alta compatibilidade detectados\n⚡ **Ação recomendada**: Priorize follow-up com leads "interessados"\n\n**Como posso ajudar especificamente?**\n• Análise de mercado detalhada\n• Sugestões de precificação\n• Estratégias de marketing\n• Otimização de conversão';
+        }
+        
+        const aiResponseObj = {
           id: chatHistory.length + 2,
           type: 'assistant' as const,
-          content: 'Entendi sua pergunta. Deixe-me analisar os dados e preparar uma resposta personalizada para você...',
+          content: aiResponse,
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         };
-        setChatHistory(prev => [...prev, aiResponse]);
-      }, 1000);
+        setChatHistory(prev => [...prev, aiResponseObj]);
+      }, 1500);
     }
   };
 
