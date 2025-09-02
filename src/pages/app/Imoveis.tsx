@@ -123,6 +123,13 @@ export default function Imoveis() {
     }
 
     try {
+      console.log('=== DEBUGGING PROPERTY SAVE ===');
+      console.log('FormData.fotos:', formData.fotos);
+      console.log('FormData.fotos type:', typeof formData.fotos);
+      console.log('FormData.fotos length:', Array.isArray(formData.fotos) ? formData.fotos.length : 'not array');
+      console.log('Raw value input:', formData.valor);
+      console.log('Parsed value:', parseValueInput(formData.valor));
+      
       // Use existing parseValueInput from utils
       const parseValue = parseValueInput;
 
@@ -140,9 +147,7 @@ export default function Imoveis() {
       }
       
       console.log('Final photos array:', photosArray);
-      
-      // TODO: Upload files to storage and add URLs to array
-      // For now, we'll just use the URL inputs
+      console.log('Photos array length:', photosArray.length);
       
       const propertyData = {
         user_id: user.id,
@@ -157,7 +162,7 @@ export default function Imoveis() {
         visibility: formData.visibility,
         broker_minisite_enabled: formData.broker_minisite_enabled,
         descricao: formData.descricao,
-      fotos: Array.isArray(formData.fotos) ? formData.fotos : [],
+        fotos: Array.isArray(formData.fotos) ? formData.fotos : [],
         videos: formData.videos ? formData.videos.split(',').map(v => v.trim()).filter(v => v) : [],
         address: formData.address,
         neighborhood: formData.neighborhood,
@@ -166,24 +171,35 @@ export default function Imoveis() {
         iptu: formData.iptu ? parseValue(formData.iptu) : null
       };
 
-      let error;
+      console.log('Final property data to save:', propertyData);
+      console.log('Property data fotos field:', propertyData.fotos);
+
+      let result;
       
       if (selectedProperty) {
         // Editar imóvel existente
-        const { error: updateError } = await supabase
+        result = await supabase
           .from('conectaios_properties')
           .update(propertyData)
-          .eq('id', selectedProperty.id);
-        error = updateError;
+          .eq('id', selectedProperty.id)
+          .select()
+          .single();
       } else {
         // Adicionar novo imóvel
-        const { error: insertError } = await supabase
+        result = await supabase
           .from('conectaios_properties')
-          .insert(propertyData);
-        error = insertError;
+          .insert(propertyData)
+          .select()
+          .single();
       }
 
-      if (error) throw error;
+      if (result.error) {
+        console.error('Error saving property:', result.error);
+        throw result.error;
+      }
+
+      console.log('Property saved successfully:', result.data);
+      console.log('Saved photos in database:', result.data.fotos);
 
       toast({
         title: "Sucesso",
@@ -399,7 +415,12 @@ export default function Imoveis() {
 
               <PhotoUploader 
                 photos={Array.isArray(formData.fotos) ? formData.fotos : []}
-                onPhotosChange={(photos) => setFormData({...formData, fotos: photos})}
+                onPhotosChange={(photos) => {
+                  console.log('PhotoUploader onPhotosChange called with:', photos);
+                  console.log('Photos type:', typeof photos);
+                  console.log('Photos length:', Array.isArray(photos) ? photos.length : 'not array');
+                  setFormData({...formData, fotos: photos});
+                }}
               />
 
               <div>
