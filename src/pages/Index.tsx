@@ -11,6 +11,7 @@ import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart,
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
+import { initParallax } from '@/utils/parallax';
 
 const Index = () => {
   const { user } = useAuth();
@@ -23,6 +24,9 @@ const Index = () => {
   useEffect(() => {
     fetchBanners();
     fetchPartnerships();
+    // Initialize parallax effect
+    const cleanup = initParallax();
+    return cleanup;
   }, []);
 
   const fetchBanners = async () => {
@@ -47,19 +51,19 @@ const Index = () => {
 
   return (
     <PageWrapper>
-      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Building2 className="h-8 w-8 text-primary" />
+            <img src="/src/assets/logo.svg" alt="ConectaIOS" className="h-8 w-8" />
             <span className="text-2xl font-bold text-primary">
               ConectaIOS
             </span>
           </div>
           <Button 
             onClick={() => navigate('/auth')}
-            className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
+            className="bg-primary hover:bg-primary/90"
           >
             Entrar
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -68,22 +72,22 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="container mx-auto px-4 py-16">
-        <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+      <main className="container mx-auto px-4 py-16 relative">
+        <div className="text-center max-w-4xl mx-auto relative z-10">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 parallax-element" data-speed="0.5">
             <span className="bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
               Sua rotina imobiliária simplificada, Organizada e Inteligente.
             </span>
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto parallax-element" data-speed="0.3">
             Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
             Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
             encontra clientes certos com inteligência artificial e fecha negócios de forma 
             simples, rápida e segura.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element" data-speed="0.2">
             <Button 
               size="lg"
               onClick={() => navigate('/auth')}

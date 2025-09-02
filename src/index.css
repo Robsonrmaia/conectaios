@@ -145,6 +145,14 @@ All colors MUST be HSL.
   }
 }
 
+/* Parallax effect styles */
+@layer components {
+  .parallax-element {
+    transform: translateY(0);
+    transition: transform 0.1s ease-out;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
