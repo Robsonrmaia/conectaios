@@ -67,20 +67,20 @@ export default function Minisite() {
   });
 
   useEffect(() => {
-    if (broker) {
-      setProfile({
-        name: broker.name || '',
-        username: broker.username || '',
-        bio: broker.bio || '',
-        phone: broker.phone || '',
-        email: broker.email || '',
-        avatar_url: broker.avatar_url || '',
-        cover_url: broker.cover_url || '',
-        creci: broker.creci || ''
-      });
-      fetchStats();
-    }
-  }, [broker]);
+  if (broker) {
+    setProfile({
+      name: broker.name || '',
+      username: broker.username || '',
+      bio: broker.bio || '',
+      phone: broker.phone || '',
+      email: broker.email || '',
+      avatar_url: broker.avatar_url || '',
+      cover_url: broker.cover_url || '',
+      creci: broker.creci || ''
+    });
+    setIsEnabled(broker.status === 'active'); // 👈 importantíssimo
+  }
+}, [broker]);
 
   const fetchStats = async () => {
     if (!user) return;
@@ -104,30 +104,22 @@ export default function Minisite() {
   };
 
   const handleSave = async () => {
-    if (!broker) return;
-    
-    setIsSaving(true);
-    try {
-      await updateBrokerProfile({
-        ...profile,
-        username: profile.username || profile.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20)
-      });
-      
-      toast({
-        title: "Perfil Atualizado!",
-        description: "Seu mini site foi atualizado com sucesso.",
-      });
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao atualizar perfil. Tente novamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
+  if (!broker) return;
+  setIsSaving(true);
+  try {
+    await updateBrokerProfile({
+      ...profile,
+      username: (profile.username || profile.name.toLowerCase().replace(/[^a-z0-9]/g, '')).substring(0, 20),
+      status: isEnabled ? 'active' : 'inactive',   // 👈 ESSENCIAL
+    });
+    toast({ title: "Perfil Atualizado!", description: "Seu mini site foi atualizado com sucesso." });
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    toast({ title: "Erro", description: "Erro ao atualizar perfil. Tente novamente.", variant: "destructive" });
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const copyMinisiteUrl = () => {
     // Use conectaios.com.br domain for production, sandbox for development  
