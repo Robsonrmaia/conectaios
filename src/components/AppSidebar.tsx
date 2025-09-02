@@ -138,11 +138,8 @@ export function AppSidebar() {
       <SidebarContent>
         {/* Logo */}
         <div className="p-4 border-b">
-          <div className="flex items-center space-x-2">
-            <img src="/src/assets/logo.png" alt="ConectaIOS" className="h-6 w-6" />
-            <span className="font-bold text-lg text-primary">
-              ConectaIOS
-            </span>
+          <div className="flex items-center justify-center">
+            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
           </div>
         </div>
 

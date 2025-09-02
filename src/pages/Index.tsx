@@ -58,11 +58,8 @@ const Index = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <img src="/src/assets/logo.png" alt="ConectaIOS" className="h-8 w-8" />
-            <span className="text-2xl font-bold text-primary">
-              ConectaIOS
-            </span>
+          <div className="flex items-center">
+            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
           </div>
           <Button 
             onClick={() => navigate('/auth')}
@@ -95,18 +92,18 @@ const Index = () => {
 
         <div className="container mx-auto px-4 py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 parallax-element text-white drop-shadow-2xl" data-speed="0.5">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in" data-speed="0.8">
               Sua rotina imobiliária simplificada, Organizada e Inteligente.
             </h1>
             
-            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg" data-speed="0.3">
+            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in" data-speed="0.6">
               Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
               Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
               encontra clientes certos com inteligência artificial e fecha negócios de forma 
               simples, rápida e segura.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element" data-speed="0.2">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element animate-fade-in" data-speed="0.4">
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}

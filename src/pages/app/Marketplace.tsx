@@ -346,17 +346,17 @@ export default function Marketplace() {
                     </p>
                   )}
 
-                   <div className="flex flex-col gap-3 mt-4">
+                   <div className="flex flex-col gap-2 mt-4">
                      <Button 
                        size="sm" 
                        onClick={(e) => {
                          e.stopPropagation();
                          handleContactBroker(property.profiles?.nome || 'Corretor');
                        }}
-                       className="w-full h-8"
+                       className="w-full h-8 text-xs"
                      >
-                       <Phone className="h-4 w-4 mr-2" />
-                       Contatar Corretor
+                       <Phone className="h-3 w-3 mr-1" />
+                       Contatar
                      </Button>
                      <div className="grid grid-cols-4 gap-1">
                        <Button
@@ -366,10 +366,11 @@ export default function Marketplace() {
                            e.stopPropagation();
                            handleMatch(property.id);
                          }}
-                         className="h-8 w-full"
+                         className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
                          title="Match"
                        >
-                         <Target className="h-4 w-4" />
+                         <Target className="h-3 w-3" />
+                         <span className="sr-only">Match</span>
                        </Button>
                        <div className="w-full">
                          <FavoritesManager 
@@ -384,10 +385,11 @@ export default function Marketplace() {
                            e.stopPropagation();
                            navigate('/app/inbox');
                          }}
-                         className="h-8 w-full"
+                         className="h-7 w-full p-0 hover:bg-primary hover:text-white"
                          title="Mensagem"
                        >
-                         <MessageSquare className="h-4 w-4" />
+                         <MessageSquare className="h-3 w-3" />
+                         <span className="sr-only">Mensagem</span>
                        </Button>
                        <div className="w-full">
                          <ShareButton

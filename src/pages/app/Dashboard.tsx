@@ -323,15 +323,56 @@ const Dashboard = () => {
           <CardTitle>Parceiros & Convênios</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-5">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div 
-                key={i}
-                className="flex items-center justify-center p-4 bg-muted/30 rounded-lg border border-dashed border-muted-foreground/30"
-              >
-                <span className="text-xs text-muted-foreground">Parceiro {i}</span>
-              </div>
-            ))}
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+            {/* Bancos */}
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🏦</div>
+              <span className="text-xs text-center text-muted-foreground">Banco do Brasil</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🏦</div>
+              <span className="text-xs text-center text-muted-foreground">Caixa Econômica</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🏛️</div>
+              <span className="text-xs text-center text-muted-foreground">Prefeitura de Ilhéus</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">📋</div>
+              <span className="text-xs text-center text-muted-foreground">CRECI BA</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🔨</div>
+              <span className="text-xs text-center text-muted-foreground">Material Construção</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🪑</div>
+              <span className="text-xs text-center text-muted-foreground">Móveis Planejados</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🏦</div>
+              <span className="text-xs text-center text-muted-foreground">Correspondente Bancário</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">📝</div>
+              <span className="text-xs text-center text-muted-foreground">Cartório</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🎨</div>
+              <span className="text-xs text-center text-muted-foreground">Serviços de Pintura</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">🔧</div>
+              <span className="text-xs text-center text-muted-foreground">Montagem Móveis</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">❄️</div>
+              <span className="text-xs text-center text-muted-foreground">Ar Condicionado</span>
+            </div>
+            <div className="flex flex-col items-center justify-center p-3 bg-muted/30 rounded-lg border group hover:shadow-md transition-all">
+              <div className="text-2xl mb-1">⚖️</div>
+              <span className="text-xs text-center text-muted-foreground">Serviços Jurídicos</span>
+            </div>
           </div>
         </CardContent>
       </Card>
