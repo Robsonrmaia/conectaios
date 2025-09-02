@@ -346,18 +346,19 @@ export default function Marketplace() {
                     </p>
                   )}
 
-                     <div className="flex gap-2 mt-4">
-                       <Button 
-                         size="sm" 
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           handleContactBroker(property.profiles?.nome || 'Corretor');
-                         }}
-                         className="flex-1 text-xs px-2 h-8"
-                       >
-                         <Phone className="h-4 w-4 mr-1" />
-                         Contato
-                       </Button>
+                   <div className="flex justify-between gap-2 mt-4">
+                     <Button 
+                       size="sm" 
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         handleContactBroker(property.profiles?.nome || 'Corretor');
+                       }}
+                       className="flex-1 text-xs h-7"
+                     >
+                       <Phone className="h-3 w-3 mr-1" />
+                       Contato
+                     </Button>
+                     <div className="flex gap-1">
                        <Button
                          size="sm"
                          variant="outline"
@@ -365,16 +366,15 @@ export default function Marketplace() {
                            e.stopPropagation();
                            handleMatch(property.id);
                          }}
-                         className="px-3 h-8"
+                         className="p-1 h-7 w-7"
+                         title="Match"
                        >
-                         <Target className="h-4 w-4" />
+                         <Target className="h-3 w-3" />
                        </Button>
-                       <div className="flex items-center">
-                         <FavoritesManager 
-                           propertyId={property.id} 
-                           onToggle={() => {}}
-                         />
-                       </div>
+                       <FavoritesManager 
+                         propertyId={property.id} 
+                         onToggle={() => {}}
+                       />
                        <Button
                          size="sm"
                          variant="outline"
@@ -382,19 +382,19 @@ export default function Marketplace() {
                            e.stopPropagation();
                            navigate('/app/inbox');
                          }}
-                         className="px-3 h-8"
+                         className="p-1 h-7 w-7"
+                         title="Mensagem"
                        >
-                         <MessageSquare className="h-4 w-4" />
+                         <MessageSquare className="h-3 w-3" />
                        </Button>
-                       <div className="flex items-center">
-                         <ShareButton
-                           propertyId={property.id}
-                           propertyTitle={property.titulo}
-                           ownerUserId={property.user_id}
-                           isOwner={false}
-                         />
-                       </div>
+                       <ShareButton
+                         propertyId={property.id}
+                         propertyTitle={property.titulo}
+                         ownerUserId={property.user_id}
+                         isOwner={false}
+                       />
                      </div>
+                   </div>
                 </CardContent>
               </AnimatedCard>
             </motion.div>

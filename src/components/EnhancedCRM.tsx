@@ -434,14 +434,36 @@ export function EnhancedCRM() {
                 Gerencie clientes com IA e sistema de match automático
               </p>
             </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <Dialog open={isAddDialogOpen} onOpenChange={(open) => {
+              setIsAddDialogOpen(open);
+              if (!open) {
+                setSelectedClient(null);
+                setFormData({
+                  name: '',
+                  email: '',
+                  phone: '',
+                  date_of_birth: '',
+                  address: '',
+                  profession: '',
+                  marital_status: 'single',
+                  lead_source: 'website',
+                  budget_min: '',
+                  budget_max: '',
+                  property_type: '',
+                  location_preference: '',
+                  notes: '',
+                  status: 'lead',
+                  source: 'website'
+                });
+              }
+            }}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary">
                   <Plus className="h-4 w-4 mr-2" />
                   Novo Cliente
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-md">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{selectedClient ? 'Editar Cliente' : 'Adicionar Cliente'}</DialogTitle>
                   <DialogDescription>
@@ -494,6 +516,47 @@ export function EnhancedCRM() {
                         onChange={(e) => setFormData({...formData, profession: e.target.value})}
                         placeholder="Ex: Advogado"
                       />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="address">Endereço Completo</Label>
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      placeholder="Rua, número, bairro, cidade"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label htmlFor="marital_status">Estado Civil</Label>
+                      <Select value={formData.marital_status} onValueChange={(value) => setFormData({...formData, marital_status: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="single">Solteiro(a)</SelectItem>
+                          <SelectItem value="married">Casado(a)</SelectItem>
+                          <SelectItem value="divorced">Divorciado(a)</SelectItem>
+                          <SelectItem value="widowed">Viúvo(a)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="lead_source">Origem do Lead</Label>
+                      <Select value={formData.lead_source} onValueChange={(value) => setFormData({...formData, lead_source: value})}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="website">Site</SelectItem>
+                          <SelectItem value="referral">Indicação</SelectItem>
+                          <SelectItem value="social_media">Redes Sociais</SelectItem>
+                          <SelectItem value="advertising">Publicidade</SelectItem>
+                          <SelectItem value="event">Evento</SelectItem>
+                          <SelectItem value="cold_call">Ligação Fria</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div>

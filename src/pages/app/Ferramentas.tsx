@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
-import { FinancingCalculator } from '@/components/FinancingCalculator';
+import { ExpandedFerramentas } from '@/components/ExpandedFerramentas';
 
 interface Tool {
   id: string;
@@ -212,10 +212,14 @@ export default function Ferramentas() {
             <CardDescription className="text-sm mb-4">
               Simule financiamentos imobiliários
             </CardDescription>
-            <FinancingCalculator />
+            <Button variant="outline" className="w-full">
+              Abrir Calculadora
+            </Button>
           </CardContent>
         </Card>
       </div>
+
+      <ExpandedFerramentas />
     </div>
   );
 }

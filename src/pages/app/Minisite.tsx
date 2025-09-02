@@ -32,7 +32,7 @@ import { useBroker } from '@/hooks/useBroker';
 import { MinisiteEditor } from '@/components/MinisiteEditor';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { MinisiteSetupWizard } from '@/components/MinisiteSetupWizard';
+import { FunctionalMinisite } from '@/components/FunctionalMinisite';
 
 interface BrokerProfile {
   name: string;
@@ -156,7 +156,19 @@ export default function Minisite() {
           </p>
         </div>
         
-        <MinisiteSetupWizard onComplete={() => window.location.reload()} />
+        <Card>
+          <CardHeader>
+            <CardTitle>Configure seu Minisite</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">
+              Primeiro, configure seu username para criar seu minisite.
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              Configurar Agora
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -310,7 +322,7 @@ export default function Minisite() {
         </TabsList>
 
         <TabsContent value="editor">
-          <MinisiteEditor />
+          <FunctionalMinisite />
         </TabsContent>
 
         <TabsContent value="analytics">

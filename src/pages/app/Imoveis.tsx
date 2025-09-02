@@ -693,6 +693,7 @@ export default function Imoveis() {
                          setIsDetailDialogOpen(true);
                        }}
                        title="Visualizar Imóvel"
+                       className="h-7 w-7 p-0"
                      >
                        <Eye className="h-3 w-3" />
                      </Button>
@@ -704,21 +705,26 @@ export default function Imoveis() {
                          setGalleryInitialIndex(0);
                          setGalleryOpen(true);
                        }}
-                       title="Galeria de Fotos"
+                       title="Editar Fotos"
+                       className="h-7 w-7 p-0"
                      >
                        <FileImage className="h-3 w-3" />
                      </Button>
-                     <PhotoEnhancer
-                       imageUrl={Array.isArray(property.fotos) ? property.fotos[0] : ''}
-                       onEnhancedImage={(enhancedUrl) => {
-                         console.log('Enhanced image:', enhancedUrl);
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         // Implementar melhoria de qualidade
                          toast({
-                           title: "Imagem melhorada",
-                           description: "A imagem foi processada com sucesso!",
+                           title: "Melhorar Qualidade",
+                           description: "Funcionalidade em desenvolvimento",
                          });
                        }}
-                       isPremium={true}
-                     />
+                       title="Melhorar Qualidade"
+                       className="h-7 w-7 p-0"
+                     >
+                       <Sparkles className="h-3 w-3" />
+                     </Button>
                      {Array.isArray(property.fotos) && property.fotos.length > 0 && (
                        <Button 
                          variant="outline" 
@@ -727,6 +733,7 @@ export default function Imoveis() {
                            setVirtualStagingProperty(property.id);
                          }}
                          title="Virtual Staging"
+                         className="h-7 w-7 p-0"
                        >
                          <Wand2 className="h-3 w-3" />
                        </Button>
@@ -765,6 +772,7 @@ export default function Imoveis() {
                          setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
                        }}
                        title="Editar Imóvel"
+                       className="h-7 w-7 p-0"
                      >
                        <Edit className="h-3 w-3" />
                      </Button>
@@ -773,53 +781,41 @@ export default function Imoveis() {
                        size="sm"
                        onClick={() => handleDeleteProperty(property.id)}
                        title="Excluir Imóvel"
+                       className="h-7 w-7 p-0"
                      >
                        <Trash2 className="h-3 w-3" />
                      </Button>
                    </div>
                   
-                   {/* Visibility Toggle Buttons - Side by Side */}
-                   <div className="flex gap-1 mt-2">
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 'hidden');
-                       }}
-                       title="Ocultar do Marketplace"
-                       className="text-xs px-2"
-                     >
-                       <EyeOff className="h-3 w-3 mr-1" />
-                       Oculto
-                     </Button>
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'match_only' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 'match_only');
-                       }}
-                       title="Visível no Marketplace"
-                       className="text-xs px-2"
-                     >
-                       <Globe className="h-3 w-3 mr-1" />
-                       Market
-                     </Button>
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'public_site' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 'public_site');
-                       }}
-                       title="Visível no Site Público"
-                       className="text-xs px-2"
-                     >
-                       <Eye className="h-3 w-3 mr-1" />
-                       Site
-                     </Button>
-                   </div>
+                  {/* Visibility Toggle Buttons - Side by Side */}
+                  <div className="flex gap-1 mt-2">
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'match_only' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'match_only');
+                      }}
+                      title="Marketplace"
+                      className="text-xs px-2 h-6"
+                    >
+                      <Globe className="h-2 w-2 mr-1" />
+                      Market
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'public_site');
+                      }}
+                      title="Site Público"
+                      className="text-xs px-2 h-6"
+                    >
+                      <Eye className="h-2 w-2 mr-1" />
+                      Site
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
