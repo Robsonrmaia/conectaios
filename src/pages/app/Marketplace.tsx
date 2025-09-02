@@ -346,19 +346,19 @@ export default function Marketplace() {
                     </p>
                   )}
 
-                   <div className="flex justify-between gap-2 mt-4">
+                   <div className="flex flex-col gap-3 mt-4">
                      <Button 
                        size="sm" 
                        onClick={(e) => {
                          e.stopPropagation();
                          handleContactBroker(property.profiles?.nome || 'Corretor');
                        }}
-                       className="flex-1 text-xs h-7"
+                       className="w-full h-8"
                      >
-                       <Phone className="h-3 w-3 mr-1" />
-                       Contato
+                       <Phone className="h-4 w-4 mr-2" />
+                       Contatar Corretor
                      </Button>
-                     <div className="flex gap-1">
+                     <div className="grid grid-cols-4 gap-1">
                        <Button
                          size="sm"
                          variant="outline"
@@ -366,15 +366,17 @@ export default function Marketplace() {
                            e.stopPropagation();
                            handleMatch(property.id);
                          }}
-                         className="p-1 h-7 w-7"
+                         className="h-8 w-full"
                          title="Match"
                        >
-                         <Target className="h-3 w-3" />
+                         <Target className="h-4 w-4" />
                        </Button>
-                       <FavoritesManager 
-                         propertyId={property.id} 
-                         onToggle={() => {}}
-                       />
+                       <div className="w-full">
+                         <FavoritesManager 
+                           propertyId={property.id} 
+                           onToggle={() => {}}
+                         />
+                       </div>
                        <Button
                          size="sm"
                          variant="outline"
@@ -382,17 +384,19 @@ export default function Marketplace() {
                            e.stopPropagation();
                            navigate('/app/inbox');
                          }}
-                         className="p-1 h-7 w-7"
+                         className="h-8 w-full"
                          title="Mensagem"
                        >
-                         <MessageSquare className="h-3 w-3" />
+                         <MessageSquare className="h-4 w-4" />
                        </Button>
-                       <ShareButton
-                         propertyId={property.id}
-                         propertyTitle={property.titulo}
-                         ownerUserId={property.user_id}
-                         isOwner={false}
-                       />
+                       <div className="w-full">
+                         <ShareButton
+                           propertyId={property.id}
+                           propertyTitle={property.titulo}
+                           ownerUserId={property.user_id}
+                           isOwner={false}
+                         />
+                       </div>
                      </div>
                    </div>
                 </CardContent>
