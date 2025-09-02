@@ -71,15 +71,17 @@ const Index = () => {
       <main className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
-            A plataforma dos{' '}
             <span className="text-primary font-semibold">
-              corretores de Ilhéus
+              ConectaIOS
             </span>
+            {' '}– A Plataforma que Revoluciona o Mercado Imobiliário de Ilhéus
           </h1>
           
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Conecte-se com outros corretores, gerencie seus imóveis, 
-            encontre matches inteligentes e feche mais negócios.
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
+            Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+            Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+            encontra clientes certos com inteligência artificial e fecha negócios de forma 
+            simples, rápida e segura.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
@@ -138,66 +140,116 @@ const Index = () => {
             </div>
           )}
 
-          {/* Features Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Building2 className="h-6 w-6 text-primary" />
+          {/* Features Grid - Principais Diferenciais */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Users className="h-6 w-6 text-success" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 CRM Completo</h3>
+                <p className="text-muted-foreground text-sm">
+                  Organize leads, clientes e pipeline de vendas em um só lugar.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Gestão de Imóveis</h3>
-              <p className="text-muted-foreground">
-                Controle total dos seus imóveis com diferentes níveis de visibilidade
-              </p>
-            </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-brand-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Heart className="h-6 w-6 text-brand-secondary" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Gestão de Imóveis</h3>
+                <p className="text-muted-foreground text-sm">
+                  Controle total dos seus imóveis com níveis de visibilidade flexíveis: todos, parceiros ou privado.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Match Inteligente</h3>
-              <p className="text-muted-foreground">
-                IA conecta automaticamente clientes aos imóveis ideais
-              </p>
-            </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <MessageSquare className="h-6 w-6 text-accent" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="h-6 w-6 text-warning" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Negociações Inteligentes</h3>
+                <p className="text-muted-foreground text-sm">
+                  Gerencie acordos com rateio flexível e contratos automáticos.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Chat em Tempo Real</h3>
-              <p className="text-muted-foreground">
-                Comunique-se instantaneamente com clientes e parceiros
-              </p>
-            </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Users className="h-6 w-6 text-success" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-brand-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Heart className="h-6 w-6 text-brand-secondary" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Match Inteligente com IA</h3>
+                <p className="text-muted-foreground text-sm">
+                  Nossa IA conecta automaticamente clientes ao imóvel perfeito, aumentando suas chances de fechamento.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">CRM Completo</h3>
-              <p className="text-muted-foreground">
-                Gerencie leads, clientes e pipeline de vendas
-              </p>
-            </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <TrendingUp className="h-6 w-6 text-warning" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-6 w-6 text-info" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Mini Site Exclusivo</h3>
+                <p className="text-muted-foreground text-sm">
+                  Tenha um site profissional para divulgar seus imóveis e fortalecer sua marca.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Negociações</h3>
-              <p className="text-muted-foreground">
-                Gerencie deals com rateio flexível e contratos automáticos
-              </p>
-            </div>
 
-            <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-              <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Shield className="h-6 w-6 text-info" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-6 w-6 text-accent" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Chat em Tempo Real</h3>
+                <p className="text-muted-foreground text-sm">
+                  Comunique-se instantaneamente com clientes e parceiros.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Mini Site</h3>
-              <p className="text-muted-foreground">
-                Seu site personalizado para divulgar imóveis
-              </p>
+
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="h-6 w-6 text-purple-500" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Fotos com IA</h3>
+                <p className="text-muted-foreground text-sm">
+                  Melhoria automática de qualidade para destacar seus imóveis. Marca d'água exclusiva, protegendo suas fotos contra uso indevido.
+                </p>
+              </div>
+
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
+                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">🔹 Mobiliário Virtual (Plano Plus)</h3>
+                <p className="text-muted-foreground text-sm">
+                  Mostre imóveis vazios já mobiliados virtualmente com inteligência Hugging Face, ajudando o cliente a visualizar todo o potencial do espaço.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Por que o ConectaIOS é diferente? */}
+          <div className="mb-16">
+            <h2 className="text-3xl font-bold text-center mb-8">Por que o ConectaIOS é diferente?</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
+              <div className="text-center p-4">
+                <div className="text-4xl mb-3">📸</div>
+                <p className="text-sm font-medium">Imagens mais atrativas e protegidas</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="text-4xl mb-3">🛋️</div>
+                <p className="text-sm font-medium">Imóveis vazios que ganham vida</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="text-4xl mb-3">🔑</div>
+                <p className="text-sm font-medium">Segurança e privacidade em todas as etapas</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="text-4xl mb-3">🤝</div>
+                <p className="text-sm font-medium">Mais parcerias, mais negócios</p>
+              </div>
+              <div className="text-center p-4">
+                <div className="text-4xl mb-3">⏱️</div>
+                <p className="text-sm font-medium">Menos burocracia, mais vendas</p>
+              </div>
             </div>
           </div>
 
@@ -368,12 +420,15 @@ const Index = () => {
                   </div>
                   
                   <div className="text-center pt-4">
+                    <p className="text-lg font-semibold mb-4 text-primary">
+                      👉 Conecte-se agora e faça parte da comunidade de corretores que estão elevando o mercado imobiliário de Ilhéus a um novo nível.
+                    </p>
                      <Button 
                       size="lg"
                       onClick={() => navigate('/auth')}
                       className="bg-primary hover:bg-primary/90 px-8"
                     >
-                      Começar Agora
+                      Quero Começar Agora
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
                       Integração com Asaas para pagamentos • Planos a partir de R$ 97
