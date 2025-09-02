@@ -13,7 +13,7 @@ import { Building2, Phone, Mail, MapPin, Bed, Bath, Car, Share2, MessageSquare, 
 import { Link } from 'react-router-dom';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 
@@ -86,16 +86,35 @@ export default function BrokerMinisite() {
 
   const fetchBrokerAndProperties = async () => {
     try {
+      console.log('Fetching broker with username:', username);
+      
       // Fetch broker by username
       const { data: brokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
         .select('*')
         .eq('username', username)
         .eq('status', 'active')
-        .single();
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
 
-      if (brokerError) throw brokerError;
+      console.log('Broker query result:', { brokerData, brokerError });
+
+      if (brokerError) {
+        console.error('Broker query error:', brokerError);
+        throw brokerError;
+      }
+      
+      if (!brokerData) {
+        console.log('No broker found with username:', username);
+        toast({
+          title: "Erro",
+          description: `Corretor @${username} não encontrado ou página não disponível`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       setBroker(brokerData);
+      console.log('Broker set successfully:', brokerData);
 
       // Fetch properties for this broker
       const { data: propertiesData, error: propertiesError } = await supabase

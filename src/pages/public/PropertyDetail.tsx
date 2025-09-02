@@ -1,18 +1,34 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
-import { Building2, MapPin, Bed, Bath, Car, Calendar, Share2, Phone, Mail, User, Heart, ArrowLeft, MessageSquare } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import { 
+  Building2, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Bed, 
+  Bath, 
+  Car, 
+  Share2, 
+  MessageSquare, 
+  User, 
+  ArrowLeft,
+  Calendar,
+  TrendingUp
+} from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FavoritesManager } from '@/components/FavoritesManager';
+import { toast } from '@/hooks/use-toast';
+import { PhotoGallery } from '@/components/PhotoGallery';
 import { ShareButton } from '@/components/ShareButton';
+import { FavoritesManager } from '@/components/FavoritesManager';
 
 interface Property {
   id: string;
@@ -30,77 +46,71 @@ interface Property {
   address: string;
   neighborhood: string;
   city: string;
-  condominium_fee?: number;
-  iptu?: number;
+  reference_code: string;
   created_at: string;
-  brokers: {
-    name: string;
-    phone?: string;
-    email: string;
-    avatar_url?: string;
-    creci?: string;
-    user_id?: string;
-  };
+  user_id: string;
+}
+
+interface BrokerProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+  avatar_url: string;
+  creci: string;
 }
 
 export default function PropertyDetail() {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<Property | null>(null);
+  const [broker, setBroker] = useState<BrokerProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [contactForm, setContactForm] = useState({
     nome: '',
     telefone: '',
     email: '',
-    mensagem: 'Tenho interesse no imóvel. Gostaria de mais informações.'
+    mensagem: ''
   });
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     if (id) {
-      fetchProperty();
+      fetchPropertyAndBroker();
     }
   }, [id]);
 
-  const fetchProperty = async () => {
+  const fetchPropertyAndBroker = async () => {
     try {
-      // First get the property
+      // Fetch property
       const { data: propertyData, error: propertyError } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('id', id)
         .eq('visibility', 'public_site')
         .single();
 
       if (propertyError) throw propertyError;
+      setProperty(propertyData);
 
-      // Then get the broker info
+      // Fetch broker info
       const { data: brokerData, error: brokerError } = await supabase
-        .from('brokers')
-        .select('name, phone, email, avatar_url, creci, user_id')
+        .from('conectaios_brokers')
+        .select('*')
         .eq('user_id', propertyData.user_id)
+        .eq('status', 'active')
         .single();
 
-      if (brokerError) {
-        console.error('Error fetching broker:', brokerError);
-        // Set default broker data if not found
-        setProperty({
-          ...propertyData,
-          brokers: {
-            name: 'Corretor',
-            email: 'contato@exemplo.com'
-          }
-        });
-      } else {
-        setProperty({
-          ...propertyData,
-          brokers: brokerData
-        });
-      }
+      if (brokerError) throw brokerError;
+      setBroker(brokerData);
+
     } catch (error) {
       console.error('Error fetching property:', error);
       toast({
         title: "Erro",
-        description: "Imóvel não encontrado ou não está disponível",
+        description: "Imóvel não encontrado ou não disponível",
         variant: "destructive",
       });
     } finally {
@@ -118,8 +128,8 @@ export default function PropertyDetail() {
           nome: contactForm.nome,
           telefone: contactForm.telefone,
           email: contactForm.email,
-          interesse: `Interesse no imóvel: ${property?.titulo}`,
-          ip_address: '0.0.0.0', // Mock IP
+          interesse: contactForm.mensagem || `Interesse no imóvel: ${property?.titulo}`,
+          ip_address: '0.0.0.0',
           user_agent: navigator.userAgent
         });
 
@@ -130,12 +140,7 @@ export default function PropertyDetail() {
         description: "O corretor entrará em contato em breve.",
       });
 
-      setContactForm({
-        nome: '',
-        telefone: '',
-        email: '',
-        mensagem: 'Tenho interesse no imóvel. Gostaria de mais informações.'
-      });
+      setContactForm({ nome: '', telefone: '', email: '', mensagem: '' });
     } catch (error) {
       console.error('Error sending contact:', error);
       toast({
@@ -146,390 +151,340 @@ export default function PropertyDetail() {
     }
   };
 
-  const shareProperty = () => {
-    const url = window.location.href;
-    const text = `Confira este imóvel: ${property?.titulo}`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: property?.titulo,
-        text,
-        url
-      });
-    } else {
-      // Fallback - copy to clipboard
-      navigator.clipboard.writeText(`${text} - ${url}`);
-      toast({
-        title: "Link Copiado!",
-        description: "O link foi copiado para a área de transferência.",
-      });
-    }
-  };
-
   const openWhatsApp = () => {
-    const phone = property?.brokers?.phone?.replace(/\D/g, '');
-    const message = `Olá! Tenho interesse no imóvel "${property?.titulo}" que vi no site. Você pode me dar mais informações?`;
+    if (!broker?.phone) return;
+    const phone = broker.phone.replace(/\D/g, '');
+    const message = `Olá ${broker.name}! Vi o imóvel "${property?.titulo}" (${property?.reference_code}) e tenho interesse. Você pode me ajudar?`;
     const url = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+  };
+
+  const openPhotoGallery = (initialIndex: number = 0) => {
+    setGalleryInitialIndex(initialIndex);
+    setGalleryOpen(true);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-96 w-full" />
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-4">
-                <Skeleton className="h-40 w-full" />
-                <Skeleton className="h-32 w-full" />
-              </div>
-              <Skeleton className="h-96 w-full" />
+          <Skeleton className="h-8 w-32 mb-6" />
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-6">
+              <Skeleton className="h-80 w-full" />
+              <Skeleton className="h-32 w-full" />
             </div>
+            <Skeleton className="h-96 w-full" />
           </div>
         </div>
       </div>
     );
   }
 
-  if (!property) {
+  if (!property || !broker) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center py-20">
-            <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h1 className="text-2xl font-bold mb-2">Imóvel não encontrado</h1>
-            <p className="text-muted-foreground mb-8">
-              O imóvel que você está procurando não existe ou não está mais disponível.
-            </p>
-            <Button asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar ao Início
-              </Link>
-            </Button>
-          </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Imóvel não encontrado</h1>
+          <p className="text-muted-foreground mb-8">
+            O imóvel que você está procurando não existe ou não está disponível.
+          </p>
+          <Button asChild>
+            <Link to="/">Voltar ao Início</Link>
+          </Button>
         </div>
       </div>
     );
   }
+
+  const photos = property.fotos || [];
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Button variant="outline" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Voltar
-              </Link>
-            </Button>
-            <div className="flex gap-2">
-              <ShareButton 
-                propertyId={property.id}
-                propertyTitle={property.titulo}
-                ownerUserId={property.brokers?.user_id}
-              />
-              <FavoritesManager propertyId={property.id} />
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="container mx-auto px-4 py-8">
-        <div className="space-y-8">
-          {/* Title and Price */}
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge variant="secondary">
-                {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
-              </Badge>
-              <Badge variant="outline">{property.property_type}</Badge>
-            </div>
-            <h1 className="text-3xl font-bold mb-2">{property.titulo}</h1>
-            <div className="flex items-center gap-2 text-muted-foreground mb-4">
-              <MapPin className="h-4 w-4" />
-              <span>{property.address}, {property.neighborhood}, {property.city}</span>
-            </div>
-            <div className="text-4xl font-bold text-primary">
-              R$ {property.valor.toLocaleString('pt-BR')}
-            </div>
-            {property.condominium_fee && (
-              <p className="text-muted-foreground">
-                + Condomínio: R$ {property.condominium_fee.toLocaleString('pt-BR')}
-              </p>
-            )}
-            {property.iptu && (
-              <p className="text-muted-foreground">
-                IPTU: R$ {property.iptu.toLocaleString('pt-BR')}/ano
-              </p>
-            )}
-          </div>
+        {/* Back Button */}
+        <Button variant="ghost" asChild className="mb-6">
+          <Link to="/">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Link>
+        </Button>
 
-          {/* Image Gallery */}
-          {property.fotos && property.fotos.length > 0 && (
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Property Images */}
             <Card>
               <CardContent className="p-0">
-                <div className="aspect-video overflow-hidden rounded-t-lg">
-                  <img
-                    src={property.fotos[currentImageIndex]}
-                    alt={`${property.titulo} - Foto ${currentImageIndex + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="aspect-video bg-muted relative rounded-t-lg overflow-hidden">
+                  {photos.length > 0 ? (
+                    <img
+                      src={photos[0]}
+                      alt={property.titulo}
+                      className="w-full h-full object-cover cursor-pointer"
+                      onClick={() => openPhotoGallery(0)}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Building2 className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                  
+                  {photos.length > 1 && (
+                    <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1 rounded">
+                      +{photos.length - 1} fotos
+                    </div>
+                  )}
+
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-primary/90 text-primary-foreground">
+                      {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
+                    </Badge>
+                  </div>
+
+                  <div className="absolute top-4 right-4 flex gap-2">
+                    <ShareButton 
+                      propertyId={property.id}
+                      propertyTitle={property.titulo}
+                      ownerUserId={broker.user_id}
+                    />
+                    <FavoritesManager propertyId={property.id} />
+                  </div>
                 </div>
-                {property.fotos.length > 1 && (
+
+                {/* Thumbnail strip */}
+                {photos.length > 1 && (
                   <div className="p-4">
                     <div className="flex gap-2 overflow-x-auto">
-                      {property.fotos.map((foto, index) => (
+                      {photos.slice(0, 5).map((photo, index) => (
                         <button
                           key={index}
-                          onClick={() => setCurrentImageIndex(index)}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                            currentImageIndex === index 
-                              ? 'border-primary' 
-                              : 'border-transparent'
-                          }`}
+                          className="flex-shrink-0 w-20 h-16 rounded overflow-hidden border-2 hover:border-primary transition-colors"
+                          onClick={() => openPhotoGallery(index)}
                         >
                           <img
-                            src={foto}
-                            alt={`Miniatura ${index + 1}`}
+                            src={photo}
+                            alt={`Foto ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
                         </button>
                       ))}
+                      {photos.length > 5 && (
+                        <button
+                          className="flex-shrink-0 w-20 h-16 rounded bg-muted border-2 hover:border-primary transition-colors flex items-center justify-center text-xs text-muted-foreground"
+                          onClick={() => openPhotoGallery(5)}
+                        >
+                          +{photos.length - 5}
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
-          )}
 
-          <div className="grid gap-8 lg:grid-cols-3">
             {/* Property Details */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Features */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Características</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <Building2 className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="text-2xl font-bold">{property.area}</div>
-                      <div className="text-sm text-muted-foreground">m²</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <Bed className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="text-2xl font-bold">{property.quartos}</div>
-                      <div className="text-sm text-muted-foreground">quartos</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <Bath className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="text-2xl font-bold">{property.bathrooms}</div>
-                      <div className="text-sm text-muted-foreground">banheiros</div>
-                    </div>
-                    
-                    <div className="text-center">
-                      <div className="flex items-center justify-center mb-2">
-                        <Car className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="text-2xl font-bold">{property.parking_spots}</div>
-                      <div className="text-sm text-muted-foreground">vagas</div>
-                    </div>
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-2xl">{property.titulo}</CardTitle>
+                    <CardDescription className="flex items-center gap-2 mt-2">
+                      <MapPin className="h-4 w-4" />
+                      {property.address && `${property.address}, `}
+                      {property.neighborhood}, {property.city}
+                    </CardDescription>
                   </div>
-                </CardContent>
-              </Card>
+                  <Badge variant="outline" className="font-mono">
+                    {property.reference_code}
+                  </Badge>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="space-y-6">
+                <div className="text-3xl font-bold text-primary">
+                  R$ {property.valor.toLocaleString('pt-BR')}
+                </div>
 
-              {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Descrição</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground whitespace-pre-wrap">
-                    {property.descricao || 'Descrição não disponível.'}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* Videos */}
-              {property.videos && property.videos.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Vídeos</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {property.videos.map((video, index) => (
-                        <div key={index} className="aspect-video">
-                          <iframe
-                            src={video}
-                            title={`Vídeo ${index + 1}`}
-                            className="w-full h-full rounded-lg"
-                            allowFullScreen
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Contact Form */}
-            <div className="space-y-6">
-              {/* Broker Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Corretor Responsável</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                      {property.brokers.avatar_url ? (
-                        <img
-                          src={property.brokers.avatar_url}
-                          alt={property.brokers.name}
-                          className="w-full h-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="h-6 w-6 text-muted-foreground" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-semibold">{property.brokers.name}</p>
-                      {property.brokers.creci && (
-                        <p className="text-sm text-muted-foreground">
-                          CRECI: {property.brokers.creci}
-                        </p>
-                      )}
-                    </div>
+                <div className="grid grid-cols-4 gap-4 text-center">
+                  <div className="p-4 bg-muted rounded-lg">
+                    <Building2 className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-2xl font-bold">{property.area}</p>
+                    <p className="text-sm text-muted-foreground">m²</p>
                   </div>
-                  
-                  <div className="space-y-2">
-                    {property.brokers.phone && (
-                    <Button
+                  <div className="p-4 bg-muted rounded-lg">
+                    <Bed className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-2xl font-bold">{property.quartos}</p>
+                    <p className="text-sm text-muted-foreground">Quartos</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <Bath className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-2xl font-bold">{property.bathrooms}</p>
+                    <p className="text-sm text-muted-foreground">Banheiros</p>
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg">
+                    <Car className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    <p className="text-2xl font-bold">{property.parking_spots}</p>
+                    <p className="text-sm text-muted-foreground">Vagas</p>
+                  </div>
+                </div>
+
+                {property.descricao && (
+                  <div>
+                    <h3 className="font-semibold mb-2">Descrição</h3>
+                    <p className="text-muted-foreground whitespace-pre-wrap">
+                      {property.descricao}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Broker Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Corretor Responsável</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-muted rounded-full overflow-hidden">
+                    {broker.avatar_url ? (
+                      <img
+                        src={broker.avatar_url}
+                        alt={broker.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <User className="h-8 w-8 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{broker.name}</h3>
+                    {broker.creci && (
+                      <p className="text-sm text-muted-foreground">CRECI: {broker.creci}</p>
+                    )}
+                  </div>
+                </div>
+
+                {broker.bio && (
+                  <p className="text-sm text-muted-foreground">{broker.bio}</p>
+                )}
+
+                <div className="space-y-2">
+                  {broker.phone && (
+                    <Button 
+                      className="w-full" 
                       onClick={openWhatsApp}
-                      className="w-full bg-green-600 hover:bg-green-700"
                     >
                       <MessageSquare className="h-4 w-4 mr-2" />
-                      Conversar Online
+                      WhatsApp
                     </Button>
-                    )}
-                    
-                    <Button variant="outline" className="w-full">
-                      <Mail className="h-4 w-4 mr-2" />
-                      {property.brokers.email}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  )}
+                  
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Enviar Mensagem
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Entrar em contato</DialogTitle>
+                        <DialogDescription>
+                          Envie uma mensagem sobre este imóvel
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleContactSubmit} className="space-y-4">
+                        <div>
+                          <Label htmlFor="nome">Nome completo</Label>
+                          <Input
+                            id="nome"
+                            value={contactForm.nome}
+                            onChange={(e) => setContactForm({...contactForm, nome: e.target.value})}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="telefone">Telefone</Label>
+                          <Input
+                            id="telefone"
+                            value={contactForm.telefone}
+                            onChange={(e) => setContactForm({...contactForm, telefone: e.target.value})}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email">Email</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            value={contactForm.email}
+                            onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="mensagem">Mensagem</Label>
+                          <Textarea
+                            id="mensagem"
+                            placeholder={`Tenho interesse no imóvel "${property.titulo}"`}
+                            value={contactForm.mensagem}
+                            onChange={(e) => setContactForm({...contactForm, mensagem: e.target.value})}
+                            rows={4}
+                          />
+                        </div>
+                        <Button type="submit" className="w-full">
+                          Enviar Mensagem
+                        </Button>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
 
-              {/* Contact Form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Interessado? Entre em contato</CardTitle>
-                  <CardDescription>
-                    Preencha o formulário abaixo que o corretor entrará em contato
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleContactSubmit} className="space-y-4">
-                    <div>
-                      <Label htmlFor="nome">Nome *</Label>
-                      <Input
-                        id="nome"
-                        value={contactForm.nome}
-                        onChange={(e) => setContactForm({...contactForm, nome: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="telefone">Telefone *</Label>
-                      <Input
-                        id="telefone"
-                        type="tel"
-                        value={contactForm.telefone}
-                        onChange={(e) => setContactForm({...contactForm, telefone: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="email">E-mail *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={contactForm.email}
-                        onChange={(e) => setContactForm({...contactForm, email: e.target.value})}
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="mensagem">Mensagem</Label>
-                      <Textarea
-                        id="mensagem"
-                        value={contactForm.mensagem}
-                        onChange={(e) => setContactForm({...contactForm, mensagem: e.target.value})}
-                        rows={4}
-                      />
-                    </div>
-                    
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
-                    >
-                      Enviar Mensagem
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* Property Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Informações do Imóvel</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span>Código:</span>
-                    <span className="font-mono">{property.id.slice(0, 8)}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-sm">
-                    <span>Publicado em:</span>
-                    <span>{new Date(property.created_at).toLocaleDateString('pt-BR')}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-sm">
-                    <span>Tipo:</span>
-                    <span className="capitalize">{property.property_type}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between text-sm">
-                    <span>Finalidade:</span>
-                    <span className="capitalize">{property.listing_type}</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+            {/* Property Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Informações do Imóvel</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tipo:</span>
+                  <span className="capitalize">{property.property_type}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Finalidade:</span>
+                  <span className="capitalize">{property.listing_type}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Código:</span>
+                  <span className="font-mono">{property.reference_code}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Publicado:</span>
+                  <span>{new Date(property.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
+
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={photos}
+        initialIndex={galleryInitialIndex}
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }

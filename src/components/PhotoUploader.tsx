@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { FileImage, Upload, X, Loader } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 interface PhotoUploaderProps {
@@ -159,15 +159,16 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
           onChange={handleFileUpload}
           className="hidden"
           id="photo-upload"
+          disabled={photos.length >= MAX_PHOTOS}
         />
-        <label htmlFor="photo-upload" className="cursor-pointer">
+        <label htmlFor="photo-upload" className={`cursor-pointer ${photos.length >= MAX_PHOTOS ? 'cursor-not-allowed opacity-50' : ''}`}>
           {uploading ? (
             <Loader className="h-8 w-8 mx-auto text-muted-foreground mb-2 animate-spin" />
           ) : (
             <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
           )}
           <p className="text-muted-foreground mb-2">
-            {uploading ? 'Enviando fotos...' : 'Clique para selecionar fotos'}
+            {uploading ? 'Enviando fotos...' : photos.length >= MAX_PHOTOS ? 'Limite de fotos atingido' : 'Clique para selecionar fotos'}
           </p>
           <p className="text-xs text-muted-foreground">PNG, JPG até 10MB cada</p>
         </label>
@@ -195,6 +196,7 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
             onChange={(e) => setNewPhotoUrl(e.target.value)}
             placeholder="https://exemplo.com/foto.jpg"
             className="flex-1"
+            disabled={photos.length >= MAX_PHOTOS}
             onKeyPress={(e) => {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -202,7 +204,11 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
               }
             }}
           />
-          <Button type="button" onClick={addPhotoUrl} disabled={!newPhotoUrl.trim()}>
+          <Button 
+            type="button" 
+            onClick={addPhotoUrl} 
+            disabled={!newPhotoUrl.trim() || photos.length >= MAX_PHOTOS}
+          >
             Adicionar
           </Button>
         </div>
@@ -268,6 +274,7 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
         <Label>Ou cole múltiplas URLs (separadas por vírgula)</Label>
         <Textarea
           placeholder="https://exemplo.com/foto1.jpg, https://exemplo.com/foto2.jpg"
+          disabled={photos.length >= MAX_PHOTOS}
           onChange={(e) => {
             const urls = e.target.value
               .split(',')
@@ -275,12 +282,25 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
               .filter(url => url.length > 0);
             
             if (urls.length > 0 && e.target.value.includes(',')) {
-              onPhotosChange([...photos, ...urls]);
-              e.target.value = '';
-              toast({
-                title: "Fotos adicionadas",
-                description: `${urls.length} foto(s) adicionada(s) com sucesso!`,
-              });
+              const availableSlots = MAX_PHOTOS - photos.length;
+              const urlsToAdd = urls.slice(0, availableSlots);
+              
+              if (urlsToAdd.length > 0) {
+                onPhotosChange([...photos, ...urlsToAdd]);
+                e.target.value = '';
+                toast({
+                  title: "Fotos adicionadas",
+                  description: `${urlsToAdd.length} foto(s) adicionada(s) com sucesso!`,
+                });
+              }
+              
+              if (urls.length > availableSlots) {
+                toast({
+                  title: "Limite atingido",
+                  description: `Apenas ${urlsToAdd.length} foto(s) foram adicionadas. Limite de ${MAX_PHOTOS} fotos.`,
+                  variant: "destructive",
+                });
+              }
             }
           }}
           rows={3}
