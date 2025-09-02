@@ -11,12 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2 } from 'lucide-react';
+import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
 import { PhotoUploader } from '@/components/PhotoUploader';
+import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
@@ -56,6 +58,8 @@ export default function Imoveis() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -315,6 +319,18 @@ export default function Imoveis() {
     property.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
+  const totalItems = filteredProperties.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -438,6 +454,26 @@ export default function Imoveis() {
                   setFormData({...formData, fotos: photos});
                 }}
               />
+              
+              {/* Photo Order Manager */}
+              {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
+                <div className="border-t pt-4">
+                  <PhotoOrderManager
+                    photos={formData.fotos}
+                    onPhotosReorder={(reorderedPhotos) => {
+                      setFormData({...formData, fotos: reorderedPhotos});
+                    }}
+                    onCoverPhotoSelect={(coverIndex) => {
+                      // Move selected photo to first position
+                      const newPhotos = [...formData.fotos];
+                      const [coverPhoto] = newPhotos.splice(coverIndex, 1);
+                      newPhotos.unshift(coverPhoto);
+                      setFormData({...formData, fotos: newPhotos});
+                    }}
+                    coverPhotoIndex={0}
+                  />
+                </div>
+              )}
 
               <div>
                 <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
@@ -503,68 +539,47 @@ export default function Imoveis() {
 
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProperties.map((property) => (
+        {paginatedProperties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
               {(() => {
-                // Debug log to see what's in the photos
-                console.log('Property photos:', property.fotos, 'Type:', typeof property.fotos);
-                
-                // Handle photos - ensure it's an array and has valid content
                 const photosArray = Array.isArray(property.fotos) ? property.fotos : [];
-                
-                const hasValidPhoto = photosArray.length > 0 && 
-                  photosArray[0] && 
-                  String(photosArray[0]).trim() !== '' &&
-                  String(photosArray[0]).trim() !== '{}';
-                
-                console.log('Has valid photo:', hasValidPhoto, 'Photos array:', photosArray);
+                const hasValidPhoto = photosArray.length > 0 && photosArray[0];
                 
                 return (
                   <div 
                     className="w-full h-full cursor-pointer"
                     onClick={() => photosArray.length > 0 && openPhotoGallery(photosArray, 0)}
                   >
-                    {hasValidPhoto && (
+                    {hasValidPhoto ? (
                       <img
                         src={String(photosArray[0])}
                         alt={property.titulo}
                         className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.log('Image failed to load:', String(photosArray[0]));
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
-                        }}
                       />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-muted">
+                        <Building2 className="h-12 w-12 text-muted-foreground" />
+                      </div>
                     )}
                     
-                    {/* Always render fallback, initially hidden if we have a photo */}
-                    <div 
-                      className="w-full h-full flex items-center justify-center bg-muted" 
-                      style={{ display: hasValidPhoto ? 'none' : 'flex' }}
-                    >
-                      <Building2 className="h-12 w-12 text-muted-foreground" />
-                    </div>
-                    
-                    {/* Photo count indicator */}
                     {photosArray.length > 1 && (
                       <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
                         +{photosArray.length - 1} fotos
                       </div>
                     )}
+                    
+                    {property.fotos.some(photo => photo.includes('enhanced=')) && (
+                      <div className="absolute top-2 left-2">
+                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" />
+                          IA
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                 );
               })()}
-              <div className="absolute top-3 right-3 flex gap-2">
-                <Badge className="bg-primary/90 text-primary-foreground">
-                  {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
-                </Badge>
-                {property.visibility === 'public_site' && (
-                  <Badge variant="secondary">Público</Badge>
-                )}
-              </div>
             </div>
             
             <CardHeader>
@@ -739,6 +754,91 @@ export default function Imoveis() {
           </Card>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">
+              Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} imóveis
+            </span>
+            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
+              setItemsPerPage(parseInt(value));
+              setCurrentPage(1);
+            }}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10 por página</SelectItem>
+                <SelectItem value="20">20 por página</SelectItem>
+                <SelectItem value="40">40 por página</SelectItem>
+                <SelectItem value="50">50 por página</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) setCurrentPage(currentPage - 1);
+                  }}
+                  className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+              
+              {[...Array(Math.min(5, totalPages))].map((_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(pageNum);
+                      }}
+                      isActive={currentPage === pageNum}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                );
+              })}
+              
+              {totalPages > 5 && currentPage < totalPages - 2 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                  }}
+                  className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {filteredProperties.length === 0 && !loading && (
         <div className="text-center py-12">
