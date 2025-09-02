@@ -86,6 +86,39 @@ export type Database = {
         }
         Relationships: []
       }
+      broker_registrations: {
+        Row: {
+          city: string
+          created_at: string
+          creci: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          region: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          creci?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          region: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          creci?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          region?: string
+        }
+        Relationships: []
+      }
       brokers: {
         Row: {
           asaas_customer_id: string | null

@@ -12,6 +12,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
+import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 
 const Index = () => {
@@ -404,60 +405,9 @@ const Index = () => {
             </div>
 
             {/* Cadastro */}
-            <Card className="max-w-2xl mx-auto mt-8">
-              <CardHeader>
-                <CardTitle className="text-center">Cadastre-se como Corretor</CardTitle>
-                <CardDescription className="text-center">
-                  Tenha acesso completo à plataforma e comece a vender mais
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="broker-name">Nome Completo</Label>
-                      <Input id="broker-name" placeholder="Seu nome completo" />
-                    </div>
-                    <div>
-                      <Label htmlFor="broker-email">E-mail</Label>
-                      <Input id="broker-email" type="email" placeholder="seu@email.com" />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="broker-phone">Telefone</Label>
-                      <Input id="broker-phone" placeholder="(11) 99999-9999" />
-                    </div>
-                    <div>
-                      <Label htmlFor="broker-creci">CRECI</Label>
-                      <Input id="broker-creci" placeholder="12345-J" />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="broker-bio">Apresentação</Label>
-                    <Textarea id="broker-bio" placeholder="Conte um pouco sobre sua experiência..." />
-                  </div>
-                  
-                  <div className="text-center pt-4">
-                    <p className="text-lg font-semibold mb-4 text-primary">
-                      👉 Conecte-se agora e faça parte da comunidade de corretores que estão elevando o mercado imobiliário de Ilhéus a um novo nível.
-                    </p>
-                     <Button 
-                      size="lg"
-                      onClick={() => navigate('/auth')}
-                      className="bg-primary hover:bg-primary/90 px-8"
-                    >
-                      Quero Começar Agora
-                    </Button>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Integração com Asaas para pagamentos • Planos a partir de R$ 97
-                    </p>
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
+            <div className="mt-8">
+              <BrokerSignupForm />
+            </div>
           </div>
           {partnerships.length > 0 && (
             <div className="mt-16">
@@ -500,7 +450,8 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t bg-card/30 backdrop-blur-sm mt-16">
+      <FooterBankLinks />
+      <footer className="border-t bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center space-x-2">
             <Building2 className="h-6 w-6 text-primary" />

@@ -99,7 +99,27 @@ export function EnhancedCRM() {
     location_preference: '',
     notes: '',
     status: 'lead',
-    source: 'website'
+    source: 'website',
+    cpf: '',
+    rg: '',
+    nacionalidade: 'brasileiro',
+    estado_civil: 'solteiro',
+    renda: '',
+    comprovante_renda: '',
+    score_serasa: '',
+    banco_principal: '',
+    possui_conta_banco: false,
+    tempo_conta_banco: '',
+    cartao_credito: false,
+    limite_cartao: '',
+    empregado: false,
+    empresa: '',
+    cargo: '',
+    tempo_empresa: '',
+    referencias_pessoais: '',
+    contato_emergencia_nome: '',
+    contato_emergencia_telefone: '',
+    observacoes_gerais: ''
   });
 
   const [interactionForm, setInteractionForm] = useState({
@@ -298,23 +318,43 @@ export function EnhancedCRM() {
 
       setIsAddDialogOpen(false);
       setSelectedClient(null);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        date_of_birth: '',
-        address: '',
-        profession: '',
-        marital_status: 'single',
-        lead_source: 'website',
-        budget_min: '',
-        budget_max: '',
-        property_type: '',
-        location_preference: '',
-        notes: '',
-        status: 'lead',
-        source: 'website'
-      });
+                setFormData({
+                  name: '',
+                  email: '',
+                  phone: '',
+                  date_of_birth: '',
+                  address: '',
+                  profession: '',
+                  marital_status: 'single',
+                  lead_source: 'website',
+                  budget_min: '',
+                  budget_max: '',
+                  property_type: '',
+                  location_preference: '',
+                  notes: '',
+                  status: 'lead',
+                  source: 'website',
+                  cpf: '',
+                  rg: '',
+                  nacionalidade: 'brasileiro',
+                  estado_civil: 'solteiro',
+                  renda: '',
+                  comprovante_renda: '',
+                  score_serasa: '',
+                  banco_principal: '',
+                  possui_conta_banco: false,
+                  tempo_conta_banco: '',
+                  cartao_credito: false,
+                  limite_cartao: '',
+                  empregado: false,
+                  empresa: '',
+                  cargo: '',
+                  tempo_empresa: '',
+                  referencias_pessoais: '',
+                  contato_emergencia_nome: '',
+                  contato_emergencia_telefone: '',
+                  observacoes_gerais: ''
+                });
     } catch (error) {
       console.error('Error saving client:', error);
       toast({
