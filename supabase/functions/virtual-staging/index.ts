@@ -74,14 +74,14 @@ serve(async (req) => {
     // Usar img2img para virtual staging
     const stagedImage = await hf.imageToImage({
       inputs: imageBlob,
+      model: 'stabilityai/stable-diffusion-xl-base-1.0',
       parameters: {
         prompt: fullPrompt,
         negative_prompt: 'blurry, low quality, distorted, unrealistic, bad lighting, empty room, unfurnished',
-        strength: 0.75, // Manter estrutura da sala mas adicionar móveis
+        strength: 0.75,
         guidance_scale: 7.5,
         num_inference_steps: 20
-      },
-      model: 'stabilityai/stable-diffusion-xl-base-1.0'
+      }
     });
 
     // Converter para base64

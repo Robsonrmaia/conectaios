@@ -57,7 +57,7 @@ const Index = () => {
       <header className="container mx-auto px-4 py-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <img src="/src/assets/logo.svg" alt="ConectaIOS" className="h-8 w-8" />
+            <img src="/src/assets/logo.png" alt="ConectaIOS" className="h-8 w-8" />
             <span className="text-2xl font-bold text-primary">
               ConectaIOS
             </span>
@@ -75,10 +75,8 @@ const Index = () => {
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-16 relative">
         <div className="text-center max-w-4xl mx-auto relative z-10">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 parallax-element" data-speed="0.5">
-            <span className="bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
-              Sua rotina imobiliária simplificada, Organizada e Inteligente.
-            </span>
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 parallax-element text-primary" data-speed="0.5">
+            Sua rotina imobiliária simplificada, Organizada e Inteligente.
           </h1>
           
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto parallax-element" data-speed="0.3">

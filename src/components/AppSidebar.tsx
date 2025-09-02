@@ -139,7 +139,7 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center space-x-2">
-            <img src="/src/assets/logo.svg" alt="ConectaIOS" className="h-6 w-6" />
+            <img src="/src/assets/logo.png" alt="ConectaIOS" className="h-6 w-6" />
             <span className="font-bold text-lg text-primary">
               ConectaIOS
             </span>

@@ -757,10 +757,38 @@ export function EnhancedCRM() {
               <h1 className="text-2xl font-bold">{selectedClient.name}</h1>
               <p className="text-muted-foreground">{selectedClient.email}</p>
             </div>
-            <div className="flex gap-2">
-              {getStatusBadge(selectedClient.status)}
-              {getSourceBadge(selectedClient.source || 'website')}
-            </div>
+               <div className="flex gap-2">
+                 {getStatusBadge(selectedClient.status)}
+                 {getSourceBadge(selectedClient.source || 'website')}
+                 <Button
+                   size="sm"
+                   variant="outline"
+                   onClick={() => {
+                     // Set form data with current client data
+                     setFormData({
+                       name: selectedClient.name,
+                       email: selectedClient.email,
+                       phone: selectedClient.phone,
+                       date_of_birth: '',
+                       address: '',
+                       profession: '',
+                       marital_status: 'single',
+                       lead_source: selectedClient.source || 'website',
+                       budget_min: selectedClient.budget_min?.toString() || '',
+                       budget_max: selectedClient.budget_max?.toString() || '',
+                       property_type: selectedClient.property_type || '',
+                       location_preference: selectedClient.location_preference || '',
+                       notes: selectedClient.notes || '',
+                       status: selectedClient.status,
+                       source: selectedClient.source || 'website'
+                     });
+                     setIsAddDialogOpen(true);
+                   }}
+                 >
+                   <Edit className="h-4 w-4 mr-1" />
+                   Editar
+                 </Button>
+               </div>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-3">
