@@ -17,6 +17,10 @@ import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
 import { PhotoUploader } from '@/components/PhotoUploader';
+import { WatermarkGenerator } from '@/components/WatermarkGenerator';
+import { PhotoEnhancer } from '@/components/PhotoEnhancer';
+import { FurnitureDetector } from '@/components/FurnitureDetector';
+import { useBroker } from '@/hooks/useBroker';
 
 interface Property {
   id: string;

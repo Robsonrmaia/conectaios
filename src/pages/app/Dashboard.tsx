@@ -23,7 +23,11 @@ const Dashboard = () => {
 
   const handleMinisiteAccess = () => {
     if (broker && broker.username) {
-      const minisiteUrl = `${window.location.origin}/@${broker.username}`;
+      // Use conectaios.com.br domain for production, sandbox for development
+      const domain = window.location.hostname.includes('lovable') 
+        ? window.location.origin 
+        : 'https://conectaios.com.br';
+      const minisiteUrl = `${domain}/@${broker.username}`;
       window.open(minisiteUrl, '_blank');
       toast({
         title: "Minisite aberto",
@@ -40,7 +44,11 @@ const Dashboard = () => {
 
   const copyMinisiteUrl = () => {
     if (broker && broker.username) {
-      const minisiteUrl = `${window.location.origin}/@${broker.username}`;
+      // Use conectaios.com.br domain for production, sandbox for development
+      const domain = window.location.hostname.includes('lovable') 
+        ? window.location.origin 
+        : 'https://conectaios.com.br';
+      const minisiteUrl = `${domain}/@${broker.username}`;
       navigator.clipboard.writeText(minisiteUrl);
       toast({
         title: "URL copiada",

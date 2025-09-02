@@ -107,6 +107,7 @@ export type Database = {
           updated_at: string
           user_id: string
           username: string | null
+          watermark_text: string | null
         }
         Insert: {
           asaas_customer_id?: string | null
@@ -128,6 +129,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           username?: string | null
+          watermark_text?: string | null
         }
         Update: {
           asaas_customer_id?: string | null
@@ -149,6 +151,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+          watermark_text?: string | null
         }
         Relationships: [
           {
@@ -423,6 +426,7 @@ export type Database = {
           updated_at: string
           user_id: string
           username: string | null
+          watermark_text: string | null
         }
         Insert: {
           asaas_customer_id?: string | null
@@ -444,6 +448,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           username?: string | null
+          watermark_text?: string | null
         }
         Update: {
           asaas_customer_id?: string | null
@@ -465,6 +470,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+          watermark_text?: string | null
         }
         Relationships: []
       }

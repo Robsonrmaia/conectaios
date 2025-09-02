@@ -3,8 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { FileImage, Upload, X } from 'lucide-react';
+import { FileImage, Upload, X, Loader } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PhotoUploaderProps {
   photos: string[];
@@ -14,6 +15,7 @@ interface PhotoUploaderProps {
 export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const addPhotoUrl = () => {
     if (newPhotoUrl.trim()) {
@@ -36,14 +38,57 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setUploadedFiles(Array.from(e.target.files));
-      // For now, just show files - in a real implementation, we'd upload to storage
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    
+    const files = Array.from(e.target.files);
+    console.log('PhotoUploader - Files selected:', files.length);
+    setUploadedFiles(files);
+    setUploading(true);
+
+    try {
+      const uploadedUrls: string[] = [];
+      
+      for (const file of files) {
+        console.log('PhotoUploader - Uploading file:', file.name);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { data, error } = await supabase.storage
+          .from('property-images')
+          .upload(fileName, file);
+
+        if (error) {
+          console.error('PhotoUploader - Upload error:', error);
+          throw error;
+        }
+
+        const { data: urlData } = supabase.storage
+          .from('property-images')
+          .getPublicUrl(fileName);
+        
+        uploadedUrls.push(urlData.publicUrl);
+        console.log('PhotoUploader - File uploaded successfully:', urlData.publicUrl);
+      }
+      
+      const updatedPhotos = [...photos, ...uploadedUrls];
+      onPhotosChange(updatedPhotos);
+      
       toast({
-        title: "Arquivos selecionados",
-        description: `${e.target.files.length} arquivo(s) selecionado(s). Funcionalidade de upload será implementada em breve.`,
+        title: "Fotos enviadas!",
+        description: `${uploadedUrls.length} foto(s) enviada(s) com sucesso!`,
       });
+      
+      setUploadedFiles([]);
+    } catch (error) {
+      console.error('PhotoUploader - Upload failed:', error);
+      toast({
+        title: "Erro no upload",
+        description: "Erro ao enviar fotos. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -62,8 +107,14 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
           id="photo-upload"
         />
         <label htmlFor="photo-upload" className="cursor-pointer">
-          <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-          <p className="text-muted-foreground mb-2">Clique para selecionar fotos</p>
+          {uploading ? (
+            <Loader className="h-8 w-8 mx-auto text-muted-foreground mb-2 animate-spin" />
+          ) : (
+            <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+          )}
+          <p className="text-muted-foreground mb-2">
+            {uploading ? 'Enviando fotos...' : 'Clique para selecionar fotos'}
+          </p>
           <p className="text-xs text-muted-foreground">PNG, JPG até 10MB cada</p>
         </label>
         {uploadedFiles.length > 0 && (

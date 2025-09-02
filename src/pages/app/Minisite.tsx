@@ -131,7 +131,11 @@ export default function Minisite() {
   };
 
   const copyMinisiteUrl = () => {
-    const url = `${window.location.origin}/@${profile.username || 'seu-usuario'}`;
+    // Use conectaios.com.br domain for production, sandbox for development  
+    const domain = window.location.hostname.includes('lovable') 
+      ? window.location.origin 
+      : 'https://conectaios.com.br';
+    const url = `${domain}/@${profile.username || 'seu-usuario'}`;
     navigator.clipboard.writeText(url);
     toast({
       title: "Link Copiado!",
@@ -178,7 +182,7 @@ export default function Minisite() {
           
           <Button variant="outline" asChild>
             <a 
-              href={`${window.location.origin}/@${profile.username || 'seu-usuario'}`}
+              href={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/@${profile.username || 'seu-usuario'}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -327,7 +331,7 @@ export default function Minisite() {
                 <Label>URL Atual</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
-                    value={`${window.location.origin}/@${profile.username || 'seu-usuario'}`}
+                    value={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/@${profile.username || 'seu-usuario'}`}
                     readOnly
                     className="font-mono"
                   />
