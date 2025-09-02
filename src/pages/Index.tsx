@@ -84,11 +84,18 @@ const Index = () => {
             loop
             playsInline
             className="w-full h-full object-cover"
-            poster="/hero-thumbnail.jpg"
+            onError={(e) => {
+              console.error('Video failed to load from Supabase Storage');
+              e.currentTarget.style.display = 'none';
+            }}
+            onLoadStart={() => console.log('Video started loading...')}
+            onCanPlay={() => console.log('Video can start playing')}
           >
             <source src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/hero-video.mp4" type="video/mp4" />
             {/* Fallback gradient if video doesn't load */}
           </video>
+          {/* Fallback background gradient */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/80 to-primary/60"></div>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/50 z-10"></div>
         </div>
