@@ -86,7 +86,16 @@ export default function BrokerMinisite() {
 
   const fetchBrokerAndProperties = async () => {
     try {
-      console.log('Fetching broker with username:', username);
+      console.log('=== MINISITE DEBUG ===');
+      console.log('1. Username from URL params:', username);
+      console.log('2. Current URL:', window.location.href);
+      
+      if (!username) {
+        console.error('3. No username provided in URL');
+        return;
+      }
+
+      console.log('4. Fetching broker with username:', username);
       
       // Fetch broker by username
       const { data: brokerData, error: brokerError } = await supabase
@@ -96,15 +105,18 @@ export default function BrokerMinisite() {
         .eq('status', 'active')
         .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
 
-      console.log('Broker query result:', { brokerData, brokerError });
+      console.log('5. Broker query result:');
+      console.log('   - Data:', brokerData);
+      console.log('   - Error:', brokerError);
+      console.log('   - Query URL would be:', `conectaios_brokers?username=${username}&status=active`);
 
       if (brokerError) {
-        console.error('Broker query error:', brokerError);
+        console.error('6. Broker query error details:', brokerError);
         throw brokerError;
       }
       
       if (!brokerData) {
-        console.log('No broker found with username:', username);
+        console.log('7. No broker found - showing error message');
         toast({
           title: "Erro",
           description: `Corretor @${username} não encontrado ou página não disponível`,
@@ -113,10 +125,11 @@ export default function BrokerMinisite() {
         return;
       }
 
+      console.log('8. Broker found successfully:', brokerData.name);
       setBroker(brokerData);
-      console.log('Broker set successfully:', brokerData);
 
       // Fetch properties for this broker
+      console.log('9. Fetching properties for user_id:', brokerData.user_id);
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('conectaios_properties')
         .select('*')
@@ -124,10 +137,15 @@ export default function BrokerMinisite() {
         .eq('visibility', 'public_site')
         .order('created_at', { ascending: false });
 
+      console.log('10. Properties query result:');
+      console.log('    - Count:', propertiesData?.length || 0);
+      console.log('    - Error:', propertiesError);
+
       if (propertiesError) throw propertiesError;
       setProperties(propertiesData || []);
+      console.log('11. MINISITE LOADED SUCCESSFULLY');
     } catch (error) {
-      console.error('Error fetching broker data:', error);
+      console.error('ERROR in fetchBrokerAndProperties:', error);
       toast({
         title: "Erro",
         description: "Corretor não encontrado ou página não disponível",

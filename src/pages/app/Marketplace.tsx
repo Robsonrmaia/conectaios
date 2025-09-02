@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Textarea } from '@/components/ui/textarea';
 import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { PhotoGallery } from '@/components/PhotoGallery';
 
 interface Property {
   id: string;
@@ -49,6 +50,9 @@ export default function Marketplace() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [bedroomsFilter, setBedroomsFilter] = useState('');
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   useEffect(() => {
     fetchPublicProperties();
@@ -415,7 +419,15 @@ export default function Marketplace() {
               {/* Image Gallery */}
               <div className="grid grid-cols-2 gap-4">
                 {selectedProperty.fotos?.map((foto, index) => (
-                  <div key={index} className="aspect-video rounded-lg overflow-hidden">
+                  <div 
+                    key={index} 
+                    className="aspect-video rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => {
+                      setSelectedPhotos(selectedProperty.fotos);
+                      setSelectedPhotoIndex(index);
+                      setGalleryOpen(true);
+                    }}
+                  >
                     <img 
                       src={foto} 
                       alt={`Foto ${index + 1}`}
@@ -494,6 +506,14 @@ export default function Marketplace() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={selectedPhotos}
+        initialIndex={selectedPhotoIndex}
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
     </PageWrapper>
   );
 }
