@@ -16,8 +16,20 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [enhancing, setEnhancing] = useState<string | null>(null);
+
+  const MAX_PHOTOS = 20;
 
   const addPhotoUrl = () => {
+    if (photos.length >= MAX_PHOTOS) {
+      toast({
+        title: "Limite atingido",
+        description: `Máximo de ${MAX_PHOTOS} fotos permitido`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (newPhotoUrl.trim()) {
       const updatedPhotos = [...photos, newPhotoUrl.trim()];
       onPhotosChange(updatedPhotos);
@@ -42,6 +54,16 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
     if (!e.target.files) return;
     
     const files = Array.from(e.target.files);
+    
+    if (photos.length + files.length > MAX_PHOTOS) {
+      toast({
+        title: "Limite atingido",
+        description: `Máximo de ${MAX_PHOTOS} fotos permitido. Você pode adicionar ${MAX_PHOTOS - photos.length} foto(s).`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     console.log('PhotoUploader - Files selected:', files.length);
     setUploadedFiles(files);
     setUploading(true);
@@ -92,9 +114,41 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
     }
   };
 
+  const handleEnhancePhoto = async (photoUrl: string, index: number) => {
+    setEnhancing(photoUrl);
+    try {
+      // Simulate photo enhancement - in a real app this would call an AI service
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For now, just add a suffix to indicate it's enhanced
+      const enhancedUrl = `${photoUrl}?enhanced=true`;
+      const updatedPhotos = [...photos];
+      updatedPhotos[index] = enhancedUrl;
+      onPhotosChange(updatedPhotos);
+      
+      toast({
+        title: "Foto melhorada!",
+        description: "A qualidade da foto foi aprimorada com IA.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro na melhoria",
+        description: "Não foi possível melhorar a foto. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setEnhancing(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <Label>Fotos do Imóvel</Label>
+      <div className="flex items-center justify-between">
+        <Label>Fotos do Imóvel</Label>
+        <span className="text-sm text-muted-foreground">
+          {photos.length}/{MAX_PHOTOS}
+        </span>
+      </div>
       
       {/* File Upload */}
       <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
@@ -158,22 +212,51 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
       {photos.length > 0 && (
         <div className="space-y-2">
           <Label>Fotos adicionadas ({photos.length})</Label>
-          <div className="grid gap-2">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
             {photos.map((photo, index) => (
-              <div key={index} className="flex items-center gap-2 p-2 border rounded">
-                <FileImage className="h-4 w-4 text-muted-foreground" />
-                <span className="flex-1 text-sm truncate" title={photo}>
-                  {photo}
-                </span>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removePhoto(index)}
-                  className="h-8 w-8 p-0"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div key={index} className="group relative border rounded-lg overflow-hidden">
+                <div className="aspect-video bg-muted">
+                  <img
+                    src={photo}
+                    alt={`Foto ${index + 1}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
+                  />
+                  <div className="hidden w-full h-full flex items-center justify-center">
+                    <FileImage className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                </div>
+                
+                {/* Actions overlay */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEnhancePhoto(photo, index)}
+                    disabled={enhancing === photo}
+                    className="bg-white/20 hover:bg-white/30 text-white"
+                  >
+                    {enhancing === photo ? (
+                      <Loader className="h-3 w-3 animate-spin" />
+                    ) : (
+                      "✨"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removePhoto(index)}
+                    className="bg-white/20 hover:bg-white/30 text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

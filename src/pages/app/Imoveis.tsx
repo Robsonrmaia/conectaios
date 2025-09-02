@@ -20,6 +20,7 @@ import { PhotoUploader } from '@/components/PhotoUploader';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
+import { PhotoGallery } from '@/components/PhotoGallery';
 import { useBroker } from '@/hooks/useBroker';
 
 interface Property {
@@ -50,6 +51,9 @@ export default function Imoveis() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -189,7 +193,7 @@ export default function Imoveis() {
           .select()
           .single();
       } else {
-        // Adicionar novo imóvel
+        // Adicionar novo imóvel - gera código automaticamente no banco via trigger
         result = await supabase
           .from('conectaios_properties')
           .insert(propertyData)
@@ -296,6 +300,12 @@ export default function Imoveis() {
         variant: "destructive",
       });
     }
+  };
+
+  const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
+    setGalleryPhotos(photos);
+    setGalleryInitialIndex(initialIndex);
+    setGalleryOpen(true);
   };
 
   const filteredProperties = properties.filter(property =>
@@ -509,7 +519,10 @@ export default function Imoveis() {
                 console.log('Has valid photo:', hasValidPhoto, 'Photos array:', photosArray);
                 
                 return (
-                  <>
+                  <div 
+                    className="w-full h-full cursor-pointer"
+                    onClick={() => photosArray.length > 0 && openPhotoGallery(photosArray, 0)}
+                  >
                     {hasValidPhoto && (
                       <img
                         src={String(photosArray[0])}
@@ -532,7 +545,14 @@ export default function Imoveis() {
                     >
                       <Building2 className="h-12 w-12 text-muted-foreground" />
                     </div>
-                  </>
+                    
+                    {/* Photo count indicator */}
+                    {photosArray.length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                        +{photosArray.length - 1} fotos
+                      </div>
+                    )}
+                  </div>
                 );
               })()}
               <div className="absolute top-3 right-3 flex gap-2">
@@ -812,6 +832,14 @@ export default function Imoveis() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={galleryPhotos}
+        initialIndex={galleryInitialIndex}
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
     </div>
   );
 }
