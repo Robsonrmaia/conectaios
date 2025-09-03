@@ -636,7 +636,7 @@ export default function CRM() {
                         <Phone className="h-3 w-3" />
                       </Button>
                       <Button size="sm" variant="outline">
-                        <MessageSquare className="h-3 w-3" />
+                        <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
                       </Button>
                     </div>
                   </div>

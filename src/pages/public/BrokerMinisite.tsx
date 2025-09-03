@@ -509,7 +509,7 @@ export default function BrokerMinisite() {
                       onClick={openWhatsApp}
                       className="w-full bg-green-600 hover:bg-green-700"
                     >
-                      <MessageSquare className="h-4 w-4 mr-2" />
+                      <MessageSquare className="h-4 w-4 mr-2" strokeWidth={2} fill="none" />
                       Conversar Online
                     </Button>
                   )}

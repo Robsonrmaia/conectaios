@@ -82,7 +82,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="relative h-[60vh] md:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video */}
         <div className="absolute inset-0 w-full h-full">
           <video
@@ -90,37 +90,37 @@ const Index = () => {
             muted
             loop
             playsInline
-            className="w-full h-full object-cover object-bottom"
+            className="w-full h-full object-cover object-[center_20%] sm:object-center"
             poster="/hero-thumbnail.jpg"
           >
             <source src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/hero-video.mp4" type="video/mp4" />
             {/* Fallback gradient if video doesn't load */}
           </video>
           {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/50 z-10"></div>
+          <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
 
-        <div className="container mx-auto px-4 py-16 relative z-20">
+        <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in" data-speed="0.8">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina imobiliária simplificada, Organizada e Inteligente.
             </h1>
             
-            <p className="text-lg md:text-xl text-white/90 mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in" data-speed="0.6">
+            <p className="text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in leading-relaxed px-2" data-speed="0.6">
               Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
               Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
               encontra clientes certos com inteligência artificial e fecha negócios de forma 
               simples, rápida e segura.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16 parallax-element animate-fade-in" data-speed="0.4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-16 parallax-element animate-fade-in px-4" data-speed="0.4">
               <Button 
                 size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-primary hover:bg-primary/90 text-white text-lg px-8 py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20"
+                className="bg-primary hover:bg-primary/90 text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20"
               >
                 Começar Agora
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <SaibaMaisDialog />
             </div>

@@ -378,19 +378,19 @@ export default function Marketplace() {
                            onToggle={() => {}}
                          />
                        </div>
-                       <Button
-                         size="sm"
-                         variant="outline"
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           navigate('/app/inbox');
-                         }}
-                         className="h-7 w-full p-0 hover:bg-primary hover:text-white"
-                         title="Mensagem"
-                       >
-                         <MessageSquare className="h-3 w-3" />
-                         <span className="sr-only">Mensagem</span>
-                       </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate('/app/inbox');
+                          }}
+                          className="h-7 w-full p-0 hover:bg-primary hover:text-white"
+                          title="Mensagem"
+                        >
+                          <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
+                          <span className="sr-only">Mensagem</span>
+                        </Button>
                        <div className="w-full">
                          <ShareButton
                            propertyId={property.id}
@@ -430,68 +430,84 @@ export default function Marketplace() {
               </Select>
             </div>
             
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-sm text-muted-foreground">
-                Página {currentPage} de {totalPages} ({filteredProperties.length} imóveis)
-              </div>
+// ============= Lines 432-495 of 628 total lines =============
+
+            <div className="flex flex-wrap justify-center gap-2">
               <Pagination>
                 <PaginationContent className="flex-wrap gap-1">
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      href="#" 
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage > 1) setCurrentPage(currentPage - 1);
-                      }}
-                      className={`text-xs px-2 py-1 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
-                    />
-                  </PaginationItem>
+                  {currentPage > 1 && (
+                    <PaginationItem>
+                      <PaginationPrevious 
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className="cursor-pointer text-xs h-8 px-2"
+                      />
+                    </PaginationItem>
+                  )}
                   
-                  {[...Array(Math.min(3, totalPages))].map((_, i) => {
-                    let pageNum;
-                    if (totalPages <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 2) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 1) {
-                      pageNum = totalPages - 2 + i;
-                    } else {
-                      pageNum = currentPage - 1 + i;
-                    }
-                    
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationLink
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setCurrentPage(pageNum);
-                          }}
-                          isActive={currentPage === pageNum}
-                          className="text-xs px-2 py-1 min-w-[32px]"
-                        >
-                          {pageNum}
+                  {/* First page */}
+                  {currentPage > 2 && (
+                    <>
+                      <PaginationItem>
+                        <PaginationLink onClick={() => setCurrentPage(1)} className="cursor-pointer text-xs h-8 w-8">
+                          1
                         </PaginationLink>
                       </PaginationItem>
-                    );
-                  })}
+                      {currentPage > 3 && <PaginationEllipsis className="h-8 w-8" />}
+                    </>
+                  )}
                   
-                  {totalPages > 3 && currentPage < totalPages - 1 && (
+                  {/* Current page and neighbors */}
+                  {currentPage > 1 && (
                     <PaginationItem>
-                      <PaginationEllipsis className="px-1" />
+                      <PaginationLink 
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className="cursor-pointer text-xs h-8 w-8"
+                      >
+                        {currentPage - 1}
+                      </PaginationLink>
                     </PaginationItem>
                   )}
                   
                   <PaginationItem>
-                    <PaginationNext 
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                      }}
-                      className={`text-xs px-2 py-1 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
-                    />
+                    <PaginationLink isActive className="text-xs h-8 w-8">
+                      {currentPage}
+                    </PaginationLink>
                   </PaginationItem>
+                  
+                  {currentPage < totalPages && (
+                    <PaginationItem>
+                      <PaginationLink 
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className="cursor-pointer text-xs h-8 w-8"
+                      >
+                        {currentPage + 1}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  
+                  {/* Last page */}
+                  {currentPage < totalPages - 1 && (
+                    <>
+                      {currentPage < totalPages - 2 && <PaginationEllipsis className="h-8 w-8" />}
+                      <PaginationItem>
+                        <PaginationLink 
+                          onClick={() => setCurrentPage(totalPages)}
+                          className="cursor-pointer text-xs h-8 w-8"
+                        >
+                          {totalPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    </>
+                  )}
+                  
+                  {currentPage < totalPages && (
+                    <PaginationItem>
+                      <PaginationNext 
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className="cursor-pointer text-xs h-8 px-2"
+                      />
+                    </PaginationItem>
+                  )}
                 </PaginationContent>
               </Pagination>
             </div>

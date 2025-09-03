@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +10,7 @@ import { Globe, Eye, Download, Share2, Settings, Palette, Layout, FileText, Phon
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MinisiteConfig {
   template: string;
@@ -70,14 +71,17 @@ export function FunctionalMinisite() {
   const generateMinisite = async () => {
     setIsGenerating(true);
     try {
-      // Simulate minisite generation
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      // Simulate minisite generation process
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       // Generate a unique URL for the minisite
       const minisiteId = `${user?.id}-${Date.now()}`;
       const url = `https://conectaios.lovable.app/minisite/${minisiteId}`;
       
       setGeneratedUrl(url);
+      
+      // Save config to localStorage as fallback
+      localStorage.setItem(`minisite-config-${user?.id}`, JSON.stringify(config));
       
       toast({
         title: "Minisite Gerado com Sucesso! 🎉",

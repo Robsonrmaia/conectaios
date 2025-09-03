@@ -382,7 +382,7 @@ export default function PropertyDetail() {
                       className="w-full" 
                       onClick={openWhatsApp}
                     >
-                      <MessageSquare className="h-4 w-4 mr-2" />
+                      <MessageSquare className="h-4 w-4 mr-2" strokeWidth={2} fill="none" />
                       WhatsApp
                     </Button>
                   )}

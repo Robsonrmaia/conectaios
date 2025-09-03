@@ -1,4 +1,3 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
 
@@ -14,106 +13,117 @@ serve(async (req) => {
   }
 
   try {
-    const { imageUrl, style = 'moderno', roomType = 'sala' } = await req.json();
+    console.log('Virtual staging function called');
     
-    console.log('Virtual Staging request:', { imageUrl, style, roomType });
+    const { imageUrl, roomType, style } = await req.json();
+    console.log('Request params:', { imageUrl, roomType, style });
 
     if (!imageUrl) {
       return new Response(
-        JSON.stringify({ error: 'URL da imagem é obrigatória' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'imageUrl é obrigatório' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
       );
     }
 
-    const hf = new HfInference(Deno.env.get('HUGGING_FACE_ACCESS_TOKEN'));
-
-    if (!Deno.env.get('HUGGING_FACE_ACCESS_TOKEN')) {
+    const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN');
+    if (!hfToken) {
       console.error('HUGGING_FACE_ACCESS_TOKEN not found');
       return new Response(
-        JSON.stringify({ error: 'Configuração de IA não encontrada' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Token do Hugging Face não configurado' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
 
-    // Prompts otimizados para cada tipo de ambiente e estilo
+    console.log('Initializing Hugging Face client');
+    const hf = new HfInference(hfToken);
+
+    // Define prompts based on room type and style
     const prompts = {
-      moderno: {
-        sala: 'modern living room with sleek furniture, minimalist sofa, glass coffee table, contemporary lighting, clean lines, neutral colors',
-        quarto: 'modern bedroom with platform bed, floating nightstands, contemporary dresser, minimalist decor, soft lighting',
-        cozinha: 'modern kitchen with island, stainless steel appliances, quartz countertops, pendant lighting, clean cabinet design',
-        escritorio: 'modern office with ergonomic desk, contemporary chair, built-in shelving, tech setup, minimalist workspace'
+      sala: {
+        moderno: 'modern living room with contemporary furniture, clean lines, neutral colors, elegant sofa, coffee table, wall art, natural lighting',
+        classico: 'classic living room with traditional furniture, warm colors, comfortable armchairs, wooden coffee table, classic decor',
+        luxo: 'luxury living room with high-end furniture, marble accents, premium materials, designer pieces, sophisticated lighting'
       },
-      classico: {
-        sala: 'classic living room with traditional sofa, wooden coffee table, elegant armchairs, vintage rug, warm lighting',
-        quarto: 'classic bedroom with wooden bed frame, traditional nightstands, elegant dresser, classic decor, warm ambiance',
-        cozinha: 'classic kitchen with wooden cabinets, marble countertops, traditional fixtures, warm color palette',
-        escritorio: 'classic office with wooden desk, leather chair, bookshelf, traditional decor, warm professional ambiance'
+      quarto: {
+        moderno: 'modern bedroom with minimalist design, platform bed, contemporary nightstands, clean aesthetics, soft lighting',
+        classico: 'classic bedroom with traditional bed frame, wooden furniture, warm textiles, classic decor elements',
+        luxo: 'luxury bedroom with premium bedding, elegant furniture, sophisticated lighting, high-end materials'
       },
-      luxo: {
-        sala: 'luxury living room with premium leather sofa, marble coffee table, designer chairs, crystal chandelier, high-end finishes',
-        quarto: 'luxury bedroom with king size bed, premium bedding, elegant furniture, sophisticated lighting, high-end decor',
-        cozinha: 'luxury kitchen with premium appliances, marble island, custom cabinetry, designer fixtures, elegant finishes',
-        escritorio: 'luxury office with executive desk, premium leather chair, built-in wine bar, sophisticated decor, high-end materials'
+      cozinha: {
+        moderno: 'modern kitchen with sleek cabinets, stainless steel appliances, quartz countertops, contemporary design',
+        classico: 'classic kitchen with traditional cabinets, warm wood tones, classic appliances, timeless design',
+        luxo: 'luxury kitchen with premium cabinets, high-end appliances, marble countertops, designer fixtures'
+      },
+      escritorio: {
+        moderno: 'modern office with contemporary desk, ergonomic chair, clean organization, minimalist design',
+        classico: 'classic office with traditional wooden desk, leather chair, warm atmosphere, timeless furniture',
+        luxo: 'luxury office with executive desk, premium materials, sophisticated decor, high-end furnishings'
       }
     };
 
-    const selectedPrompt = prompts[style as keyof typeof prompts]?.[roomType as keyof typeof prompts.moderno] || prompts.moderno.sala;
+    const roomPrompts = prompts[roomType as keyof typeof prompts] || prompts.sala;
+    const prompt = roomPrompts[style as keyof typeof roomPrompts] || roomPrompts.moderno;
     
-    const fullPrompt = `Transform this empty room into a beautifully furnished space: ${selectedPrompt}. Professional interior design, high quality, realistic lighting, 4K resolution, architectural photography style.`;
+    const fullPrompt = `Transform this empty room into a beautifully furnished ${prompt}, high quality interior design, professional photography, 8k resolution`;
+    
+    console.log('Using prompt:', fullPrompt);
+    console.log('Fetching original image...');
 
-    console.log('Generated prompt:', fullPrompt);
-
-    // Fazer o fetch da imagem original
+    // Fetch the original image
     const imageResponse = await fetch(imageUrl);
     if (!imageResponse.ok) {
-      throw new Error('Não foi possível carregar a imagem');
+      throw new Error(`Failed to fetch image: ${imageResponse.statusText}`);
     }
-    
-    const imageBlob = await imageResponse.blob();
 
-    // Usar img2img para virtual staging
-    const stagedImage = await hf.imageToImage({
+    const imageBlob = await imageResponse.blob();
+    console.log('Image fetched, size:', imageBlob.size);
+
+    console.log('Calling Hugging Face API...');
+
+    // Use image-to-image model for virtual staging
+    const result = await hf.imageToImage({
       inputs: imageBlob,
-      model: 'stabilityai/stable-diffusion-xl-base-1.0',
       parameters: {
-        negative_prompt: 'blurry, low quality, distorted, unrealistic, bad lighting, empty room, unfurnished',
-        strength: 0.75,
+        prompt: fullPrompt,
+        negative_prompt: 'blurry, low quality, distorted, empty, unfurnished, messy, cluttered',
+        num_inference_steps: 30,
+        strength: 0.7,
         guidance_scale: 7.5,
-        num_inference_steps: 20
       },
-      // Move prompt to top level, not in parameters
-      prompt: fullPrompt
+      model: 'stabilityai/stable-diffusion-xl-base-1.0'
     });
 
-    // Converter para base64
-    const arrayBuffer = await stagedImage.arrayBuffer();
+    console.log('Hugging Face API response received');
+
+    // Convert the result to base64
+    const arrayBuffer = await result.arrayBuffer();
     const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
     const stagedImageUrl = `data:image/png;base64,${base64}`;
 
     console.log('Virtual staging completed successfully');
 
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         success: true,
         originalImage: imageUrl,
         stagedImage: stagedImageUrl,
+        roomType,
         style,
-        roomType
+        message: `Virtual staging aplicado com sucesso! Ambiente ${roomType} estilo ${style} criado.`
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Virtual staging error:', error);
+    console.error('Error in virtual-staging function:', error);
+    
     return new Response(
       JSON.stringify({ 
-        error: 'Erro ao processar virtual staging',
+        success: false,
+        error: 'Erro interno do servidor ao processar virtual staging',
         details: error.message 
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }
 });

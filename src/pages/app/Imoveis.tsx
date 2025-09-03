@@ -869,7 +869,7 @@ export default function Imoveis() {
                     e.preventDefault();
                     if (currentPage > 1) setCurrentPage(currentPage - 1);
                   }}
-                  className={`text-xs px-2 py-1 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                  className={`text-xs px-2 py-1 h-8 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
               
@@ -894,19 +894,13 @@ export default function Imoveis() {
                         setCurrentPage(pageNum);
                       }}
                       isActive={currentPage === pageNum}
-                      className="text-xs px-2 py-1 min-w-[32px]"
+                      className="text-xs px-2 py-1 min-w-[32px] h-8"
                     >
                       {pageNum}
                     </PaginationLink>
                   </PaginationItem>
                 );
               })}
-              
-              {totalPages > 3 && currentPage < totalPages - 1 && (
-                <PaginationItem>
-                  <PaginationEllipsis className="px-1" />
-                </PaginationItem>
-              )}
               
               <PaginationItem>
                 <PaginationNext 
@@ -915,7 +909,7 @@ export default function Imoveis() {
                     e.preventDefault();
                     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
                   }}
-                  className={`text-xs px-2 py-1 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                  className={`text-xs px-2 py-1 h-8 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
             </PaginationContent>

@@ -9,18 +9,21 @@ export function SaibaMaisDialog() {
         <Button 
           variant="outline" 
           size="lg"
-          className="text-lg px-8 py-6 transition-all duration-300 hover:scale-105 hover:shadow-lg border-primary text-primary hover:bg-primary hover:text-white"
+          className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/30 text-white hover:bg-white hover:text-primary backdrop-blur-sm font-semibold"
         >
           Saiba Mais
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-primary">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-white to-blue-50">
+        <DialogHeader className="text-center space-y-4 pb-6">
+          <div className="mx-auto w-16 h-16 bg-gradient-to-r from-primary to-brand-secondary rounded-full flex items-center justify-center">
+            <Building2 className="h-8 w-8 text-white" />
+          </div>
+          <DialogTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
             ConectaIOS - Sua Plataforma Imobiliária Completa
           </DialogTitle>
-          <DialogDescription className="text-lg">
-            Descubra como revolucionar sua carreira no mercado imobiliário
+          <DialogDescription className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Descubra como revolucionar sua carreira no mercado imobiliário com tecnologia de ponta
           </DialogDescription>
         </DialogHeader>
         

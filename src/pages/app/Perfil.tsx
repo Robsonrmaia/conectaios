@@ -43,6 +43,7 @@ export default function Perfil() {
     location: '',
     website: '',
     avatar: '',
+    username: '',
     secondaryPhone: '',
     instagram: '',
     linkedin: '',
@@ -61,6 +62,7 @@ export default function Perfil() {
           location: '',
           website: '',
           avatar: broker.avatar_url || '',
+          username: broker.username || '',
           secondaryPhone: '',
           instagram: '',
           linkedin: '',
@@ -259,6 +261,15 @@ export default function Perfil() {
                       id="creci"
                       value={profile.creci}
                       onChange={(e) => setProfile({...profile, creci: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={profile.username}
+                      onChange={(e) => setProfile({...profile, username: e.target.value})}
+                      placeholder="seunome_corretor"
                     />
                   </div>
                   <div className="space-y-2">

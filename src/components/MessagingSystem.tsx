@@ -204,7 +204,7 @@ export function MessagingSystem() {
       <Card className="lg:col-span-1">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
+            <MessageSquare className="h-5 w-5" strokeWidth={2} fill="none" />
             Conversas
             {conversations.some(c => c.unread_count > 0) && (
               <Badge variant="destructive" className="ml-auto">
@@ -227,7 +227,7 @@ export function MessagingSystem() {
           <ScrollArea className="h-96">
             {filteredConversations.length === 0 ? (
               <div className="p-4 text-center text-muted-foreground">
-                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" strokeWidth={2} fill="none" />
                 <p>Nenhuma conversa encontrada</p>
               </div>
             ) : (
@@ -369,7 +369,7 @@ export function MessagingSystem() {
         ) : (
           <CardContent className="flex items-center justify-center h-96">
             <div className="text-center text-muted-foreground">
-              <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" strokeWidth={2} fill="none" />
               <h3 className="font-semibold mb-2">Selecione uma conversa</h3>
               <p>Escolha uma conversa à esquerda para começar a trocar mensagens</p>
             </div>
