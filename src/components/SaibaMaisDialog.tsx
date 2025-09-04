@@ -9,7 +9,7 @@ export function SaibaMaisDialog() {
         <Button 
           variant="outline" 
           size="lg"
-          className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/30 text-white hover:bg-white hover:text-primary backdrop-blur-sm font-semibold"
+          className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/30 bg-white/10 text-primary hover:bg-white hover:text-primary backdrop-blur-sm font-semibold"
         >
           Saiba Mais
         </Button>

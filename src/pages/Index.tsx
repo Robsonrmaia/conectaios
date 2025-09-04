@@ -65,24 +65,26 @@ const Index = () => {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="container mx-auto px-4 py-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
+      {/* Header Transparente */}
+      <header className="absolute top-0 left-0 right-0 z-30 bg-transparent backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
+            </div>
+            <Button 
+              onClick={() => navigate('/auth')}
+              className="bg-primary hover:bg-primary/90 text-white border border-white/20"
+            >
+              Entrar
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
           </div>
-          <Button 
-            onClick={() => navigate('/auth')}
-            className="bg-primary hover:bg-primary/90"
-          >
-            Entrar
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[35vh] sm:h-[45vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video - Wistia */}
         <div className="absolute inset-0 w-full h-full">
           <iframe
@@ -103,11 +105,13 @@ const Index = () => {
 
         <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
+            {/* Mobile: Título menor sobre o vídeo */}
+            <h1 className="text-xl sm:text-2xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina imobiliária simplificada, Organizada e Inteligente.
             </h1>
-            
-            <p className="text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in leading-relaxed px-2" data-speed="0.6">
+
+            {/* Desktop: Todo o texto sobre o vídeo */}
+            <p className="hidden md:block text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in leading-relaxed px-2" data-speed="0.6">
               Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
               Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
               encontra clientes certos com inteligência artificial e fecha negócios de forma 
@@ -128,6 +132,20 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* Mobile: Seção separada com texto completo abaixo do vídeo */}
+      <section className="md:hidden bg-background py-8">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="text-lg text-foreground mb-6 leading-relaxed">
+              Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+              Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+              encontra clientes certos com inteligência artificial e fecha negócios de forma 
+              simples, rápida e segura.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
