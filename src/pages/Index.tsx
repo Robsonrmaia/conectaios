@@ -83,19 +83,20 @@ const Index = () => {
 
       {/* Hero Section */}
       <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
-        {/* Background Video */}
+        {/* Background Video - Wistia */}
         <div className="absolute inset-0 w-full h-full">
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover object-[center_20%] sm:object-center"
-            poster="/hero-thumbnail.jpg"
-          >
-            <source src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/hero-video.mp4" type="video/mp4" />
-            {/* Fallback gradient if video doesn't load */}
-          </video>
+          <iframe
+            src="https://fast.wistia.net/embed/iframe/5qttver2jx?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            title="ConectaIOS Hero Video"
+            className="w-full h-full"
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none'
+            }}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+          ></iframe>
           {/* Dark overlay for better text readability */}
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
