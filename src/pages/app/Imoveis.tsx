@@ -658,180 +658,182 @@ export default function Imoveis() {
                 </div>
               </div>
 
-              <div className="flex justify-between items-center">
-                <div className="space-y-2">
-                  <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
-                  {property.visibility === 'public_site' ? (
-                    <Badge variant="default" className="text-xs">
-                      <Eye className="h-3 w-3 mr-1" />
-                      Marketplace
-                    </Badge>
-                  ) : property.visibility === 'match_only' ? (
-                    <Badge variant="secondary" className="text-xs">
-                      <Globe className="h-3 w-3 mr-1" />
-                      Match
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="text-xs">
-                      <EyeOff className="h-3 w-3 mr-1" />
-                      Oculto
-                    </Badge>
-                  )}
-                 </div>
-                 <div className="text-right space-y-2">
-                   {property.reference_code && (
-                     <Badge variant="outline" className="text-xs font-mono">
-                       {property.reference_code}
+               <div className="flex justify-between items-start">
+                 <div className="space-y-2">
+                   <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
+                   {property.visibility === 'public_site' ? (
+                     <Badge variant="default" className="text-xs">
+                       <Eye className="h-3 w-3 mr-1" />
+                       Marketplace
+                     </Badge>
+                   ) : property.visibility === 'match_only' ? (
+                     <Badge variant="secondary" className="text-xs">
+                       <Globe className="h-3 w-3 mr-1" />
+                       Match
+                     </Badge>
+                   ) : (
+                     <Badge variant="secondary" className="text-xs">
+                       <EyeOff className="h-3 w-3 mr-1" />
+                       Oculto
                      </Badge>
                    )}
-                   <div className="space-y-3 mt-4">
-                     <div className="grid grid-cols-2 gap-2">
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           setSelectedProperty(property);
-                           setIsDetailDialogOpen(true);
-                         }}
-                         title="Visualizar Imóvel"
-                         className="h-8"
-                       >
-                         <Eye className="h-4 w-4 mr-1" />
-                         Ver
-                       </Button>
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
-                           setGalleryInitialIndex(0);
-                           setGalleryOpen(true);
-                         }}
-                         title="Editar Fotos"
-                         className="h-8"
-                       >
-                         <FileImage className="h-4 w-4 mr-1" />
-                         Fotos
-                       </Button>
-                     </div>
-                     
-                     <div className="grid grid-cols-2 gap-2">
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           // Implementar melhoria de qualidade
-                           toast({
-                             title: "Melhorar Qualidade",
-                             description: "Funcionalidade em desenvolvimento",
-                           });
-                         }}
-                         title="Melhorar Qualidade"
-                         className="h-8"
-                       >
-                         <Sparkles className="h-4 w-4 mr-1" />
-                         Qualidade
-                       </Button>
-                       {Array.isArray(property.fotos) && property.fotos.length > 0 && (
-                         <Button 
-                           variant="outline" 
-                           size="sm"
-                           onClick={() => {
-                             setVirtualStagingProperty(property.id);
-                           }}
-                           title="Virtual Staging"
-                           className="h-8"
-                         >
-                           <Wand2 className="h-4 w-4 mr-1" />
-                           Móveis
-                         </Button>
-                       )}
-                     </div>
-                     
-                     <div className="grid grid-cols-2 gap-2">
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           // Preenche o formulário com os dados do imóvel selecionado
-                           setFormData({
-                             titulo: property.titulo,
-                             valor: property.valor.toString(),
-                             area: property.area.toString(),
-                             quartos: property.quartos.toString(),
-                             bathrooms: property.bathrooms.toString(),
-                             parking_spots: property.parking_spots.toString(),
-                             listing_type: property.listing_type,
-                             property_type: property.property_type,
-                             visibility: property.visibility,
-                             broker_minisite_enabled: false,
-                             descricao: property.descricao || '',
-                             fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                             videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
-                             address: '',
-                             neighborhood: '',
-                             city: '',
-                             condominium_fee: '',
-                             iptu: '',
-                             commission_percentage: 6,
-                             commission_value: 0,
-                             commission_split_type: '50/50',
-                             commission_buyer_split: 50,
-                             commission_seller_split: 50
-                           });
-                           setSelectedProperty(property);
-                           setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
-                         }}
-                         title="Editar Imóvel"
-                         className="h-8"
-                       >
-                         <Edit className="h-4 w-4 mr-1" />
-                         Editar
-                       </Button>
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => handleDeleteProperty(property.id)}
-                         title="Excluir Imóvel"
-                         className="h-8 hover:bg-destructive/10"
-                       >
-                         <Trash2 className="h-4 w-4 mr-1" />
-                         Excluir
-                       </Button>
-                     </div>
+                  </div>
+                  <div className="text-right space-y-2">
+                    {property.reference_code && (
+                      <Badge variant="outline" className="text-xs font-mono">
+                        {property.reference_code}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Action Buttons - Better organized layout */}
+                <div className="space-y-3 mt-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedProperty(property);
+                        setIsDetailDialogOpen(true);
+                      }}
+                      title="Visualizar Imóvel"
+                      className="h-8 text-xs"
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Ver
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
+                        setGalleryInitialIndex(0);
+                        setGalleryOpen(true);
+                      }}
+                      title="Editar Fotos"
+                      className="h-8 text-xs"
+                    >
+                      <FileImage className="h-3 w-3 mr-1" />
+                      Fotos
+                    </Button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Implementar melhoria de qualidade
+                        toast({
+                          title: "Melhorar Qualidade",
+                          description: "Funcionalidade em desenvolvimento",
+                        });
+                      }}
+                      title="Melhorar Qualidade"
+                      className="h-8 text-xs"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Qualidade
+                    </Button>
+                    {Array.isArray(property.fotos) && property.fotos.length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setVirtualStagingProperty(property.id);
+                        }}
+                        title="Virtual Staging"
+                        className="h-8 text-xs"
+                      >
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        Móveis
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Preenche o formulário com os dados do imóvel selecionado
+                        setFormData({
+                          titulo: property.titulo,
+                          valor: property.valor.toString(),
+                          area: property.area.toString(),
+                          quartos: property.quartos.toString(),
+                          bathrooms: property.bathrooms.toString(),
+                          parking_spots: property.parking_spots.toString(),
+                          listing_type: property.listing_type,
+                          property_type: property.property_type,
+                          visibility: property.visibility,
+                          broker_minisite_enabled: false,
+                          descricao: property.descricao || '',
+                          fotos: Array.isArray(property.fotos) ? property.fotos : [],
+                          videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
+                          address: '',
+                          neighborhood: '',
+                          city: '',
+                          condominium_fee: '',
+                          iptu: '',
+                          commission_percentage: 6,
+                          commission_value: 0,
+                          commission_split_type: '50/50',
+                          commission_buyer_split: 50,
+                          commission_seller_split: 50
+                        });
+                        setSelectedProperty(property);
+                        setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
+                      }}
+                      title="Editar Imóvel"
+                      className="h-8 text-xs"
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Editar
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleDeleteProperty(property.id)}
+                      title="Excluir Imóvel"
+                      className="h-8 hover:bg-destructive/10 text-xs"
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Excluir
+                    </Button>
+                  </div>
 
-                     {/* Visibility Toggle Buttons - Side by Side */}
-                     <div className="flex gap-1 mt-2">
-                       <Button
-                         size="sm"
-                         variant={property.visibility === 'match_only' ? 'default' : 'outline'}
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           updatePropertyVisibility(property.id, 'match_only');
-                         }}
-                         title="Marketplace"
-                         className="text-xs px-2 h-6"
-                       >
-                         <Globe className="h-2 w-2 mr-1" />
-                         Market
-                       </Button>
-                       <Button
-                         size="sm"
-                         variant={property.visibility === 'public_site' ? 'default' : 'outline'}
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           updatePropertyVisibility(property.id, 'public_site');
-                         }}
-                         title="Site Público"
-                         className="text-xs px-2 h-6"
-                       >
-                         <Eye className="h-2 w-2 mr-1" />
-                         Site
-                       </Button>
-                     </div>
-                   </div>
-                 </div>
-              </div>
+                  {/* Visibility Toggle Buttons - Side by Side */}
+                  <div className="flex gap-1 mt-2">
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'match_only' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'match_only');
+                      }}
+                      title="Marketplace"
+                      className="text-xs px-2 h-6"
+                    >
+                      <Globe className="h-2 w-2 mr-1" />
+                      Market
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'public_site');
+                      }}
+                      title="Site Público"
+                      className="text-xs px-2 h-6"
+                    >
+                      <Eye className="h-2 w-2 mr-1" />
+                      Site
+                    </Button>
+                  </div>
+                </div>
             </CardContent>
           </Card>
         ))}

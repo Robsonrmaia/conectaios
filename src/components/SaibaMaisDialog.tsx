@@ -8,8 +8,8 @@ export function SaibaMaisDialog() {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          size="lg"
-          className="text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/30 bg-white/10 text-primary hover:bg-white hover:text-primary backdrop-blur-sm font-semibold"
+          size="sm"
+          className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl border-2 border-white/30 bg-white text-primary hover:bg-white/90 hover:text-primary backdrop-blur-sm font-semibold"
         >
           Saiba Mais
         </Button>

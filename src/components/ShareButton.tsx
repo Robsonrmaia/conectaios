@@ -73,14 +73,15 @@ export function ShareButton({
       size="sm" 
       onClick={handleShare}
       disabled={!canShare}
-      className={!canShare ? 'opacity-50 cursor-not-allowed' : ''}
+      className={`h-7 w-full p-0 hover:bg-primary hover:text-white ${!canShare ? 'opacity-50 cursor-not-allowed' : ''}`}
+      title="Compartilhar"
     >
       {copied ? (
-        <Check className="h-4 w-4 mr-2" />
+        <Check className="h-3 w-3" />
       ) : (
-        <Share2 className="h-4 w-4 mr-2" />
+        <Share2 className="h-3 w-3" />
       )}
-      {copied ? 'Copiado!' : 'Compartilhar'}
+      <span className="sr-only">{copied ? 'Copiado!' : 'Compartilhar'}</span>
     </Button>
   );
 }

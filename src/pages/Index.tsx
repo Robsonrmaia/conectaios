@@ -66,7 +66,7 @@ const Index = () => {
     <PageWrapper>
       <div className="min-h-screen bg-background">
       {/* Header Transparente */}
-      <header className="absolute top-0 left-0 right-0 z-30 bg-transparent backdrop-blur-sm">
+      <header className="absolute top-0 left-0 right-0 z-30 bg-white/10 backdrop-blur-md border-b border-white/10 lg:bg-white/20">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -84,7 +84,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <main className="relative h-[35vh] sm:h-[45vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video - Wistia */}
         <div className="absolute inset-0 w-full h-full">
           <iframe
@@ -118,11 +118,11 @@ const Index = () => {
               simples, rápida e segura.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mb-8 sm:mb-16 parallax-element animate-fade-in px-4" data-speed="0.4">
+            <div className="flex gap-4 flex-col sm:flex-row justify-center">
               <Button 
-                size="lg"
                 onClick={() => navigate('/auth')}
-                className="bg-primary hover:bg-primary/90 text-white text-base sm:text-lg px-6 sm:px-8 py-4 sm:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl backdrop-blur-sm border border-white/20"
+                size="sm"
+                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold backdrop-blur-sm"
               >
                 Começar Agora
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
