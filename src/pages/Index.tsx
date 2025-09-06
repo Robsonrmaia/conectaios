@@ -88,7 +88,7 @@ const Index = () => {
         {/* Background Video - Wistia */}
         <div className="absolute inset-0 w-full h-full">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/5qttver2jx?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
             title="ConectaIOS Hero Video"
             className="w-full h-full"
             style={{
