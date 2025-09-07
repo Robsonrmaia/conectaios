@@ -39,6 +39,7 @@ const SidebarContext = React.createContext<SidebarContext | null>(null)
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
+    console.error("useSidebar: context is null - SidebarProvider missing")
     throw new Error("useSidebar must be used within a SidebarProvider.")
   }
 
@@ -68,9 +69,21 @@ const SidebarProvider = React.forwardRef<
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
+    // Read initial state from cookie
+    const getInitialState = React.useCallback(() => {
+      if (typeof document !== "undefined") {
+        const cookie = document.cookie
+          .split("; ")
+          .find((row) => row.startsWith(`${SIDEBAR_COOKIE_NAME}=`))
+        if (cookie) {
+          return cookie.split("=")[1] === "true"
+        }
+      }
+      return defaultOpen
+    }, [defaultOpen])
+
     // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
+    const [_open, _setOpen] = React.useState(getInitialState)
     const open = openProp ?? _open
     const setOpen = React.useCallback(
       (value: boolean | ((value: boolean) => boolean)) => {
@@ -261,7 +274,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const sidebar = useSidebar()
+  const { toggleSidebar } = useSidebar()
 
   return (
     <Button
@@ -271,13 +284,8 @@ const SidebarTrigger = React.forwardRef<
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
-        console.log('SidebarTrigger clicked', { sidebar })
         onClick?.(event)
-        if (sidebar?.toggleSidebar) {
-          sidebar.toggleSidebar()
-        } else {
-          console.error('toggleSidebar not available', sidebar)
-        }
+        toggleSidebar()
       }}
       {...props}
     >
