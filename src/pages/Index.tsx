@@ -72,7 +72,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="/lovable-uploads/037cb679-33c8-4542-b80d-4adb0d3c584f.png" alt="ConectaIOS" className="h-12 w-auto" />
+              <img src="/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
             </div>
             <Button 
               onClick={() => navigate('/auth')}
@@ -421,7 +421,7 @@ const Index = () => {
                   </div>
                   <AsaasPaymentButtonFixed 
                     planName="Básico"
-                    planValue={67}
+                    planValue={97}
                     planId="plan-basic"
                     className="mt-4 bg-primary"
                   />

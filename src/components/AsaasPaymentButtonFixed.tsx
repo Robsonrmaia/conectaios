@@ -62,11 +62,13 @@ export function AsaasPaymentButtonFixed({
         throw new Error('Erro ao criar cliente no Asaas');
       }
 
-      if (!customerData?.id) {
+      console.log('Cliente criado no Asaas:', customerData);
+      const customerId = customerData.data?.id || customerData.id;
+      
+      if (!customerId) {
+        console.error('Customer data structure:', customerData);
         throw new Error('ID do cliente não retornado pelo Asaas');
       }
-
-      console.log('Cliente criado no Asaas:', customerData.id);
 
       // Step 2: Create subscription
       console.log('Criando assinatura no Asaas...');
@@ -74,7 +76,7 @@ export function AsaasPaymentButtonFixed({
         body: {
           action: 'create_subscription',
           data: {
-            customer: customerData.id,
+            customer: customerId,
             billingType: 'CREDIT_CARD',
             value: planValue,
             nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 dias
@@ -115,7 +117,7 @@ export function AsaasPaymentButtonFixed({
       const { error: updateError } = await supabase
         .from('conectaios_brokers')
         .update({
-          asaas_customer_id: customerData.id,
+          asaas_customer_id: customerId,
           subscription_status: 'active',
           plan_id: planId,
           subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()

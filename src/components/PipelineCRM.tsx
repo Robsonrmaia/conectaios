@@ -238,6 +238,7 @@ export default function PipelineCRM() {
     if (!user) return;
 
     try {
+      console.log('Tentando criar cliente:', clientFormData);
       // First, create the client
       const { data: clientData, error } = await supabase
         .from('conectaios_clients')
@@ -257,7 +258,19 @@ export default function PipelineCRM() {
         .select()
         .single();
 
-      if (error) throw error;
+      console.log('Resultado inserção:', { clientData, error });
+
+      if (error) {
+        console.error('Erro detalhado ao criar cliente:', error);
+        toast({
+          title: "Erro",
+          description: error.message || "Erro ao adicionar cliente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('Cliente criado com sucesso:', clientData);
 
       // Add initial history if description provided
       if (historyFormData.description.trim()) {
