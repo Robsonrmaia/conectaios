@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon } from 'lucide-react';
+import { GlobalClientSearch } from './GlobalClientSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -237,7 +238,8 @@ export default function PipelineCRM() {
     if (!user) return;
 
     try {
-      const { error } = await supabase
+      // First, create the client
+      const { data: clientData, error } = await supabase
         .from('conectaios_clients')
         .insert({
           user_id: user.id,
@@ -251,9 +253,23 @@ export default function PipelineCRM() {
           classificacao: 'novo_lead',
           score: 0,
           last_contact_at: new Date().toISOString()
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Add initial history if description provided
+      if (historyFormData.description.trim()) {
+        await supabase
+          .from('client_history')
+          .insert({
+            client_id: clientData.id,
+            action: historyFormData.action,
+            description: historyFormData.description,
+            user_id: user.id
+          });
+      }
 
       toast({
         title: "Sucesso",
@@ -262,6 +278,7 @@ export default function PipelineCRM() {
 
       setIsClientDialogOpen(false);
       setClientFormData({ nome: '', telefone: '', email: '', data_nascimento: '', tipo: 'comprador', valor: '' });
+      setHistoryFormData({ action: 'ligacao', description: '' });
       fetchData();
     } catch (error) {
       console.error('Erro ao adicionar cliente:', error);
@@ -418,15 +435,15 @@ export default function PipelineCRM() {
 
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto">
           {STAGES.map((stage) => (
             <Droppable key={stage.id} droppableId={stage.id}>
               {(provided, snapshot) => (
-                <Card className={`h-fit ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
+                <Card className={`min-w-[280px] h-fit ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center justify-between">
-                      <span>{stage.name}</span>
-                      <Badge variant="secondary" className="text-xs">
+                      <span className="truncate">{stage.name}</span>
+                      <Badge variant="secondary" className="text-xs ml-2">
                         {clients.filter(c => c.stage === stage.id).length}
                       </Badge>
                     </CardTitle>
@@ -447,20 +464,20 @@ export default function PipelineCRM() {
                               onClick={() => setSelectedClient(client)}
                             >
                               <div className="flex items-start gap-2">
-                                <Avatar className="h-8 w-8">
+                                <Avatar className="h-8 w-8 flex-shrink-0">
                                   <AvatarImage src={client.photo || undefined} />
                                   <AvatarFallback>
                                     <User className="h-4 w-4" />
                                   </AvatarFallback>
                                 </Avatar>
-                                <div className="flex-1 min-w-0">
+                                <div className="flex-1 min-w-0 overflow-hidden">
                                   <h4 className="font-medium text-sm truncate">{client.nome}</h4>
-                                  <p className="text-xs text-muted-foreground">{client.telefone}</p>
+                                  <p className="text-xs text-muted-foreground truncate">{client.telefone}</p>
                                   <Badge variant="outline" className="text-xs mt-1">
                                     {client.tipo}
                                   </Badge>
                                   {client.valor > 0 && (
-                                    <p className="text-xs text-green-600 font-medium mt-1">
+                                    <p className="text-xs text-green-600 font-medium mt-1 truncate">
                                       R$ {client.valor.toLocaleString('pt-BR')}
                                     </p>
                                   )}
@@ -736,28 +753,33 @@ export default function PipelineCRM() {
 
       {/* Dialog para adicionar cliente */}
       <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Adicionar Cliente</DialogTitle>
+            <DialogTitle>Novo Cliente</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="nome">Nome Completo</Label>
-              <Input
-                id="nome"
-                value={clientFormData.nome}
-                onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
-                placeholder="Nome do cliente"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          <Tabs defaultValue="dados" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="dados">Dados Básicos</TabsTrigger>
+              <TabsTrigger value="historico">Histórico Inicial</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="dados" className="space-y-4">
               <div>
-                <Label htmlFor="telefone">Telefone</Label>
+                <Label htmlFor="nome">Nome *</Label>
+                <Input
+                  id="nome"
+                  value={clientFormData.nome}
+                  onChange={(e) => setClientFormData(prev => ({ ...prev, nome: e.target.value }))}
+                  placeholder="Nome completo"
+                />
+              </div>
+              <div>
+                <Label htmlFor="telefone">Telefone *</Label>
                 <Input
                   id="telefone"
                   value={clientFormData.telefone}
-                  onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
-                  placeholder="(73) 9 9999-9999"
+                  onChange={(e) => setClientFormData(prev => ({ ...prev, telefone: e.target.value }))}
+                  placeholder="(11) 99999-9999"
                 />
               </div>
               <div>
@@ -766,48 +788,83 @@ export default function PipelineCRM() {
                   id="email"
                   type="email"
                   value={clientFormData.email}
-                  onChange={(e) => setClientFormData({...clientFormData, email: e.target.value})}
+                  onChange={(e) => setClientFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="email@exemplo.com"
                 />
               </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="data_nascimento">Data de Nascimento</Label>
                 <Input
                   id="data_nascimento"
                   type="date"
                   value={clientFormData.data_nascimento}
-                  onChange={(e) => setClientFormData({...clientFormData, data_nascimento: e.target.value})}
+                  onChange={(e) => setClientFormData(prev => ({ ...prev, data_nascimento: e.target.value }))}
                 />
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="tipo">Tipo de Cliente</Label>
+                  <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData(prev => ({ ...prev, tipo: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="comprador">Comprador</SelectItem>
+                      <SelectItem value="vendedor">Vendedor</SelectItem>
+                      <SelectItem value="locatario">Locatário</SelectItem>
+                      <SelectItem value="locador">Locador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="valor">Valor de Interesse (R$)</Label>
+                  <Input
+                    id="valor"
+                    type="number"
+                    value={clientFormData.valor}
+                    onChange={(e) => setClientFormData(prev => ({ ...prev, valor: e.target.value }))}
+                    placeholder="0"
+                  />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="historico" className="space-y-4">
               <div>
-                <Label htmlFor="tipo">Tipo</Label>
-                <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
+                <Label htmlFor="action">Tipo de Contato Inicial</Label>
+                <Select value={historyFormData.action} onValueChange={(value) => setHistoryFormData(prev => ({ ...prev, action: value }))}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="comprador">Comprador</SelectItem>
-                    <SelectItem value="vendedor">Vendedor</SelectItem>
-                    <SelectItem value="locatario">Locatário</SelectItem>
-                    <SelectItem value="locador">Locador</SelectItem>
+                    <SelectItem value="ligacao">Ligação</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                    <SelectItem value="reuniao">Reunião</SelectItem>
+                    <SelectItem value="visita">Visita</SelectItem>
+                    <SelectItem value="indicacao">Indicação</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
-            <div>
-              <Label htmlFor="valor">Valor Orçamento</Label>
-              <Input
-                id="valor"
-                type="number"
-                value={clientFormData.valor}
-                onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
-                placeholder="350000"
-              />
-            </div>
-            <Button onClick={handleAddClient} className="w-full">
-              Adicionar Cliente
+              <div>
+                <Label htmlFor="description">Descrição do Primeiro Contato</Label>
+                <Textarea
+                  id="description"
+                  value={historyFormData.description}
+                  onChange={(e) => setHistoryFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Ex: Cliente interessado em apartamento na Zona Sul..."
+                  rows={4}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
+          
+          <div className="flex gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsClientDialogOpen(false)} className="flex-1">
+              Cancelar
+            </Button>
+            <Button onClick={handleAddClient} className="flex-1">
+              Salvar Cliente
             </Button>
           </div>
         </DialogContent>
@@ -930,6 +987,12 @@ export default function PipelineCRM() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Global Client Search Dialog */}
+      <GlobalClientSearch 
+        open={globalSearchOpen} 
+        onOpenChange={setGlobalSearchOpen} 
+      />
     </div>
   );
 }

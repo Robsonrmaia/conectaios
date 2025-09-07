@@ -45,7 +45,7 @@ export function AsaasPaymentButton({
             name: broker.name,
             email: broker.email,
             phone: broker.phone || '',
-            cpfCnpj: broker.creci || '',
+            cpfCnpj: broker.creci && broker.creci.length >= 11 ? broker.creci : '00000000000',
             externalReference: broker.id
           }
         }

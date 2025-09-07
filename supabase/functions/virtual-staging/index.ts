@@ -82,19 +82,20 @@ serve(async (req) => {
     try {
       const replicate = new Replicate({ auth: replicateToken });
       
-      // Use flux-dev for better image-to-image results
+      // Use flux-dev for image-to-image transformation
+      console.log('Using FLUX image-to-image with base image:', imageUrl);
       const replicateResult = await replicate.run(
         "black-forest-labs/flux-dev",
         {
           input: {
-            image: imageUrl, // Use the provided image as base
+            image: imageUrl, // Base image for staging
             prompt: stagingPrompt,
-            strength: 0.6, // Keep some of original structure while adding furniture
-            guidance_scale: 3.5,
+            strength: 0.7, // Higher strength for better furniture placement
+            guidance_scale: 4.0,
             num_outputs: 1,
-            num_inference_steps: 20,
+            num_inference_steps: 28,
             output_format: "webp",
-            output_quality: 90,
+            output_quality: 95,
             seed: Math.floor(Math.random() * 1000000)
           }
         }
