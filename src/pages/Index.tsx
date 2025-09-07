@@ -84,7 +84,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Após o Header */}
-      <main className="relative h-[70vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[85vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video - Wistia - Desktop */}
         <div className="absolute inset-0 w-full h-full hidden md:block">
           <iframe
@@ -103,16 +103,17 @@ const Index = () => {
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
 
-        {/* Background Video - Wistia - Mobile (vídeo vertical - inteiro) */}
+        {/* Background Video - Wistia - Mobile (vídeo vertical - tela inteira) */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=false&autoPlay=true&muted=true&loop=true&fitStrategy=contain"
             title="ConectaIOS Hero Video Mobile Vertical"
             className="w-full h-full"
             style={{
               width: '100%',
               height: '100%',
-              border: 'none'
+              border: 'none',
+              objectFit: 'contain'
             }}
             allow="autoplay; fullscreen"
             allowFullScreen
@@ -123,8 +124,8 @@ const Index = () => {
 
         <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
-            {/* Mobile: Título menor sobre o vídeo */}
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
+            {/* Mobile: Título maior sobre o vídeo */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
             </h1>
 
@@ -155,12 +156,14 @@ const Index = () => {
       <section className="md:hidden bg-background py-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <p className="text-lg text-foreground mb-6 leading-relaxed">
-              Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-              Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-              encontra clientes certos com inteligência artificial e fecha negócios de forma 
-              simples, rápida e segura.
-            </p>
+            <div className="bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-2xl p-6 border border-primary/20 shadow-lg backdrop-blur-sm">
+              <p className="text-lg text-foreground mb-0 leading-relaxed font-medium">
+                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+                encontra clientes certos com inteligência artificial e fecha negócios de forma 
+                <span className="text-primary font-semibold"> simples, rápida e segura</span>.
+              </p>
+            </div>
           </div>
         </div>
       </section>

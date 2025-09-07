@@ -71,21 +71,21 @@ export function FunctionalMinisite() {
   const generateMinisite = async () => {
     setIsGenerating(true);
     try {
-      // Simulate minisite generation process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Generate a unique URL for the minisite
-      const minisiteId = `${user?.id}-${Date.now()}`;
-      const url = `https://conectaios.lovable.app/minisite/${minisiteId}`;
+      // Generate a unique URL for the minisite using broker username
+      const username = broker?.username || user?.id?.slice(0, 8);
+      const domain = window.location.hostname.includes('lovable') 
+        ? window.location.origin 
+        : 'https://conectaios.com.br';
+      const url = `${domain}/@${username}`;
       
       setGeneratedUrl(url);
       
-      // Save config to localStorage as fallback
+      // Save config to localStorage
       localStorage.setItem(`minisite-config-${user?.id}`, JSON.stringify(config));
       
       toast({
         title: "Minisite Gerado com Sucesso! 🎉",
-        description: "Seu minisite está pronto e publicado online.",
+        description: "Seu minisite está pronto e pode ser acessado pelo link gerado.",
       });
     } catch (error) {
       console.error('Error generating minisite:', error);

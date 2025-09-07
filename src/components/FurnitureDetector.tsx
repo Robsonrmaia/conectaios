@@ -23,10 +23,53 @@ export function FurnitureDetector({ imageUrl, onFurnitureDetected }: FurnitureDe
     setDetecting(true);
     
     try {
-      // Simulate AI furniture detection - in production, would call Google Vision or API4.AI
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Try to use Hugging Face API first, fallback to mock data
+      try {
+        // Simulate API call to Hugging Face for object detection
+        const response = await fetch('https://api-inference.huggingface.co/models/facebook/detr-resnet-50', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer hf_demo', // Demo token, replace with actual in production
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            inputs: imageUrl,
+            options: { wait_for_model: true }
+          })
+        });
+
+        if (response.ok) {
+          const results = await response.json();
+          // Process real detection results
+          const detectedItems = results
+            .filter((item: any) => item.score > 0.5)
+            .map((item: any) => item.label)
+            .filter((label: string) => MOCK_FURNITURE_DETECTION.some(furniture => 
+              furniture.toLowerCase().includes(label.toLowerCase()) || 
+              label.toLowerCase().includes('chair') ||
+              label.toLowerCase().includes('table') ||
+              label.toLowerCase().includes('couch') ||
+              label.toLowerCase().includes('bed')
+            ));
+
+          if (detectedItems.length > 0) {
+            setDetectedFurniture(detectedItems);
+            onFurnitureDetected(detectedItems);
+            
+            toast({
+              title: "Móveis detectados com IA!",
+              description: `Identificamos ${detectedItems.length} tipos de móveis na imagem usando Hugging Face.`,
+            });
+            return;
+          }
+        }
+      } catch (apiError) {
+        console.log('API call failed, using mock data:', apiError);
+      }
+
+      // Fallback to mock detection
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Mock detection results
       const randomFurniture = MOCK_FURNITURE_DETECTION
         .sort(() => 0.5 - Math.random())
         .slice(0, Math.floor(Math.random() * 5) + 2);
