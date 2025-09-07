@@ -87,20 +87,25 @@ const Index = () => {
       <main className="bg-background">
         {/* Desktop Layout - Duas Colunas */}
         <div className="hidden md:block">
-          <div className="container mx-auto px-6 py-16">
-            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+          <div className="container mx-auto px-6 py-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-start pt-8">
               {/* Coluna Esquerda - Conteúdo */}
-              <div className="space-y-8">
-                <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight">
-                  Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
-                </h1>
-                
-                <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed">
-                  Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-                  Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-                  encontra clientes certos com inteligência artificial e fecha negócios de forma 
-                  simples, rápida e segura.
-                </p>
+              <div className="space-y-8 pt-8">
+                <div className="space-y-6">
+                  <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
+                    Sua rotina <span className="text-primary">imobiliária</span><br />
+                    simplificada,<br />
+                    <span className="text-primary">Organizada</span> e<br />
+                    <span className="text-primary">Inteligente</span>.
+                  </h1>
+                  
+                  <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                    Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+                    Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+                    encontra clientes certos com inteligência artificial e fecha negócios de forma 
+                    simples, rápida e segura.
+                  </p>
+                </div>
 
                 <div className="flex gap-4 items-center">
                   <Button 
@@ -116,7 +121,7 @@ const Index = () => {
               </div>
 
               {/* Coluna Direita - Vídeo */}
-              <div className="relative">
+              <div className="relative pt-4">
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
                     src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
@@ -136,9 +141,19 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Mobile Layout - Vídeo sobre conteúdo */}
+        {/* Mobile Layout - Sequência: Título -> Vídeo -> Texto completo */}
         <div className="md:hidden">
-          <div className="relative h-[60vh] overflow-hidden">
+          {/* Título inicial */}
+          <div className="bg-background py-8">
+            <div className="container mx-auto px-6">
+              <h1 className="text-3xl sm:text-4xl font-bold text-center leading-tight">
+                Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
+              </h1>
+            </div>
+          </div>
+
+          {/* Vídeo */}
+          <div className="relative h-[50vh] overflow-hidden">
             <iframe
               src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
               title="ConectaIOS Hero Video Mobile Vertical"
@@ -152,27 +167,21 @@ const Index = () => {
               allow="autoplay; fullscreen"
               allowFullScreen
             ></iframe>
-            {/* Dark overlay for better text readability */}
-            <div className="absolute inset-0 bg-black/60 z-10"></div>
-            
-            {/* Mobile text overlay */}
-            <div className="absolute inset-0 z-20 flex items-center justify-center">
-              <div className="text-center px-6">
-                <h1 className="text-3xl sm:text-4xl font-bold mb-6 text-white drop-shadow-2xl leading-tight">
-                  Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
-                </h1>
-                
-                <div className="flex gap-3 justify-center items-center">
-                  <Button 
-                    onClick={() => navigate('/auth')}
-                    size="sm"
-                    className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold backdrop-blur-sm"
-                  >
-                    Começar Agora
-                    <ArrowRight className="ml-2 h-3 w-3" />
-                  </Button>
-                  <SaibaMaisDialog />
-                </div>
+          </div>
+
+          {/* Botões sobre o vídeo */}
+          <div className="bg-background py-6">
+            <div className="container mx-auto px-6">
+              <div className="flex gap-3 justify-center items-center">
+                <Button 
+                  onClick={() => navigate('/auth')}
+                  size="sm"
+                  className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+                >
+                  Começar Agora
+                  <ArrowRight className="ml-2 h-3 w-3" />
+                </Button>
+                <SaibaMaisDialog />
               </div>
             </div>
           </div>
