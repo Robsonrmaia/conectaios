@@ -125,7 +125,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
             {/* Mobile: Título maior sobre o vídeo */}
-            <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
+            <h1 className="text-5xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 mt-8 sm:mt-0 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
             </h1>
 
