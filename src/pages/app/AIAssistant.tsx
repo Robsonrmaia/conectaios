@@ -37,28 +37,64 @@ export default function AIAssistant() {
       title: 'Análise de Mercado',
       description: 'Gere relatórios sobre tendências do mercado imobiliário',
       icon: TrendingUp,
-      action: 'Analisar mercado'
+      action: `Analise o mercado imobiliário de Ilhéus/BA com foco em:
+      1. Tendências de preços para venda e locação nos principais bairros
+      2. Demanda por tipo de imóvel (apartamentos, casas, comerciais)
+      3. Sazonalidade do mercado (alta/baixa temporada)
+      4. Comparativo com cidades vizinhas
+      5. Oportunidades de investimento
+      6. Perfil do comprador/locatário atual
+      7. Impacto do turismo no mercado local
+      
+      Forneça insights práticos e acionáveis para corretor da região.`
     },
     {
       id: 2,
       title: 'Sugestões de Preço',
       description: 'Obtenha sugestões de precificação para seus imóveis',
       icon: Calculator,
-      action: 'Sugerir preços'
+      action: `Com base nos meus imóveis cadastrados e no mercado de Ilhéus/BA, me ajude com:
+      1. Análise de precificação dos imóveis que tenho
+      2. Comparativo com imóveis similares na região
+      3. Sugestões de ajuste de preço para acelerar vendas
+      4. Estratégias de negociação por faixa de preço
+      5. Timing ideal para lançar cada imóvel
+      6. Margem de negociação recomendada
+      
+      Considere área, localização, tipo e condições do imóvel.`
     },
     {
       id: 3,
       title: 'Scripts de Vendas',
       description: 'Crie scripts personalizados para diferentes situações',
       icon: FileText,
-      action: 'Criar scripts'
+      action: `Crie scripts de vendas personalizados para corretor em Ilhéus/BA:
+      1. Abordagem inicial por WhatsApp/telefone
+      2. Apresentação de imóveis por tipo (apartamento, casa, comercial)
+      3. Tratamento de objeções comuns (preço, localização, financiamento)
+      4. Scripts para diferentes perfis de cliente (investidor, primeira casa, aposentado)
+      5. Follow-up pós-visita
+      6. Fechamento de negócios
+      7. Scripts para captação de imóveis
+      
+      Considere linguagem regional e características locais.`
     },
     {
       id: 4,
       title: 'Estratégias de Marketing',
       description: 'Desenvolva estratégias para atrair mais clientes',
       icon: Lightbulb,
-      action: 'Estratégias de marketing'
+      action: `Desenvolva estratégias de marketing imobiliário para Ilhéus/BA:
+      1. Marketing digital: Instagram, Facebook, Google Ads
+      2. Conteúdo para redes sociais (posts, stories, reels)
+      3. Parcerias locais (construtoras, arquitetos, decoradores)
+      4. Marketing de relacionamento com clientes
+      5. Eventos e open house
+      6. SEO local para aparecer em buscas
+      7. Campanhas sazonais (verão/turismo)
+      8. Diferenciação da concorrência
+      
+      Considere orçamento acessível e alta conversão.`
     }
   ];
 

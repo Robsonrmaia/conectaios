@@ -25,7 +25,7 @@ import { FurnitureDetector } from '@/components/FurnitureDetector';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
-import { useBroker } from '@/hooks/useBroker';
+import { AIPropertyDescription } from '@/components/AIPropertyDescription';
 
 interface Property {
   id: string;
@@ -61,6 +61,8 @@ export default function Imoveis() {
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [aiDescriptionProperty, setAiDescriptionProperty] = useState<Property | null>(null);
+  const [showAiDescription, setShowAiDescription] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -719,7 +721,20 @@ export default function Imoveis() {
                     </Button>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2">
+                   <div className="grid grid-cols-2 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setAiDescriptionProperty(property);
+                        setShowAiDescription(true);
+                      }}
+                      title="Gerar Descrição com IA"
+                      className="h-8 text-xs"
+                    >
+                      <Wand2 className="h-3 w-3 mr-1" />
+                      IA Desc
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
@@ -1129,6 +1144,49 @@ export default function Imoveis() {
                 </div>
               );
             })()}
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* AI Description Dialog */}
+      {showAiDescription && aiDescriptionProperty && (
+        <Dialog open={showAiDescription} onOpenChange={setShowAiDescription}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <AIPropertyDescription
+              property={aiDescriptionProperty}
+              onDescriptionGenerated={(description) => {
+                // Atualizar a descrição do imóvel
+                const updatedProperty = { ...aiDescriptionProperty, descricao: description };
+                
+                // Atualizar no banco de dados
+                supabase
+                  .from('conectaios_properties')
+                  .update({ descricao: description })
+                  .eq('id', aiDescriptionProperty.id)
+                  .then(({ error }) => {
+                    if (error) {
+                      toast({
+                        title: "Erro",
+                        description: "Não foi possível salvar a descrição.",
+                        variant: "destructive",
+                      });
+                    } else {
+                      // Atualizar estado local
+                      setProperties(prev => prev.map(p => 
+                        p.id === aiDescriptionProperty.id ? updatedProperty : p
+                      ));
+                      toast({
+                        title: "Descrição salva!",
+                        description: "A descrição foi atualizada no imóvel.",
+                      });
+                    }
+                  });
+              }}
+              onClose={() => {
+                setShowAiDescription(false);
+                setAiDescriptionProperty(null);
+              }}
+            />
           </DialogContent>
         </Dialog>
       )}

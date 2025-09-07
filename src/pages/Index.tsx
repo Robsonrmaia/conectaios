@@ -15,6 +15,7 @@ import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
+import { TestimonialsSection } from '@/components/TestimonialsSection';
 
 const Index = () => {
   const { user } = useAuth();
@@ -542,9 +543,12 @@ const Index = () => {
         >
           <FaWhatsapp className="h-6 w-6" />
         </Button>
-      </div>
+        </div>
 
-      {/* Footer */}
+        {/* Testimonials Section */}
+        <TestimonialsSection />
+
+        {/* Footer */}
       <FooterBankLinks />
       <footer className="border-t bg-card/30 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-8">
