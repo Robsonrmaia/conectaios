@@ -46,55 +46,56 @@ serve(async (req) => {
       );
     }
 
-    // Define simplified prompts for text-to-image generation
-    const prompts = {
+    // Define staging prompts for image-to-image transformation  
+    const stagingPrompts = {
       sala: {
-        moderno: 'modern living room interior, contemporary furniture, clean minimalist design, neutral colors, sofa, coffee table, natural lighting, high quality interior design photography',
-        classico: 'classic traditional living room, warm wooden furniture, comfortable armchairs, classic decor, cozy atmosphere, elegant interior design',
-        luxo: 'luxury living room, premium furniture, marble accents, high-end materials, sophisticated design, elegant lighting, expensive interior design'
+        moderno: 'staged modern living room with contemporary furniture, clean minimalist design, neutral colors, stylish sofa, glass coffee table, modern decor, well-lit space',
+        classico: 'staged classic living room with traditional furniture, warm wooden pieces, comfortable seating, elegant decor, cozy atmosphere',
+        luxo: 'staged luxury living room with premium furniture, marble accents, high-end materials, sophisticated design, elegant lighting'
       },
       quarto: {
-        moderno: 'modern bedroom interior, minimalist platform bed, contemporary nightstands, clean aesthetics, neutral colors, modern lighting, high quality interior design',
-        classico: 'classic bedroom, traditional wooden bed frame, vintage furniture, warm textiles, cozy atmosphere, timeless interior design',
-        luxo: 'luxury bedroom, premium bedding, elegant furniture, sophisticated materials, high-end interior design, luxurious atmosphere'
+        moderno: 'staged modern bedroom with minimalist platform bed, contemporary nightstands, clean aesthetics, neutral bedding, modern lighting',
+        classico: 'staged classic bedroom with traditional wooden bed frame, vintage furniture, warm textiles, cozy atmosphere, timeless decor',
+        luxo: 'staged luxury bedroom with premium bedding, elegant furniture, sophisticated materials, high-end decor, luxurious atmosphere'
       },
       cozinha: {
-        moderno: 'modern kitchen interior, sleek cabinets, stainless steel appliances, quartz countertops, contemporary design, clean lines, modern kitchen design',
-        classico: 'classic kitchen, traditional wooden cabinets, warm atmosphere, timeless design, classic appliances, cozy kitchen interior',
-        luxo: 'luxury kitchen, premium cabinets, high-end appliances, marble countertops, designer fixtures, expensive kitchen interior'
+        moderno: 'staged modern kitchen with sleek cabinets, contemporary appliances, clean countertops, minimal decor, modern design',
+        classico: 'staged classic kitchen with traditional wooden cabinets, warm atmosphere, timeless design, classic appliances, cozy feel',
+        luxo: 'staged luxury kitchen with premium cabinets, high-end appliances, marble countertops, designer fixtures, expensive materials'
       },
       escritorio: {
-        moderno: 'modern office interior, contemporary desk, ergonomic chair, minimalist design, clean organization, modern workspace design',
-        classico: 'classic office, traditional wooden desk, leather chair, warm atmosphere, timeless furniture, classic workspace',
-        luxo: 'luxury office, executive desk, premium materials, sophisticated decor, high-end office furniture, elegant workspace'
+        moderno: 'staged modern office with contemporary desk, ergonomic chair, minimal decor, clean organization, modern workspace',
+        classico: 'staged classic office with traditional wooden desk, leather chair, warm atmosphere, timeless furniture, professional look',
+        luxo: 'staged luxury office with executive desk, premium materials, sophisticated decor, high-end furniture, elegant workspace'
       }
     };
 
-    const roomPrompts = prompts[roomType as keyof typeof prompts] || prompts.sala;
-    const prompt = roomPrompts[style as keyof typeof roomPrompts] || roomPrompts.moderno;
+    const roomPrompts = stagingPrompts[roomType as keyof typeof stagingPrompts] || stagingPrompts.sala;
+    const stagingPrompt = roomPrompts[style as keyof typeof roomPrompts] || roomPrompts.moderno;
     
-    const fullPrompt = `${prompt}, professional interior design photography, 8k resolution, high quality, well lit, realistic`;
-    
-    console.log('Generated prompt:', fullPrompt);
-    console.log('🚀 Using Replicate API');
+    console.log('Using image-to-image with prompt:', stagingPrompt);
+    console.log('Original image URL:', imageUrl);
+    console.log('🚀 Using Replicate API for Virtual Staging');
 
     const startApiCall = Date.now();
 
     try {
       const replicate = new Replicate({ auth: replicateToken });
       
+      // Use flux-dev for better image-to-image results
       const replicateResult = await replicate.run(
-        "black-forest-labs/flux-schnell",
+        "black-forest-labs/flux-dev",
         {
           input: {
-            prompt: fullPrompt,
-            go_fast: true,
-            megapixels: "1",
+            image: imageUrl, // Use the provided image as base
+            prompt: stagingPrompt,
+            strength: 0.6, // Keep some of original structure while adding furniture
+            guidance_scale: 3.5,
             num_outputs: 1,
-            aspect_ratio: "16:9",
+            num_inference_steps: 20,
             output_format: "webp",
-            output_quality: 85,
-            num_inference_steps: 4
+            output_quality: 90,
+            seed: Math.floor(Math.random() * 1000000)
           }
         }
       );
