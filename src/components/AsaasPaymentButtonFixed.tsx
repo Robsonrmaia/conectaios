@@ -117,9 +117,13 @@ export function AsaasPaymentButtonFixed({
                 ? broker.creci 
                 : '11144477735',
               phone: broker.phone,
+              postalCode: '01310-100', // CEP obrigatório
+              address: 'Av. Paulista',
               addressNumber: '123',
               addressComplement: 'Sala 1',
-              province: 'Centro'
+              province: 'Centro',
+              city: 'São Paulo',
+              state: 'SP'
             }
           }
         }

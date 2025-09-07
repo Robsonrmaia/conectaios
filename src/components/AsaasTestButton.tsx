@@ -103,9 +103,13 @@ export function AsaasTestButton() {
           email: broker.email,
           cpfCnpj: '11144477735',
           phone: broker.phone?.replace(/\D/g, '') || '',
+          postalCode: '01310-100', // CEP obrigatório
+          address: 'Av. Paulista',
           addressNumber: '123',
           addressComplement: 'Teste',
-          province: 'Centro'
+          province: 'Centro',
+          city: 'São Paulo',
+          state: 'SP'
         }
       };
 
