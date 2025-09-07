@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useAI } from '@/hooks/useAI';
 import { 
   Bot, 
   Send, 
@@ -13,7 +14,8 @@ import {
   FileText, 
   Calculator,
   Lightbulb,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 
 export default function AIAssistant() {
@@ -22,22 +24,12 @@ export default function AIAssistant() {
     {
       id: 1,
       type: 'assistant',
-      content: 'Olá! Sou o assistente IA do ConectaIOS. Como posso ajudá-lo hoje?',
+      content: 'Olá! Sou o assistente IA do ConectaIOS. Como posso ajudá-lo hoje? Posso analisar seus dados em tempo real, responder sobre propriedades, clientes, negócios e muito mais!',
       timestamp: '14:30'
-    },
-    {
-      id: 2,
-      type: 'user',
-      content: 'Como posso melhorar minhas vendas?',
-      timestamp: '14:32'
-    },
-    {
-      id: 3,
-      type: 'assistant',
-      content: 'Baseado na análise do seu perfil e histórico de vendas, recomendo focar em:\n\n1. **Qualificação de leads**: Use nosso sistema de scoring para priorizar clientes com maior potencial\n2. **Follow-up consistente**: Configure lembretes automáticos no CRM\n3. **Apresentações visuais**: Crie tours virtuais para seus imóveis\n\nGostaria que eu elabore algum desses pontos?',
-      timestamp: '14:33'
     }
   ]);
+  
+  const { sendMessage: sendAIMessage, loading } = useAI();
 
   const quickActions = [
     {
@@ -94,8 +86,8 @@ export default function AIAssistant() {
     }
   ];
 
-  const handleSendMessage = () => {
-    if (message.trim()) {
+  const handleSendMessage = async () => {
+    if (message.trim() && !loading) {
       const newMessage = {
         id: chatHistory.length + 1,
         type: 'user' as const,
@@ -103,23 +95,13 @@ export default function AIAssistant() {
         timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
       };
       
-      setChatHistory([...chatHistory, newMessage]);
+      setChatHistory(prev => [...prev, newMessage]);
+      const currentMessage = message;
       setMessage('');
       
-      // Simulate AI response with more intelligent content
-      setTimeout(() => {
-        let aiResponse = '';
-        const query = message.toLowerCase();
-        
-        if (query.includes('mercado') || query.includes('tendência')) {
-          aiResponse = 'Com base na análise de mercado atual, observo que:\n\n📈 **Apartamentos 2-3 quartos** estão em alta demanda (+12% este mês)\n💰 **Faixa de R$ 400-800k** representa 60% das transações\n🏢 **Zona Sul** lidera em valorização (+8%)\n📊 **Tempo médio de venda**: 45 dias\n\n**Recomendações:**\n- Foque em imóveis bem localizados nessa faixa\n- Invista em fotos profissionais e virtual staging\n- Precifique competitivamente nos primeiros 30 dias';
-        } else if (query.includes('preço') || query.includes('valor')) {
-          aiResponse = 'Para precificação estratégica, considere:\n\n🎯 **Análise comparativa**: Verifique 5-8 similares vendidos nos últimos 60 dias\n📍 **Localização**: Ajuste ±15% baseado no micro-local\n🏠 **Estado do imóvel**: Reformado (+10%), original (-5%)\n⏰ **Urgência**: Venda rápida (-8%), sem pressa (+5%)\n\n**Dica IA**: Comece 5% acima do valor ideal e ajuste após 15 dias se necessário.';
-        } else if (query.includes('cliente') || query.includes('lead')) {
-          aiResponse = 'Para otimizar sua gestão de clientes:\n\n🎯 **Qualificação**: Use o score automático do CRM\n📞 **Follow-up**: Contate leads em até 2 horas\n💡 **Match IA**: Nossa IA já identificou 3 clientes potenciais para seus imóveis\n📊 **Conversão**: Taxa atual de 23% - meta é 30%\n\n**Próximas ações sugeridas:**\n1. Ligar para Maria Silva (lead quente)\n2. Enviar portfólio para Carlos Santos\n3. Agendar visita com Ana Costa';
-        } else {
-          aiResponse = 'Entendi sua pergunta. Com base na análise dos seus dados:\n\n📊 **Status atual**: 12 imóveis ativos, 8 leads qualificados\n🎯 **Oportunidade**: 2 matches de alta compatibilidade detectados\n⚡ **Ação recomendada**: Priorize follow-up com leads "interessados"\n\n**Como posso ajudar especificamente?**\n• Análise de mercado detalhada\n• Sugestões de precificação\n• Estratégias de marketing\n• Otimização de conversão';
-        }
+      // Get AI response using real API
+      try {
+        const aiResponse = await sendAIMessage(currentMessage);
         
         const aiResponseObj = {
           id: chatHistory.length + 2,
@@ -127,8 +109,18 @@ export default function AIAssistant() {
           content: aiResponse,
           timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
         };
+        
         setChatHistory(prev => [...prev, aiResponseObj]);
-      }, 1500);
+      } catch (error) {
+        console.error('Error getting AI response:', error);
+        const errorResponse = {
+          id: chatHistory.length + 2,
+          type: 'assistant' as const,
+          content: 'Desculpe, ocorreu um erro ao processar sua solicitação. Tente novamente.',
+          timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+        };
+        setChatHistory(prev => [...prev, errorResponse]);
+      }
     }
   };
 
@@ -277,15 +269,24 @@ export default function AIAssistant() {
               placeholder="Digite sua pergunta..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+              onKeyPress={(e) => e.key === 'Enter' && !loading && handleSendMessage()}
               className="flex-1"
+              disabled={loading}
             />
-            <Button onClick={handleSendMessage} className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
-              <Send className="h-4 w-4" />
+            <Button 
+              onClick={handleSendMessage} 
+              className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              disabled={loading || !message.trim()}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
           <div className="text-xs text-muted-foreground mt-2">
-            💡 Dica: Seja específico em suas perguntas para obter respostas mais precisas
+            💡 Dica: Pergunte sobre seus imóveis, clientes, tarefas ou peça análises de mercado
           </div>
         </div>
       </Card>
