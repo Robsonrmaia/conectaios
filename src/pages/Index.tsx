@@ -69,8 +69,12 @@ const Index = () => {
       <header className="relative z-30 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
+            <div className="flex items-center space-x-2">
+              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Portal de Imóveis Ilhéus</h1>
+                <p className="text-sm text-primary">• Realizando sonhos com elegância</p>
+              </div>
             </div>
             <Button 
               onClick={() => navigate('/auth')}
@@ -83,90 +87,134 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section - Após o Header */}
-      <main className="relative h-[92vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
-        {/* Background Video - Wistia - Desktop */}
-        <div className="absolute inset-0 w-full h-full hidden md:block">
-          <iframe
-            src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-            title="ConectaIOS Hero Video Desktop"
-            className="w-full h-full"
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none'
-            }}
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          ></iframe>
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/60 z-10"></div>
+      {/* Hero Section - Layout Desktop/Mobile */}
+      <main className="bg-background min-h-screen">
+        {/* Desktop Layout - Two Columns */}
+        <div className="hidden md:block">
+          <div className="container mx-auto px-4 py-16">
+            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+              {/* Coluna Esquerda - Conteúdo */}
+              <div className="space-y-8">
+                <div className="space-y-6">
+                  <h2 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+                    Sofisticação, credibilidade e um atendimento que 
+                    <span className="text-primary"> cuida de cada detalhe</span>
+                  </h2>
+                  
+                  <p className="text-lg text-muted-foreground leading-relaxed">
+                    Esta é a porta de entrada para o <span className="font-semibold text-primary">portal Gisele Carneiro Corretora de imóveis</span>. 
+                    Curadoria séria para comprar, alugar ou temporada em Ilhéus e região.
+                  </p>
+                </div>
+
+                <div className="flex gap-4">
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    size="lg"
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-base font-semibold"
+                  >
+                    Procurar imóveis
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    size="lg"
+                    className="px-8 py-3 text-base font-semibold border-2"
+                    onClick={() => window.open('https://wa.me/5573999999999?text=Olá! Gostaria de falar com a corretora', '_blank')}
+                  >
+                    Fale com a corretora
+                  </Button>
+                </div>
+
+                {/* Cards de Informações da Corretora */}
+                <div className="grid md:grid-cols-3 gap-4 pt-8">
+                  <div className="text-center p-4 bg-card rounded-lg border">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Registro</h4>
+                    <p className="font-bold text-foreground">CRECI 34759-F</p>
+                  </div>
+                  <div className="text-center p-4 bg-card rounded-lg border">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Expertise</h4>
+                    <p className="font-bold text-foreground">Compra • Aluguel • Temporada</p>
+                  </div>
+                  <div className="text-center p-4 bg-card rounded-lg border">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Atuação</h4>
+                    <p className="font-bold text-foreground">Ilhéus e região</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Coluna Direita - Vídeo */}
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <iframe
+                  src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+                  title="ConectaIOS Hero Video Desktop"
+                  className="w-full h-96 lg:h-[500px]"
+                  style={{
+                    width: '100%',
+                    border: 'none'
+                  }}
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Background Video - Wistia - Mobile (vídeo vertical - tela inteira) */}
-        <div className="absolute inset-0 w-full h-full md:hidden">
-          <iframe
-            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-            title="ConectaIOS Hero Video Mobile Vertical"
-            className="w-full h-full"
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              objectFit: 'contain'
-            }}
-            allow="autoplay; fullscreen"
-            allowFullScreen
-          ></iframe>
-          {/* Dark overlay for better text readability */}
-          <div className="absolute inset-0 bg-black/60 z-10"></div>
-        </div>
+        {/* Mobile Layout */}
+        <div className="md:hidden">
+          <div className="container mx-auto px-4 py-8">
+            <div className="space-y-8">
+              {/* Conteúdo Mobile */}
+              <div className="text-center space-y-6">
+                <h2 className="text-3xl font-bold text-foreground leading-tight">
+                  Sua rotina <span className="text-primary">imobiliária</span> simplificada
+                </h2>
+                
+                {/* Vídeo Horizontal após "sua rotina" */}
+                <div className="relative rounded-xl overflow-hidden shadow-lg">
+                  <iframe
+                    src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+                    title="ConectaIOS Hero Video Mobile"
+                    className="w-full h-48"
+                    style={{
+                      width: '100%',
+                      border: 'none'
+                    }}
+                    allow="autoplay; fullscreen"
+                    allowFullScreen
+                  ></iframe>
+                </div>
 
-        <div className="container mx-auto px-6 py-8 sm:py-16 relative z-20 overflow-hidden">
-          <div className="text-center max-w-4xl mx-auto">
-            {/* Mobile: Título maior sobre o vídeo */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 mt-8 sm:mt-0 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight break-words" data-speed="0.8">
-              Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
-            </h1>
+                <div className="space-y-4">
+                  <h3 className="text-2xl font-bold text-foreground">
+                    <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>
+                  </h3>
+                  
+                  <p className="text-base text-muted-foreground leading-relaxed px-2">
+                    Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+                    Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+                    encontra clientes certos com inteligência artificial e fecha negócios de forma 
+                    <span className="text-primary font-semibold"> simples, rápida e segura</span>.
+                  </p>
+                </div>
 
-            {/* Desktop: Todo o texto sobre o vídeo */}
-            <p className="hidden md:block text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto parallax-element drop-shadow-lg animate-fade-in leading-relaxed px-2" data-speed="0.6">
-              Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-              Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-              encontra clientes certos com inteligência artificial e fecha negócios de forma 
-              simples, rápida e segura.
-            </p>
-
-            <div className="flex gap-3 justify-center items-center">
-              <Button 
-                onClick={() => navigate('/auth')}
-                size="sm"
-                className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold backdrop-blur-sm"
-              >
-                Começar Agora
-                <ArrowRight className="ml-2 h-3 w-3" />
-              </Button>
-              <SaibaMaisDialog />
+                <div className="space-y-3">
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    size="lg"
+                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold"
+                  >
+                    Começar Agora
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <SaibaMaisDialog />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* Mobile: Seção separada com texto completo abaixo do vídeo */}
-      <section className="md:hidden bg-background py-8">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="bg-gradient-to-br from-primary/20 to-brand-secondary/20 rounded-2xl p-8 border-2 border-primary/30 shadow-2xl backdrop-blur-md">
-              <p className="text-xl text-foreground mb-0 leading-relaxed font-semibold">
-                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-                encontra clientes certos com inteligência artificial e fecha negócios de forma 
-                <span className="text-primary font-bold"> simples, rápida e segura</span>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto">
