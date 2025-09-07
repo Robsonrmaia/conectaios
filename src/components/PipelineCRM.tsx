@@ -415,18 +415,18 @@ export default function PipelineCRM() {
             Gerencie clientes com sistema de pipeline drag-and-drop
           </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
-          <div className="flex gap-2">
-            <Button onClick={() => setGlobalSearchOpen(true)} variant="outline" className="flex-1 sm:flex-none">
+        <div className="flex flex-col gap-2 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={() => setGlobalSearchOpen(true)} variant="outline" className="w-full sm:flex-1">
               <Search className="h-4 w-4 mr-2" />
               Buscar Clientes
             </Button>
-            <Button onClick={() => setIsTaskDialogOpen(true)} variant="outline" className="flex-1 sm:flex-none">
+            <Button onClick={() => setIsTaskDialogOpen(true)} variant="outline" className="w-full sm:flex-1">
               <Plus className="h-4 w-4 mr-2" />
               Nova Tarefa
             </Button>
           </div>
-          <Button onClick={() => setIsClientDialogOpen(true)} className="w-full sm:w-auto">
+          <Button onClick={() => setIsClientDialogOpen(true)} className="w-full">
             <UserPlus className="h-4 w-4 mr-2" />
             Novo Cliente
           </Button>
@@ -435,11 +435,12 @@ export default function PipelineCRM() {
 
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 overflow-x-auto">
+        <div className="overflow-x-auto">
+          <div className="flex gap-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
           {STAGES.map((stage) => (
             <Droppable key={stage.id} droppableId={stage.id}>
               {(provided, snapshot) => (
-                <Card className={`min-w-[280px] h-fit ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
+                <Card className={`min-w-[240px] md:min-w-0 w-[240px] md:w-full h-fit flex-shrink-0 ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center justify-between">
                       <span className="truncate">{stage.name}</span>
@@ -493,6 +494,7 @@ export default function PipelineCRM() {
               )}
             </Droppable>
           ))}
+          </div>
         </div>
       </DragDropContext>
 
