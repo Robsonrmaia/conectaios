@@ -1,191 +1,36 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useBroker } from '@/hooks/useBroker';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { Loader2, CreditCard } from 'lucide-react';
+import { PaymentSystem } from './PaymentSystem';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface AsaasPaymentButtonProps {
   planName: string;
   planValue: number;
   planId: string;
-  variant?: 'default' | 'outline' | 'ghost';
+  variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
   className?: string;
 }
 
-export function AsaasPaymentButtonFixed({ 
-  planName, 
-  planValue, 
-  planId, 
-  variant = "default", 
-  className = "" 
-}: AsaasPaymentButtonProps) {
-  const { user } = useAuth();
-  const { broker } = useBroker();
-  const [loading, setLoading] = useState(false);
-  
-  const handlePayment = async () => {
-    if (!user || !broker) {
-      toast({
-        title: "Erro",
-        description: "Você precisa estar logado para assinar um plano",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      console.log('Iniciando processo de pagamento Asaas...');
-      
-      // Step 1: Create customer in Asaas
-      console.log('Criando cliente no Asaas...');
-      const { data: customerData, error: customerError } = await supabase.functions.invoke('asaas-integration', {
-        body: {
-          action: 'create_customer',
-          data: {
-            name: broker.name,
-            email: broker.email,
-            phone: broker.phone,
-            cpfCnpj: broker.creci && broker.creci.trim() !== '' && broker.creci !== '434343' 
-              ? broker.creci 
-              : '11144477735', // CPF de teste válido para sandbox
-            notificationDisabled: false
-          }
-        }
-      });
-
-      if (customerError) {
-        console.error('Erro ao criar cliente Asaas:', customerError);
-        throw new Error('Erro ao criar cliente no Asaas');
-      }
-
-      console.log('Cliente criado no Asaas:', customerData);
-      const customerId = customerData.data?.id || customerData.id;
-      
-      if (!customerId) {
-        console.error('Customer data structure:', customerData);
-        throw new Error('ID do cliente não retornado pelo Asaas');
-      }
-
-      // Step 2: Wait a moment and verify customer exists
-      console.log('Aguardando processamento do cliente...');
-      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 segundos
-
-      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('asaas-integration', {
-        body: {
-          action: 'verify_customer',
-          data: {
-            customerId: customerId
-          }
-        }
-      });
-
-      if (verifyError) {
-        console.error('Erro ao verificar cliente:', verifyError);
-        throw new Error('Cliente não foi criado corretamente no Asaas');
-      }
-
-      console.log('Cliente verificado com sucesso:', verifyData);
-
-      // Step 3: Create subscription
-      console.log('Criando assinatura no Asaas...');
-      const { data: subscriptionData, error: subscriptionError } = await supabase.functions.invoke('asaas-integration', {
-        body: {
-          action: 'create_subscription',
-          data: {
-            customer: customerId,
-            billingType: 'UNDEFINED', // Deixar cliente escolher
-            value: planValue,
-            nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 dias
-            cycle: 'MONTHLY',
-            description: `Assinatura ${planName} - ConectaIOS`,
-            externalReference: `broker_${broker.id}_plan_${planId}`
-          }
-        }
-      });
-
-      if (subscriptionError) {
-        console.error('Erro ao criar assinatura:', subscriptionError);
-        throw new Error('Erro ao criar assinatura no Asaas');
-      }
-
-      console.log('Assinatura criada:', subscriptionData);
-
-      // Step 4: Update broker with subscription info
-      console.log('Atualizando broker com dados da assinatura...');
-      const { error: updateError } = await supabase
-        .from('conectaios_brokers')
-        .update({
-          asaas_customer_id: customerId,
-          subscription_status: 'active',
-          plan_id: planId,
-          subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        })
-        .eq('id', broker.id);
-
-      if (updateError) {
-        console.error('Erro ao atualizar broker:', updateError);
-        throw new Error('Erro ao atualizar dados do corretor');
-      }
-
-      console.log('Pagamento processado com sucesso!');
-
-      toast({
-        title: "Sucesso!",
-        description: `Assinatura do plano ${planName} ativada com sucesso!`,
-      });
-
-      // Abrir tela de checkout do Asaas para o cliente preencher dados
-      if (subscriptionData.checkoutUrl) {
-        console.log('Abrindo checkout do Asaas:', subscriptionData.checkoutUrl);
-        window.open(subscriptionData.checkoutUrl, '_blank');
-      } else if (subscriptionData.subscription?.invoiceUrl) {
-        console.log('Abrindo invoice do Asaas:', subscriptionData.subscription.invoiceUrl);
-        window.open(subscriptionData.subscription.invoiceUrl, '_blank');
-      }
-
-    } catch (error) {
-      console.error('Erro no processo de pagamento:', error);
-      
-      let errorMessage = 'Erro desconhecido no pagamento';
-      
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-
-      toast({
-        title: "Erro no Pagamento",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+export function AsaasPaymentButtonFixed({ planName, planValue, planId, variant = "default", className = "" }: AsaasPaymentButtonProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Button 
-      onClick={handlePayment}
-      disabled={loading}
-      variant={variant}
-      className={className}
-    >
-      {loading ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Processando...
-        </>
-      ) : (
-        <>
-          <CreditCard className="mr-2 h-4 w-4" />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant={variant} className={className}>
           Assinar {planName} - R$ {planValue.toFixed(2)}
-        </>
-      )}
-    </Button>
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Finalizar Assinatura</DialogTitle>
+        </DialogHeader>
+        <PaymentSystem 
+          planName={planName}
+          planValue={planValue}
+          planId={planId}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

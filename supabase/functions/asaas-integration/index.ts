@@ -87,6 +87,8 @@ serve(async (req) => {
           throw new Error(`Erro ao verificar cliente: ${response.status} - ${errorText}`);
         }
         break;
+
+      case 'create_payment':
         // Criar cobrança no Asaas
         console.log('Creating payment in Asaas...');
         response = await fetch('https://www.asaas.com/api/v3/payments', {
@@ -107,6 +109,12 @@ serve(async (req) => {
             postalService: data.postalService
           })
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Asaas payment API error:', errorText);
+          throw new Error(`Erro na API Asaas: ${response.status} - ${errorText}`);
+        }
         break;
 
       case 'get_payment':
@@ -178,12 +186,15 @@ serve(async (req) => {
         const subscriptionResult = await response.json();
         console.log('Subscription created successfully:', subscriptionResult);
         
-        // Retornar dados da assinatura incluindo URL de checkout se disponível
-        result = {
-          subscription: subscriptionResult,
-          checkoutUrl: subscriptionResult.invoiceUrl || null
-        };
-        break;
+        // Para subscription, retornar direto o resultado
+        return new Response(
+          JSON.stringify({
+            success: true,
+            data: subscriptionResult,
+            checkoutUrl: subscriptionResult.invoiceUrl || null
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
 
       case 'webhook_payment':
         // Processar webhook de pagamento
