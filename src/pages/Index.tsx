@@ -486,9 +486,13 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                  <Button variant="outline" className="w-full mt-4">
-                    Falar com Vendas
-                  </Button>
+                  <AsaasPaymentButton 
+                    planName="Premium"
+                    planValue={197}
+                    planId="plan-premium"
+                    variant="outline"
+                    className="mt-4"
+                  />
                 </CardContent>
               </Card>
             </div>

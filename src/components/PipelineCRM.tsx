@@ -10,12 +10,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search } from 'lucide-react';
+import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -34,6 +34,11 @@ interface Client {
   score: number;
   last_contact_at?: string;
   pipeline_id?: string;
+  historico?: any[];
+  opp?: string;
+  responsavel?: string;
+  updated_at: string;
+  documents?: string[];
 }
 
 interface ClientHistory {
@@ -125,7 +130,7 @@ export default function PipelineCRM() {
         .order('created_at', { ascending: false });
 
       if (clientsError) throw clientsError;
-      setClients(clientsData || []);
+      setClients((clientsData as Client[]) || []);
 
       // Fetch history for all clients
       if (clientsData && clientsData.length > 0) {
@@ -386,475 +391,545 @@ export default function PipelineCRM() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-primary">Pipeline CRM</h1>
           <p className="text-muted-foreground">
             Gerencie clientes com sistema de pipeline drag-and-drop
           </p>
         </div>
-
-        <div className="flex gap-2">
-          <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Novo Cliente
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Adicionar Cliente</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="nome">Nome Completo</Label>
-                  <Input
-                    id="nome"
-                    value={clientFormData.nome}
-                    onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
-                    placeholder="Nome do cliente"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="telefone">Telefone</Label>
-                    <Input
-                      id="telefone"
-                      value={clientFormData.telefone}
-                      onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
-                      placeholder="(73) 9 9999-9999"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={clientFormData.email}
-                      onChange={(e) => setClientFormData({...clientFormData, email: e.target.value})}
-                      placeholder="email@exemplo.com"
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="data_nascimento">Data de Nascimento</Label>
-                    <Input
-                      id="data_nascimento"
-                      type="date"
-                      value={clientFormData.data_nascimento}
-                      onChange={(e) => setClientFormData({...clientFormData, data_nascimento: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="tipo">Tipo</Label>
-                    <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="comprador">Comprador</SelectItem>
-                        <SelectItem value="vendedor">Vendedor</SelectItem>
-                        <SelectItem value="locatario">Locatário</SelectItem>
-                        <SelectItem value="locador">Locador</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="valor">Valor Orçamento</Label>
-                  <Input
-                    id="valor"
-                    type="number"
-                    value={clientFormData.valor}
-                    onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
-                    placeholder="350000"
-                  />
-                </div>
-                <Button onClick={handleAddClient} className="w-full">
-                  Adicionar Cliente
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Tarefa
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Nova Tarefa</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="txt">Descrição da Tarefa</Label>
-                  <Textarea
-                    id="txt"
-                    value={taskFormData.txt}
-                    onChange={(e) => setTaskFormData({...taskFormData, txt: e.target.value})}
-                    placeholder="O que precisa ser feito?"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="quando">Quando</Label>
-                    <Input
-                      id="quando"
-                      value={taskFormData.quando}
-                      onChange={(e) => setTaskFormData({...taskFormData, quando: e.target.value})}
-                      placeholder="Data/horário"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="onde">Onde</Label>
-                    <Input
-                      id="onde"
-                      value={taskFormData.onde}
-                      onChange={(e) => setTaskFormData({...taskFormData, onde: e.target.value})}
-                      placeholder="Local"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="porque">Por que</Label>
-                  <Input
-                    id="porque"
-                    value={taskFormData.porque}
-                    onChange={(e) => setTaskFormData({...taskFormData, porque: e.target.value})}
-                    placeholder="Motivo/objetivo"
-                  />
-                </div>
-                <Button onClick={handleAddTask} className="w-full">
-                  Criar Tarefa
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+        <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
+          <div className="flex gap-2">
+            <Button onClick={() => setGlobalSearchOpen(true)} variant="outline" className="flex-1 sm:flex-none">
+              <Search className="h-4 w-4 mr-2" />
+              Buscar Clientes
+            </Button>
+            <Button onClick={() => setIsTaskDialogOpen(true)} variant="outline" className="flex-1 sm:flex-none">
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Tarefa
+            </Button>
+          </div>
+          <Button onClick={() => setIsClientDialogOpen(true)} className="w-full sm:w-auto">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Novo Cliente
+          </Button>
         </div>
       </div>
 
-      {/* Pipeline Drag and Drop */}
+      {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           {STAGES.map((stage) => (
-            <div key={stage.id} className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Badge className={stage.color}>
-                  {stage.name}
-                </Badge>
-                <span className="text-sm text-muted-foreground">
-                  {clients.filter(c => c.stage === stage.id).length}
-                </span>
-              </div>
-              
-              <Droppable droppableId={stage.id}>
-                {(provided, snapshot) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className={`min-h-[400px] p-2 rounded-lg border-2 border-dashed transition-colors ${
-                      snapshot.isDraggingOver ? 'border-primary bg-primary/5' : 'border-border'
-                    }`}
-                  >
+            <Droppable key={stage.id} droppableId={stage.id}>
+              {(provided, snapshot) => (
+                <Card className={`h-fit ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center justify-between">
+                      <span>{stage.name}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {clients.filter(c => c.stage === stage.id).length}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2" {...provided.droppableProps} ref={provided.innerRef}>
                     {clients
                       .filter(client => client.stage === stage.id)
                       .map((client, index) => (
                         <Draggable key={client.id} draggableId={client.id} index={index}>
                           {(provided, snapshot) => (
-                            <Card
+                            <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`mb-2 cursor-grab transition-shadow ${
+                              className={`p-3 bg-background border rounded-lg cursor-pointer hover:shadow-md transition-shadow ${
                                 snapshot.isDragging ? 'shadow-lg' : ''
                               }`}
                               onClick={() => setSelectedClient(client)}
                             >
-                              <CardContent className="p-3">
-                                <div className="space-y-2">
-                                  <div className="flex items-center gap-2">
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                    <span className="font-medium text-sm">{client.nome}</span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                    <Phone className="h-3 w-3" />
-                                    {client.telefone}
-                                  </div>
-                                  {client.email && (
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                      <Mail className="h-3 w-3" />
-                                      {client.email}
-                                    </div>
+                              <div className="flex items-start gap-2">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarImage src={client.photo || undefined} />
+                                  <AvatarFallback>
+                                    <User className="h-4 w-4" />
+                                  </AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="font-medium text-sm truncate">{client.nome}</h4>
+                                  <p className="text-xs text-muted-foreground">{client.telefone}</p>
+                                  <Badge variant="outline" className="text-xs mt-1">
+                                    {client.tipo}
+                                  </Badge>
+                                  {client.valor > 0 && (
+                                    <p className="text-xs text-green-600 font-medium mt-1">
+                                      R$ {client.valor.toLocaleString('pt-BR')}
+                                    </p>
                                   )}
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs font-medium text-success">
-                                      R$ {client.valor?.toLocaleString('pt-BR')}
-                                    </span>
-                                    {client.last_contact_at && (
-                                      <span className="text-xs text-muted-foreground">
-                                        {formatDistanceToNow(new Date(client.last_contact_at), { 
-                                          addSuffix: true, 
-                                          locale: ptBR 
-                                        })}
-                                      </span>
-                                    )}
-                                  </div>
                                 </div>
-                              </CardContent>
-                            </Card>
+                              </div>
+                            </div>
                           )}
                         </Draggable>
                       ))}
                     {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
+                  </CardContent>
+                </Card>
+              )}
+            </Droppable>
           ))}
         </div>
       </DragDropContext>
 
-      {/* Client Details Dialog */}
-      {selectedClient && (
-        <Dialog open={!!selectedClient} onOpenChange={() => setSelectedClient(null)}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                {selectedClient.nome}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              {/* Client Info */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Informações do Cliente</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <span className="text-sm font-medium">Telefone:</span>
-                      <p className="text-sm text-muted-foreground">{selectedClient.telefone}</p>
-                    </div>
-                    {selectedClient.email && (
-                      <div>
-                        <span className="text-sm font-medium">Email:</span>
-                        <p className="text-sm text-muted-foreground">{selectedClient.email}</p>
-                      </div>
-                    )}
-                    <div>
-                      <span className="text-sm font-medium">Tipo:</span>
-                      <p className="text-sm text-muted-foreground">{selectedClient.tipo}</p>
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium">Orçamento:</span>
-                      <p className="text-sm text-muted-foreground">
-                        R$ {selectedClient.valor?.toLocaleString('pt-BR')}
-                      </p>
-                    </div>
-                    {selectedClient.data_nascimento && (
-                      <div>
-                        <span className="text-sm font-medium">Aniversário:</span>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Cake className="h-3 w-3" />
-                          {new Date(selectedClient.data_nascimento).toLocaleDateString('pt-BR')}
-                        </p>
-                      </div>
-                    )}
-                    {selectedClient.last_contact_at && (
-                      <div>
-                        <span className="text-sm font-medium">Último Contato:</span>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatDistanceToNow(new Date(selectedClient.last_contact_at), { 
-                            addSuffix: true, 
-                            locale: ptBR 
-                          })}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <History className="h-4 w-4 mr-2" />
-                      Adicionar Interação
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Nova Interação</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Tipo de Interação</Label>
-                        <Select value={historyFormData.action} onValueChange={(value) => setHistoryFormData({...historyFormData, action: value})}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="ligacao">Ligação</SelectItem>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="reuniao">Reunião</SelectItem>
-                            <SelectItem value="visita">Visita</SelectItem>
-                            <SelectItem value="proposta">Proposta</SelectItem>
-                            <SelectItem value="contrato">Contrato</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <Label>Descrição</Label>
-                        <Textarea
-                          value={historyFormData.description}
-                          onChange={(e) => setHistoryFormData({...historyFormData, description: e.target.value})}
-                          placeholder="Descreva o que aconteceu..."
-                        />
-                      </div>
-                      <Button onClick={handleAddHistory} className="w-full">
-                        Adicionar Interação
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-
-                <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Nova Nota
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Nova Nota</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <div>
-                        <Label>Conteúdo da Nota</Label>
-                        <Textarea
-                          value={noteFormData.content}
-                          onChange={(e) => setNoteFormData({...noteFormData, content: e.target.value})}
-                          placeholder="Escreva sua nota..."
-                          rows={4}
-                        />
-                      </div>
-                      <Button onClick={handleAddNote} className="w-full">
-                        Salvar Nota
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+      {/* Tasks Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle className="h-5 w-5" />
+            Tarefas Pendentes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {tasks.filter(task => !task.done).slice(0, 5).map((task) => (
+              <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg border">
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{task.txt}</p>
+                  {task.quando && (
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {task.quando}
+                    </p>
+                  )}
+                </div>
+                <Button size="sm" variant="outline">
+                  <CheckCircle className="h-4 w-4" />
+                </Button>
               </div>
+            ))}
+            {tasks.filter(task => !task.done).length === 0 && (
+              <p className="text-sm text-muted-foreground">Nenhuma tarefa pendente</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
-              {/* Client History */}
-              {clientHistory[selectedClient.id] && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Histórico de Interações</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3 max-h-48 overflow-y-auto">
-                      {clientHistory[selectedClient.id].map((item) => {
-                        const Icon = getActionIcon(item.action);
-                        return (
-                          <div key={item.id} className="flex items-start gap-3 p-2 bg-muted/50 rounded">
-                            <Icon className="h-4 w-4 mt-1 text-muted-foreground" />
-                            <div className="flex-1">
-                              <p className="text-sm">{item.description}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(item.created_at), { 
-                                  addSuffix: true, 
-                                  locale: ptBR 
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Client Notes */}
-              {notes.filter(n => n.client_id === selectedClient.id).length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Notas</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 max-h-32 overflow-y-auto">
-                      {notes
-                        .filter(n => n.client_id === selectedClient.id)
-                        .map((note) => (
-                          <div key={note.id} className="p-2 bg-muted/50 rounded text-sm">
-                            <p>{note.content}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {formatDistanceToNow(new Date(note.created_at), { 
-                                addSuffix: true, 
-                                locale: ptBR 
-                              })}
-                            </p>
-                          </div>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+      {/* Dialog para busca global de clientes */}
+      <Dialog open={globalSearchOpen} onOpenChange={setGlobalSearchOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Buscar Clientes</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Digite nome, telefone ou email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
             </div>
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* Tasks Summary */}
-      {tasks.filter(t => !t.done).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tarefas Pendentes ({tasks.filter(t => !t.done).length})</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-h-32 overflow-y-auto">
-              {tasks
-                .filter(t => !t.done)
-                .slice(0, 5)
-                .map((task) => (
-                  <div key={task.id} className="flex items-center gap-2 p-2 bg-muted/50 rounded text-sm">
-                    <div className="flex-1">
-                      <p>{task.txt}</p>
-                      {task.quando && (
-                        <p className="text-xs text-muted-foreground">📅 {task.quando}</p>
-                      )}
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={async () => {
-                        await supabase
-                          .from('conectaios_tasks')
-                          .update({ done: true })
-                          .eq('id', task.id);
-                        fetchData();
+            <ScrollArea className="h-64">
+              <div className="space-y-2">
+                {clients
+                  .filter(client => 
+                    client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    client.telefone.includes(searchTerm) ||
+                    client.tipo.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((client) => (
+                    <div
+                      key={client.id}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted cursor-pointer"
+                      onClick={() => {
+                        setSelectedClient(client);
+                        setGlobalSearchOpen(false);
                       }}
                     >
-                      Concluir
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={client.photo || undefined} />
+                        <AvatarFallback>
+                          <User className="h-5 w-5" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h4 className="font-medium text-sm">{client.nome}</h4>
+                        <p className="text-xs text-muted-foreground">{client.telefone}</p>
+                        <Badge variant="outline" className="text-xs mt-1">{client.tipo}</Badge>
+                      </div>
+                      <Badge className={`text-xs ${
+                        client.stage === 'finalizado' ? 'bg-success text-success-foreground' :
+                        client.stage === 'negociacao' ? 'bg-warning text-warning-foreground' :
+                        'bg-muted text-muted-foreground'
+                      }`}>
+                        {STAGES.find(s => s.id === client.stage)?.name || client.stage}
+                      </Badge>
+                    </div>
+                  ))}
+              </div>
+            </ScrollArea>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de detalhes do cliente melhorado */}
+      <Dialog open={!!selectedClient} onOpenChange={(open) => !open && setSelectedClient(null)}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          {selectedClient && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Detalhes do Cliente - {selectedClient.nome}</DialogTitle>
+              </DialogHeader>
+              <Tabs defaultValue="info" className="h-96">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="info">Informações</TabsTrigger>
+                  <TabsTrigger value="history">Histórico</TabsTrigger>
+                  <TabsTrigger value="notes">Notas</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="info" className="space-y-4">
+                  <ScrollArea className="h-64">
+                    <div className="flex items-start gap-4">
+                      <Avatar className="h-16 w-16">
+                        <AvatarImage src={selectedClient.photo || undefined} />
+                        <AvatarFallback>
+                          <User className="h-8 w-8" />
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold">{selectedClient.nome}</h3>
+                        <p className="text-muted-foreground">{selectedClient.telefone}</p>
+                        {selectedClient.email && (
+                          <p className="text-muted-foreground flex items-center gap-1 mt-1">
+                            <Mail className="h-4 w-4" />
+                            {selectedClient.email}
+                          </p>
+                        )}
+                        <Badge variant="outline" className="mt-2">
+                          {selectedClient.tipo}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    <Separator className="my-4" />
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Stage Atual</label>
+                        <p className="text-sm text-muted-foreground">
+                          {STAGES.find(s => s.id === selectedClient.stage)?.name || selectedClient.stage}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Score</label>
+                        <p className="text-sm text-muted-foreground">{selectedClient.score}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Valor Orçamento</label>
+                        <p className="text-sm text-muted-foreground">
+                          R$ {selectedClient.valor?.toLocaleString('pt-BR') || '0'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Último Contato</label>
+                        <p className="text-sm text-muted-foreground">
+                          {selectedClient.last_contact_at 
+                            ? formatDistanceToNow(new Date(selectedClient.last_contact_at), { 
+                                addSuffix: true, 
+                                locale: ptBR 
+                              })
+                            : 'Nunca'
+                          }
+                        </p>
+                      </div>
+                      {selectedClient.data_nascimento && (
+                        <div>
+                          <label className="text-sm font-medium flex items-center gap-1">
+                            <Cake className="h-4 w-4" />
+                            Aniversário
+                          </label>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(selectedClient.data_nascimento).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value="history" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <HistoryIcon className="h-4 w-4" />
+                      Histórico de Interações
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsHistoryDialogOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar
                     </Button>
                   </div>
-                ))}
+                  <ScrollArea className="h-48">
+                    <div className="space-y-2">
+                      {clientHistory[selectedClient.id]?.length > 0 ? (
+                        clientHistory[selectedClient.id].map((item) => {
+                          const IconComponent = getActionIcon(item.action);
+                          return (
+                            <div key={item.id} className="p-3 bg-muted rounded-lg">
+                              <div className="flex items-center gap-2 mb-1">
+                                <IconComponent className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-medium capitalize">{item.action}</span>
+                                <span className="text-xs text-muted-foreground ml-auto">
+                                  {new Date(item.created_at).toLocaleDateString('pt-BR')}
+                                </span>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{item.description}</p>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Nenhuma interação registrada</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+
+                <TabsContent value="notes" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Notas do Cliente
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setIsNoteDialogOpen(true)}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Adicionar
+                    </Button>
+                  </div>
+                  <ScrollArea className="h-48">
+                    <div className="space-y-2">
+                      {notes.filter(note => note.client_id === selectedClient.id).length > 0 ? (
+                        notes.filter(note => note.client_id === selectedClient.id).map((note) => (
+                          <div key={note.id} className="p-3 bg-muted rounded-lg">
+                            <p className="text-sm">{note.content}</p>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(note.created_at).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">Nenhuma nota registrada</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para adicionar cliente */}
+      <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Cliente</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="nome">Nome Completo</Label>
+              <Input
+                id="nome"
+                value={clientFormData.nome}
+                onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
+                placeholder="Nome do cliente"
+              />
             </div>
-          </CardContent>
-        </Card>
-      )}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="telefone">Telefone</Label>
+                <Input
+                  id="telefone"
+                  value={clientFormData.telefone}
+                  onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
+                  placeholder="(73) 9 9999-9999"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={clientFormData.email}
+                  onChange={(e) => setClientFormData({...clientFormData, email: e.target.value})}
+                  placeholder="email@exemplo.com"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="data_nascimento">Data de Nascimento</Label>
+                <Input
+                  id="data_nascimento"
+                  type="date"
+                  value={clientFormData.data_nascimento}
+                  onChange={(e) => setClientFormData({...clientFormData, data_nascimento: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="tipo">Tipo</Label>
+                <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="comprador">Comprador</SelectItem>
+                    <SelectItem value="vendedor">Vendedor</SelectItem>
+                    <SelectItem value="locatario">Locatário</SelectItem>
+                    <SelectItem value="locador">Locador</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="valor">Valor Orçamento</Label>
+              <Input
+                id="valor"
+                type="number"
+                value={clientFormData.valor}
+                onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
+                placeholder="350000"
+              />
+            </div>
+            <Button onClick={handleAddClient} className="w-full">
+              Adicionar Cliente
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para adicionar tarefa */}
+      <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Nova Tarefa</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="txt">Descrição da Tarefa</Label>
+              <Textarea
+                id="txt"
+                value={taskFormData.txt}
+                onChange={(e) => setTaskFormData({...taskFormData, txt: e.target.value})}
+                placeholder="O que precisa ser feito?"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="quando">Quando</Label>
+                <Input
+                  id="quando"
+                  value={taskFormData.quando}
+                  onChange={(e) => setTaskFormData({...taskFormData, quando: e.target.value})}
+                  placeholder="Hoje, amanhã, 15/01..."
+                />
+              </div>
+              <div>
+                <Label htmlFor="onde">Onde</Label>
+                <Input
+                  id="onde"
+                  value={taskFormData.onde}
+                  onChange={(e) => setTaskFormData({...taskFormData, onde: e.target.value})}
+                  placeholder="Local da tarefa"
+                />
+              </div>
+            </div>
+            <div>
+              <Label htmlFor="porque">Por que</Label>
+              <Textarea
+                id="porque"
+                value={taskFormData.porque}
+                onChange={(e) => setTaskFormData({...taskFormData, porque: e.target.value})}
+                placeholder="Motivo ou objetivo da tarefa"
+              />
+            </div>
+            <Button onClick={handleAddTask} className="w-full">
+              Criar Tarefa
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para adicionar histórico */}
+      <Dialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Histórico</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="action">Tipo de Interação</Label>
+              <Select 
+                value={historyFormData.action} 
+                onValueChange={(value) => setHistoryFormData({...historyFormData, action: value})}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ligacao">Ligação</SelectItem>
+                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="reuniao">Reunião</SelectItem>
+                  <SelectItem value="visita">Visita</SelectItem>
+                  <SelectItem value="proposta">Proposta</SelectItem>
+                  <SelectItem value="contrato">Contrato</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="description">Descrição</Label>
+              <Textarea
+                id="description"
+                value={historyFormData.description}
+                onChange={(e) => setHistoryFormData({...historyFormData, description: e.target.value})}
+                placeholder="Descreva a interação..."
+              />
+            </div>
+            <Button onClick={handleAddHistory} className="w-full">
+              Adicionar Histórico
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog para adicionar nota */}
+      <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Nota</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="content">Conteúdo da Nota</Label>
+              <Textarea
+                id="content"
+                value={noteFormData.content}
+                onChange={(e) => setNoteFormData({...noteFormData, content: e.target.value})}
+                placeholder="Digite a nota sobre o cliente..."
+                rows={4}
+              />
+            </div>
+            <Button onClick={handleAddNote} className="w-full">
+              Adicionar Nota
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
