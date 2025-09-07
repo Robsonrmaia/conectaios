@@ -65,20 +65,20 @@ const Index = () => {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-background">
-      {/* Header Branco */}
-      <header className="relative z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-6">
+      {/* Header */}
+      <header className="relative z-30 bg-white border-b border-border shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
+            <div className="flex items-center space-x-3">
+              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-10 w-auto" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Portal de Imóveis Ilhéus</h1>
-                <p className="text-sm text-primary">• Realizando sonhos com elegância</p>
+                <h1 className="text-xl font-bold text-foreground">Portal de Imóveis Ilhéus</h1>
+                <p className="text-sm text-primary font-medium">• Realizando sonhos com elegância</p>
               </div>
             </div>
             <Button 
               onClick={() => navigate('/auth')}
-              className="bg-primary hover:bg-primary/90 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium"
             >
               Entrar
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -87,31 +87,31 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section - Layout Desktop/Mobile */}
-      <main className="bg-background min-h-screen">
+      {/* Hero Section - Desktop/Mobile Layout */}
+      <main className="bg-background">
         {/* Desktop Layout - Two Columns */}
         <div className="hidden md:block">
-          <div className="container mx-auto px-4 py-16">
-            <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[70vh]">
+          <div className="container mx-auto px-4 py-20">
+            <div className="grid lg:grid-cols-2 gap-16 items-center min-h-[75vh]">
               {/* Coluna Esquerda - Conteúdo */}
-              <div className="space-y-8">
-                <div className="space-y-6">
-                  <h2 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight">
+              <div className="space-y-10">
+                <div className="space-y-8">
+                  <h2 className="text-4xl lg:text-6xl font-bold text-foreground leading-tight">
                     Sofisticação, credibilidade e um atendimento que 
                     <span className="text-primary"> cuida de cada detalhe</span>
                   </h2>
                   
-                  <p className="text-lg text-muted-foreground leading-relaxed">
+                  <p className="text-xl text-muted-foreground leading-relaxed max-w-lg">
                     Esta é a porta de entrada para o <span className="font-semibold text-primary">portal Gisele Carneiro Corretora de imóveis</span>. 
                     Curadoria séria para comprar, alugar ou temporada em Ilhéus e região.
                   </p>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-6">
                   <Button 
                     onClick={() => navigate('/auth')}
                     size="lg"
-                    className="bg-primary hover:bg-primary/90 text-white px-8 py-3 text-base font-semibold"
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 py-4 text-lg font-semibold rounded-lg"
                   >
                     Procurar imóveis
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -119,7 +119,7 @@ const Index = () => {
                   <Button 
                     variant="outline"
                     size="lg"
-                    className="px-8 py-3 text-base font-semibold border-2"
+                    className="px-10 py-4 text-lg font-semibold border-2 rounded-lg"
                     onClick={() => window.open('https://wa.me/5573999999999?text=Olá! Gostaria de falar com a corretora', '_blank')}
                   >
                     Fale com a corretora
@@ -127,28 +127,28 @@ const Index = () => {
                 </div>
 
                 {/* Cards de Informações da Corretora */}
-                <div className="grid md:grid-cols-3 gap-4 pt-8">
-                  <div className="text-center p-4 bg-card rounded-lg border">
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Registro</h4>
-                    <p className="font-bold text-foreground">CRECI 34759-F</p>
+                <div className="grid md:grid-cols-3 gap-6 pt-4">
+                  <div className="text-center p-6 bg-card rounded-xl border shadow-sm">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Registro</h4>
+                    <p className="font-bold text-foreground text-lg">CRECI 34759-F</p>
                   </div>
-                  <div className="text-center p-4 bg-card rounded-lg border">
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Expertise</h4>
-                    <p className="font-bold text-foreground">Compra • Aluguel • Temporada</p>
+                  <div className="text-center p-6 bg-card rounded-xl border shadow-sm">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Expertise</h4>
+                    <p className="font-bold text-foreground text-lg">Compra • Aluguel • Temporada</p>
                   </div>
-                  <div className="text-center p-4 bg-card rounded-lg border">
-                    <h4 className="font-semibold text-sm text-muted-foreground mb-1">Atuação</h4>
-                    <p className="font-bold text-foreground">Ilhéus e região</p>
+                  <div className="text-center p-6 bg-card rounded-xl border shadow-sm">
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Atuação</h4>
+                    <p className="font-bold text-foreground text-lg">Ilhéus e região</p>
                   </div>
                 </div>
               </div>
 
               {/* Coluna Direita - Vídeo */}
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-muted">
                 <iframe
                   src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
                   title="ConectaIOS Hero Video Desktop"
-                  className="w-full h-96 lg:h-[500px]"
+                  className="w-full h-96 lg:h-[550px]"
                   style={{
                     width: '100%',
                     border: 'none'
@@ -163,20 +163,20 @@ const Index = () => {
 
         {/* Mobile Layout */}
         <div className="md:hidden">
-          <div className="container mx-auto px-4 py-8">
-            <div className="space-y-8">
+          <div className="container mx-auto px-4 py-12">
+            <div className="space-y-10">
               {/* Conteúdo Mobile */}
-              <div className="text-center space-y-6">
+              <div className="text-center space-y-8">
                 <h2 className="text-3xl font-bold text-foreground leading-tight">
                   Sua rotina <span className="text-primary">imobiliária</span> simplificada
                 </h2>
                 
                 {/* Vídeo Horizontal após "sua rotina" */}
-                <div className="relative rounded-xl overflow-hidden shadow-lg">
+                <div className="relative rounded-2xl overflow-hidden shadow-xl bg-muted">
                   <iframe
                     src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
                     title="ConectaIOS Hero Video Mobile"
-                    className="w-full h-48"
+                    className="w-full h-56"
                     style={{
                       width: '100%',
                       border: 'none'
@@ -186,7 +186,7 @@ const Index = () => {
                   ></iframe>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h3 className="text-2xl font-bold text-foreground">
                     <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>
                   </h3>
@@ -199,14 +199,14 @@ const Index = () => {
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <Button 
                     onClick={() => navigate('/auth')}
                     size="lg"
-                    className="w-full bg-primary hover:bg-primary/90 text-white font-semibold"
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 text-lg rounded-lg"
                   >
                     Começar Agora
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                    <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                   <SaibaMaisDialog />
                 </div>
