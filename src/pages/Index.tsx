@@ -92,11 +92,10 @@ const Index = () => {
               {/* Coluna Esquerda - Conteúdo */}
               <div className="space-y-8 pt-8">
                 <div className="space-y-6">
-                  <h1 className="text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
+                  <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight">
                     Sua rotina <span className="text-primary">imobiliária</span><br />
-                    simplificada,<br />
-                    <span className="text-primary">Organizada</span> e<br />
-                    <span className="text-primary">Inteligente</span>.
+                    <span className="text-primary">simplificada</span> e<br />
+                    <span className="text-primary">Organizada</span> com <span className="text-primary">Inteligência</span>
                   </h1>
                   
                   <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
