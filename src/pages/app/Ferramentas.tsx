@@ -33,7 +33,6 @@ import {
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
 import { HelpCenter } from '@/components/HelpCenter';
-import { AsaasTestButton } from '@/components/AsaasTestButton';
 
 interface Tool {
   id: string;
@@ -221,7 +220,6 @@ export default function Ferramentas() {
         <TabsList>
           <TabsTrigger value="tools">Ferramentas</TabsTrigger>
           <TabsTrigger value="help">Central de Ajuda</TabsTrigger>
-          <TabsTrigger value="test">Teste Asaas</TabsTrigger>
         </TabsList>
 
         <TabsContent value="tools" className="space-y-4">
@@ -300,12 +298,6 @@ export default function Ferramentas() {
         
         <TabsContent value="help" className="space-y-4">
           <HelpCenter />
-        </TabsContent>
-        
-        <TabsContent value="test" className="space-y-4">
-          <div className="max-w-md">
-            <AsaasTestButton />
-          </div>
         </TabsContent>
       </Tabs>
     </div>
