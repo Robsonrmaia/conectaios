@@ -105,7 +105,7 @@ export function AsaasPaymentButtonFixed({
             externalReference: `broker_${broker.id}_plan_${planId}`,
             creditCard: {
               holderName: broker.name,
-              number: '5162306219378829', // Cartão de teste
+              number: '4000000000000010', // Cartão de teste válido para Asaas
               expiryMonth: '05',
               expiryYear: '2028',
               ccv: '318'

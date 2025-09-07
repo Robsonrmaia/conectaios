@@ -93,7 +93,7 @@ export function AsaasTestButton() {
         externalReference: `test_${broker.id}_${Date.now()}`,
         creditCard: {
           holderName: broker.name,
-          number: '5162306219378829',
+          number: '4000000000000010', // Cartão de teste válido para Asaas
           expiryMonth: '05',
           expiryYear: '2028',
           ccv: '318'
