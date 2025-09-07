@@ -97,34 +97,12 @@ export function AsaasPaymentButtonFixed({
           action: 'create_subscription',
           data: {
             customer: customerId,
-            billingType: 'CREDIT_CARD',
+            billingType: 'UNDEFINED', // Deixar cliente escolher
             value: planValue,
             nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 dias
             cycle: 'MONTHLY',
             description: `Assinatura ${planName} - ConectaIOS`,
-            externalReference: `broker_${broker.id}_plan_${planId}`,
-            creditCard: {
-              holderName: broker.name,
-              number: '4000000000000010', // Cartão de teste válido para Asaas
-              expiryMonth: '05',
-              expiryYear: '2028',
-              ccv: '318'
-            },
-            creditCardHolderInfo: {
-              name: broker.name,
-              email: broker.email,
-              cpfCnpj: broker.creci && broker.creci.trim() !== '' && broker.creci !== '434343' 
-                ? broker.creci 
-                : '11144477735',
-              phone: broker.phone,
-              postalCode: '01310-100', // CEP obrigatório
-              address: 'Av. Paulista',
-              addressNumber: '123',
-              addressComplement: 'Sala 1',
-              province: 'Centro',
-              city: 'São Paulo',
-              state: 'SP'
-            }
+            externalReference: `broker_${broker.id}_plan_${planId}`
           }
         }
       });
@@ -160,9 +138,13 @@ export function AsaasPaymentButtonFixed({
         description: `Assinatura do plano ${planName} ativada com sucesso!`,
       });
 
-      // Redirect to invoice if available
-      if (subscriptionData.invoiceUrl) {
-        window.open(subscriptionData.invoiceUrl, '_blank');
+      // Abrir tela de checkout do Asaas para o cliente preencher dados
+      if (subscriptionData.checkoutUrl) {
+        console.log('Abrindo checkout do Asaas:', subscriptionData.checkoutUrl);
+        window.open(subscriptionData.checkoutUrl, '_blank');
+      } else if (subscriptionData.subscription?.invoiceUrl) {
+        console.log('Abrindo invoice do Asaas:', subscriptionData.subscription.invoiceUrl);
+        window.open(subscriptionData.subscription.invoiceUrl, '_blank');
       }
 
     } catch (error) {

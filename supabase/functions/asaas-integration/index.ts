@@ -144,28 +144,20 @@ serve(async (req) => {
         break;
 
       case 'create_subscription':
-        // Criar assinatura
+        // Criar assinatura sem dados de cartão (para usar checkout)
         console.log('Creating subscription in Asaas...');
         console.log('Customer ID being used:', data.customer || data.customerId);
         
         const subscriptionData = {
           customer: data.customer || data.customerId,
-          billingType: data.billingType,
+          billingType: data.billingType || 'UNDEFINED', // Deixar cliente escolher
           value: data.value,
           nextDueDate: data.nextDueDate,
           cycle: data.cycle, // 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMIANNUALLY', 'YEARLY'
           description: data.description,
           externalReference: data.externalReference
+          // Removido: creditCard e creditCardHolderInfo para usar checkout
         };
-
-        // Adicionar dados do cartão de crédito se fornecidos
-        if (data.creditCard) {
-          subscriptionData.creditCard = data.creditCard;
-        }
-        
-        if (data.creditCardHolderInfo) {
-          subscriptionData.creditCardHolderInfo = data.creditCardHolderInfo;
-        }
 
         console.log('Subscription data being sent:', JSON.stringify(subscriptionData, null, 2));
 
@@ -182,6 +174,15 @@ serve(async (req) => {
           console.error('Response headers:', Object.fromEntries(response.headers.entries()));
           throw new Error(`Erro na API Asaas: ${response.status} - ${errorText}`);
         }
+        
+        const subscriptionResult = await response.json();
+        console.log('Subscription created successfully:', subscriptionResult);
+        
+        // Retornar dados da assinatura incluindo URL de checkout se disponível
+        result = {
+          subscription: subscriptionResult,
+          checkoutUrl: subscriptionResult.invoiceUrl || null
+        };
         break;
 
       case 'webhook_payment':

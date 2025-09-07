@@ -79,38 +79,18 @@ export function AsaasTestButton() {
       console.log('✅ Cliente verificado com sucesso');
       toast.success('Cliente verificado com sucesso');
 
-      // Step 3: Create subscription
+      // Step 3: Create subscription (sem dados de cartão para usar checkout)
       console.log('🔄 Step 3: Criando assinatura...');
       setStep(3);
 
       const subscriptionPayload = {
         customer: createdCustomerId,
-        billingType: 'CREDIT_CARD',
+        billingType: 'UNDEFINED', // Deixar cliente escolher na tela do Asaas
         value: 97,
         nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         cycle: 'MONTHLY',
         description: 'Teste Assinatura ConectaIOS',
-        externalReference: `test_${broker.id}_${Date.now()}`,
-        creditCard: {
-          holderName: broker.name,
-          number: '4000000000000010', // Cartão de teste válido para Asaas
-          expiryMonth: '05',
-          expiryYear: '2028',
-          ccv: '318'
-        },
-        creditCardHolderInfo: {
-          name: broker.name,
-          email: broker.email,
-          cpfCnpj: '11144477735',
-          phone: broker.phone?.replace(/\D/g, '') || '',
-          postalCode: '01310-100', // CEP obrigatório
-          address: 'Av. Paulista',
-          addressNumber: '123',
-          addressComplement: 'Teste',
-          province: 'Centro',
-          city: 'São Paulo',
-          state: 'SP'
-        }
+        externalReference: `test_${broker.id}_${Date.now()}`
       };
 
       console.log('📤 Payload da assinatura:', JSON.stringify(subscriptionPayload, null, 2));
@@ -130,6 +110,16 @@ export function AsaasTestButton() {
 
       console.log('✅ Assinatura criada com sucesso:', subscriptionData);
       toast.success('Assinatura criada com sucesso!');
+      
+      // Abrir URL de checkout se disponível
+      if (subscriptionData.checkoutUrl) {
+        console.log('🔗 Abrindo URL de checkout:', subscriptionData.checkoutUrl);
+        window.open(subscriptionData.checkoutUrl, '_blank');
+      } else if (subscriptionData.subscription?.invoiceUrl) {
+        console.log('🔗 Abrindo invoice URL:', subscriptionData.subscription.invoiceUrl);
+        window.open(subscriptionData.subscription.invoiceUrl, '_blank');
+      }
+      
       setStep(4);
 
     } catch (error: any) {
