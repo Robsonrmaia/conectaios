@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
-import { AsaasPaymentButtonFixed } from '@/components/AsaasPaymentButtonFixed';
+import { AsaasTestButton } from '@/components/AsaasTestButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
@@ -419,12 +419,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                  <AsaasPaymentButtonFixed 
-                    planName="Básico"
-                    planValue={97}
-                    planId="plan-basic"
-                    className="mt-4 bg-primary"
-                  />
+                  <AsaasTestButton />
                 </CardContent>
               </Card>
 
@@ -452,13 +447,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                  <AsaasPaymentButtonFixed 
-                    planName="Profissional"
-                    planValue={147}
-                    planId="plan-professional"
-                    variant="outline"
-                    className="mt-4"
-                  />
+                  <AsaasTestButton />
                 </CardContent>
               </Card>
 
@@ -486,13 +475,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                  <AsaasPaymentButtonFixed 
-                    planName="Premium"
-                    planValue={197}
-                    planId="plan-premium"
-                    variant="outline"
-                    className="mt-4"
-                  />
+                  <AsaasTestButton />
                 </CardContent>
               </Card>
             </div>

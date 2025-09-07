@@ -43,6 +43,8 @@ serve(async (req) => {
       case 'create_customer':
         // Criar cliente no Asaas
         console.log('Creating customer in Asaas...');
+        console.log('Customer data:', JSON.stringify(data, null, 2));
+        
         response = await fetch('https://www.asaas.com/api/v3/customers', {
           method: 'POST',
           headers: asaasHeaders,
@@ -59,12 +61,32 @@ serve(async (req) => {
             province: data.province,
             city: data.city,
             state: data.state,
-            externalReference: data.externalReference
+            externalReference: data.externalReference,
+            notificationDisabled: data.notificationDisabled || false
           })
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Asaas customer API error:', errorText);
+          throw new Error(`Erro na API Asaas: ${response.status} - ${errorText}`);
+        }
         break;
 
-      case 'create_payment':
+      case 'verify_customer':
+        // Verificar se cliente existe
+        console.log('Verifying customer in Asaas...');
+        response = await fetch(`https://www.asaas.com/api/v3/customers/${data.customerId}`, {
+          method: 'GET',
+          headers: asaasHeaders
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Customer verification error:', errorText);
+          throw new Error(`Erro ao verificar cliente: ${response.status} - ${errorText}`);
+        }
+        break;
         // Criar cobrança no Asaas
         console.log('Creating payment in Asaas...');
         response = await fetch('https://www.asaas.com/api/v3/payments', {
@@ -124,23 +146,42 @@ serve(async (req) => {
       case 'create_subscription':
         // Criar assinatura
         console.log('Creating subscription in Asaas...');
+        console.log('Customer ID being used:', data.customer || data.customerId);
+        
+        const subscriptionData = {
+          customer: data.customer || data.customerId,
+          billingType: data.billingType,
+          value: data.value,
+          nextDueDate: data.nextDueDate,
+          cycle: data.cycle, // 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMIANNUALLY', 'YEARLY'
+          description: data.description,
+          externalReference: data.externalReference
+        };
+
+        // Adicionar dados do cartão de crédito se fornecidos
+        if (data.creditCard) {
+          subscriptionData.creditCard = data.creditCard;
+        }
+        
+        if (data.creditCardHolderInfo) {
+          subscriptionData.creditCardHolderInfo = data.creditCardHolderInfo;
+        }
+
+        console.log('Subscription data being sent:', JSON.stringify(subscriptionData, null, 2));
+
         response = await fetch('https://www.asaas.com/api/v3/subscriptions', {
           method: 'POST',
           headers: asaasHeaders,
-          body: JSON.stringify({
-            customer: data.customer || data.customerId,
-            billingType: data.billingType,
-            value: data.value,
-            nextDueDate: data.nextDueDate,
-            cycle: data.cycle, // 'WEEKLY', 'BIWEEKLY', 'MONTHLY', 'QUARTERLY', 'SEMIANNUALLY', 'YEARLY'
-            description: data.description,
-            endDate: data.endDate,
-            maxPayments: data.maxPayments,
-            externalReference: data.externalReference,
-            creditCard: data.creditCard,
-            creditCardHolderInfo: data.creditCardHolderInfo
-          })
+          body: JSON.stringify(subscriptionData)
         });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Asaas subscription API error:', errorText);
+          console.error('Response status:', response.status);
+          console.error('Response headers:', Object.fromEntries(response.headers.entries()));
+          throw new Error(`Erro na API Asaas: ${response.status} - ${errorText}`);
+        }
         break;
 
       case 'webhook_payment':

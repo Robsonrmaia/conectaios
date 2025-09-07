@@ -70,7 +70,29 @@ export function AsaasPaymentButtonFixed({
         throw new Error('ID do cliente não retornado pelo Asaas');
       }
 
-      // Step 2: Create subscription
+      // Step 2: Wait a moment to ensure customer is created
+      console.log('Aguardando processamento do cliente...');
+      await new Promise(resolve => setTimeout(resolve, 2000)); // 2 segundos
+
+      // Step 2.5: Verify customer exists
+      console.log('Verificando se cliente foi criado...');
+      const { data: verifyData, error: verifyError } = await supabase.functions.invoke('asaas-integration', {
+        body: {
+          action: 'verify_customer',
+          data: {
+            customerId: customerId
+          }
+        }
+      });
+
+      if (verifyError) {
+        console.error('Erro ao verificar cliente:', verifyError);
+        throw new Error('Cliente não foi criado corretamente no Asaas');
+      }
+
+      console.log('Cliente verificado:', verifyData);
+
+      // Step 3: Create subscription
       console.log('Criando assinatura no Asaas...');
       const { data: subscriptionData, error: subscriptionError } = await supabase.functions.invoke('asaas-integration', {
         body: {
@@ -112,7 +134,7 @@ export function AsaasPaymentButtonFixed({
 
       console.log('Assinatura criada:', subscriptionData);
 
-      // Step 3: Update broker with subscription info
+      // Step 4: Update broker with subscription info
       console.log('Atualizando broker com dados da assinatura...');
       const { error: updateError } = await supabase
         .from('conectaios_brokers')
