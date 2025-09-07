@@ -103,16 +103,17 @@ const Index = () => {
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
 
-        {/* Background Video - Wistia - Mobile (vídeo vertical) */}
+        {/* Background Video - Wistia - Mobile (vídeo vertical - inteiro) */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=false&autoPlay=true&muted=true&loop=true"
             title="ConectaIOS Hero Video Mobile Vertical"
-            className="w-full h-full"
+            className="w-full h-full object-cover"
             style={{
               width: '100%',
               height: '100%',
-              border: 'none'
+              border: 'none',
+              objectFit: 'cover'
             }}
             allow="autoplay; fullscreen"
             allowFullScreen
@@ -124,7 +125,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
             {/* Mobile: Título menor sobre o vídeo */}
-            <h1 className="text-xl sm:text-2xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
             </h1>
 
@@ -136,14 +137,14 @@ const Index = () => {
               simples, rápida e segura.
             </p>
 
-            <div className="flex gap-4 flex-col sm:flex-row justify-center">
+            <div className="flex gap-3 justify-center items-center">
               <Button 
                 onClick={() => navigate('/auth')}
                 size="sm"
-                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold backdrop-blur-sm"
+                className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold backdrop-blur-sm"
               >
                 Começar Agora
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <ArrowRight className="ml-2 h-3 w-3" />
               </Button>
               <SaibaMaisDialog />
             </div>
