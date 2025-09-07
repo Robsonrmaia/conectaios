@@ -65,8 +65,8 @@ const Index = () => {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-background">
-      {/* Header Transparente */}
-      <header className="absolute top-0 left-0 right-0 z-30 bg-white/10 backdrop-blur-md border-b border-white/10 lg:bg-white/20">
+      {/* Header Branco */}
+      <header className="relative z-30 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -74,7 +74,7 @@ const Index = () => {
             </div>
             <Button 
               onClick={() => navigate('/auth')}
-              className="bg-primary hover:bg-primary/90 text-white border border-white/20"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               Entrar
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -83,13 +83,31 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - Após o Header */}
       <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
-        {/* Background Video - Wistia */}
-        <div className="absolute inset-0 w-full h-full">
+        {/* Background Video - Wistia - Desktop */}
+        <div className="absolute inset-0 w-full h-full hidden md:block">
           <iframe
             src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-            title="ConectaIOS Hero Video"
+            title="ConectaIOS Hero Video Desktop"
+            className="w-full h-full"
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none'
+            }}
+            allow="autoplay; fullscreen"
+            allowFullScreen
+          ></iframe>
+          {/* Dark overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/60 z-10"></div>
+        </div>
+
+        {/* Background Video - Wistia - Mobile (será substituído pelo vídeo específico da pasta) */}
+        <div className="absolute inset-0 w-full h-full md:hidden">
+          <iframe
+            src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            title="ConectaIOS Hero Video Mobile"
             className="w-full h-full"
             style={{
               width: '100%',
@@ -107,7 +125,7 @@ const Index = () => {
           <div className="text-center max-w-4xl mx-auto">
             {/* Mobile: Título menor sobre o vídeo */}
             <h1 className="text-xl sm:text-2xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
-              Sua rotina imobiliária simplificada, Organizada e Inteligente.
+              Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
             </h1>
 
             {/* Desktop: Todo o texto sobre o vídeo */}
