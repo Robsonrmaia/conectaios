@@ -84,7 +84,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Após o Header */}
-      <main className="relative h-[85vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[92vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video - Wistia - Desktop */}
         <div className="absolute inset-0 w-full h-full hidden md:block">
           <iframe
@@ -125,7 +125,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8 sm:py-16 relative z-20">
           <div className="text-center max-w-4xl mx-auto">
             {/* Mobile: Título maior sobre o vídeo */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
+            <h1 className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 parallax-element text-white drop-shadow-2xl animate-fade-in leading-tight" data-speed="0.8">
               Sua rotina <span className="text-primary">imobiliária</span> simplificada, <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>.
             </h1>
 
@@ -156,12 +156,12 @@ const Index = () => {
       <section className="md:hidden bg-background py-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-2xl p-6 border border-primary/20 shadow-lg backdrop-blur-sm">
-              <p className="text-lg text-foreground mb-0 leading-relaxed font-medium">
+            <div className="bg-gradient-to-br from-primary/20 to-brand-secondary/20 rounded-2xl p-8 border-2 border-primary/30 shadow-2xl backdrop-blur-md">
+              <p className="text-xl text-foreground mb-0 leading-relaxed font-semibold">
                 Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
                 Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
                 encontra clientes certos com inteligência artificial e fecha negócios de forma 
-                <span className="text-primary font-semibold"> simples, rápida e segura</span>.
+                <span className="text-primary font-bold"> simples, rápida e segura</span>.
               </p>
             </div>
           </div>
