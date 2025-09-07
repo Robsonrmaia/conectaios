@@ -49,24 +49,24 @@ serve(async (req) => {
     // Define staging prompts for image-to-image transformation  
     const stagingPrompts = {
       sala: {
-        moderno: 'staged modern living room with contemporary furniture, clean minimalist design, neutral colors, stylish sofa, glass coffee table, modern decor, well-lit space',
-        classico: 'staged classic living room with traditional furniture, warm wooden pieces, comfortable seating, elegant decor, cozy atmosphere',
-        luxo: 'staged luxury living room with premium furniture, marble accents, high-end materials, sophisticated design, elegant lighting'
+        moderno: 'Transform this room into a modern living room while keeping the original architecture and room structure intact. Add contemporary furniture: sleek sofa, glass coffee table, modern lighting, but preserve all walls, windows, doors and room layout exactly as shown',
+        classico: 'Transform this room into a classic living room while keeping the original architecture and room structure intact. Add traditional furniture: elegant sofa, wooden coffee table, classic decor, but preserve all walls, windows, doors and room layout exactly as shown',
+        rustico: 'Transform this room into a rustic living room while keeping the original architecture and room structure intact. Add rustic furniture: wooden sofa, rustic coffee table, natural textures, but preserve all walls, windows, doors and room layout exactly as shown'
       },
       quarto: {
-        moderno: 'staged modern bedroom with minimalist platform bed, contemporary nightstands, clean aesthetics, neutral bedding, modern lighting',
-        classico: 'staged classic bedroom with traditional wooden bed frame, vintage furniture, warm textiles, cozy atmosphere, timeless decor',
-        luxo: 'staged luxury bedroom with premium bedding, elegant furniture, sophisticated materials, high-end decor, luxurious atmosphere'
+        moderno: 'Transform this room into a modern bedroom while keeping the original architecture and room structure intact. Add contemporary furniture: modern bed, sleek nightstands, minimal decor, but preserve all walls, windows, doors and room layout exactly as shown',
+        classico: 'Transform this room into a classic bedroom while keeping the original architecture and room structure intact. Add traditional furniture: elegant bed, wooden nightstands, classic decor, but preserve all walls, windows, doors and room layout exactly as shown',
+        rustico: 'Transform this room into a rustic bedroom while keeping the original architecture and room structure intact. Add rustic furniture: wooden bed, rustic nightstands, natural textures, but preserve all walls, windows, doors and room layout exactly as shown'
       },
       cozinha: {
-        moderno: 'staged modern kitchen with sleek cabinets, contemporary appliances, clean countertops, minimal decor, modern design',
-        classico: 'staged classic kitchen with traditional wooden cabinets, warm atmosphere, timeless design, classic appliances, cozy feel',
-        luxo: 'staged luxury kitchen with premium cabinets, high-end appliances, marble countertops, designer fixtures, expensive materials'
+        moderno: 'Transform this room into a modern kitchen while keeping the original architecture and room structure intact. Add contemporary elements: sleek cabinets, modern appliances, clean countertops, but preserve all walls, windows, doors and room layout exactly as shown',
+        classico: 'Transform this room into a classic kitchen while keeping the original architecture and room structure intact. Add traditional elements: wooden cabinets, classic appliances, elegant countertops, but preserve all walls, windows, doors and room layout exactly as shown',
+        rustico: 'Transform this room into a rustic kitchen while keeping the original architecture and room structure intact. Add rustic elements: wooden cabinets, traditional appliances, natural countertops, but preserve all walls, windows, doors and room layout exactly as shown'
       },
       escritorio: {
-        moderno: 'staged modern office with contemporary desk, ergonomic chair, minimal decor, clean organization, modern workspace',
-        classico: 'staged classic office with traditional wooden desk, leather chair, warm atmosphere, timeless furniture, professional look',
-        luxo: 'staged luxury office with executive desk, premium materials, sophisticated decor, high-end furniture, elegant workspace'
+        moderno: 'Transform this room into a modern office while keeping the original architecture and room structure intact. Add contemporary furniture: modern desk, ergonomic chair, minimal decor, but preserve all walls, windows, doors and room layout exactly as shown',
+        classico: 'Transform this room into a classic office while keeping the original architecture and room structure intact. Add traditional furniture: wooden desk, leather chair, classic decor, but preserve all walls, windows, doors and room layout exactly as shown',
+        rustico: 'Transform this room into a rustic office while keeping the original architecture and room structure intact. Add rustic furniture: wooden desk, rustic chair, natural textures, but preserve all walls, windows, doors and room layout exactly as shown'
       }
     };
 
@@ -90,7 +90,7 @@ serve(async (req) => {
           input: {
             image: imageUrl, // Base image for staging
             prompt: stagingPrompt,
-            strength: 0.7, // Higher strength for better furniture placement
+            strength: 0.5, // Reduced strength to better preserve original structure
             guidance_scale: 4.0,
             num_outputs: 1,
             num_inference_steps: 28,
