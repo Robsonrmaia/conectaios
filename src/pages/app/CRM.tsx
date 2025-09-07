@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -34,11 +33,12 @@ interface Client {
   last_contact_at?: string;
 }
 
-interface Pipeline {
+interface ClientHistory {
   id: string;
-  name: string;
-  stages: string[] | any;
-  is_default: boolean;
+  client_id: string;
+  action: string;
+  description: string;
+  created_at: string;
 }
 
 interface Task {
@@ -58,55 +58,31 @@ interface Note {
   client_id: string;
 }
 
-interface ClientHistory {
-  id: string;
-  client_id: string;
-  action: string;
-  description: string;
-  created_at: string;
-}
-
-const defaultStages = ['novo_lead', 'qualificado', 'proposta', 'negociacao', 'finalizado', 'perdido'];
-
 export default function CRM() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [clients, setClients] = useState<Client[]>([]);
+  const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
-  const [pipelines, setPipelines] = useState<Pipeline[]>([]);
-  const [activePipeline, setActivePipeline] = useState<Pipeline | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);
-  const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
-  const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [alerts, setAlerts] = useState<any[]>([]);
   
   const [clientFormData, setClientFormData] = useState({
     nome: '',
     telefone: '',
+    email: '',
+    data_nascimento: '',
     tipo: 'comprador',
-    valor: '',
-    photo: ''
-  });
-
-  const [taskFormData, setTaskFormData] = useState({
-    txt: '',
-    quando: '',
-    onde: '',
-    porque: ''
-  });
-
-  const [noteFormData, setNoteFormData] = useState({
-    content: '',
-    client_id: ''
+    valor: ''
   });
 
   const [historyFormData, setHistoryFormData] = useState({
-    action: '',
+    action: 'ligacao',
     description: '',
     client_id: ''
   });
@@ -114,12 +90,13 @@ export default function CRM() {
   useEffect(() => {
     if (user) {
       fetchData();
+      checkAlerts();
     }
   }, [user]);
 
   const fetchData = async () => {
     try {
-      // Fetch clients
+      // Fetch clients with enhanced fields
       const { data: clientsData, error: clientsError } = await supabase
         .from('conectaios_clients')
         .select('*')
@@ -128,6 +105,20 @@ export default function CRM() {
 
       if (clientsError) throw clientsError;
       setClients(clientsData || []);
+
+      // Fetch client history
+      const { data: historyData, error: historyError } = await supabase
+        .from('client_history')
+        .select('*')
+        .in('client_id', (clientsData || []).map(c => c.id))
+        .order('created_at', { ascending: false });
+
+      if (historyError) {
+        console.log('Client history table might not exist yet:', historyError);
+        setClientHistory([]);
+      } else {
+        setClientHistory(historyData || []);
+      }
 
       // Fetch tasks
       const { data: tasksData, error: tasksError } = await supabase
@@ -149,36 +140,6 @@ export default function CRM() {
       if (notesError) throw notesError;
       setNotes(notesData || []);
 
-      // Fetch or create default pipeline
-      const { data: pipelinesData, error: pipelinesError } = await supabase
-        .from('conectaios_pipelines')
-        .select('*')
-        .eq('user_id', user?.id);
-
-      if (pipelinesError) throw pipelinesError;
-
-      if (!pipelinesData || pipelinesData.length === 0) {
-        // Create default pipeline
-        const { data: newPipeline, error: createError } = await supabase
-          .from('conectaios_pipelines')
-          .insert({
-            user_id: user?.id,
-            name: 'Pipeline Principal',
-            stages: defaultStages,
-            is_default: true
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setPipelines([newPipeline]);
-        setActivePipeline(newPipeline);
-      } else {
-        setPipelines(pipelinesData);
-        const defaultPipeline = pipelinesData.find((p: any) => p.is_default) || pipelinesData[0];
-        setActivePipeline(defaultPipeline);
-      }
-
     } catch (error) {
       console.error('Error fetching CRM data:', error);
       toast({
@@ -191,6 +152,46 @@ export default function CRM() {
     }
   };
 
+  const checkAlerts = () => {
+    const today = new Date();
+    const newAlerts: any[] = [];
+
+    clients.forEach(client => {
+      // Alert for clients without contact for 7+ days
+      if (client.last_contact_at) {
+        const lastContact = new Date(client.last_contact_at);
+        const daysSinceContact = Math.floor((today.getTime() - lastContact.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysSinceContact >= 7) {
+          newAlerts.push({
+            type: 'contact',
+            client: client.nome,
+            message: `Sem contato há ${daysSinceContact} dias`,
+            priority: daysSinceContact >= 14 ? 'high' : 'medium'
+          });
+        }
+      }
+
+      // Alert for upcoming birthdays (3 days before)
+      if (client.data_nascimento) {
+        const birthday = new Date(client.data_nascimento);
+        const thisYearBirthday = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+        const daysUntilBirthday = Math.floor((thisYearBirthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        
+        if (daysUntilBirthday >= 0 && daysUntilBirthday <= 3) {
+          newAlerts.push({
+            type: 'birthday',
+            client: client.nome,
+            message: daysUntilBirthday === 0 ? 'Aniversário hoje!' : `Aniversário em ${daysUntilBirthday} dias`,
+            priority: 'medium'
+          });
+        }
+      }
+    });
+
+    setAlerts(newAlerts);
+  };
+
   const handleAddClient = async () => {
     if (!user) return;
 
@@ -201,12 +202,14 @@ export default function CRM() {
           user_id: user.id,
           nome: clientFormData.nome,
           telefone: clientFormData.telefone,
+          email: clientFormData.email,
+          data_nascimento: clientFormData.data_nascimento || null,
           tipo: clientFormData.tipo,
           valor: parseFloat(clientFormData.valor) || 0,
-          photo: clientFormData.photo,
           stage: 'novo_lead',
           classificacao: 'novo_lead',
-          score: 0
+          score: 0,
+          last_contact_at: new Date().toISOString()
         });
 
       if (error) throw error;
@@ -217,7 +220,7 @@ export default function CRM() {
       });
 
       setIsClientDialogOpen(false);
-      setClientFormData({ nome: '', telefone: '', tipo: 'comprador', valor: '', photo: '' });
+      setClientFormData({ nome: '', telefone: '', email: '', data_nascimento: '', tipo: 'comprador', valor: '' });
       fetchData();
     } catch (error) {
       console.error('Error adding client:', error);
@@ -229,124 +232,50 @@ export default function CRM() {
     }
   };
 
-  const handleAddTask = async () => {
-    if (!user) return;
+  const handleAddHistory = async () => {
+    if (!user || !historyFormData.client_id) return;
 
     try {
       const { error } = await supabase
-        .from('conectaios_tasks')
+        .from('client_history')
         .insert({
-          user_id: user.id,
-          txt: taskFormData.txt,
-          quando: taskFormData.quando,
-          onde: taskFormData.onde,
-          porque: taskFormData.porque,
-          done: false
+          client_id: historyFormData.client_id,
+          action: historyFormData.action,
+          description: historyFormData.description,
+          user_id: user.id
         });
 
-      if (error) throw error;
-
-      toast({
-        title: "Sucesso",
-        description: "Tarefa adicionada com sucesso!",
-      });
-
-      setIsTaskDialogOpen(false);
-      setTaskFormData({ txt: '', quando: '', onde: '', porque: '' });
-      fetchData();
-    } catch (error) {
-      console.error('Error adding task:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao adicionar tarefa",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAddNote = async () => {
-    if (!user || !noteFormData.client_id) return;
-
-    try {
-      const { error } = await supabase
-        .from('conectaios_notes')
-        .insert({
-          user_id: user.id,
-          client_id: noteFormData.client_id,
-          content: noteFormData.content
+      if (error) {
+        console.log('Client history error:', error);
+        toast({
+          title: "Info",
+          description: "Tabela de histórico ainda não configurada. Funcionalidade será ativada em breve.",
         });
+        return;
+      }
 
-      if (error) throw error;
-
-      toast({
-        title: "Sucesso",
-        description: "Nota adicionada com sucesso!",
-      });
-
-      setIsNoteDialogOpen(false);
-      setNoteFormData({ content: '', client_id: '' });
-      fetchData();
-    } catch (error) {
-      console.error('Error adding note:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao adicionar nota",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDragEnd = async (result: any) => {
-    if (!result.destination || !activePipeline) return;
-
-    const { source, destination, draggableId } = result;
-    
-    if (source.droppableId === destination.droppableId) return;
-
-    const clientId = draggableId;
-    const newStage = destination.droppableId;
-
-    try {
-      const { error } = await supabase
+      // Update last_contact_at for the client
+      await supabase
         .from('conectaios_clients')
-        .update({ stage: newStage })
-        .eq('id', clientId);
-
-      if (error) throw error;
-
-      // Update local state
-      setClients(prev => prev.map(client => 
-        client.id === clientId ? { ...client, stage: newStage } : client
-      ));
+        .update({ last_contact_at: new Date().toISOString() })
+        .eq('id', historyFormData.client_id);
 
       toast({
         title: "Sucesso",
-        description: "Cliente movido no pipeline!",
+        description: "Histórico adicionado com sucesso!",
       });
+
+      setIsHistoryDialogOpen(false);
+      setHistoryFormData({ action: 'ligacao', description: '', client_id: '' });
+      fetchData();
+      checkAlerts();
     } catch (error) {
-      console.error('Error updating client stage:', error);
+      console.error('Error adding history:', error);
       toast({
         title: "Erro",
-        description: "Erro ao mover cliente",
+        description: "Erro ao adicionar histórico",
         variant: "destructive",
       });
-    }
-  };
-
-  const toggleTask = async (taskId: string, done: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('conectaios_tasks')
-        .update({ done: !done })
-        .eq('id', taskId);
-
-      if (error) throw error;
-
-      setTasks(prev => prev.map(task => 
-        task.id === taskId ? { ...task, done: !done } : task
-      ));
-    } catch (error) {
-      console.error('Error toggling task:', error);
     }
   };
 
@@ -362,6 +291,18 @@ export default function CRM() {
     return labels[stage] || stage;
   };
 
+  const getActionIcon = (action: string) => {
+    const icons: { [key: string]: any } = {
+      'ligacao': Phone,
+      'email': Mail,
+      'reuniao': Calendar,
+      'visita': MapPin,
+      'proposta': Target,
+      'contrato': MessageSquare
+    };
+    return icons[action] || MessageSquare;
+  };
+
   const getStageColor = (stage: string) => {
     const colors: { [key: string]: string } = {
       'novo_lead': 'bg-gray-100 text-gray-800',
@@ -373,11 +314,6 @@ export default function CRM() {
     };
     return colors[stage] || 'bg-gray-100 text-gray-800';
   };
-
-  const filteredClients = clients.filter(client =>
-    client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.telefone.includes(searchTerm)
-  );
 
   if (loading) {
     return (
@@ -408,12 +344,34 @@ export default function CRM() {
         </div>
       </div>
 
+      {/* Alerts Section */}
+      {alerts.length > 0 && (
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            Alertas ({alerts.length})
+          </h3>
+          <div className="grid gap-2">
+            {alerts.map((alert, index) => (
+              <Alert key={index} className={alert.priority === 'high' ? 'border-destructive' : 'border-warning'}>
+                <div className="flex items-center gap-2">
+                  {alert.type === 'birthday' ? <Cake className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+                  <AlertDescription>
+                    <strong>{alert.client}:</strong> {alert.message}
+                  </AlertDescription>
+                </div>
+              </Alert>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold">{clients.length}</div>
-            <div className="text-sm text-muted-foreground">Total de Clientes</div>
+            <div className="text-sm text-muted-foreground">Total Clientes</div>
           </CardContent>
         </Card>
         <Card>
@@ -427,142 +385,101 @@ export default function CRM() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-warning">
-              {tasks.filter(t => !t.done).length}
+              {alerts.filter(a => a.type === 'contact').length}
             </div>
-            <div className="text-sm text-muted-foreground">Tarefas Pendentes</div>
+            <div className="text-sm text-muted-foreground">Sem Contato</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-2xl font-bold text-info">
+              {alerts.filter(a => a.type === 'birthday').length}
+            </div>
+            <div className="text-sm text-muted-foreground">Aniversários</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-primary">
-              {clients.reduce((sum, c) => sum + (c.valor || 0), 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              {clientHistory.length}
             </div>
-            <div className="text-sm text-muted-foreground">Valor Total Pipeline</div>
+            <div className="text-sm text-muted-foreground">Interações</div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="pipeline" className="space-y-4">
+      <Tabs defaultValue="clientes" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="pipeline">Pipeline Kanban</TabsTrigger>
           <TabsTrigger value="clientes">Clientes ({clients.length})</TabsTrigger>
+          <TabsTrigger value="historico">Histórico ({clientHistory.length})</TabsTrigger>
           <TabsTrigger value="tarefas">Tarefas ({tasks.filter(t => !t.done).length})</TabsTrigger>
           <TabsTrigger value="notas">Notas ({notes.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="pipeline" className="space-y-4">
-          {activePipeline && (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                {activePipeline.stages.map((stage) => (
-                  <div key={stage} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-sm">{getStageLabel(stage)}</h3>
-                      <Badge variant="outline" className="text-xs">
-                        {filteredClients.filter(c => c.stage === stage).length}
-                      </Badge>
-                    </div>
-                    <Droppable droppableId={stage}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`min-h-32 p-2 rounded-lg border-2 border-dashed ${
-                            snapshot.isDraggingOver ? 'border-primary bg-primary/5' : 'border-muted'
-                          }`}
-                        >
-                          {filteredClients
-                            .filter(client => client.stage === stage)
-                            .map((client, index) => (
-                              <Draggable key={client.id} draggableId={client.id} index={index}>
-                                {(provided, snapshot) => (
-                                  <Card
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    className={`mb-2 cursor-move ${
-                                      snapshot.isDragging ? 'shadow-lg' : ''
-                                    }`}
-                                  >
-                                    <CardHeader className="p-3">
-                                      <CardTitle className="text-sm">{client.nome}</CardTitle>
-                                      <CardDescription className="text-xs">
-                                        {client.tipo} • {client.telefone}
-                                      </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="p-3 pt-0">
-                                      <div className="flex items-center justify-between">
-                                        <Badge className={`text-xs ${getStageColor(client.classificacao)}`}>
-                                          {client.classificacao}
-                                        </Badge>
-                                        <div className="flex items-center gap-1">
-                                          {[...Array(client.score)].map((_, i) => (
-                                            <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                                          ))}
-                                        </div>
-                                      </div>
-                                       {client.valor > 0 && (
-                                         <div className="text-xs text-primary font-semibold mt-1">
-                                           {client.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                         </div>
-                                       )}
-                                    </CardContent>
-                                  </Card>
-                                )}
-                              </Draggable>
-                            ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  </div>
-                ))}
-              </div>
-            </DragDropContext>
-          )}
-        </TabsContent>
-
         <TabsContent value="clientes" className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1 relative">
+          <div className="flex justify-between items-center">
+            <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar clientes..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-9"
               />
             </div>
-            <div className="flex gap-2">
-              <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Novo Cliente
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Adicionar Cliente</DialogTitle>
-                    <DialogDescription>Preencha as informações do cliente</DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="nome">Nome</Label>
-                      <Input
-                        id="nome"
-                        value={clientFormData.nome}
-                        onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
-                        placeholder="Nome completo"
-                      />
-                    </div>
+            <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Novo Cliente
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Adicionar Cliente</DialogTitle>
+                  <DialogDescription>
+                    Preencha os dados do novo cliente
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="nome">Nome Completo</Label>
+                    <Input
+                      id="nome"
+                      value={clientFormData.nome}
+                      onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
+                      placeholder="Nome do cliente"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="telefone">Telefone</Label>
                       <Input
                         id="telefone"
                         value={clientFormData.telefone}
                         onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
-                        placeholder="(11) 99999-9999"
+                        placeholder="(73) 9 9999-9999"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={clientFormData.email}
+                        onChange={(e) => setClientFormData({...clientFormData, email: e.target.value})}
+                        placeholder="email@exemplo.com"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="data_nascimento">Data de Nascimento</Label>
+                      <Input
+                        id="data_nascimento"
+                        type="date"
+                        value={clientFormData.data_nascimento}
+                        onChange={(e) => setClientFormData({...clientFormData, data_nascimento: e.target.value})}
                       />
                     </div>
                     <div>
@@ -575,262 +492,180 @@ export default function CRM() {
                           <SelectItem value="comprador">Comprador</SelectItem>
                           <SelectItem value="vendedor">Vendedor</SelectItem>
                           <SelectItem value="locatario">Locatário</SelectItem>
-                          <SelectItem value="proprietario">Proprietário</SelectItem>
+                          <SelectItem value="locador">Locador</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label htmlFor="valor">Valor Interesse (R$)</Label>
-                      <Input
-                        id="valor"
-                        type="number"
-                        value={clientFormData.valor}
-                        onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
-                        placeholder="500000"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-4">
-                      <Button variant="outline" onClick={() => setIsClientDialogOpen(false)} className="flex-1">
-                        Cancelar
-                      </Button>
-                      <Button onClick={handleAddClient} className="flex-1">
-                        Adicionar
-                      </Button>
-                    </div>
                   </div>
-                </DialogContent>
-              </Dialog>
-              <Button variant="outline" onClick={() => navigate('/app/imoveis')}>
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Imóvel
-              </Button>
-            </div>
+                  <div>
+                    <Label htmlFor="valor">Valor do Negócio (R$)</Label>
+                    <Input
+                      id="valor"
+                      type="number"
+                      value={clientFormData.valor}
+                      onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
+                      placeholder="0,00"
+                    />
+                  </div>
+                  <Button onClick={handleAddClient} className="w-full">
+                    Adicionar Cliente
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredClients.map((client) => (
-              <Card key={client.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
+          <div className="grid gap-4">
+            {clients
+              .filter(client =>
+                client.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                client.telefone.includes(searchTerm) ||
+                client.email?.toLowerCase().includes(searchTerm.toLowerCase())
+              )
+              .map(client => (
+                <Card key={client.id} className="p-4">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{client.nome}</CardTitle>
-                      <CardDescription>{client.tipo}</CardDescription>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold">{client.nome}</h3>
+                        <Badge className={getStageColor(client.stage)}>
+                          {getStageLabel(client.stage)}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-4 w-4" />
+                          {client.telefone}
+                        </div>
+                        {client.email && (
+                          <div className="flex items-center gap-1">
+                            <Mail className="h-4 w-4" />
+                            {client.email}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <User className="h-4 w-4" />
+                          {client.tipo}
+                        </div>
+                      </div>
+                      {client.last_contact_at && (
+                        <div className="text-xs text-muted-foreground">
+                          Último contato: {formatDistanceToNow(new Date(client.last_contact_at), { addSuffix: true, locale: ptBR })}
+                        </div>
+                      )}
                     </div>
-                    <Badge className={getStageColor(client.stage)}>
-                      {getStageLabel(client.stage)}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      {client.valor > 0 && (
+                        <Badge variant="outline">
+                          {client.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                        </Badge>
+                      )}
+                      <Dialog open={isHistoryDialogOpen && selectedClient?.id === client.id} onOpenChange={setIsHistoryDialogOpen}>
+                        <DialogTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedClient(client);
+                              setHistoryFormData({...historyFormData, client_id: client.id});
+                            }}
+                          >
+                            <History className="h-4 w-4 mr-1" />
+                            Histórico
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Adicionar ao Histórico - {client.nome}</DialogTitle>
+                            <DialogDescription>
+                              Registre uma nova interação com o cliente
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="action">Tipo de Ação</Label>
+                              <Select value={historyFormData.action} onValueChange={(value) => setHistoryFormData({...historyFormData, action: value})}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="ligacao">Ligação</SelectItem>
+                                  <SelectItem value="email">Email</SelectItem>
+                                  <SelectItem value="reuniao">Reunião</SelectItem>
+                                  <SelectItem value="visita">Visita</SelectItem>
+                                  <SelectItem value="proposta">Proposta</SelectItem>
+                                  <SelectItem value="contrato">Contrato</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label htmlFor="description">Descrição</Label>
+                              <Textarea
+                                id="description"
+                                value={historyFormData.description}
+                                onChange={(e) => setHistoryFormData({...historyFormData, description: e.target.value})}
+                                placeholder="Descreva o que aconteceu nesta interação..."
+                                rows={4}
+                              />
+                            </div>
+                            <Button onClick={handleAddHistory} className="w-full">
+                              Adicionar ao Histórico
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Phone className="h-3 w-3" />
-                    {client.telefone}
+                </Card>
+              ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="historico" className="space-y-4">
+          <div className="space-y-4">
+            {clientHistory.length > 0 ? clientHistory.map(history => {
+              const client = clients.find(c => c.id === history.client_id);
+              const ActionIcon = getActionIcon(history.action);
+              
+              return (
+                <Card key={history.id} className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-primary/10 rounded-full">
+                      <ActionIcon className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{client?.nome}</h4>
+                        <Badge variant="outline">{history.action}</Badge>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDistanceToNow(new Date(history.created_at), { addSuffix: true, locale: ptBR })}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{history.description}</p>
+                    </div>
                   </div>
-                  {client.valor > 0 && (
-                    <div className="text-lg font-semibold text-primary">
-                      R$ {client.valor.toLocaleString('pt-BR')}
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1">
-                      {[...Array(client.score || 0)].map((_, i) => (
-                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      ))}
-                    </div>
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="outline">
-                        <Phone className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                </Card>
+              );
+            }) : (
+              <div className="text-center p-8 text-muted-foreground">
+                <History className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Nenhum histórico encontrado. Adicione interações com seus clientes.</p>
+              </div>
+            )}
           </div>
         </TabsContent>
 
         <TabsContent value="tarefas" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Tarefas</h3>
-            <Dialog open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Tarefa
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Adicionar Tarefa</DialogTitle>
-                  <DialogDescription>Método 5W para organizar tarefas</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="txt">O que? (What)</Label>
-                    <Textarea
-                      id="txt"
-                      value={taskFormData.txt}
-                      onChange={(e) => setTaskFormData({...taskFormData, txt: e.target.value})}
-                      placeholder="Descreva a tarefa..."
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="quando">Quando? (When)</Label>
-                    <Input
-                      id="quando"
-                      value={taskFormData.quando}
-                      onChange={(e) => setTaskFormData({...taskFormData, quando: e.target.value})}
-                      placeholder="Ex: Amanhã às 14h"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="onde">Onde? (Where)</Label>
-                    <Input
-                      id="onde"
-                      value={taskFormData.onde}
-                      onChange={(e) => setTaskFormData({...taskFormData, onde: e.target.value})}
-                      placeholder="Ex: Escritório, cliente, online"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="porque">Por que? (Why)</Label>
-                    <Input
-                      id="porque"
-                      value={taskFormData.porque}
-                      onChange={(e) => setTaskFormData({...taskFormData, porque: e.target.value})}
-                      placeholder="Ex: Fechar negócio, qualificar lead"
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button variant="outline" onClick={() => setIsTaskDialogOpen(false)} className="flex-1">
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleAddTask} className="flex-1">
-                      Adicionar
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="space-y-3">
-            {tasks.map((task) => (
-              <Card key={task.id} className={`${task.done ? 'opacity-60' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={task.done}
-                      onChange={() => toggleTask(task.id, task.done)}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <p className={`${task.done ? 'line-through' : ''}`}>{task.txt}</p>
-                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
-                        {task.quando && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {task.quando}
-                          </div>
-                        )}
-                        {task.onde && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {task.onde}
-                          </div>
-                        )}
-                        {task.porque && (
-                          <div className="flex items-center gap-1">
-                            <Target className="h-3 w-3" />
-                            {task.porque}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="text-center p-8 text-muted-foreground">
+            <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Funcionalidade de tarefas será implementada em breve</p>
           </div>
         </TabsContent>
 
         <TabsContent value="notas" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Notas</h3>
-            <Dialog open={isNoteDialogOpen} onOpenChange={setIsNoteDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nova Nota
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Adicionar Nota</DialogTitle>
-                  <DialogDescription>Adicione uma nota para um cliente</DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="client_id">Cliente</Label>
-                    <Select value={noteFormData.client_id} onValueChange={(value) => setNoteFormData({...noteFormData, client_id: value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione um cliente" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clients.map((client) => (
-                          <SelectItem key={client.id} value={client.id}>
-                            {client.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="content">Conteúdo</Label>
-                    <Textarea
-                      id="content"
-                      value={noteFormData.content}
-                      onChange={(e) => setNoteFormData({...noteFormData, content: e.target.value})}
-                      placeholder="Digite sua nota..."
-                      rows={4}
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-4">
-                    <Button variant="outline" onClick={() => setIsNoteDialogOpen(false)} className="flex-1">
-                      Cancelar
-                    </Button>
-                    <Button onClick={handleAddNote} className="flex-1">
-                      Adicionar
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          <div className="space-y-3">
-            {notes.map((note) => {
-              const client = clients.find(c => c.id === note.client_id);
-              return (
-                <Card key={note.id}>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm">{client?.nome || 'Cliente não encontrado'}</CardTitle>
-                      <Badge variant="outline" className="text-xs">
-                        {new Date(note.created_at).toLocaleDateString('pt-BR')}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm">{note.content}</p>
-                  </CardContent>
-                </Card>
-              );
-            })}
+          <div className="text-center p-8 text-muted-foreground">
+            <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>Funcionalidade de notas será implementada em breve</p>
           </div>
         </TabsContent>
       </Tabs>
