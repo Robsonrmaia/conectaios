@@ -93,8 +93,6 @@ export default function PipelineCRM() {
   const [clientFormData, setClientFormData] = useState({
     nome: '',
     telefone: '',
-    email: '',
-    data_nascimento: '',
     tipo: 'comprador',
     valor: ''
   });
@@ -244,9 +242,7 @@ export default function PipelineCRM() {
         .insert({
           user_id: user.id,
           nome: clientFormData.nome,
-          telefone: clientFormData.telefone,
           email: clientFormData.email,
-          data_nascimento: clientFormData.data_nascimento || null,
           tipo: clientFormData.tipo,
           valor: parseFloat(clientFormData.valor) || 0,
           stage: 'novo_lead',
@@ -277,7 +273,7 @@ export default function PipelineCRM() {
       });
 
       setIsClientDialogOpen(false);
-      setClientFormData({ nome: '', telefone: '', email: '', data_nascimento: '', tipo: 'comprador', valor: '' });
+      setClientFormData({ nome: '', telefone: '', tipo: 'comprador', valor: '' });
       setHistoryFormData({ action: 'ligacao', description: '' });
       fetchData();
     } catch (error) {
