@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Scan, Loader } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FurnitureDetectorProps {
   imageUrl: string;
@@ -26,10 +27,17 @@ export function FurnitureDetector({ imageUrl, onFurnitureDetected }: FurnitureDe
       // Try to use Hugging Face API first, fallback to mock data
       try {
         // Simulate API call to Hugging Face for object detection
+        const { data: tokenData } = await supabase.functions.invoke('get-huggingface-token');
+        const token = tokenData?.token;
+        
+        if (!token) {
+          throw new Error('Hugging Face token not available');
+        }
+
         const response = await fetch('https://api-inference.huggingface.co/models/facebook/detr-resnet-50', {
           method: 'POST',
           headers: {
-            'Authorization': 'Bearer hf_demo', // Demo token, replace with actual in production
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({

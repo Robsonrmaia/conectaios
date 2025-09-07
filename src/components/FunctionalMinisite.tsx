@@ -1,14 +1,29 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Globe, Eye, Download, Share2, Settings, Palette, Layout, FileText, Phone, Mail, MapPin, Star } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
-import { useAuth } from '@/hooks/useAuth';
+import { 
+  Monitor, 
+  Smartphone, 
+  Copy, 
+  ExternalLink, 
+  Palette, 
+  Type, 
+  Image, 
+  Globe, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Star,
+  Eye,
+  Share2,
+  Layout,
+  FileText
+} from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,11 +35,11 @@ interface MinisiteConfig {
   description: string;
   phone: string;
   email: string;
-  address: string;
-  showProperties: boolean;
-  showTestimonials: boolean;
-  showAbout: boolean;
+  whatsapp: string;
   customMessage: string;
+  showProperties: boolean;
+  showContactForm: boolean;
+  showAbout: boolean;
 }
 
 const TEMPLATES = [
@@ -35,7 +50,6 @@ const TEMPLATES = [
 ];
 
 export function FunctionalMinisite() {
-  const { user } = useAuth();
   const { broker } = useBroker();
   const [config, setConfig] = useState<MinisiteConfig>({
     template: 'modern',
@@ -45,11 +59,11 @@ export function FunctionalMinisite() {
     description: 'Encontre o imóvel dos seus sonhos',
     phone: '(11) 99999-9999',
     email: 'contato@corretor.com',
-    address: 'São Paulo, SP',
+    whatsapp: '11999999999',
+    customMessage: 'Olá! Sou especialista em imóveis e estou aqui para te ajudar.',
     showProperties: true,
-    showTestimonials: true,
-    showAbout: true,
-    customMessage: 'Olá! Sou especialista em imóveis e estou aqui para te ajudar.'
+    showContactForm: true,
+    showAbout: true
   });
   
   const [isGenerating, setIsGenerating] = useState(false);
@@ -69,29 +83,92 @@ export function FunctionalMinisite() {
   }, [broker]);
 
   const generateMinisite = async () => {
+    if (!config.title.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, adicione um título para o seu minisite",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!broker?.id) {
+      toast({
+        title: "Erro",
+        description: "Dados do corretor não encontrados",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsGenerating(true);
+    
     try {
-      // Generate a unique URL for the minisite using broker username
-      const username = broker?.username || user?.id?.slice(0, 8);
-      const domain = window.location.hostname.includes('lovable') 
-        ? window.location.origin 
-        : 'https://conectaios.com.br';
-      const url = `${domain}/@${username}`;
+      // Generate unique URL based on broker username
+      const uniqueId = broker.username || `broker-${broker.id.slice(0, 8)}`;
+      const minisiteUrl = `@${uniqueId}`;
       
-      setGeneratedUrl(url);
+      // Save or update minisite config in database
+      const minisiteData = {
+        broker_id: broker.id,
+        template_id: config.template,
+        primary_color: config.primaryColor,
+        secondary_color: config.secondaryColor,
+        title: config.title,
+        description: config.description,
+        phone: config.phone,
+        email: config.email,
+        whatsapp: config.whatsapp,
+        custom_message: config.customMessage,
+        show_properties: config.showProperties,
+        show_contact_form: config.showContactForm,
+        show_about: config.showAbout,
+        config_data: config as any,
+        generated_url: minisiteUrl,
+        is_active: true
+      };
+
+      // Check if minisite config already exists
+      const { data: existingConfig } = await supabase
+        .from('minisite_configs')
+        .select('id')
+        .eq('broker_id', broker.id)
+        .maybeSingle();
+
+      let result;
+      if (existingConfig) {
+        // Update existing config
+        result = await supabase
+          .from('minisite_configs')
+          .update(minisiteData)
+          .eq('id', existingConfig.id)
+          .select()
+          .single();
+      } else {
+        // Insert new config
+        result = await supabase
+          .from('minisite_configs')
+          .insert(minisiteData)
+          .select()
+          .single();
+      }
+
+      if (result.error) {
+        throw result.error;
+      }
       
-      // Save config to localStorage
-      localStorage.setItem(`minisite-config-${user?.id}`, JSON.stringify(config));
+      const fullUrl = `https://conectaios.lovable.app/${minisiteUrl}`;
+      setGeneratedUrl(fullUrl);
       
       toast({
-        title: "Minisite Gerado com Sucesso! 🎉",
-        description: "Seu minisite está pronto e pode ser acessado pelo link gerado.",
+        title: "Sucesso!",
+        description: "Seu minisite foi gerado e salvo com sucesso!",
       });
     } catch (error) {
       console.error('Error generating minisite:', error);
       toast({
         title: "Erro",
-        description: "Erro ao gerar minisite. Tente novamente.",
+        description: `Erro ao gerar minisite: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -140,7 +217,7 @@ export function FunctionalMinisite() {
             </div>
             <div className="flex items-center justify-center gap-2">
               <MapPin className="h-4 w-4" />
-              {config.address}
+              São Paulo, SP
             </div>
           </div>
           
@@ -166,7 +243,7 @@ export function FunctionalMinisite() {
             <span>📍 Imóveis Disponíveis</span>
             <Badge variant="secondary">12 imóveis</Badge>
           </div>
-          {config.showTestimonials && (
+          {config.showAbout && (
             <div className="text-xs">
               ⭐ "Excelente atendimento!" - Cliente satisfeito
             </div>
@@ -286,11 +363,11 @@ export function FunctionalMinisite() {
               </div>
               
               <div>
-                <label className="text-sm font-medium">Endereço</label>
+                <label className="text-sm font-medium">WhatsApp</label>
                 <Input
-                  value={config.address}
-                  onChange={(e) => setConfig({...config, address: e.target.value})}
-                  placeholder="São Paulo, SP"
+                  value={config.whatsapp}
+                  onChange={(e) => setConfig({...config, whatsapp: e.target.value})}
+                  placeholder="11999999999"
                 />
               </div>
               

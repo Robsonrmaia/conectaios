@@ -14,6 +14,52 @@ export type Database = {
   }
   public: {
     Tables: {
+      assignments: {
+        Row: {
+          assigned_by: string | null
+          created_at: string | null
+          id: string
+          profile_id: string | null
+          shift_id: string | null
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          shift_id?: string | null
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string | null
+          id?: string
+          profile_id?: string | null
+          shift_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_assigned_by_fkey"
+            columns: ["assigned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -55,6 +101,48 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      availability: {
+        Row: {
+          date: string
+          duty_period_id: string | null
+          id: string
+          preference: string | null
+          profile_id: string | null
+          slot: string
+        }
+        Insert: {
+          date: string
+          duty_period_id?: string | null
+          id?: string
+          preference?: string | null
+          profile_id?: string | null
+          slot: string
+        }
+        Update: {
+          date?: string
+          duty_period_id?: string | null
+          id?: string
+          preference?: string | null
+          profile_id?: string | null
+          slot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_duty_period_id_fkey"
+            columns: ["duty_period_id"]
+            isOneToOne: false
+            referencedRelation: "duty_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "availability_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       banners: {
         Row: {
@@ -1061,6 +1149,65 @@ export type Database = {
           },
         ]
       }
+      duty_periods: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          month: number
+          name: string
+          published: boolean | null
+          tz: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          month: number
+          name: string
+          published?: boolean | null
+          tz?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          month?: number
+          name?: string
+          published?: boolean | null
+          tz?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duty_periods_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      locations: {
+        Row: {
+          address: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          address?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          address?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       login_events: {
         Row: {
           created_at: string
@@ -1207,6 +1354,80 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      minisite_configs: {
+        Row: {
+          broker_id: string
+          config_data: Json | null
+          created_at: string
+          custom_message: string | null
+          description: string | null
+          email: string | null
+          generated_url: string | null
+          id: string
+          is_active: boolean | null
+          phone: string | null
+          primary_color: string
+          secondary_color: string
+          show_about: boolean | null
+          show_contact_form: boolean | null
+          show_properties: boolean | null
+          template_id: string
+          title: string
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          broker_id: string
+          config_data?: Json | null
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          email?: string | null
+          generated_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          phone?: string | null
+          primary_color?: string
+          secondary_color?: string
+          show_about?: boolean | null
+          show_contact_form?: boolean | null
+          show_properties?: boolean | null
+          template_id?: string
+          title: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          broker_id?: string
+          config_data?: Json | null
+          created_at?: string
+          custom_message?: string | null
+          description?: string | null
+          email?: string | null
+          generated_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          phone?: string | null
+          primary_color?: string
+          secondary_color?: string
+          show_about?: boolean | null
+          show_contact_form?: boolean | null
+          show_properties?: boolean | null
+          template_id?: string
+          title?: string
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_minisite_configs_broker"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
         ]
@@ -1694,6 +1915,48 @@ export type Database = {
         }
         Relationships: []
       }
+      shifts: {
+        Row: {
+          capacity: number | null
+          date: string
+          duty_period_id: string | null
+          id: string
+          location_id: string | null
+          slot: string
+        }
+        Insert: {
+          capacity?: number | null
+          date: string
+          duty_period_id?: string | null
+          id?: string
+          location_id?: string | null
+          slot: string
+        }
+        Update: {
+          capacity?: number | null
+          date?: string
+          duty_period_id?: string | null
+          id?: string
+          location_id?: string | null
+          slot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_duty_period_id_fkey"
+            columns: ["duty_period_id"]
+            isOneToOne: false
+            referencedRelation: "duty_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shifts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       simulations: {
         Row: {
           created_at: string
@@ -1771,6 +2034,67 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      swaps: {
+        Row: {
+          created_at: string | null
+          date: string
+          duty_period_id: string | null
+          from_profile: string | null
+          id: string
+          reason: string | null
+          slot: string
+          status: string | null
+          timeline: Json | null
+          to_profile: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          duty_period_id?: string | null
+          from_profile?: string | null
+          id?: string
+          reason?: string | null
+          slot: string
+          status?: string | null
+          timeline?: Json | null
+          to_profile?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          duty_period_id?: string | null
+          from_profile?: string | null
+          id?: string
+          reason?: string | null
+          slot?: string
+          status?: string | null
+          timeline?: Json | null
+          to_profile?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "swaps_duty_period_id_fkey"
+            columns: ["duty_period_id"]
+            isOneToOne: false
+            referencedRelation: "duty_periods"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "swaps_from_profile_fkey"
+            columns: ["from_profile"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "swaps_to_profile_fkey"
+            columns: ["to_profile"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1949,6 +2273,10 @@ export type Database = {
         Returns: string
       }
       generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
       }
