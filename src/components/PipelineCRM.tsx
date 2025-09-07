@@ -53,6 +53,7 @@ interface Note {
   id: string;
   content: string;
   created_at: string;
+  client_id: string;
 }
 
 const STAGES = [
