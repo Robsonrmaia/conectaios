@@ -1,7 +1,7 @@
 project_id = "hvbdeyuqcliqrmzvyciq"
 
 [functions.virtual-staging]
-verify_jwt = true
+verify_jwt = false
 
 [functions.get-huggingface-token]
-verify_jwt = true
+verify_jwt = false
