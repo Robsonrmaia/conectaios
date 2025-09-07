@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
+import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
@@ -418,9 +419,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                  <Button className="w-full mt-4 bg-primary">
-                    Assinar via Asaas
-                  </Button>
+                  <AsaasPaymentButton 
+                    planName="Básico"
+                    planValue={67}
+                    planId="plan-basic"
+                    className="mt-4 bg-primary"
+                  />
                 </CardContent>
               </Card>
 
@@ -448,9 +452,13 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                  <Button variant="outline" className="w-full mt-4">
-                    Assinar via Asaas
-                  </Button>
+                  <AsaasPaymentButton 
+                    planName="Profissional"
+                    planValue={147}
+                    planId="plan-professional"
+                    variant="outline"
+                    className="mt-4"
+                  />
                 </CardContent>
               </Card>
 

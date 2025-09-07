@@ -91,48 +91,58 @@ export function EnhancedMessaging() {
     if (!user) return;
     
     try {
-      // Mock data for now - replace with real Supabase query
-      const mockConversations: Conversation[] = [
-        {
-          id: '1',
-          participant_name: 'João Silva',
-          participant_creci: 'CRECI 12345-F',
-          participant_avatar: '',
-          last_message: 'Olá! Tenho um cliente interessado no seu imóvel.',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          unread_count: 2,
-          participant_id: 'user-1'
-        },
-        {
-          id: '2',
-          participant_name: 'Maria Santos',
-          participant_creci: 'CRECI 67890-F',
-          participant_avatar: '',
-          last_message: 'Vamos marcar uma reunião para discutir a parceria?',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-          unread_count: 0,
-          participant_id: 'user-2'
-        },
-        {
-          id: '3',
-          participant_name: 'Pedro Costa',
-          participant_creci: 'CRECI 13579-F',
-          participant_avatar: '',
-          last_message: 'Obrigado pela indicação!',
-          last_message_at: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-          unread_count: 1,
-          participant_id: 'user-3'
-        }
-      ];
+      // Fetch real conversations from threads table
+      const { data: threadsData, error: threadsError } = await supabase
+        .from('threads')
+        .select(`
+          id,
+          title,
+          participants,
+          last_message_at,
+          messages!inner(
+            content,
+            created_at,
+            sender_name
+          )
+        `)
+        .contains('participants', [user.id])
+        .order('last_message_at', { ascending: false });
 
-      setConversations(mockConversations);
+      if (threadsError) throw threadsError;
+
+      // Convert threads to conversations format
+      const conversationsData: Conversation[] = await Promise.all(
+        (threadsData || []).map(async (thread) => {
+          // Get the other participant
+          const otherParticipantId = thread.participants.find((p: string) => p !== user.id);
+          
+          // Fetch broker info for the other participant
+          const { data: brokerData } = await supabase
+            .from('conectaios_brokers')
+            .select('name, creci, avatar_url')
+            .eq('id', otherParticipantId)
+            .single();
+
+          const lastMessage = thread.messages[0];
+          
+          return {
+            id: thread.id,
+            participant_name: brokerData?.name || 'Usuário',
+            participant_creci: brokerData?.creci || '',
+            participant_avatar: brokerData?.avatar_url || '',
+            last_message: lastMessage?.content || 'Nova conversa',
+            last_message_at: thread.last_message_at,
+            unread_count: 0, // TODO: Implement unread count
+            participant_id: otherParticipantId || ''
+          };
+        })
+      );
+
+      setConversations(conversationsData);
     } catch (error) {
       console.error('Error fetching conversations:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar conversas",
-        variant: "destructive",
-      });
+      // Fallback to empty array
+      setConversations([]);
     }
   };
 
@@ -140,42 +150,29 @@ export function EnhancedMessaging() {
     if (!user) return;
     
     try {
-      // Mock data for now - replace with real Supabase query
-      const mockMessages: Message[] = [
-        {
-          id: '1',
-          content: 'Olá! Vi que você tem um imóvel interessante no seu portfólio.',
-          sender_id: 'user-1',
-          receiver_id: user.id,
-          created_at: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
-          sender_name: 'João Silva'
-        },
-        {
-          id: '2',
-          content: 'Olá João! Que bom falar com você. Sobre qual imóvel você gostaria de saber mais?',
-          sender_id: user.id,
-          receiver_id: 'user-1',
-          created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
-          sender_name: 'Você'
-        },
-        {
-          id: '3',
-          content: 'Tenho um cliente muito interessado no apartamento de 3 quartos na Pituba. Podemos conversar sobre uma parceria?',
-          sender_id: 'user-1',
-          receiver_id: user.id,
-          created_at: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-          sender_name: 'João Silva'
-        }
-      ];
+      // Fetch real messages from Supabase
+      const { data: messagesData, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('thread_id', conversationId)
+        .order('created_at', { ascending: true });
 
-      setMessages(mockMessages);
+      if (error) throw error;
+
+      const formattedMessages: Message[] = messagesData.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender_id: msg.broker_id,
+        receiver_id: '', // Not needed for thread-based messages
+        created_at: msg.created_at,
+        sender_name: msg.sender_name,
+        sender_avatar: '' // TODO: Add avatar support
+      }));
+
+      setMessages(formattedMessages);
     } catch (error) {
       console.error('Error fetching messages:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar mensagens",
-        variant: "destructive",
-      });
+      setMessages([]);
     }
   };
 
@@ -184,18 +181,48 @@ export function EnhancedMessaging() {
 
     setLoading(true);
     try {
-      // Simulate sending message - replace with real Supabase insert
+      // Get current broker ID
+      const { data: brokerData } = await supabase
+        .from('conectaios_brokers')
+        .select('id, name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!brokerData) throw new Error('Broker não encontrado');
+
+      // Insert message into Supabase
+      const { data, error } = await supabase
+        .from('messages')
+        .insert([{
+          thread_id: selectedConversation,
+          broker_id: brokerData.id,
+          content: newMessage,
+          sender_name: brokerData.name || 'Você',
+          user_id: user.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Add to local state
       const newMsg: Message = {
-        id: Date.now().toString(),
-        content: newMessage,
-        sender_id: user.id,
-        receiver_id: conversations.find(c => c.id === selectedConversation)?.participant_id || '',
-        created_at: new Date().toISOString(),
-        sender_name: 'Você'
+        id: data.id,
+        content: data.content,
+        sender_id: data.broker_id,
+        receiver_id: '',
+        created_at: data.created_at,
+        sender_name: data.sender_name
       };
 
       setMessages(prev => [...prev, newMsg]);
       setNewMessage('');
+
+      // Update thread last_message_at
+      await supabase
+        .from('threads')
+        .update({ last_message_at: new Date().toISOString() })
+        .eq('id', selectedConversation);
 
       toast({
         title: "Mensagem enviada!",
@@ -216,23 +243,47 @@ export function EnhancedMessaging() {
   const startNewConversation = async (brokerId: string) => {
     try {
       const broker = availableBrokers.find(b => b.id === brokerId);
-      if (!broker) return;
+      if (!broker || !user) return;
 
-      // Create new conversation (mock for now)
+      // Get current user's broker ID
+      const { data: currentBrokerData } = await supabase
+        .from('conectaios_brokers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!currentBrokerData) throw new Error('Broker atual não encontrado');
+
+      // Create new thread in Supabase
+      const { data: threadData, error } = await supabase
+        .from('threads')
+        .insert([{
+          participants: [currentBrokerData.id, brokerId],
+          title: `Conversa com ${broker.name}`,
+          type: 'broker_chat',
+          created_by: currentBrokerData.id
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Create conversation object
       const newConversation: Conversation = {
-        id: `new-${Date.now()}`,
+        id: threadData.id,
         participant_name: broker.name,
         participant_creci: broker.creci,
         participant_avatar: broker.avatar_url,
         last_message: 'Conversa iniciada',
-        last_message_at: new Date().toISOString(),
+        last_message_at: threadData.created_at,
         unread_count: 0,
-        participant_id: broker.user_id
+        participant_id: brokerId
       };
 
       setConversations(prev => [newConversation, ...prev]);
       setSelectedConversation(newConversation.id);
       setIsNewChatDialogOpen(false);
+      setBrokerSearchTerm('');
       
       toast({
         title: "Nova conversa iniciada!",

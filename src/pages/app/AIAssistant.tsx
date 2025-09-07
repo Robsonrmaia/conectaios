@@ -196,10 +196,10 @@ export default function AIAssistant() {
                   onClick={() => handleQuickAction(action.action)}
                 >
                   <div className="flex items-start gap-3">
-                    <IconComponent className="h-5 w-5 text-primary mt-0.5" />
-                    <div className="text-left">
-                      <div className="font-medium text-sm">{action.title}</div>
-                      <div className="text-xs text-muted-foreground">{action.description}</div>
+                    <IconComponent className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="text-left min-w-0 flex-1">
+                      <div className="font-medium text-sm break-words">{action.title}</div>
+                      <div className="text-xs text-muted-foreground break-words leading-relaxed">{action.description}</div>
                     </div>
                   </div>
                 </Button>
