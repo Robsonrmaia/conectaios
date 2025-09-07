@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
-import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
+import { AsaasPaymentButtonFixed } from '@/components/AsaasPaymentButtonFixed';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
@@ -419,7 +419,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                  <AsaasPaymentButton 
+                  <AsaasPaymentButtonFixed 
                     planName="Básico"
                     planValue={67}
                     planId="plan-basic"
@@ -452,7 +452,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                  <AsaasPaymentButton 
+                  <AsaasPaymentButtonFixed 
                     planName="Profissional"
                     planValue={147}
                     planId="plan-professional"
@@ -486,7 +486,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                  <AsaasPaymentButton 
+                  <AsaasPaymentButtonFixed 
                     planName="Premium"
                     planValue={197}
                     planId="plan-premium"

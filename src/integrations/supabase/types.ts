@@ -599,7 +599,9 @@ export type Database = {
         Row: {
           classificacao: string | null
           created_at: string
+          data_nascimento: string | null
           documents: string[] | null
+          email: string | null
           historico: Json | null
           id: string
           last_contact_at: string | null
@@ -619,7 +621,9 @@ export type Database = {
         Insert: {
           classificacao?: string | null
           created_at?: string
+          data_nascimento?: string | null
           documents?: string[] | null
+          email?: string | null
           historico?: Json | null
           id?: string
           last_contact_at?: string | null
@@ -639,7 +643,9 @@ export type Database = {
         Update: {
           classificacao?: string | null
           created_at?: string
+          data_nascimento?: string | null
           documents?: string[] | null
+          email?: string | null
           historico?: Json | null
           id?: string
           last_contact_at?: string | null
