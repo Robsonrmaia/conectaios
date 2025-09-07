@@ -134,11 +134,11 @@ const AuditLogs = () => {
                   <SelectValue placeholder="Filtrar por ação" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas as ações</SelectItem>
-                  <SelectItem value="create">Criar</SelectItem>
-                  <SelectItem value="update">Atualizar</SelectItem>
-                  <SelectItem value="delete">Deletar</SelectItem>
-                  <SelectItem value="login">Login</SelectItem>
+                  <SelectItem value="" key="all-actions">Todas as ações</SelectItem>
+                  <SelectItem value="create" key="create">Criar</SelectItem>
+                  <SelectItem value="update" key="update">Atualizar</SelectItem>
+                  <SelectItem value="delete" key="delete">Deletar</SelectItem>
+                  <SelectItem value="login" key="login">Login</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -147,11 +147,11 @@ const AuditLogs = () => {
                   <SelectValue placeholder="Filtrar por recurso" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos os recursos</SelectItem>
-                  <SelectItem value="properties">Imóveis</SelectItem>
-                  <SelectItem value="clients">Clientes</SelectItem>
-                  <SelectItem value="deals">Negociações</SelectItem>
-                  <SelectItem value="users">Usuários</SelectItem>
+                  <SelectItem value="" key="all-resources">Todos os recursos</SelectItem>
+                  <SelectItem value="properties" key="properties">Imóveis</SelectItem>
+                  <SelectItem value="clients" key="clients">Clientes</SelectItem>
+                  <SelectItem value="deals" key="deals">Negociações</SelectItem>
+                  <SelectItem value="users" key="users">Usuários</SelectItem>
                 </SelectContent>
               </Select>
 

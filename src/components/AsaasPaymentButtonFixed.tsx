@@ -70,12 +70,10 @@ export function AsaasPaymentButtonFixed({
         throw new Error('ID do cliente não retornado pelo Asaas');
       }
 
-      // Step 2: Wait a moment to ensure customer is created
+      // Step 2: Wait a moment and verify customer exists
       console.log('Aguardando processamento do cliente...');
       await new Promise(resolve => setTimeout(resolve, 2000)); // 2 segundos
 
-      // Step 2.5: Verify customer exists
-      console.log('Verificando se cliente foi criado...');
       const { data: verifyData, error: verifyError } = await supabase.functions.invoke('asaas-integration', {
         body: {
           action: 'verify_customer',
@@ -90,7 +88,7 @@ export function AsaasPaymentButtonFixed({
         throw new Error('Cliente não foi criado corretamente no Asaas');
       }
 
-      console.log('Cliente verificado:', verifyData);
+      console.log('Cliente verificado com sucesso:', verifyData);
 
       // Step 3: Create subscription
       console.log('Criando assinatura no Asaas...');

@@ -26,6 +26,8 @@ export function useOnboarding() {
         .from('user_onboarding')
         .select('tour_completed, completed_at')
         .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (error) {
@@ -33,27 +35,30 @@ export function useOnboarding() {
         return;
       }
 
-      if (!data) {
+      if (data) {
+        setOnboardingStatus({
+          tourCompleted: data.tour_completed,
+          completedAt: data.completed_at
+        });
+      } else {
         // Create initial onboarding record
         const { error: insertError } = await supabase
           .from('user_onboarding')
           .insert({
             user_id: user.id,
             tour_completed: false
-          });
+          })
+          .select()
+          .single();
 
         if (insertError) {
           console.error('Error creating onboarding record:', insertError);
+          return;
         }
 
         setOnboardingStatus({
           tourCompleted: false,
           completedAt: null
-        });
-      } else {
-        setOnboardingStatus({
-          tourCompleted: data.tour_completed,
-          completedAt: data.completed_at
         });
       }
     } catch (error) {
