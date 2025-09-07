@@ -84,7 +84,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Após o Header */}
-      <main className="relative h-[50vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
+      <main className="relative h-[70vh] sm:h-[60vh] lg:h-[80vh] flex items-center justify-center overflow-hidden">
         {/* Background Video - Wistia - Desktop */}
         <div className="absolute inset-0 w-full h-full hidden md:block">
           <iframe
@@ -106,14 +106,13 @@ const Index = () => {
         {/* Background Video - Wistia - Mobile (vídeo vertical - inteiro) */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=false&autoPlay=true&muted=true&loop=true"
+            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
             title="ConectaIOS Hero Video Mobile Vertical"
-            className="w-full h-full object-cover"
+            className="w-full h-full"
             style={{
               width: '100%',
               height: '100%',
-              border: 'none',
-              objectFit: 'cover'
+              border: 'none'
             }}
             allow="autoplay; fullscreen"
             allowFullScreen
