@@ -94,8 +94,8 @@ const Index = () => {
                 <div className="space-y-6">
                   <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight">
                     Sua rotina <span className="text-primary">imobiliária</span><br />
-                    <span className="text-primary">simplificada</span>,<br />
-                    <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>
+                    <span className="text-primary">simplificada</span>, <span className="text-primary">Organizada</span><br />
+                    e <span className="text-primary">Inteligente</span>
                   </h1>
                   
                   <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
@@ -147,8 +147,8 @@ const Index = () => {
             <div className="container mx-auto px-6">
               <h1 className="text-3xl sm:text-4xl font-bold text-center leading-tight">
                 Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>,<br />
-                <span className="text-primary">Organizada</span> e <span className="text-primary">Inteligente</span>
+                <span className="text-primary">simplificada</span>, <span className="text-primary">Organizada</span><br />
+                e <span className="text-primary">Inteligente</span>
               </h1>
             </div>
           </div>
