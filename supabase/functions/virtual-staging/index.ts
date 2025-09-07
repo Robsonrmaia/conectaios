@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { HfInference } from 'https://esm.sh/@huggingface/inference@2.3.2';
 import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
@@ -33,18 +32,16 @@ serve(async (req) => {
       );
     }
 
-    // Check tokens
-    console.log('Checking API tokens...');
+    // Check Replicate token
+    console.log('Checking Replicate API token...');
     const replicateToken = Deno.env.get('REPLICATE_API_KEY');
-    const hfToken = Deno.env.get('HUGGING_FACE_ACCESS_TOKEN');
     
     console.log('Replicate token:', replicateToken ? `Found (${replicateToken.length} chars)` : 'Not found');
-    console.log('HuggingFace token:', hfToken ? `Found (${hfToken.length} chars)` : 'Not found');
 
-    if (!replicateToken && !hfToken) {
-      console.error('Neither Replicate nor Hugging Face tokens are configured');
+    if (!replicateToken) {
+      console.error('Replicate API token not configured');
       return new Response(
-        JSON.stringify({ error: 'Tokens de IA não configurados' }),
+        JSON.stringify({ error: 'Token do Replicate não configurado' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
       );
     }
@@ -79,130 +76,74 @@ serve(async (req) => {
     const fullPrompt = `${prompt}, professional interior design photography, 8k resolution, high quality, well lit, realistic`;
     
     console.log('Generated prompt:', fullPrompt);
-    console.log('Calling Hugging Face text-to-image API...');
+    console.log('🚀 Using Replicate API');
 
     const startApiCall = Date.now();
 
-    // Try Replicate first (faster and higher quality)
-    if (replicateToken) {
-      try {
-        console.log('🚀 Using Replicate API (Primary Provider)');
-        const replicate = new Replicate({ auth: replicateToken });
-        
-        const replicateResult = await replicate.run(
-          "black-forest-labs/flux-schnell",
-          {
-            input: {
-              prompt: fullPrompt,
-              go_fast: true,
-              megapixels: "1",
-              num_outputs: 1,
-              aspect_ratio: "16:9",
-              output_format: "webp",
-              output_quality: 85,
-              num_inference_steps: 4
-            }
+    try {
+      const replicate = new Replicate({ auth: replicateToken });
+      
+      const replicateResult = await replicate.run(
+        "black-forest-labs/flux-schnell",
+        {
+          input: {
+            prompt: fullPrompt,
+            go_fast: true,
+            megapixels: "1",
+            num_outputs: 1,
+            aspect_ratio: "16:9",
+            output_format: "webp",
+            output_quality: 85,
+            num_inference_steps: 4
           }
-        );
-
-        const apiCallTime = Date.now() - startApiCall;
-        console.log(`✅ Replicate API call completed in ${apiCallTime}ms`);
-
-        // Handle Replicate response
-        let stagedImageUrl = '';
-        if (Array.isArray(replicateResult) && replicateResult.length > 0) {
-          stagedImageUrl = replicateResult[0];
-        } else if (typeof replicateResult === 'string') {
-          stagedImageUrl = replicateResult;
         }
+      );
 
-        if (stagedImageUrl) {
-          const totalTime = Date.now() - startTime;
-          console.log(`🎉 Virtual staging completed successfully in ${totalTime}ms using Replicate`);
+      const apiCallTime = Date.now() - startApiCall;
+      console.log(`✅ Replicate API call completed in ${apiCallTime}ms`);
 
-          return new Response(
-            JSON.stringify({
-              success: true,
-              originalImage: imageUrl,
-              stagedImage: stagedImageUrl,
-              roomType,
-              style,
-              message: `Virtual staging aplicado com sucesso! Ambiente ${roomType} estilo ${style} criado com Replicate.`,
-              processingTime: totalTime,
-              provider: 'Replicate'
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-      } catch (replicateError) {
-        console.error('❌ Replicate API error:', replicateError);
-        console.log('🔄 Falling back to Hugging Face...');
+      // Handle Replicate response
+      let stagedImageUrl = '';
+      if (Array.isArray(replicateResult) && replicateResult.length > 0) {
+        stagedImageUrl = replicateResult[0];
+      } else if (typeof replicateResult === 'string') {
+        stagedImageUrl = replicateResult;
       }
-    }
 
-    // Fallback to Hugging Face
-    if (hfToken) {
-      try {
-        console.log('🔄 Using Hugging Face API (Backup Provider)');
-        const hf = new HfInference(hfToken);
-        
-        const result = await hf.textToImage({
-          inputs: fullPrompt,
-          model: 'runwayml/stable-diffusion-v1-5',
-          parameters: {
-            negative_prompt: 'blurry, low quality, distorted, messy, cluttered, dark, poorly lit, bad interior design',
-            width: 512,
-            height: 512,
-            num_inference_steps: 20,
-            guidance_scale: 7.5,
-          }
-        });
-
-        const apiCallTime = Date.now() - startApiCall;
-        console.log(`✅ Hugging Face API call completed in ${apiCallTime}ms`);
-
-        console.log('Converting result to base64...');
-        const arrayBuffer = await result.arrayBuffer();
-        const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
-        const stagedImageUrl = `data:image/png;base64,${base64}`;
-
-        const totalTime = Date.now() - startTime;
-        console.log(`🎉 Virtual staging completed successfully in ${totalTime}ms using Hugging Face`);
-
-        return new Response(
-          JSON.stringify({
-            success: true,
-            originalImage: imageUrl,
-            stagedImage: stagedImageUrl,
-            roomType,
-            style,
-            message: `Virtual staging aplicado com sucesso! Ambiente ${roomType} estilo ${style} criado com Hugging Face.`,
-            processingTime: totalTime,
-            provider: 'Hugging Face'
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-
-      } catch (hfError) {
-        console.error('❌ Hugging Face API error:', hfError);
+      if (!stagedImageUrl) {
+        throw new Error('Nenhuma imagem gerada pelo Replicate');
       }
-    }
 
-    // If all providers fail, return demo response
-    console.log('⚠️ All providers failed, creating demo response...');
-    return new Response(
-      JSON.stringify({
-        success: true,
-        originalImage: imageUrl,
-        stagedImage: imageUrl, // Use original as fallback
-        roomType,
-        style,
-        message: `Demonstração do virtual staging para ambiente ${roomType} estilo ${style}. (Modo demonstração - configure suas API keys)`,
-        isDemo: true,
-        provider: 'Demo'
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+      const totalTime = Date.now() - startTime;
+      console.log(`🎉 Virtual staging completed successfully in ${totalTime}ms using Replicate`);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          originalImage: imageUrl,
+          stagedImage: stagedImageUrl,
+          roomType,
+          style,
+          message: `Virtual staging aplicado com sucesso! Ambiente ${roomType} estilo ${style} criado.`,
+          processingTime: totalTime,
+          provider: 'Replicate'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+
+    } catch (replicateError) {
+      console.error('❌ Replicate API error:', replicateError);
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Erro ao processar virtual staging com Replicate',
+          details: replicateError.message,
+          timestamp: new Date().toISOString()
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      );
+    }
 
   } catch (error) {
     console.error('=== Virtual Staging Function Error ===');
