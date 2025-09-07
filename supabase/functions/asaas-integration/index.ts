@@ -186,6 +186,38 @@ serve(async (req) => {
         const subscriptionResult = await response.json();
         console.log('Subscription created successfully:', subscriptionResult);
         
+        // Criar cobrança única para forçar URL de checkout
+        const paymentData = {
+          customer: data.customer || data.customerId,
+          billingType: 'UNDEFINED',
+          value: data.value,
+          dueDate: data.nextDueDate,
+          description: data.description,
+          externalReference: data.externalReference + '_payment'
+        };
+
+        console.log('Creating payment for checkout URL...');
+        const paymentResponse = await fetch('https://www.asaas.com/api/v3/payments', {
+          method: 'POST',
+          headers: asaasHeaders,
+          body: JSON.stringify(paymentData)
+        });
+
+        if (paymentResponse.ok) {
+          const paymentResult = await paymentResponse.json();
+          console.log('Payment created for checkout:', paymentResult);
+          
+          // Retornar subscription com URL de checkout do payment
+          return new Response(
+            JSON.stringify({
+              success: true,
+              data: subscriptionResult,
+              checkoutUrl: paymentResult.invoiceUrl || paymentResult.bankSlipUrl
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+        
         // Para subscription, retornar direto o resultado
         return new Response(
           JSON.stringify({

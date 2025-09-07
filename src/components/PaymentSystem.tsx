@@ -114,19 +114,31 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
         throw new Error(subscriptionResponse.error.message || 'Erro ao criar assinatura');
       }
 
+      console.log('Resposta da assinatura:', subscriptionResponse.data);
+      
       const subscription = subscriptionResponse.data?.data;
       const checkoutUrl = subscriptionResponse.data?.checkoutUrl || subscription?.invoiceUrl;
 
+      console.log('Subscription object:', subscription);
+      console.log('Checkout URL found:', checkoutUrl);
+
       if (checkoutUrl) {
         // Abrir checkout em nova aba
+        console.log('Abrindo URL de checkout:', checkoutUrl);
         window.open(checkoutUrl, '_blank');
         setCurrentStep('success');
         toast({
-          title: "Redirecionando para pagamento",
-          description: "Uma nova aba foi aberta com o checkout do Asaas"
+          title: "Checkout aberto!",
+          description: "Complete seu pagamento na nova aba que foi aberta."
         });
       } else {
-        throw new Error('URL de checkout não disponível');
+        // Mostrar informações da assinatura sem URL
+        console.log('Nenhuma URL de checkout disponível');
+        setCurrentStep('success');
+        toast({
+          title: "Assinatura criada!",
+          description: `Assinatura ID: ${subscription?.id}. Entre em contato para finalizar o pagamento.`
+        });
       }
 
     } catch (error: any) {
