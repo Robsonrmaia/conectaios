@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Calculator, 
   FileText, 
@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
-import { ExpandedFerramentas } from '@/components/ExpandedFerramentas';
+import { HelpCenter } from '@/components/HelpCenter';
 
 interface Tool {
   id: string;
@@ -216,79 +216,90 @@ export default function Ferramentas() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {tools.map(tool => {
-          const IconComponent = tool.icon;
-          return (
-            <Card 
-              key={tool.id} 
-              className={`cursor-pointer transition-all hover:shadow-md ${
-                !tool.isAvailable ? 'opacity-60' : ''
-              }`}
-              onClick={() => handleToolAccess(tool)}
-            >
+      <Tabs defaultValue="tools" className="space-y-4">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="tools">Ferramentas</TabsTrigger>
+          <TabsTrigger value="help">Central de Ajuda</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="tools" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {tools.map(tool => {
+              const IconComponent = tool.icon;
+              return (
+                <Card 
+                  key={tool.id} 
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    !tool.isAvailable ? 'opacity-60' : ''
+                  }`}
+                  onClick={() => handleToolAccess(tool)}
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${
+                        tool.isAvailable 
+                          ? 'bg-primary/10 text-primary' 
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        <IconComponent className="h-5 w-5" />
+                      </div>
+                      <CardTitle className="text-base">{tool.name}</CardTitle>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent>
+                    <CardDescription className="text-sm mb-4">
+                      {tool.description}
+                    </CardDescription>
+                    
+                    <div className="flex justify-between items-center">
+                      {tool.isAvailable ? (
+                        <Badge variant="outline" className="text-green-600">
+                          <Zap className="h-3 w-3 mr-1" />
+                          Disponível
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-orange-600">
+                          <Lock className="h-3 w-3 mr-1" />
+                          Upgrade
+                        </Badge>
+                      )}
+                      
+                      <Button size="sm" variant={tool.isAvailable ? "default" : "outline"}>
+                        {tool.isAvailable ? 'Abrir' : 'Upgrade'}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+            
+            {/* Calculator Card */}
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${
-                    tool.isAvailable 
-                      ? 'bg-primary/10 text-primary' 
-                      : 'bg-muted text-muted-foreground'
-                  }`}>
-                    <IconComponent className="h-5 w-5" />
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                    <Calculator className="h-5 w-5" />
                   </div>
-                  <CardTitle className="text-base">{tool.name}</CardTitle>
+                  <CardTitle className="text-base">Calculadora</CardTitle>
                 </div>
               </CardHeader>
-              
               <CardContent>
                 <CardDescription className="text-sm mb-4">
-                  {tool.description}
+                  Simule financiamentos imobiliários
                 </CardDescription>
-                
-                <div className="flex justify-between items-center">
-                  {tool.isAvailable ? (
-                    <Badge variant="outline" className="text-green-600">
-                      <Zap className="h-3 w-3 mr-1" />
-                      Disponível
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-orange-600">
-                      <Lock className="h-3 w-3 mr-1" />
-                      Upgrade
-                    </Badge>
-                  )}
-                  
-                  <Button size="sm" variant={tool.isAvailable ? "default" : "outline"}>
-                    {tool.isAvailable ? 'Abrir' : 'Upgrade'}
-                  </Button>
-                </div>
+                <Button variant="outline" className="w-full">
+                  Abrir Calculadora
+                </Button>
               </CardContent>
             </Card>
-          );
-        })}
+          </div>
+        </TabsContent>
         
-        {/* Calculator Card */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                <Calculator className="h-5 w-5" />
-              </div>
-              <CardTitle className="text-base">Calculadora</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="text-sm mb-4">
-              Simule financiamentos imobiliários
-            </CardDescription>
-            <Button variant="outline" className="w-full">
-              Abrir Calculadora
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <ExpandedFerramentas />
+        <TabsContent value="help" className="space-y-4">
+          <HelpCenter />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

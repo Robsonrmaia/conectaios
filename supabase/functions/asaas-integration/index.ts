@@ -128,7 +128,7 @@ serve(async (req) => {
           method: 'POST',
           headers: asaasHeaders,
           body: JSON.stringify({
-            customer: data.customerId,
+            customer: data.customer || data.customerId,
             billingType: data.billingType,
             value: data.value,
             nextDueDate: data.nextDueDate,
@@ -136,7 +136,9 @@ serve(async (req) => {
             description: data.description,
             endDate: data.endDate,
             maxPayments: data.maxPayments,
-            externalReference: data.externalReference
+            externalReference: data.externalReference,
+            creditCard: data.creditCard,
+            creditCardHolderInfo: data.creditCardHolderInfo
           })
         });
         break;
