@@ -85,8 +85,8 @@ const Index = () => {
 
       {/* Hero Section - Layout com Vídeo ao Lado */}
       <main className="bg-background">
-        {/* Desktop Layout - Duas Colunas */}
-        <div className="hidden md:block">
+        {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
+        <div className="hidden sm:block">
           <div className="container mx-auto px-6 py-8">
             <div className="grid lg:grid-cols-2 gap-16 items-start pt-8">
               {/* Coluna Esquerda - Conteúdo */}
@@ -140,12 +140,12 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Mobile Layout - Sequência: Título -> Vídeo -> Texto completo */}
-        <div className="md:hidden">
+        {/* Mobile Layout - Apenas para telas pequenas */}
+        <div className="sm:hidden">
           {/* Título inicial */}
           <div className="bg-background py-8">
             <div className="container mx-auto px-6">
-              <h1 className="text-3xl sm:text-4xl font-bold text-center leading-tight">
+              <h1 className="text-4xl font-bold text-center leading-tight">
                 Sua rotina <span className="text-primary">imobiliária</span><br />
                 <span className="text-primary">simplificada</span>, <span className="text-primary">Organizada</span><br />
                 e <span className="text-primary">Inteligente</span>
@@ -190,7 +190,7 @@ const Index = () => {
       </main>
 
       {/* Mobile: Seção separada com texto completo */}
-      <section className="md:hidden bg-background py-8">
+      <section className="sm:hidden bg-background py-8">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="bg-gradient-to-br from-primary/20 to-brand-secondary/20 rounded-2xl p-8 border-2 border-primary/30 shadow-2xl backdrop-blur-md">
