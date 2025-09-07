@@ -103,11 +103,11 @@ const Index = () => {
           <div className="absolute inset-0 bg-black/60 z-10"></div>
         </div>
 
-        {/* Background Video - Wistia - Mobile (será substituído pelo vídeo específico da pasta) */}
+        {/* Background Video - Wistia - Mobile (vídeo vertical) */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-            title="ConectaIOS Hero Video Mobile"
+            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+            title="ConectaIOS Hero Video Mobile Vertical"
             className="w-full h-full"
             style={{
               width: '100%',
