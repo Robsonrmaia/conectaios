@@ -175,17 +175,17 @@ export default function Marketplace() {
         {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden">
           <div className="relative z-10">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/app')}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 w-fit"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Button>
-                <h1 className="text-4xl font-bold text-primary">
+                <h1 className="text-2xl sm:text-4xl font-bold text-primary">
                   Marketplace de Imóveis
                 </h1>
               </div>

@@ -106,7 +106,7 @@ const Index = () => {
         {/* Background Video - Wistia - Mobile (vídeo vertical - tela inteira) */}
         <div className="absolute inset-0 w-full h-full md:hidden">
           <iframe
-            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=false&autoPlay=true&muted=true&loop=true&fitStrategy=contain"
+            src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
             title="ConectaIOS Hero Video Mobile Vertical"
             className="w-full h-full"
             style={{
