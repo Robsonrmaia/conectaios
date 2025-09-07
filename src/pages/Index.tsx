@@ -147,7 +147,7 @@ const Index = () => {
           {/* Título inicial */}
           <div className="bg-background py-8">
             <div className="container mx-auto px-6">
-              <h1 className="text-4xl font-bold text-center leading-tight">
+              <h1 className="text-2xl font-bold text-center leading-tight">
                 Sua rotina <span className="text-primary">imobiliária</span><br />
                 <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                 e <span className="text-primary">Inteligente</span>
@@ -156,7 +156,7 @@ const Index = () => {
           </div>
 
           {/* Vídeo */}
-          <div className="relative h-[50vh] overflow-hidden">
+          <div className="relative h-[65vh] overflow-hidden">
             <iframe
               src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
               title="ConectaIOS Hero Video Mobile Vertical"
