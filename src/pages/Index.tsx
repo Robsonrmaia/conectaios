@@ -71,7 +71,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
+              <img src="/lovable-uploads/037cb679-33c8-4542-b80d-4adb0d3c584f.png" alt="ConectaIOS" className="h-12 w-auto" />
             </div>
             <Button 
               onClick={() => navigate('/auth')}
@@ -95,7 +95,7 @@ const Index = () => {
                 <div className="space-y-6">
                   <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight">
                     Sua rotina <span className="text-primary">imobiliária</span><br />
-                    <span className="text-primary">simplificada</span>, <span className="text-primary">Organizada</span><br />
+                    <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                     e <span className="text-primary">Inteligente</span>
                   </h1>
                   
@@ -148,7 +148,7 @@ const Index = () => {
             <div className="container mx-auto px-6">
               <h1 className="text-4xl font-bold text-center leading-tight">
                 Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>, <span className="text-primary">Organizada</span><br />
+                <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                 e <span className="text-primary">Inteligente</span>
               </h1>
             </div>

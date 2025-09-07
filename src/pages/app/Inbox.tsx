@@ -1,4 +1,4 @@
-import { MessagingSystem } from '@/components/MessagingSystem';
+import { EnhancedMessaging } from '@/components/EnhancedMessaging';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -29,7 +29,7 @@ export default function Inbox() {
         </div>
       </div>
 
-      <MessagingSystem />
+      <EnhancedMessaging />
     </div>
   );
 }

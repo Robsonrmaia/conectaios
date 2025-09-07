@@ -136,7 +136,7 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
         <CardTitle className="flex items-center gap-2">
           <Wand2 className="h-5 w-5" />
           Virtual Staging com IA
-          <Badge variant="secondary">Powered by Hugging Face</Badge>
+          <Badge variant="secondary">Powered by Replicate</Badge>
         </CardTitle>
       </CardHeader>
       

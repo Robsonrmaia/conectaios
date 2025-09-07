@@ -12,13 +12,18 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Plus, Search, Phone, Mail, MapPin, Calendar, Home, MessageSquare, Target, Star } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { User, Plus, Search, Phone, Mail, MapPin, Calendar, Home, MessageSquare, Target, Star, Clock, AlertTriangle, Cake, History } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface Client {
   id: string;
   nome: string;
   telefone: string;
+  email?: string;
+  data_nascimento?: string;
   tipo: string;
   stage: string;
   classificacao: string;
@@ -26,6 +31,7 @@ interface Client {
   photo?: string;
   created_at: string;
   score: number;
+  last_contact_at?: string;
 }
 
 interface Pipeline {
@@ -394,9 +400,9 @@ export default function CRM() {
             Dashboard
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-primary">CRM</h1>
+            <h1 className="text-3xl font-bold text-primary">CRM Avançado</h1>
             <p className="text-muted-foreground">
-              Gerencie seus clientes, pipeline e tarefas
+              Gerencie clientes com histórico detalhado e alertas inteligentes
             </p>
           </div>
         </div>
