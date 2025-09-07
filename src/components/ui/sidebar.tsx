@@ -261,7 +261,7 @@ const SidebarTrigger = React.forwardRef<
   React.ElementRef<typeof Button>,
   React.ComponentProps<typeof Button>
 >(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+  const sidebar = useSidebar()
 
   return (
     <Button
@@ -271,8 +271,13 @@ const SidebarTrigger = React.forwardRef<
       size="icon"
       className={cn("h-7 w-7", className)}
       onClick={(event) => {
+        console.log('SidebarTrigger clicked', { sidebar })
         onClick?.(event)
-        toggleSidebar()
+        if (sidebar?.toggleSidebar) {
+          sidebar.toggleSidebar()
+        } else {
+          console.error('toggleSidebar not available', sidebar)
+        }
       }}
       {...props}
     >
