@@ -100,14 +100,28 @@ export default function BrokerMinisite() {
       }
       setBroker(bq.data);
 
-      // 2) Propriedades PÚBLICAS na TABELA CERTA usando user_id
-      const { data: props, error: propsErr } = await supabase
+      // 2) Propriedades PÚBLICAS - primeiro tentar conectaios_properties, se não houver, usar properties
+      let { data: props, error: propsErr } = await supabase
         .from("conectaios_properties")
         .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
         .eq("user_id", bq.data.user_id)
         .eq("is_public", true)
         .eq("visibility", "public_site")
         .order("updated_at", { ascending: false });
+
+      // Se não houver props na conectaios_properties, tentar a tabela properties
+      if (!props || props.length === 0) {
+        const { data: fallbackProps, error: fallbackErr } = await supabase
+          .from("properties")
+          .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
+          .eq("user_id", bq.data.user_id)
+          .eq("is_public", true)
+          .eq("visibility", "public_site")
+          .order("updated_at", { ascending: false });
+        
+        props = fallbackProps;
+        propsErr = fallbackErr;
+      }
 
       if (propsErr) pushErr("properties.query", propsErr);
 

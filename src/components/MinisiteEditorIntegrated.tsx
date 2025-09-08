@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { DomainConfiguration } from '@/components/DomainConfiguration';
+import { MinisitePreview } from '@/components/MinisitePreview';
 import { 
   Palette, 
   Layout, 
@@ -41,7 +42,9 @@ export function MinisiteEditorIntegrated() {
   const { broker, updateBrokerProfile } = useBroker();
   const { config, loading, updateConfig, saveConfig, generateUrl } = useMinisite();
   const [preview, setPreview] = useState('desktop');
+  const [activeTab, setActiveTab] = useState('design');
   const [isSaving, setIsSaving] = useState(false);
+  const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
 
   const handleSave = async () => {
     if (!config) return;
@@ -77,6 +80,8 @@ export function MinisiteEditorIntegrated() {
         await updateBrokerProfile({ avatar_url: data.publicUrl });
       } else if (type === 'cover') {
         await updateBrokerProfile({ cover_url: data.publicUrl });
+      } else if (type === 'logo') {
+        await updateBrokerProfile({ avatar_url: data.publicUrl }); // Logo uses avatar_url for now
       }
 
       toast({
@@ -90,6 +95,44 @@ export function MinisiteEditorIntegrated() {
         description: "Erro ao enviar imagem. Tente novamente.",
         variant: "destructive",
       });
+    }
+  };
+
+  const generateLogoWithAI = async (prompt: string) => {
+    setIsGeneratingLogo(true);
+    try {
+      const response = await supabase.functions.invoke('generate-logo', {
+        body: { prompt }
+      });
+
+      if (response.error) throw response.error;
+
+      // Convert base64 to blob and upload
+      const base64Data = response.data.image.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/png' });
+      
+      const file = new File([blob], `logo_${Date.now()}.png`, { type: 'image/png' });
+      await handleImageUpload(file, 'logo');
+      
+      toast({
+        title: "Logo gerado!",
+        description: "Seu logo foi criado e aplicado com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error generating logo:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao gerar logo. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingLogo(false);
     }
   };
 
@@ -156,7 +199,7 @@ export function MinisiteEditorIntegrated() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Editor Panel */}
         <div className="space-y-6">
-          <Tabs value="design" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="content">Conteúdo</TabsTrigger>
@@ -322,6 +365,56 @@ export function MinisiteEditorIntegrated() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Logo Upload */}
+                  <div className="space-y-2">
+                    <Label>Logo da Empresa</Label>
+                    <div className="flex items-center gap-4">
+                      {broker?.avatar_url ? (
+                        <img 
+                          src={broker.avatar_url} 
+                          alt="Logo atual"
+                          className="w-16 h-16 rounded-lg object-cover border"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center border">
+                          <Camera className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex gap-2">
+                        <div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'logo');
+                            }}
+                            className="hidden"
+                            id="logo-upload"
+                          />
+                          <Label htmlFor="logo-upload" className="cursor-pointer">
+                            <Button variant="outline" asChild>
+                              <span>
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload Logo
+                              </span>
+                            </Button>
+                          </Label>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => {
+                            const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna', 'casa azul', etc.):");
+                            if (prompt) generateLogoWithAI(prompt);
+                          }}
+                          disabled={isGeneratingLogo}
+                        >
+                          {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar com IA'}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Avatar Upload */}
                   <div className="space-y-2">
                     <Label>Foto de Perfil</Label>
@@ -482,20 +575,24 @@ export function MinisiteEditorIntegrated() {
           {/* URL Info */}
           <Card>
             <CardHeader>
-              <CardTitle>URL do Mini Site</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Eye className="h-5 w-5" />
+                Preview
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  <code className="text-sm bg-muted px-2 py-1 rounded">
-                    {config.generated_url || '/broker/' + broker?.username}
-                  </code>
+              <MinisitePreview 
+                config={config}
+                broker={broker}
+                preview={preview}
+              />
+              
+              {config.generated_url && (
+                <div className="mt-4 p-3 bg-muted rounded-lg">
+                  <p className="text-sm font-medium">URL do Mini Site:</p>
+                  <code className="text-xs bg-white p-1 rounded">{config.generated_url || '/broker/' + broker?.username}</code>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Este será o endereço público do seu mini site
-                </p>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>

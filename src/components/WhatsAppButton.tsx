@@ -14,7 +14,7 @@ export function WhatsAppButton({
   phone = "5511999999999", 
   message = "Olá! Gostaria de mais informações sobre os imóveis.",
   position = 'bottom-right',
-  showOnScroll = false
+  showOnScroll = true
 }: WhatsAppButtonProps) {
   const [isVisible, setIsVisible] = useState(!showOnScroll);
   const [isMinimized, setIsMinimized] = useState(false);
