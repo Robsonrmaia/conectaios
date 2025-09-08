@@ -34,6 +34,7 @@ import Admin from "./pages/app/Admin";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
+import PublicProbe from "@/pages/PublicProbe";
 
 const AtRedirect = () => {
   const { username } = useParams<{ username: string }>();
@@ -116,6 +117,7 @@ const App = () => (
               <Route path="/@:username" element={<AtRedirect />} />
               <Route path="/broker/:username" element={<BrokerMinisite />} />
               <Route path="/imovel/:id" element={<PropertyDetail />} />
+              <Route path="/public-test" element={<PublicProbe />} />
               <Route path="/app/*" element={
                 <ProtectedRoute>
                   <AppLayout>

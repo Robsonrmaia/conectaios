@@ -3,6 +3,7 @@ import { Share2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/use-toast';
+import { generatePropertyUrl } from '@/lib/urls';
 
 interface ShareButtonProps {
   propertyId: string;
@@ -34,7 +35,7 @@ export function ShareButton({
       return;
     }
 
-    const url = `${window.location.origin}/imovel/${propertyId}`;
+    const url = generatePropertyUrl(propertyId);
     const text = `Confira este imóvel: ${propertyTitle}`;
     
     if (navigator.share) {

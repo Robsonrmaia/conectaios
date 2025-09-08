@@ -5,18 +5,12 @@
 
 /**
  * Get the base URL for the application
- * Uses VITE_PUBLIC_SITE_URL environment variable if available, 
- * otherwise falls back to window.location.origin
+ * Uses PUBLIC_BASE_URL which forces production domain on Lovable
  */
+import { PUBLIC_BASE_URL } from '@/config/publicBaseUrl';
+
 export const getBaseUrl = (): string => {
-  // Check if we have the environment variable set
-  const envUrl = import.meta.env.VITE_PUBLIC_SITE_URL;
-  if (envUrl) {
-    return envUrl;
-  }
-  
-  // Fallback to current origin
-  return window.location.origin;
+  return PUBLIC_BASE_URL;
 };
 
 /**
