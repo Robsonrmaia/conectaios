@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
 import BrokerSetup from '@/components/BrokerSetup';
 import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
+import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
 import { toast } from '@/components/ui/use-toast';
 import { 
   User, 
@@ -31,11 +32,6 @@ import { AsaasTestButton } from '@/components/AsaasTestButton';
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
   
-  // If no broker profile exists, show the setup form
-  if (!broker) {
-    return <BrokerSetup />;
-  }
-
   const [profile, setProfile] = useState({
     name: '',
     email: '',
@@ -51,6 +47,11 @@ export default function Perfil() {
     linkedin: '',
     specialties: ''
   });
+
+  // If no broker profile exists, show the setup form
+  if (!broker) {
+    return <BrokerSetup />;
+  }
 
   // Update profile data when broker data changes
   useEffect(() => {
@@ -364,10 +365,15 @@ export default function Perfil() {
         <TabsContent value="minisite" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Editor do Mini Site</CardTitle>
-              <CardDescription>
-                Personalize a aparência e configurações do seu mini site
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Editor do Mini Site</CardTitle>
+                  <CardDescription>
+                    Personalize a aparência e configurações do seu mini site
+                  </CardDescription>
+                </div>
+                <MinisiteHelpGuide />
+              </div>
             </CardHeader>
             <CardContent>
               <MinisiteEditorIntegrated />

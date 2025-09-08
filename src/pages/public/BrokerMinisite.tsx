@@ -100,45 +100,18 @@ export default function BrokerMinisite() {
       }
       setBroker(bq.data);
 
-      // 2) Propriedades PÚBLICAS - primeiro tentar conectaios_properties, se não houver, usar properties
+      // 2) Propriedades PÚBLICAS
       console.log('Fetching properties for user_id:', bq.data.user_id);
       
-      let { data: props, error: propsErr } = await supabase
-        .from("conectaios_properties")
+      const { data: props, error: propsErr } = await supabase
+        .from("properties")
         .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
         .eq("user_id", bq.data.user_id)
         .eq("is_public", true)
         .eq("visibility", "public_site")
         .order("updated_at", { ascending: false });
 
-      console.log('Properties from conectaios_properties:', props?.length || 0, 'error:', propsErr);
-
-      // Se não houver props na conectaios_properties, tentar a tabela properties
-      if (!props || props.length === 0) {
-        console.log('No properties found in conectaios_properties, trying properties table');
-        const { data: fallbackProps, error: fallbackErr } = await supabase
-          .from("properties")
-          .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
-          .eq("user_id", bq.data.user_id)
-          .eq("is_public", true)
-          .eq("visibility", "public_site")
-          .order("updated_at", { ascending: false });
-        
-        props = fallbackProps;
-        propsErr = fallbackErr;
-        console.log('Properties from fallback table:', fallbackProps?.length || 0, 'error:', fallbackErr);
-      }
-
-      // Verificar se há propriedades sem os filtros de visibilidade
-      if (!props || props.length === 0) {
-        console.log('Trying to find properties without visibility filters');
-        const { data: debugProps } = await supabase
-          .from("conectaios_properties")
-          .select("id, titulo, user_id, is_public, visibility")
-          .eq("user_id", bq.data.user_id);
-        
-        console.log('All properties for user (debug):', debugProps);
-      }
+      console.log('Properties found:', props?.length || 0, 'error:', propsErr);
 
       if (propsErr) pushErr("properties.query", propsErr);
 

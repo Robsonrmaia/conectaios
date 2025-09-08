@@ -33,6 +33,7 @@ import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated'
 import { MinisiteProvider } from '@/hooks/useMinisite';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
 import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
 
 interface BrokerProfile {
@@ -178,6 +179,8 @@ export default function Minisite() {
         </div>
         
         <div className="flex gap-2">
+          <MinisiteHelpGuide />
+          
           <Button variant="outline" onClick={copyMinisiteUrl}>
             <Copy className="h-4 w-4 mr-2" />
             Copiar Link
