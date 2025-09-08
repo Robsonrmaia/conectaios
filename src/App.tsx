@@ -42,6 +42,10 @@ const AtRedirect = () => {
   return <Navigate to={`/broker/${clean}`} replace />;
 };
 
+const BrokerRedirect = () => {
+  return <Navigate to="/" replace />;
+};
+
 const queryClient = new QueryClient();
 
 const UserInfo = () => {
@@ -115,6 +119,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/@:username" element={<AtRedirect />} />
+              <Route path="/broker" element={<BrokerRedirect />} />
               <Route path="/broker/:username" element={<BrokerMinisite />} />
               <Route path="/imovel/:id" element={<PropertyDetail />} />
               <Route path="/public-test" element={<PublicProbe />} />
