@@ -70,101 +70,26 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
   };
 
   const handleAsaasPayment = async () => {
-    if (!user || !userData) {
-      toast({
-        title: "Erro",
-        description: "Dados do usuário necessários",
-        variant: "destructive"
-      });
-      return;
-    }
-
     setLoading(true);
     setCurrentStep('processing');
     
     try {
-      // 1. Criar cliente no Asaas
-      console.log('Criando cliente no Asaas...');
-      const customerResponse = await supabase.functions.invoke('asaas-integration', {
-        body: {
-          action: 'create_customer',
-          data: {
-            name: userData.name,
-            email: userData.email,
-            phone: userData.phone,
-            cpfCnpj: userData.cpfCnpj.replace(/\D/g, ''),
-            externalReference: user.id,
-            notificationDisabled: false
-          }
-        }
-      });
+      console.log('Redirecionando para Asaas...');
 
-      if (customerResponse.error) {
-        throw new Error(customerResponse.error.message || 'Erro ao criar cliente');
-      }
-
-      const customerId = customerResponse.data?.data?.id;
-      if (!customerId) {
-        throw new Error('ID do cliente não retornado');
-      }
-
-      // 2. Criar assinatura
-      console.log('Criando assinatura...');
-      const subscriptionResponse = await supabase.functions.invoke('asaas-integration', {
-        body: {
-          action: 'create_subscription',
-          data: {
-            customer: customerId,
-            billingType: 'UNDEFINED', // Cliente escolhe no checkout
-            value: planValue,
-            nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 dias
-            cycle: 'MONTHLY',
-            description: `Assinatura ${planName} - ConectaIOS`,
-            externalReference: `plan_${user.id}_${Date.now()}`
-          }
-        }
-      });
-
-      if (subscriptionResponse.error) {
-        throw new Error(subscriptionResponse.error.message || 'Erro ao criar assinatura');
-      }
-
-      console.log('Resposta da assinatura:', subscriptionResponse.data);
+      // Redirecionar direto para o Asaas
+      const asaasUrl = 'https://www.asaas.com/cadastro';
+      window.open(asaasUrl, '_blank');
       
-      const subscription = subscriptionResponse.data?.data;
-      const checkoutUrl = subscriptionResponse.data?.checkoutUrl || subscription?.invoiceUrl;
-
-      console.log('Subscription object:', subscription);
-      console.log('Checkout URL found:', checkoutUrl);
-
-      if (checkoutUrl) {
-        // Abrir checkout em nova aba
-        console.log('Abrindo URL de checkout:', checkoutUrl);
-        window.open(checkoutUrl, '_blank');
-        setCurrentStep('success');
-        toast({
-          title: "Checkout aberto!",
-          description: "Complete seu pagamento na nova aba que foi aberta."
-        });
-      } else {
-        // Mostrar informações da assinatura sem URL
-        console.log('Nenhuma URL de checkout disponível');
-        setCurrentStep('success');
-        toast({
-          title: "Assinatura criada!",
-          description: `Assinatura ID: ${subscription?.id}. Entre em contato para finalizar o pagamento.`
-        });
-      }
+      setCurrentStep('success');
+      toast({
+        title: "Redirecionado para Asaas",
+        description: "Complete seu cadastro e assinatura no Asaas que foi aberto em nova aba."
+      });
 
     } catch (error: any) {
-      console.error('Erro no pagamento:', error);
-      setErrorMessage(error.message);
+      console.error('Erro:', error);
+      setErrorMessage('Erro ao abrir Asaas');
       setCurrentStep('error');
-      toast({
-        title: "Erro no pagamento",
-        description: error.message,
-        variant: "destructive"
-      });
     } finally {
       setLoading(false);
     }
