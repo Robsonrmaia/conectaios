@@ -44,11 +44,12 @@ export function AsaasPaymentButton({
       const formatCpfCnpj = (value: string) => {
         // Remove all non-numeric characters
         const cleanValue = value.replace(/\D/g, '');
-        // For demo purposes, use a valid test CPF
-        if (!cleanValue || cleanValue === '00000000000') {
-          return '11144477735'; // Valid test CPF for Asaas sandbox
+        // Use real CPF/CNPJ if available, fallback to test CPF for sandbox
+        if (broker.cpf_cnpj && broker.cpf_cnpj.replace(/\D/g, '').length >= 11) {
+          return broker.cpf_cnpj.replace(/\D/g, '');
         }
-        return cleanValue;
+        // For sandbox testing, use valid test CPF
+        return '11144477735'; // Valid test CPF for Asaas sandbox
       };
 
       // Create customer in Asaas
@@ -59,7 +60,7 @@ export function AsaasPaymentButton({
             name: broker.name,
             email: broker.email,
             phone: broker.phone || '',
-            cpfCnpj: formatCpfCnpj(broker.creci || ''), // Use CRECI or fallback to test CPF
+            cpfCnpj: formatCpfCnpj(''), // Use CPF/CNPJ from broker data or fallback
             externalReference: broker.id
           }
         }
@@ -94,8 +95,11 @@ export function AsaasPaymentButton({
 
       if (paymentResponse.error) throw paymentResponse.error;
 
-      const subscription = paymentResponse.data.subscription;
-      if (!subscription) {
+      // A função retorna { success, data, checkoutUrl }
+      const subscriptionData = paymentResponse.data?.data; 
+      const checkoutUrl = paymentResponse.data?.checkoutUrl;
+
+      if (!subscriptionData) {
         throw new Error('Erro ao criar assinatura');
       }
 
@@ -113,8 +117,8 @@ export function AsaasPaymentButton({
       if (updateError) throw updateError;
 
       // Redirect to payment page or show success
-      if (subscription.invoiceUrl) {
-        window.open(subscription.invoiceUrl, '_blank');
+      if (checkoutUrl) {
+        window.open(checkoutUrl, '_blank');
         toast({
           title: "Redirecionando para pagamento",
           description: "Você será redirecionado para completar o pagamento",

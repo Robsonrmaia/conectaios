@@ -19,6 +19,7 @@ interface Broker {
   subscription_status: string;
   subscription_expires_at?: string;
   referral_code?: string;
+  cpf_cnpj?: string;
 }
 
 interface Plan {

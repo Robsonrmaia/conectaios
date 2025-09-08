@@ -26,8 +26,29 @@ serve(async (req) => {
       throw new Error('ASAAS_API_KEY não configurado');
     }
 
+    // Determine API base URL based on environment
+    const asaasEnv = Deno.env.get('ASAAS_ENV') || 'SANDBOX';
+    const asaasApiBase = Deno.env.get('ASAAS_API_BASE') 
+      ?? (asaasEnv === 'SANDBOX'
+          ? 'https://sandbox.asaas.com/api/v3'
+          : 'https://www.asaas.com/api/v3');
+
+    console.log(`Using Asaas environment: ${asaasEnv}`);
+    console.log(`API Base URL: ${asaasApiBase}`);
+
     const body = await req.json();
-    const { action, data } = body;
+    let { action, data } = body;
+
+    // Auto-detect Asaas webhook (no action, has event/payment)
+    if (!action && (body.event || body.payment)) {
+      console.log('Detected Asaas webhook');
+      action = 'handle_webhook';
+      data = body;
+    }
+
+    if (!action) {
+      throw new Error('Ação não especificada');
+    }
 
     console.log('Action:', action);
     console.log('Data:', data);
@@ -45,7 +66,7 @@ serve(async (req) => {
         console.log('Creating customer in Asaas...');
         console.log('Customer data:', JSON.stringify(data, null, 2));
         
-        response = await fetch('https://www.asaas.com/api/v3/customers', {
+        response = await fetch(`${asaasApiBase}/customers`, {
           method: 'POST',
           headers: asaasHeaders,
           body: JSON.stringify({
@@ -76,7 +97,7 @@ serve(async (req) => {
       case 'verify_customer':
         // Verificar se cliente existe
         console.log('Verifying customer in Asaas...');
-        response = await fetch(`https://www.asaas.com/api/v3/customers/${data.customerId}`, {
+        response = await fetch(`${asaasApiBase}/customers/${data.customerId}`, {
           method: 'GET',
           headers: asaasHeaders
         });
@@ -91,7 +112,7 @@ serve(async (req) => {
       case 'create_payment':
         // Criar cobrança no Asaas
         console.log('Creating payment in Asaas...');
-        response = await fetch('https://www.asaas.com/api/v3/payments', {
+        response = await fetch(`${asaasApiBase}/payments`, {
           method: 'POST',
           headers: asaasHeaders,
           body: JSON.stringify({
@@ -120,7 +141,7 @@ serve(async (req) => {
       case 'get_payment':
         // Consultar cobrança
         console.log('Getting payment from Asaas...');
-        response = await fetch(`https://www.asaas.com/api/v3/payments/${data.paymentId}`, {
+        response = await fetch(`${asaasApiBase}/payments/${data.paymentId}`, {
           method: 'GET',
           headers: asaasHeaders
         });
@@ -136,7 +157,7 @@ serve(async (req) => {
         if (data.limit) params.append('limit', data.limit.toString());
         if (data.offset) params.append('offset', data.offset.toString());
 
-        response = await fetch(`https://www.asaas.com/api/v3/payments?${params.toString()}`, {
+        response = await fetch(`${asaasApiBase}/payments?${params.toString()}`, {
           method: 'GET',
           headers: asaasHeaders
         });
@@ -145,7 +166,7 @@ serve(async (req) => {
       case 'cancel_payment':
         // Cancelar cobrança
         console.log('Canceling payment in Asaas...');
-        response = await fetch(`https://www.asaas.com/api/v3/payments/${data.paymentId}`, {
+        response = await fetch(`${asaasApiBase}/payments/${data.paymentId}`, {
           method: 'DELETE',
           headers: asaasHeaders
         });
@@ -169,7 +190,7 @@ serve(async (req) => {
 
         console.log('Subscription data being sent:', JSON.stringify(subscriptionData, null, 2));
 
-        response = await fetch('https://www.asaas.com/api/v3/subscriptions', {
+        response = await fetch(`${asaasApiBase}/subscriptions`, {
           method: 'POST',
           headers: asaasHeaders,
           body: JSON.stringify(subscriptionData)
@@ -197,7 +218,7 @@ serve(async (req) => {
         };
 
         console.log('Creating payment for checkout URL...');
-        const paymentResponse = await fetch('https://www.asaas.com/api/v3/payments', {
+        const paymentResponse = await fetch(`${asaasApiBase}/payments`, {
           method: 'POST',
           headers: asaasHeaders,
           body: JSON.stringify(paymentData)
@@ -228,9 +249,9 @@ serve(async (req) => {
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
 
-      case 'webhook_payment':
-        // Processar webhook de pagamento
-        console.log('Processing payment webhook...');
+      case 'handle_webhook':
+        // Processar webhook de pagamento do Asaas
+        console.log('Processing Asaas webhook...');
         
         const { event, payment } = data;
         
@@ -239,13 +260,12 @@ serve(async (req) => {
           .from('asaas_webhooks')
           .insert({
             event_type: event,
-            payment_id: payment.id,
-            payment_status: payment.status,
-            payment_value: payment.value,
-            customer_id: payment.customer,
-            external_reference: payment.externalReference,
-            webhook_data: data,
-            processed_at: new Date().toISOString()
+            payment_id: payment?.id,
+            payment_status: payment?.status,
+            payment_value: payment?.value,
+            customer_id: payment?.customer,
+            external_reference: payment?.externalReference,
+            webhook_data: data
           });
 
         if (logError) {
@@ -253,7 +273,7 @@ serve(async (req) => {
         }
 
         // Atualizar status do deal se existe referência externa
-        if (payment.externalReference && payment.externalReference.startsWith('deal_')) {
+        if (payment?.externalReference && payment.externalReference.startsWith('deal_')) {
           const dealId = payment.externalReference.replace('deal_', '');
           
           let dealStatus = 'pendente';
@@ -269,6 +289,60 @@ serve(async (req) => {
               payment_status: dealStatus,
               asaas_payment_id: payment.id,
               paid_at: payment.status === 'CONFIRMED' ? new Date().toISOString() : null
+            })
+            .eq('id', dealId);
+
+          if (dealError) {
+            console.error('Error updating deal:', dealError);
+          }
+        }
+
+        return new Response(
+          JSON.stringify({ success: true, message: 'Webhook processed successfully' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+
+      case 'webhook_payment':
+        // Manter compatibilidade com chamadas antigas
+        console.log('Processing payment webhook (legacy)...');
+        
+        const webhookEvent = data.event;
+        const webhookPayment = data.payment;
+        
+        // Registrar evento no banco
+        const { error: legacyLogError } = await supabase
+          .from('asaas_webhooks')
+          .insert({
+            event_type: webhookEvent,
+            payment_id: webhookPayment.id,
+            payment_status: webhookPayment.status,
+            payment_value: webhookPayment.value,
+            customer_id: webhookPayment.customer,
+            external_reference: webhookPayment.externalReference,
+            webhook_data: data
+          });
+
+        if (legacyLogError) {
+          console.error('Error logging webhook:', legacyLogError);
+        }
+
+        // Atualizar status do deal se existe referência externa
+        if (webhookPayment.externalReference && webhookPayment.externalReference.startsWith('deal_')) {
+          const dealId = webhookPayment.externalReference.replace('deal_', '');
+          
+          let dealStatus = 'pendente';
+          if (webhookPayment.status === 'CONFIRMED' || webhookPayment.status === 'RECEIVED') {
+            dealStatus = 'pago';
+          } else if (webhookPayment.status === 'OVERDUE') {
+            dealStatus = 'vencido';
+          }
+
+          const { error: dealError } = await supabase
+            .from('deals')
+            .update({ 
+              payment_status: dealStatus,
+              asaas_payment_id: webhookPayment.id,
+              paid_at: webhookPayment.status === 'CONFIRMED' ? new Date().toISOString() : null
             })
             .eq('id', dealId);
 

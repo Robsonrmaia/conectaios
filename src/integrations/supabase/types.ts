@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      asaas_webhooks: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          event_type: string | null
+          external_reference: string | null
+          id: string
+          payment_id: string | null
+          payment_status: string | null
+          payment_value: number | null
+          webhook_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          event_type?: string | null
+          external_reference?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_status?: string | null
+          payment_value?: number | null
+          webhook_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          event_type?: string | null
+          external_reference?: string | null
+          id?: string
+          payment_id?: string | null
+          payment_status?: string | null
+          payment_value?: number | null
+          webhook_data?: Json | null
+        }
+        Relationships: []
+      }
       assignments: {
         Row: {
           assigned_by: string | null
@@ -532,6 +568,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           cover_url: string | null
+          cpf_cnpj: string | null
           created_at: string
           creci: string | null
           email: string
@@ -554,6 +591,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           cover_url?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
           email: string
@@ -576,6 +614,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           cover_url?: string | null
+          cpf_cnpj?: string | null
           created_at?: string
           creci?: string | null
           email?: string
