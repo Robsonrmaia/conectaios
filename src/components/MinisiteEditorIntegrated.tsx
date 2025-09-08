@@ -659,38 +659,7 @@ export function MinisiteEditorIntegrated() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Eye className="h-5 w-5" />
-                Preview
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className={`
-                mx-auto border rounded-lg overflow-hidden bg-muted/50
-                ${preview === 'mobile' ? 'max-w-sm' : 
-                  preview === 'tablet' ? 'max-w-md' : 'w-full'}
-              `}>
-                <div className="aspect-video bg-white flex items-center justify-center">
-                  <div className="text-center space-y-2">
-                    <div 
-                      className="w-12 h-12 rounded-full mx-auto"
-                      style={{ backgroundColor: config.primary_color }}
-                    />
-                    <h3 className="font-semibold">{config.title}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Preview do minisite em {preview === 'mobile' ? 'celular' : 
-                                             preview === 'tablet' ? 'tablet' : 'desktop'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* URL Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                Preview
+                Preview do Mini Site
               </CardTitle>
             </CardHeader>
             <CardContent>

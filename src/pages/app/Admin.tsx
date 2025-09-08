@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Navigate } from 'react-router-dom';
 import { 
   Shield, 
   Users, 
@@ -16,8 +17,26 @@ import {
   Building,
   MessageSquare
 } from 'lucide-react';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
+import AdminUserManagement from '@/components/AdminUserManagement';
 
 export default function Admin() {
+  const { isAdmin, loading } = useAdminAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto" />
+          <p className="text-muted-foreground">Verificando permissões...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
   const stats = {
     totalUsers: 1247,
     activeUsers: 892,
@@ -267,30 +286,7 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="usuarios" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Gestão de Usuários</CardTitle>
-              <CardDescription>
-                Gerencie usuários, permissões e acessos
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Users className="h-6 w-6" />
-                  Ver Todos os Usuários
-                </Button>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <UserCheck className="h-6 w-6" />
-                  Usuários Ativos
-                </Button>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Shield className="h-6 w-6" />
-                  Permissões
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <AdminUserManagement />
         </TabsContent>
 
         <TabsContent value="sistema" className="space-y-6">
