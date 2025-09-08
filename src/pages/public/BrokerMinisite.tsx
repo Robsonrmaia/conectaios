@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, MapPin, Bed, Bath, Square } from "lucide-react";
@@ -37,80 +37,71 @@ type Property = {
 
 export default function BrokerMinisite() {
   const { username } = useParams();
-  const cleanUsername = (username ?? "").replace(/^@+/, "");
+  const cleanUsername = useMemo(
+    () => (username ?? "").replace(/^@+/, ""),
+    [username]
+  );
 
   const [broker, setBroker] = useState<Broker | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const debug = new URLSearchParams(location.search).get("debug") === "1";
+  const [errs, setErrs] = useState<string[]>([]);
+  const debug =
+    new URLSearchParams(globalThis.location?.search || "").get("debug") === "1" ||
+    globalThis.localStorage?.getItem("minisite_debug") === "1";
+
+  const pushErr = (label: string, e: any) => {
+    const msg =
+      typeof e === "string"
+        ? e
+        : e?.message || e?.error_description || JSON.stringify(e);
+    setErrs((prev) => [...prev, `${label}: ${msg}`]);
+  };
 
   useEffect(() => {
     let mounted = true;
-
     (async () => {
       setLoading(true);
+      setErrs([]);
 
-      const log = (...args: any[]) => { if (debug) console.log("[minisite]", ...args); };
+      // 1) Busca corretor por username na TABELA CERTA
+      const bq = await supabase
+        .from("conectaios_brokers")
+        .select("id, user_id, username, name, avatar_url, bio, status, phone, email")
+        .eq("username", cleanUsername)
+        .maybeSingle();
 
-      try {
-        // 1) Busca corretor por username na TABELA CERTA
-        log("🔍 Buscando corretor:", cleanUsername);
-        const { data: b, error: bErr } = await supabase
-          .from("conectaios_brokers")
-          .select("id, user_id, username, name, avatar_url, bio, status, phone, email")
-          .eq("username", cleanUsername)
-          .eq("status", "active")
-          .maybeSingle();
+      if (bq.error) pushErr("broker.query", bq.error);
+      if (!mounted) return;
 
-        if (bErr) {
-          log("❌ Erro ao buscar broker:", bErr);
-          if (!mounted) return;
-          setLoading(false);
-          return;
-        }
-        
-        log("✅ Broker encontrado:", b);
-        if (!mounted) return;
-        setBroker(b ?? null);
-
-        if (!b) {
-          log("❌ Nenhum broker encontrado");
-          if (!mounted) return;
-          setLoading(false);
-          return;
-        }
-
-        // 2) Busca imóveis públicos do corretor na TABELA CERTA usando user_id
-        log("🏠 Buscando propriedades para user_id:", b.user_id);
-        const { data: props, error: propsErr } = await supabase
-          .from("conectaios_properties")
-          .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
-          .eq("user_id", b.user_id)
-          .eq("is_public", true)
-          .eq("visibility", "public_site")
-          .order("updated_at", { ascending: false });
-
-        if (propsErr) {
-          log("❌ Erro ao buscar propriedades:", propsErr);
-        } else {
-          log("✅ Propriedades encontradas:", props?.length || 0);
-          if (props && props.length > 0) {
-            log("📋 Primeira propriedade:", props[0]);
-          }
-        }
-
-        if (!mounted) return;
-        setProperties(props ?? []);
+      if (!bq.data) {
+        setBroker(null);
+        setProperties([]);
         setLoading(false);
-      } catch (error) {
-        log("💥 Erro geral:", error);
-        if (!mounted) return;
-        setLoading(false);
+        return;
       }
+      setBroker(bq.data);
+
+      // 2) Propriedades PÚBLICAS na TABELA CERTA usando user_id
+      const { data: props, error: propsErr } = await supabase
+        .from("conectaios_properties")
+        .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
+        .eq("user_id", bq.data.user_id)
+        .eq("is_public", true)
+        .eq("visibility", "public_site")
+        .order("updated_at", { ascending: false });
+
+      if (propsErr) pushErr("properties.query", propsErr);
+
+      if (!mounted) return;
+      setProperties(props ?? []);
+      setLoading(false);
     })();
 
-    return () => { mounted = false; };
-  }, [cleanUsername, debug]);
+    return () => {
+      mounted = false;
+    };
+  }, [cleanUsername]);
 
   if (loading) {
     return (
@@ -139,6 +130,28 @@ export default function BrokerMinisite() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* DEBUG overlay (aparece com ?debug=1) */}
+      {debug && (
+        <div className="fixed bottom-4 right-4 max-w-md text-sm bg-white/95 border border-red-300 text-red-700 rounded-xl shadow-lg p-3 z-50">
+          <div className="font-semibold mb-1">DEBUG minisite</div>
+          <div>path: <code>{globalThis.location?.pathname}</code></div>
+          <div>username: <code>{username}</code> → clean: <code>{cleanUsername}</code></div>
+          <div>broker.id: <code>{broker?.id || "null"}</code></div>
+          <div>broker.user_id: <code>{broker?.user_id || "null"}</code></div>
+          <div>properties: <code>{properties.length}</code></div>
+          {errs.length > 0 && (
+            <div className="mt-2">
+              <div className="font-semibold">errors:</div>
+              <ul className="list-disc pl-5">
+                {errs.map((e, i) => (
+                  <li key={i}><code>{e}</code></li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Header do Corretor */}
       <div className="bg-gradient-to-r from-primary to-primary/80 text-white">
         <div className="max-w-5xl mx-auto px-4 py-8">
