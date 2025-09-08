@@ -29,7 +29,8 @@ import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
-import { FunctionalMinisite } from '@/components/FunctionalMinisite';
+import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
+import { MinisiteProvider } from '@/hooks/useMinisite';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
@@ -163,7 +164,8 @@ export default function Minisite() {
   }
 
   return (
-    <div className="space-y-6">
+    <MinisiteProvider>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -311,7 +313,7 @@ export default function Minisite() {
         </TabsList>
 
         <TabsContent value="editor">
-          <FunctionalMinisite />
+          <MinisiteEditorIntegrated />
         </TabsContent>
 
         <TabsContent value="analytics">
@@ -393,6 +395,7 @@ export default function Minisite() {
         message={`Olá ${broker?.name}! Gostaria de saber mais sobre seu mini site.`}
         showOnScroll={true}
       />
-    </div>
+      </div>
+    </MinisiteProvider>
   );
 }

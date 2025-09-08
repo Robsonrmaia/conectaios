@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2 } from "lucide-react";
+import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,7 @@ export default function BrokerMinisite() {
       // 1) Busca corretor por username na TABELA CERTA
       const bq = await supabase
         .from("conectaios_brokers")
-        .select("id, user_id, username, name, avatar_url, bio, status, phone, email")
+        .select("id, user_id, username, name, avatar_url, bio, status, phone, email, creci")
         .eq("username", cleanUsername)
         .maybeSingle();
 
@@ -131,20 +131,41 @@ export default function BrokerMinisite() {
     window.open(whatsappUrl, '_blank');
   };
 
-  const shareProperty = (property: Property) => {
+  const shareProperty = async (property: Property) => {
     const url = `${window.location.origin}/imovel/${property.id}`;
-    if (navigator.share) {
-      navigator.share({
-        title: property.titulo,
-        text: `Confira este imóvel: ${property.titulo}`,
-        url: url,
-      });
-    } else {
-      navigator.clipboard.writeText(url);
-      toast({
-        title: "Link copiado!",
-        description: "O link do imóvel foi copiado para a área de transferência.",
-      });
+    try {
+      if (navigator.share && navigator.canShare?.({ title: property.titulo, url })) {
+        await navigator.share({
+          title: property.titulo,
+          text: `Confira este imóvel: ${property.titulo}`,
+          url: url,
+        });
+        toast({
+          title: "Compartilhado!",
+          description: "Imóvel compartilhado com sucesso.",
+        });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copiado!",
+          description: "O link do imóvel foi copiado para a área de transferência.",
+        });
+      }
+    } catch (error) {
+      // Fallback para clipboard
+      try {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copiado!",
+          description: "O link do imóvel foi copiado para a área de transferência.",
+        });
+      } catch (clipboardError) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível compartilhar o imóvel.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -236,7 +257,12 @@ export default function BrokerMinisite() {
                   </Button>
                 )}
                 {broker.email && (
-                  <Button variant="outline" size="sm" asChild>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-white/20 text-white hover:bg-white/10 hover:text-white"
+                    asChild
+                  >
                     <a href={`mailto:${broker.email}`}>
                       E-mail
                     </a>
@@ -327,6 +353,12 @@ export default function BrokerMinisite() {
                     </h3>
                   </Link>
                   
+                  {property.descricao && (
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                      {property.descricao}
+                    </p>
+                  )}
+                  
                   {typeof property.valor === 'number' && property.valor > 0 && (
                     <div 
                       className="text-2xl font-bold mb-3"
@@ -395,6 +427,50 @@ export default function BrokerMinisite() {
           </div>
         )}
       </div>
+
+      {/* Rodapé */}
+      <footer 
+        className="text-white py-8 mt-12"
+        style={{
+          background: `linear-gradient(135deg, ${primaryColor}DD, ${primaryColor}99)`
+        }}
+      >
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center">
+            <h3 className="text-xl font-semibold mb-2">
+              {broker.name || `@${broker.username}`}
+            </h3>
+            <p className="text-white/90 mb-4">Corretor de Imóveis</p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm">
+              {broker.phone && (
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  <span>{broker.phone}</span>
+                </div>
+              )}
+              {broker.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  <span>{broker.email}</span>
+                </div>
+              )}
+              {broker.creci && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  <span>CRECI: {broker.creci}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-6 pt-4 border-t border-white/20">
+              <p className="text-white/70 text-xs">
+                © 2024 ConectAIOS - Plataforma de Corretores de Imóveis
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
