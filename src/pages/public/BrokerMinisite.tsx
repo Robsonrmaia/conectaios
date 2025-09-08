@@ -17,6 +17,7 @@ type Broker = {
   status?: string;
   phone?: string;
   email?: string;
+  creci?: string;
 };
 
 type Property = {
