@@ -78,7 +78,7 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
             name: broker.name,
             email: broker.email,
             phone: broker.phone,
-            cpfCnpj: broker.phone.replace(/\D/g, ''), // Usar telefone como documento temporário
+            cpfCnpj: broker.phone.replace(/\D/g, ''), // Temporário - usar CPF real
             notificationDisabled: false
           }
         }
@@ -119,24 +119,27 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
       const subscription = subscriptionResponse.data?.data;
       const checkoutUrl = subscriptionResponse.data?.checkoutUrl || subscription?.invoiceUrl;
 
-        console.log('Checkout URL found:', checkoutUrl);
+      console.log('Subscription object:', subscription);
+      console.log('Checkout URL found:', checkoutUrl);
 
-        if (checkoutUrl) {
-          // Abrir checkout em nova aba
-          window.open(checkoutUrl, '_blank');
-          setCurrentStep('success');
-          toast({
-            title: "Checkout aberto!",
-            description: "Complete seu pagamento na nova aba que foi aberta."
-          });
-        } else {
-          // Mostrar informações da assinatura sem URL
-          setCurrentStep('success');
-          toast({
-            title: "Assinatura criada!",
-            description: "Entre em contato para finalizar o pagamento."
-          });
-        }
+      if (checkoutUrl) {
+        // Abrir checkout em nova aba
+        console.log('Abrindo URL de checkout:', checkoutUrl);
+        window.open(checkoutUrl, '_blank');
+        setCurrentStep('success');
+        toast({
+          title: "Checkout aberto!",
+          description: "Complete seu pagamento na nova aba que foi aberta."
+        });
+      } else {
+        // Mostrar informações da assinatura sem URL
+        console.log('Nenhuma URL de checkout disponível');
+        setCurrentStep('success');
+        toast({
+          title: "Assinatura criada!",
+          description: `Assinatura ID: ${subscription?.id}. Entre em contato para finalizar o pagamento.`
+        });
+      }
 
     } catch (error: any) {
       console.error('Erro no pagamento:', error);

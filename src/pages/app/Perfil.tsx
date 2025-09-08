@@ -25,6 +25,7 @@ import {
   TrendingUp,
   Target
 } from 'lucide-react';
+import { AsaasTestButton } from '@/components/AsaasTestButton';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();

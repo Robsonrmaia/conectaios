@@ -205,6 +205,7 @@ serve(async (req) => {
 
         if (paymentResponse.ok) {
           const paymentResult = await paymentResponse.json();
+          console.log('Payment created for checkout:', paymentResult);
           
           // Retornar subscription com URL de checkout do payment
           return new Response(

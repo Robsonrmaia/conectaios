@@ -8,6 +8,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -16,7 +17,16 @@ import {
   MessageSquare,
   HandHeart,
   Wrench,
+  Video,
+  Gift,
+  Handshake,
+  Settings,
   User,
+  Bot,
+  Shield,
+  Search,
+  FileText,
+  Activity,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -32,14 +42,9 @@ const navigationItems = [
     icon: Building2,
   },
   {
-    title: 'CRM',
-    url: '/app/crm',
-    icon: Users,
-  },
-  {
-    title: 'Mensagens',
-    url: '/app/inbox',
-    icon: MessageSquare,
+    title: 'Marketplace',
+    url: '/app/marketplace',
+    icon: Search,
   },
   {
     title: 'Match',
@@ -47,18 +52,70 @@ const navigationItems = [
     icon: HandHeart,
   },
   {
+    title: 'Negociações',
+    url: '/app/deals',
+    icon: FileText,
+  },
+  {
+    title: 'Mensagens',
+    url: '/app/inbox',
+    icon: MessageSquare,
+  },
+  {
+    title: 'CRM',
+    url: '/app/crm',
+    icon: Users,
+  },
+];
+
+const toolsItems = [
+  {
     title: 'Ferramentas',
     url: '/app/ferramentas',
     icon: Wrench,
   },
   {
+    title: 'Vídeos',
+    url: '/app/videos',
+    icon: Video,
+  },
+  {
+    title: 'Indique e Ganhe',
+    url: '/app/indicacoes',
+    icon: Gift,
+  },
+  {
+    title: 'Patrocínios',
+    url: '/app/patrocinios',
+    icon: Handshake,
+  },
+  {
+    title: 'IA Assistant',
+    url: '/app/ai-assistant',
+    icon: Bot,
+  },
+];
+
+const configItems = [
+  {
     title: 'Perfil',
     url: '/app/perfil',
     icon: User,
   },
+  {
+    title: 'Logs de Auditoria',
+    url: '/app/audit-logs',
+    icon: Activity,
+  },
+  {
+    title: 'Admin',
+    url: '/app/admin',
+    icon: Shield,
+  },
 ];
 
 export function AppSidebar() {
+  const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -73,60 +130,84 @@ export function AppSidebar() {
       : 'hover:bg-accent hover:text-accent-foreground';
   };
 
-  console.log('[AppSidebar] navigationItems:', navigationItems);
-
   return (
-    <Sidebar className="border-r bg-blue-50">
+    <Sidebar 
+      collapsible="icon"
+      className="border-r"
+    >
       <SidebarContent>
-        {/* Debug Info */}
-        <div className="p-2 bg-yellow-200 text-xs">
-          Rota: {currentPath} | Items: {navigationItems.length}
-        </div>
-        
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <div className="text-sm font-bold">ConectaIOS</div>
+            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
           </div>
         </div>
 
-        {/* Navigation */}
+        {/* Main Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal ({navigationItems.length} items)</SidebarGroupLabel>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item, index) => {
-                console.log('[AppSidebar] Rendering item:', item.title, item.url);
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink 
-                        to={item.url} 
-                        className={({ isActive }) => {
-                          console.log('[NavLink]', item.title, 'isActive:', isActive);
-                          return isActive || (item.exact && currentPath === item.url)
-                            ? 'bg-primary text-primary-foreground font-medium' 
-                            : 'hover:bg-accent hover:text-accent-foreground';
-                        }}
-                      >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
+              {navigationItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url, item.exact)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
-        {/* Simple test buttons */}
-        <div className="p-4 space-y-2">
-          <div className="text-xs font-semibold">Teste direto:</div>
-          <div className="bg-gray-100 p-2 rounded text-xs">Dashboard</div>
-          <div className="bg-gray-100 p-2 rounded text-xs">Imóveis</div>
-          <div className="bg-gray-100 p-2 rounded text-xs">CRM</div>
-        </div>
+
+        {/* Tools */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {toolsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Configuration */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Configurações</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {configItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url} 
+                      className={getNavClassName(item.url)}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

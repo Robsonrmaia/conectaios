@@ -80,7 +80,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col overflow-hidden">
           <header className="h-14 flex items-center justify-between border-b bg-background px-4 shrink-0">
             <SidebarTrigger />
             <UserInfo />
