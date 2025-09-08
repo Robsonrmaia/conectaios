@@ -1,11 +1,13 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail } from "lucide-react";
+import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { PropertySearch, SearchFilters } from "@/components/PropertySearch";
 
 type Broker = {
   id: string;
@@ -57,9 +59,11 @@ export default function BrokerMinisite() {
 
   const [broker, setBroker] = useState<Broker | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [minisiteConfig, setMinisiteConfig] = useState<MinisiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [errs, setErrs] = useState<string[]>([]);
+  const [searchVisible, setSearchVisible] = useState(false);
   const debug =
     new URLSearchParams(globalThis.location?.search || "").get("debug") === "1" ||
     globalThis.localStorage?.getItem("minisite_debug") === "1";
@@ -126,6 +130,79 @@ export default function BrokerMinisite() {
       mounted = false;
     };
   }, [cleanUsername]);
+
+  // Search and filter functions
+  const handleSearch = (filters: SearchFilters) => {
+    let filtered = [...properties];
+
+    // Text search
+    if (filters.query.trim()) {
+      const query = filters.query.toLowerCase();
+      filtered = filtered.filter(property => 
+        property.titulo.toLowerCase().includes(query) ||
+        property.descricao?.toLowerCase().includes(query) ||
+        property.neighborhood?.toLowerCase().includes(query) ||
+        property.city?.toLowerCase().includes(query)
+      );
+    }
+
+    // Price filter
+    if (filters.minPrice) {
+      filtered = filtered.filter(property => 
+        (property.valor || 0) >= parseFloat(filters.minPrice)
+      );
+    }
+    if (filters.maxPrice) {
+      filtered = filtered.filter(property => 
+        (property.valor || 0) <= parseFloat(filters.maxPrice)
+      );
+    }
+
+    // Bedrooms filter
+    if (filters.bedrooms) {
+      const bedrooms = parseInt(filters.bedrooms);
+      if (bedrooms === 4) {
+        filtered = filtered.filter(property => (property.quartos || 0) >= 4);
+      } else {
+        filtered = filtered.filter(property => (property.quartos || 0) === bedrooms);
+      }
+    }
+
+    // Bathrooms filter
+    if (filters.bathrooms) {
+      const bathrooms = parseInt(filters.bathrooms);
+      if (bathrooms === 3) {
+        filtered = filtered.filter(property => (property.bathrooms || 0) >= 3);
+      } else {
+        filtered = filtered.filter(property => (property.bathrooms || 0) === bathrooms);
+      }
+    }
+
+    // Property type filter
+    if (filters.propertyType) {
+      filtered = filtered.filter(property => 
+        property.property_type === filters.propertyType
+      );
+    }
+
+    // Listing type filter
+    if (filters.listingType) {
+      filtered = filtered.filter(property => 
+        property.listing_type === filters.listingType
+      );
+    }
+
+    setFilteredProperties(filtered);
+    setSearchVisible(false);
+  };
+
+  const handleClearSearch = () => {
+    setFilteredProperties(properties);
+  };
+
+  const toggleSearch = () => {
+    setSearchVisible(!searchVisible);
+  };
 
   // Funções auxiliares
   const shareOnWhatsApp = (property: Property) => {
@@ -242,13 +319,21 @@ export default function BrokerMinisite() {
               <a href="#sobre" className="hover:opacity-70 transition">Sobre</a>
               <a href="#contato" className="hover:opacity-70 transition">Contato</a>
             </div>
-            {broker.phone && (
-              <Button className="hidden md:inline-flex" style={{ backgroundColor: primaryColor }}>
-                <a href={`https://wa.me/55${broker.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-white">
-                  Fale Conosco
-                </a>
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              <PropertySearch 
+                onSearch={handleSearch}
+                onClear={handleClearSearch}
+                isVisible={searchVisible}
+                onToggle={toggleSearch}
+              />
+              {broker.phone && (
+                <Button className="hidden md:inline-flex" style={{ backgroundColor: primaryColor }}>
+                  <a href={`https://wa.me/55${broker.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-white">
+                    Fale Conosco
+                  </a>
+                </Button>
+              )}
+            </div>
           </div>
         </nav>
       </header>
@@ -315,16 +400,22 @@ export default function BrokerMinisite() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-3xl font-bold text-gray-900">
-                {properties.length === 0 ? 'Nenhum imóvel disponível' : 'Imóveis em destaque'}
+                {filteredProperties.length === 0 && properties.length > 0
+                  ? 'Nenhum imóvel encontrado'
+                  : properties.length === 0 
+                  ? 'Nenhum imóvel disponível' 
+                  : 'Imóveis em destaque'}
               </h2>
               <p className="text-gray-600">
-                {properties.length === 0 
+                {filteredProperties.length === 0 && properties.length > 0
+                  ? 'Tente ajustar os filtros de pesquisa para encontrar mais imóveis.'
+                  : properties.length === 0 
                   ? 'Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.'
-                  : 'Seleção atualizada de oportunidades.'
+                  : `${filteredProperties.length} imóvel${filteredProperties.length !== 1 ? 'is' : ''} encontrado${filteredProperties.length !== 1 ? 's' : ''}.`
                 }
               </p>
             </div>
-            {properties.length > 0 && (
+            {filteredProperties.length > 0 && (
               <Button variant="outline" className="hidden sm:inline-flex items-center gap-2 hover:border-blue-400 hover:text-blue-700">
                 <a href="#contato">Ver todos</a>
                 <Share2 className="h-4 w-4" />
@@ -332,9 +423,9 @@ export default function BrokerMinisite() {
             )}
           </div>
 
-          {properties.length > 0 ? (
+          {filteredProperties.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
+              {filteredProperties.map((property) => (
                 <article key={property.id} className="rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300">
                   <div className="relative">
                     {property.fotos && property.fotos.length > 0 ? (
@@ -695,6 +786,15 @@ export default function BrokerMinisite() {
           </div>
         </div>
       </footer>
+      
+      {/* WhatsApp Floating Button */}
+      {broker.phone && (
+        <WhatsAppButton 
+          phone={broker.phone}
+          message={`Olá! Vi seu minisite e tenho interesse em seus imóveis. Poderia me ajudar?`}
+          showOnScroll={true}
+        />
+      )}
     </div>
   );
 }

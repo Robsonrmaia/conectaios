@@ -22,6 +22,8 @@ interface MinisiteConfig {
   generated_url?: string;
   is_active: boolean;
   config_data?: any;
+  custom_domain?: string;
+  domain_verified?: boolean;
 }
 
 interface MinisiteContextType {
@@ -130,7 +132,9 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
           whatsapp: config.whatsapp,
           custom_message: config.custom_message,
           is_active: config.is_active,
-          config_data: config.config_data
+          config_data: config.config_data,
+          custom_domain: config.custom_domain,
+          domain_verified: config.domain_verified
         })
         .eq('id', config.id);
 

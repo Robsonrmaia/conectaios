@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorPicker } from '@/components/ui/color-picker';
+import { DomainConfiguration } from '@/components/DomainConfiguration';
 import { 
   Palette, 
   Layout, 
@@ -155,12 +156,13 @@ export function MinisiteEditorIntegrated() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Editor Panel */}
         <div className="space-y-6">
-          <Tabs defaultValue="design" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+          <Tabs value="design" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="content">Conteúdo</TabsTrigger>
               <TabsTrigger value="images">Imagens</TabsTrigger>
               <TabsTrigger value="seo">SEO</TabsTrigger>
+              <TabsTrigger value="domain">Domínio</TabsTrigger>
             </TabsList>
 
             <TabsContent value="design" className="space-y-4">
@@ -437,6 +439,10 @@ export function MinisiteEditorIntegrated() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="domain" className="space-y-4">
+              <DomainConfiguration />
             </TabsContent>
           </Tabs>
         </div>

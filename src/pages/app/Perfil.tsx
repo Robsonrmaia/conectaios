@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
 import BrokerSetup from '@/components/BrokerSetup';
+import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
 import { toast } from '@/components/ui/use-toast';
 import { 
   User, 
@@ -132,6 +133,7 @@ export default function Perfil() {
       <Tabs defaultValue="perfil" className="space-y-4">
         <TabsList>
           <TabsTrigger value="perfil">Perfil</TabsTrigger>
+          <TabsTrigger value="minisite">Minisite</TabsTrigger>
           <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
           <TabsTrigger value="conquistas">Conquistas</TabsTrigger>
           <TabsTrigger value="plano">Plano</TabsTrigger>
@@ -357,6 +359,10 @@ export default function Perfil() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="minisite" className="space-y-6">
+          <MinisiteEditorIntegrated />
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">

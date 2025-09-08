@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { BrokerProvider, useBroker } from "@/hooks/useBroker";
+import { MinisiteProvider } from "@/hooks/useMinisite";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -114,43 +115,45 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrokerProvider>
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/@:username" element={<AtRedirect />} />
-              <Route path="/broker" element={<BrokerRedirect />} />
-              <Route path="/broker/:username" element={<BrokerMinisite />} />
-              <Route path="/imovel/:id" element={<PropertyDetail />} />
-              <Route path="/public-test" element={<PublicProbe />} />
-              <Route path="/app/*" element={
-                <ProtectedRoute>
-                  <AppLayout>
-                    <Routes>
-                      <Route index element={<Dashboard />} />
-                      <Route path="imoveis" element={<Imoveis />} />
-                      <Route path="marketplace" element={<Marketplace />} />
-                      <Route path="minisite" element={<Minisite />} />
-                      <Route path="match" element={<Match />} />
-                      <Route path="deals" element={<Deals />} />
-                      <Route path="inbox" element={<Inbox />} />
-                      <Route path="crm" element={<CRM />} />
-                      <Route path="ferramentas" element={<Ferramentas />} />
-                      <Route path="videos" element={<Videos />} />
-                      <Route path="indicacoes" element={<Indicacoes />} />
-                      <Route path="patrocinios" element={<Patrocinios />} />
-                      <Route path="ai-assistant" element={<AIAssistant />} />
-                      <Route path="audit-logs" element={<AuditLogs />} />
-                      <Route path="perfil" element={<Perfil />} />
-                      <Route path="admin" element={<Admin />} />
-                      <Route path="*" element={<NotFound />} />
-                    </Routes>
-                  </AppLayout>
-                </ProtectedRoute>
-              } />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
+          <MinisiteProvider>
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/@:username" element={<AtRedirect />} />
+                <Route path="/broker" element={<BrokerRedirect />} />
+                <Route path="/broker/:username" element={<BrokerMinisite />} />
+                <Route path="/imovel/:id" element={<PropertyDetail />} />
+                <Route path="/public-test" element={<PublicProbe />} />
+                <Route path="/app/*" element={
+                  <ProtectedRoute>
+                    <AppLayout>
+                      <Routes>
+                        <Route index element={<Dashboard />} />
+                        <Route path="imoveis" element={<Imoveis />} />
+                        <Route path="marketplace" element={<Marketplace />} />
+                        <Route path="minisite" element={<Minisite />} />
+                        <Route path="match" element={<Match />} />
+                        <Route path="deals" element={<Deals />} />
+                        <Route path="inbox" element={<Inbox />} />
+                        <Route path="crm" element={<CRM />} />
+                        <Route path="ferramentas" element={<Ferramentas />} />
+                        <Route path="videos" element={<Videos />} />
+                        <Route path="indicacoes" element={<Indicacoes />} />
+                        <Route path="patrocinios" element={<Patrocinios />} />
+                        <Route path="ai-assistant" element={<AIAssistant />} />
+                        <Route path="audit-logs" element={<AuditLogs />} />
+                        <Route path="perfil" element={<Perfil />} />
+                        <Route path="admin" element={<Admin />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </AppLayout>
+                  </ProtectedRoute>
+                } />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </MinisiteProvider>
         </BrokerProvider>
       </AuthProvider>
     </TooltipProvider>

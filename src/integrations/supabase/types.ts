@@ -1369,8 +1369,10 @@ export type Database = {
           broker_id: string
           config_data: Json | null
           created_at: string
+          custom_domain: string | null
           custom_message: string | null
           description: string | null
+          domain_verified: boolean | null
           email: string | null
           generated_url: string | null
           id: string
@@ -1390,8 +1392,10 @@ export type Database = {
           broker_id: string
           config_data?: Json | null
           created_at?: string
+          custom_domain?: string | null
           custom_message?: string | null
           description?: string | null
+          domain_verified?: boolean | null
           email?: string | null
           generated_url?: string | null
           id?: string
@@ -1411,8 +1415,10 @@ export type Database = {
           broker_id?: string
           config_data?: Json | null
           created_at?: string
+          custom_domain?: string | null
           custom_message?: string | null
           description?: string | null
+          domain_verified?: boolean | null
           email?: string | null
           generated_url?: string | null
           id?: string
