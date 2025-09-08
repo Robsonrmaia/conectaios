@@ -1,11 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, MapPin, Bed, Bath, Square } from "lucide-react";
+import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 
 type Broker = {
   id: string;
@@ -35,6 +35,15 @@ type Property = {
   descricao?: string;
 };
 
+type MinisiteConfig = {
+  id?: string;
+  primary_color?: string;
+  secondary_color?: string;
+  show_contact_form?: boolean;
+  show_about?: boolean;
+  template_id?: string;
+};
+
 export default function BrokerMinisite() {
   const { username } = useParams();
   const cleanUsername = useMemo(
@@ -44,6 +53,7 @@ export default function BrokerMinisite() {
 
   const [broker, setBroker] = useState<Broker | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [minisiteConfig, setMinisiteConfig] = useState<MinisiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [errs, setErrs] = useState<string[]>([]);
   const debug =
@@ -93,8 +103,18 @@ export default function BrokerMinisite() {
 
       if (propsErr) pushErr("properties.query", propsErr);
 
+      // 3) Buscar configuração do minisite
+      const { data: config, error: configErr } = await supabase
+        .from("minisite_configs")
+        .select("id, primary_color, secondary_color, show_contact_form, show_about, template_id")
+        .eq("broker_id", bq.data.id)
+        .maybeSingle();
+
+      if (configErr) pushErr("minisite_configs.query", configErr);
+      
       if (!mounted) return;
       setProperties(props ?? []);
+      setMinisiteConfig(config);
       setLoading(false);
     })();
 
@@ -102,6 +122,35 @@ export default function BrokerMinisite() {
       mounted = false;
     };
   }, [cleanUsername]);
+
+  // Funções auxiliares
+  const shareOnWhatsApp = (property: Property) => {
+    const message = `Olá! Vi este imóvel e gostaria de mais informações:\n\n${property.titulo}\n${property.valor ? `Valor: ${property.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}` : ''}\n\nLink: ${window.location.origin}/imovel/${property.id}`;
+    const phone = broker?.phone?.replace(/\D/g, '') || '';
+    const whatsappUrl = `https://wa.me/55${phone}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const shareProperty = (property: Property) => {
+    const url = `${window.location.origin}/imovel/${property.id}`;
+    if (navigator.share) {
+      navigator.share({
+        title: property.titulo,
+        text: `Confira este imóvel: ${property.titulo}`,
+        url: url,
+      });
+    } else {
+      navigator.clipboard.writeText(url);
+      toast({
+        title: "Link copiado!",
+        description: "O link do imóvel foi copiado para a área de transferência.",
+      });
+    }
+  };
+
+  // Cores dinâmicas baseadas na configuração
+  const primaryColor = minisiteConfig?.primary_color || '#1CA9C9';
+  const secondaryColor = minisiteConfig?.secondary_color || '#64748B';
 
   if (loading) {
     return (
@@ -153,7 +202,12 @@ export default function BrokerMinisite() {
       )}
 
       {/* Header do Corretor */}
-      <div className="bg-gradient-to-r from-primary to-primary/80 text-white">
+      <div 
+        className="text-white"
+        style={{
+          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}CC)`
+        }}
+      >
         <div className="max-w-5xl mx-auto px-4 py-8">
           <div className="flex items-center gap-6">
             {broker.avatar_url ? (
@@ -212,36 +266,72 @@ export default function BrokerMinisite() {
         {properties.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {properties.map((property) => (
-              <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-video bg-muted relative">
-                  {property.fotos && property.fotos.length > 0 ? (
-                    <img
-                      src={property.fotos[0]}
-                      alt={property.titulo}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Building2 className="h-12 w-12 text-muted-foreground" />
+              <Card key={property.id} className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <Link to={`/imovel/${property.id}`} className="block">
+                  <div className="aspect-video bg-muted relative">
+                    {property.fotos && property.fotos.length > 0 ? (
+                      <img
+                        src={property.fotos[0]}
+                        alt={property.titulo}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
+                        <Building2 className="h-12 w-12 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3">
+                      <Badge 
+                        className="text-white border-0"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        {property.listing_type === 'venda' ? 'Venda' : 
+                         property.listing_type === 'locacao' ? 'Locação' : 
+                         property.listing_type || 'Imóvel'}
+                      </Badge>
                     </div>
-                  )}
-                  <div className="absolute top-3 left-3">
-                    <Badge className="bg-primary/90 text-primary-foreground">
-                      {property.listing_type === 'venda' ? 'Venda' : 
-                       property.listing_type === 'locacao' ? 'Locação' : 
-                       property.listing_type || 'Imóvel'}
-                    </Badge>
+                    
+                    {/* Action buttons overlay */}
+                    <div className="absolute top-3 right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          shareOnWhatsApp(property);
+                        }}
+                      >
+                        <MessageCircle className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          shareProperty(property);
+                        }}
+                      >
+                        <Share2 className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </Link>
                 
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-2 line-clamp-2">
-                    {property.titulo}
-                  </h3>
+                  <Link to={`/imovel/${property.id}`} className="block">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                      {property.titulo}
+                    </h3>
+                  </Link>
                   
                   {typeof property.valor === 'number' && property.valor > 0 && (
-                    <div className="text-2xl font-bold text-primary mb-3">
+                    <div 
+                      className="text-2xl font-bold mb-3"
+                      style={{ color: primaryColor }}
+                    >
                       {property.valor.toLocaleString('pt-BR', { 
                         style: 'currency', 
                         currency: 'BRL',
@@ -259,7 +349,7 @@ export default function BrokerMinisite() {
                     </div>
                   )}
                   
-                  <div className="flex gap-4 text-sm text-muted-foreground">
+                  <div className="flex gap-4 text-sm text-muted-foreground mb-3">
                     {property.quartos && (
                       <span className="flex items-center gap-1">
                         <Bed className="h-3 w-3" />
@@ -278,6 +368,26 @@ export default function BrokerMinisite() {
                         {property.area}m²
                       </span>
                     )}
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button 
+                      className="flex-1" 
+                      size="sm"
+                      style={{ backgroundColor: primaryColor }}
+                      onClick={() => shareOnWhatsApp(property)}
+                    >
+                      <MessageCircle className="h-3 w-3 mr-1" />
+                      WhatsApp
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="px-3"
+                      onClick={() => shareProperty(property)}
+                    >
+                      <Share2 className="h-3 w-3" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
