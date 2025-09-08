@@ -73,45 +73,60 @@ export function AppSidebar() {
       : 'hover:bg-accent hover:text-accent-foreground';
   };
 
+  console.log('[AppSidebar] navigationItems:', navigationItems);
+
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r bg-blue-50">
       <SidebarContent>
+        {/* Debug Info */}
+        <div className="p-2 bg-yellow-200 text-xs">
+          Rota: {currentPath} | Items: {navigationItems.length}
+        </div>
+        
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <img 
-              src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" 
-              alt="ConectaIOS" 
-              className="h-8 w-auto" 
-            />
+            <div className="text-sm font-bold">ConectaIOS</div>
           </div>
         </div>
 
         {/* Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu Principal ({navigationItems.length} items)</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={({ isActive }) =>
-                        isActive || (item.exact && currentPath === item.url)
-                          ? 'bg-primary text-primary-foreground font-medium' 
-                          : 'hover:bg-accent hover:text-accent-foreground'
-                      }
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {navigationItems.map((item, index) => {
+                console.log('[AppSidebar] Rendering item:', item.title, item.url);
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink 
+                        to={item.url} 
+                        className={({ isActive }) => {
+                          console.log('[NavLink]', item.title, 'isActive:', isActive);
+                          return isActive || (item.exact && currentPath === item.url)
+                            ? 'bg-primary text-primary-foreground font-medium' 
+                            : 'hover:bg-accent hover:text-accent-foreground';
+                        }}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+        
+        {/* Simple test buttons */}
+        <div className="p-4 space-y-2">
+          <div className="text-xs font-semibold">Teste direto:</div>
+          <div className="bg-gray-100 p-2 rounded text-xs">Dashboard</div>
+          <div className="bg-gray-100 p-2 rounded text-xs">Imóveis</div>
+          <div className="bg-gray-100 p-2 rounded text-xs">CRM</div>
+        </div>
       </SidebarContent>
     </Sidebar>
   );
