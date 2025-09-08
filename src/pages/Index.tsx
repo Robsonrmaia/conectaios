@@ -188,7 +188,7 @@ const Index = () => {
       </main>
 
       {/* Mobile: Seção separada com texto completo */}
-      <section className="sm:hidden bg-background py-4">
+      <section className="sm:hidden bg-background py-1">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
             <div className="relative overflow-hidden rounded-3xl p-8 shadow-2xl backdrop-blur-xl border border-primary/20">

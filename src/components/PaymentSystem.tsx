@@ -7,7 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { CreditCard, Banknote, Smartphone, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { CreditCard, Banknote, Smartphone, AlertCircle, CheckCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { UserDataForm } from './UserDataForm';
 
 interface PaymentOption {
   id: string;
@@ -23,13 +24,21 @@ interface PaymentSystemProps {
   planId: string;
 }
 
+interface UserData {
+  name: string;
+  email: string;
+  phone: string;
+  cpfCnpj: string;
+}
+
 export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProps) {
   const { user } = useAuth();
   const { broker } = useBroker();
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'select' | 'processing' | 'success' | 'error'>('select');
+  const [currentStep, setCurrentStep] = useState<'userData' | 'select' | 'processing' | 'success' | 'error'>('userData');
   const [selectedPayment, setSelectedPayment] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   const paymentOptions: PaymentOption[] = [
     {
@@ -55,11 +64,16 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
     }
   ];
 
+  const handleUserData = (data: UserData) => {
+    setUserData(data);
+    setCurrentStep('select');
+  };
+
   const handleAsaasPayment = async () => {
-    if (!user || !broker) {
+    if (!user || !userData) {
       toast({
         title: "Erro",
-        description: "Usuário não autenticado",
+        description: "Dados do usuário necessários",
         variant: "destructive"
       });
       return;
@@ -75,10 +89,11 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
         body: {
           action: 'create_customer',
           data: {
-            name: broker.name,
-            email: broker.email,
-            phone: broker.phone,
-            cpfCnpj: broker.phone.replace(/\D/g, ''), // Temporário - usar CPF real
+            name: userData.name,
+            email: userData.email,
+            phone: userData.phone,
+            cpfCnpj: userData.cpfCnpj.replace(/\D/g, ''),
+            externalReference: user.id,
             notificationDisabled: false
           }
         }
@@ -105,7 +120,7 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
             nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 7 dias
             cycle: 'MONTHLY',
             description: `Assinatura ${planName} - ConectaIOS`,
-            externalReference: `plan_${broker.id}_${Date.now()}`
+            externalReference: `plan_${user.id}_${Date.now()}`
           }
         }
       });
@@ -185,6 +200,21 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
     }
   };
 
+  if (currentStep === 'userData') {
+    return (
+      <UserDataForm 
+        onSubmit={handleUserData}
+        loading={loading}
+        initialData={broker ? {
+          name: broker.name || '',
+          email: broker.email || '',
+          phone: broker.phone || '',
+          cpfCnpj: ''
+        } : undefined}
+      />
+    );
+  }
+
   if (currentStep === 'processing') {
     return (
       <Card className="w-full max-w-md mx-auto">
@@ -212,13 +242,23 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
             <p className="text-center text-sm text-muted-foreground">
               Complete seu pagamento na nova aba que foi aberta.
             </p>
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentStep('select')}
-              className="w-full"
-            >
-              Tentar outro método
-            </Button>
+            <div className="flex gap-2 w-full">
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep('userData')}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep('select')}
+                className="flex-1"
+              >
+                Outro método
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -237,13 +277,23 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
             <p className="text-center text-sm text-muted-foreground">
               {errorMessage}
             </p>
-            <Button 
-              variant="outline" 
-              onClick={() => setCurrentStep('select')}
-              className="w-full"
-            >
-              Tentar novamente
-            </Button>
+            <div className="flex gap-2 w-full">
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep('userData')}
+                className="flex-1"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Voltar
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setCurrentStep('select')}
+                className="flex-1"
+              >
+                Tentar novamente
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -253,13 +303,30 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <CreditCard className="w-5 h-5" />
-          Escolha seu método de pagamento
-        </CardTitle>
+        <div className="flex items-center gap-2 mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCurrentStep('userData')}
+            className="p-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5" />
+            Escolha seu método de pagamento
+          </CardTitle>
+        </div>
         <CardDescription>
           Plano {planName} - R$ {planValue.toFixed(2)}/mês
         </CardDescription>
+        {userData && (
+          <div className="mt-2 p-2 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <strong>{userData.name}</strong> • {userData.email}
+            </p>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {paymentOptions.map((option) => (
