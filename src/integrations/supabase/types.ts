@@ -2189,6 +2189,54 @@ export type Database = {
           },
         ]
       }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          broker_id: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolution: string | null
+          resolved_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          broker_id?: string | null
+          category?: string
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          broker_id?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       swaps: {
         Row: {
           created_at: string | null
@@ -2340,6 +2388,41 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_admin: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          message: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_admin?: boolean
+          message?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
             referencedColumns: ["id"]
           },
         ]

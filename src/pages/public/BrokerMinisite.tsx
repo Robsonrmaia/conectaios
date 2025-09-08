@@ -105,7 +105,11 @@ export default function BrokerMinisite() {
       
       const { data: props, error: propsErr } = await supabase
         .from("properties")
-        .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
+        .select(`
+          id, titulo, valor, quartos, bathrooms, area, fotos, 
+          property_type, listing_type, finalidade, descricao, address,
+          neighborhood, city, state, features
+        `)
         .eq("user_id", bq.data.user_id)
         .eq("is_public", true)
         .eq("visibility", "public_site")

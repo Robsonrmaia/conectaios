@@ -12,10 +12,8 @@ const isLovableHost =
 const ENV_BASE = import.meta.env.VITE_PUBLIC_SITE_URL?.replace(/\/+$/, "");
 
 /**
- * Official public base URL - always uses production domain on Lovable
- * Falls back to current origin only for local development
+ * Official public base URL - always uses production domain
+ * Forces production domain for all environments to ensure consistent URLs
  */
 export const PUBLIC_BASE_URL = 
-  (isLovableHost ? ENV_BASE : window?.location?.origin) || 
-  // Ultimate fallback: official domain
-  "https://www.conectaios.com.br";
+  ENV_BASE || "https://www.conectaios.com.br";

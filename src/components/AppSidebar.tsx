@@ -27,6 +27,7 @@ import {
   Search,
   FileText,
   Activity,
+  HelpCircle,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -103,6 +104,11 @@ const configItems = [
     icon: User,
   },
   {
+    title: 'Suporte',
+    url: '/app/suporte',
+    icon: HelpCircle,
+  },
+  {
     title: 'Logs de Auditoria',
     url: '/app/audit-logs',
     icon: Activity,
@@ -154,6 +160,9 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       className={getNavClassName(item.url, item.exact)}
+                      data-tour={item.title === 'Dashboard' ? 'dashboard' : 
+                                 item.title === 'Meus Imóveis' ? 'properties' : 
+                                 item.title === 'CRM' ? 'crm' : undefined}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -176,6 +185,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       className={getNavClassName(item.url)}
+                      data-tour={item.title === 'Ferramentas' ? 'tools' : undefined}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
@@ -198,6 +208,7 @@ export function AppSidebar() {
                     <NavLink 
                       to={item.url} 
                       className={getNavClassName(item.url)}
+                      data-tour={item.title === 'Perfil' && item.url === '/app/perfil' ? 'minisite' : undefined}
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>

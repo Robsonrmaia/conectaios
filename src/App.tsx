@@ -32,6 +32,7 @@ import AIAssistant from "./pages/app/AIAssistant";
 import AuditLogs from "./pages/app/AuditLogs";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
+import Suporte from "./pages/app/Suporte";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
@@ -142,10 +143,11 @@ const App = () => (
                         <Route path="indicacoes" element={<Indicacoes />} />
                         <Route path="patrocinios" element={<Patrocinios />} />
                         <Route path="ai-assistant" element={<AIAssistant />} />
-                        <Route path="audit-logs" element={<AuditLogs />} />
-                        <Route path="perfil" element={<Perfil />} />
-                        <Route path="admin" element={<Admin />} />
-                        <Route path="*" element={<NotFound />} />
+                         <Route path="audit-logs" element={<AuditLogs />} />
+                         <Route path="perfil" element={<Perfil />} />
+                         <Route path="admin" element={<Admin />} />
+                         <Route path="suporte" element={<Suporte />} />
+                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AppLayout>
                   </ProtectedRoute>
