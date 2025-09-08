@@ -129,11 +129,22 @@ export function MinisiteEditorIntegrated() {
   const generateLogoWithAI = async (prompt: string) => {
     setIsGeneratingLogo(true);
     try {
+      console.log('Starting logo generation with prompt:', prompt);
+      
       const response = await supabase.functions.invoke('generate-logo', {
         body: { prompt }
       });
 
-      if (response.error) throw response.error;
+      console.log('Logo generation response:', response);
+
+      if (response.error) {
+        console.error('Logo generation error:', response.error);
+        throw new Error(response.error.message || 'Erro na geração do logo');
+      }
+
+      if (!response.data?.image) {
+        throw new Error('Nenhuma imagem foi retornada');
+      }
 
       // Convert base64 to blob and upload
       const base64Data = response.data.image.split(',')[1];
@@ -154,9 +165,18 @@ export function MinisiteEditorIntegrated() {
       });
     } catch (error) {
       console.error('Error generating logo:', error);
+      
+      // Show more specific error messages
+      let errorMessage = "Erro ao gerar logo. Tente novamente.";
+      if (error.message?.includes('insufficient permissions')) {
+        errorMessage = "Token do Hugging Face sem permissão. Configure um novo token.";
+      } else if (error.message?.includes('token not configured')) {
+        errorMessage = "Token do Hugging Face não configurado.";
+      }
+      
       toast({
         title: "Erro",
-        description: "Erro ao gerar logo. Tente novamente.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -250,34 +270,79 @@ export function MinisiteEditorIntegrated() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    {TEMPLATES.map((template) => (
-                      <div
-                        key={template.id}
-                        className={`relative cursor-pointer rounded-lg border-2 p-3 transition-all ${
-                          config.template_id === template.id 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-muted-foreground hover:bg-muted/30'
-                        }`}
-                        onClick={() => {
-                          updateConfig({ 
-                            template_id: template.id,
-                            primary_color: template.colors.primary,
-                            secondary_color: template.colors.secondary
-                          });
-                        }}
-                      >
-                        <div 
-                          className="aspect-video rounded mb-2 bg-gradient-to-br"
-                          style={{
-                            background: `linear-gradient(135deg, ${template.colors.primary}20, ${template.colors.secondary}20)`
-                          }}
-                        >
-                          <div className="h-full w-full rounded bg-white/80 flex items-center justify-center">
-                            <div className="text-xs font-medium" style={{ color: template.colors.primary }}>
-                              {template.name}
-                            </div>
-                          </div>
-                        </div>
+                     {TEMPLATES.map((template) => (
+                       <div
+                         key={template.id}
+                         className={`relative cursor-pointer rounded-lg border-2 p-3 transition-all ${
+                           config.template_id === template.id 
+                             ? 'border-primary bg-primary/5' 
+                             : 'border-border hover:border-muted-foreground hover:bg-muted/30'
+                         }`}
+                         onClick={() => {
+                           updateConfig({ 
+                             template_id: template.id,
+                             primary_color: template.colors.primary,
+                             secondary_color: template.colors.secondary
+                           });
+                         }}
+                       >
+                         <div className="aspect-video rounded mb-2 bg-gradient-to-br overflow-hidden" style={{
+                           background: `linear-gradient(135deg, ${template.colors.primary}15, ${template.colors.secondary}15)`
+                         }}>
+                           {template.id === 'modern' && (
+                             <svg viewBox="0 0 200 120" className="w-full h-full">
+                               <rect width="200" height="120" fill="#f8fafc"/>
+                               <rect width="200" height="20" fill={template.colors.primary}/>
+                               <rect x="20" y="35" width="160" height="8" rx="4" fill="#e2e8f0"/>
+                               <rect x="20" y="50" width="120" height="6" rx="3" fill="#cbd5e1"/>
+                               <rect x="20" y="70" width="50" height="30" rx="8" fill={template.colors.primary} opacity="0.8"/>
+                               <rect x="80" y="70" width="50" height="30" rx="8" fill={template.colors.secondary} opacity="0.6"/>
+                               <rect x="140" y="70" width="40" height="30" rx="8" fill="#e2e8f0"/>
+                             </svg>
+                           )}
+                           {template.id === 'classic' && (
+                             <svg viewBox="0 0 200 120" className="w-full h-full">
+                               <rect width="200" height="120" fill="#fefefe"/>
+                               <rect x="10" y="10" width="180" height="100" rx="8" fill="none" stroke={template.colors.primary} strokeWidth="2"/>
+                               <rect x="20" y="25" width="160" height="12" rx="6" fill={template.colors.primary}/>
+                               <rect x="30" y="45" width="140" height="6" rx="3" fill="#94a3b8"/>
+                               <rect x="30" y="60" width="100" height="4" rx="2" fill="#cbd5e1"/>
+                               <circle cx="40" cy="85" r="8" fill={template.colors.secondary}/>
+                               <circle cx="65" cy="85" r="8" fill={template.colors.secondary} opacity="0.7"/>
+                               <circle cx="90" cy="85" r="8" fill={template.colors.secondary} opacity="0.5"/>
+                               <rect x="120" y="77" width="60" height="16" rx="8" fill={template.colors.primary} opacity="0.8"/>
+                             </svg>
+                           )}
+                           {template.id === 'minimal' && (
+                             <svg viewBox="0 0 200 120" className="w-full h-full">
+                               <rect width="200" height="120" fill="#ffffff"/>
+                               <line x1="20" y1="30" x2="180" y2="30" stroke={template.colors.primary} strokeWidth="1"/>
+                               <rect x="20" y="40" width="80" height="4" rx="2" fill="#64748b"/>
+                               <rect x="20" y="50" width="60" height="3" rx="1.5" fill="#94a3b8"/>
+                               <rect x="140" y="40" width="40" height="40" rx="20" fill={template.colors.primary} opacity="0.1"/>
+                               <circle cx="160" cy="60" r="15" fill="none" stroke={template.colors.primary} strokeWidth="2"/>
+                               <rect x="20" y="70" width="30" height="3" rx="1.5" fill="#cbd5e1"/>
+                               <rect x="20" y="80" width="25" height="3" rx="1.5" fill="#e2e8f0"/>
+                             </svg>
+                           )}
+                           {template.id === 'luxury' && (
+                             <svg viewBox="0 0 200 120" className="w-full h-full">
+                               <defs>
+                                 <linearGradient id="luxuryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                   <stop offset="0%" stopColor={template.colors.primary}/>
+                                   <stop offset="100%" stopColor={template.colors.secondary}/>
+                                 </linearGradient>
+                               </defs>
+                               <rect width="200" height="120" fill="#0f172a"/>
+                               <rect x="20" y="20" width="160" height="80" rx="12" fill="url(#luxuryGrad)" opacity="0.15"/>
+                               <rect x="30" y="30" width="140" height="8" rx="4" fill={template.colors.primary}/>
+                               <rect x="40" y="45" width="120" height="4" rx="2" fill="#fbbf24"/>
+                               <polygon points="60,65 80,55 100,65 80,75" fill={template.colors.primary} opacity="0.8"/>
+                               <polygon points="110,65 130,55 150,65 130,75" fill={template.colors.secondary} opacity="0.6"/>
+                               <rect x="40" y="85" width="120" height="2" rx="1" fill="#fbbf24" opacity="0.5"/>
+                             </svg>
+                           )}
+                         </div>
                         <div className="text-center">
                           <p className="text-sm font-medium">{template.name}</p>
                           <p className="text-xs text-muted-foreground">{template.description}</p>
