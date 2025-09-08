@@ -126,7 +126,7 @@ export default function Minisite() {
     const domain = window.location.hostname.includes('lovable') 
       ? window.location.origin 
       : 'https://conectaios.com.br';
-    const url = `${domain}/@${profile.username || 'seu-usuario'}`;
+    const url = `${domain}/broker/${profile.username || 'seu-usuario'}`;
     navigator.clipboard.writeText(url);
     toast({
       title: "Link Copiado!",
@@ -185,7 +185,7 @@ export default function Minisite() {
           
           <Button variant="outline" asChild>
             <a 
-              href={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/@${profile.username || 'seu-usuario'}`}
+              href={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/broker/${profile.username || 'seu-usuario'}`}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -269,7 +269,7 @@ export default function Minisite() {
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Seu mini site será: {window.location.origin}/@{profile.username || 'seu-usuario'}
+                Seu mini site será: {window.location.origin}/broker/{profile.username || 'seu-usuario'}
               </p>
             </div>
             <div>
@@ -334,7 +334,7 @@ export default function Minisite() {
                 <Label>URL Atual</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
-                    value={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/@${profile.username || 'seu-usuario'}`}
+                    value={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/broker/${profile.username || 'seu-usuario'}`}
                     readOnly
                     className="font-mono"
                   />

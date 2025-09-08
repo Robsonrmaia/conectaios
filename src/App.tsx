@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { BrokerProvider, useBroker } from "@/hooks/useBroker";
 import { AppSidebar } from "@/components/AppSidebar";
@@ -34,7 +34,12 @@ import Admin from "./pages/app/Admin";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
-import MinisiteView from "@/pages/public/MinisiteView";
+
+const AtRedirect = () => {
+  const { username } = useParams<{ username: string }>();
+  const clean = (username ?? "").replace(/^@+/, "");
+  return <Navigate to={`/broker/${clean}`} replace />;
+};
 
 const queryClient = new QueryClient();
 
@@ -108,7 +113,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/@:username" element={<MinisiteView />} />
+              <Route path="/@:username" element={<AtRedirect />} />
               <Route path="/broker/:username" element={<BrokerMinisite />} />
               <Route path="/imovel/:id" element={<PropertyDetail />} />
               <Route path="/app/*" element={

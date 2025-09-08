@@ -27,7 +27,7 @@ const Dashboard = () => {
       const domain = window.location.hostname.includes('lovable') 
         ? window.location.origin 
         : 'https://conectaios.com.br';
-      const minisiteUrl = `${domain}/@${broker.username}`;
+      const minisiteUrl = `${domain}/broker/${broker.username}`;
       window.open(minisiteUrl, '_blank');
       toast({
         title: "Minisite aberto",
@@ -48,7 +48,7 @@ const Dashboard = () => {
       const domain = window.location.hostname.includes('lovable') 
         ? window.location.origin 
         : 'https://conectaios.com.br';
-      const minisiteUrl = `${domain}/@${broker.username}`;
+      const minisiteUrl = `${domain}/broker/${broker.username}`;
       navigator.clipboard.writeText(minisiteUrl);
       toast({
         title: "URL copiada",
