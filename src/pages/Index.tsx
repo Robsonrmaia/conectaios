@@ -16,6 +16,7 @@ import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
+import { AsaasPaymentButtonFixed } from '@/components/AsaasPaymentButtonFixed';
 
 const Index = () => {
   const { user } = useAuth();
@@ -446,6 +447,14 @@ const Index = () => {
                     <span className="text-sm">Contratos digitais</span>
                   </div>
                 </CardContent>
+                <div className="p-6 pt-0">
+                  <AsaasPaymentButtonFixed 
+                    planName="Profissional"
+                    planValue={147}
+                    planId="professional"
+                    className="w-full"
+                  />
+                </div>
               </Card>
 
               {/* Plano Premium */}
@@ -473,6 +482,14 @@ const Index = () => {
                     <span className="text-sm">API personalizada</span>
                   </div>
                 </CardContent>
+                <div className="p-6 pt-0">
+                  <AsaasPaymentButtonFixed 
+                    planName="Premium"
+                    planValue={197}
+                    planId="premium"
+                    className="w-full"
+                  />
+                </div>
               </Card>
             </div>
 
