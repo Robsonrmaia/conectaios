@@ -32,6 +32,7 @@ import { useBroker } from '@/hooks/useBroker';
 import { FunctionalMinisite } from '@/components/FunctionalMinisite';
 import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
+import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
 
 interface BrokerProfile {
   name: string;
@@ -109,8 +110,8 @@ export default function Minisite() {
   try {
     await updateBrokerProfile({
       ...profile,
-      username: (profile.username || profile.name.toLowerCase().replace(/[^a-z0-9]/g, '')).substring(0, 20),
-      status: isEnabled ? 'active' : 'inactive',   // 👈 ESSENCIAL
+      username: profile.username || cleanUsername(profile.name),
+      status: isEnabled ? 'active' : 'inactive',
     });
     toast({ title: "Perfil Atualizado!", description: "Seu mini site foi atualizado com sucesso." });
   } catch (error) {
@@ -122,11 +123,8 @@ export default function Minisite() {
 };
 
   const copyMinisiteUrl = () => {
-    // Use conectaios.com.br domain for production, sandbox for development  
-    const domain = window.location.hostname.includes('lovable') 
-      ? window.location.origin 
-      : 'https://conectaios.com.br';
-    const url = `${domain}/broker/${profile.username || 'seu-usuario'}`;
+    const username = profile.username || 'seu-usuario';
+    const url = generateMinisiteUrl(username);
     navigator.clipboard.writeText(url);
     toast({
       title: "Link Copiado!",
@@ -185,7 +183,7 @@ export default function Minisite() {
           
           <Button variant="outline" asChild>
             <a 
-              href={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/broker/${profile.username || 'seu-usuario'}`}
+              href={generateMinisiteUrl(profile.username || 'seu-usuario')}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -264,12 +262,12 @@ export default function Minisite() {
               <Input
                 id="username"
                 value={profile.username}
-                onChange={(e) => setProfile({...profile, username: e.target.value.toLowerCase().replace(/[^a-z0-9]/g, '')})}
+                onChange={(e) => setProfile({...profile, username: cleanUsername(e.target.value)})}
                 placeholder="seu-nome-usuario"
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Seu mini site será: {window.location.origin}/broker/{profile.username || 'seu-usuario'}
+                Seu mini site será: {generateMinisiteUrl(profile.username || 'seu-usuario')}
               </p>
             </div>
             <div>
@@ -334,7 +332,7 @@ export default function Minisite() {
                 <Label>URL Atual</Label>
                 <div className="flex gap-2 mt-1">
                   <Input
-                    value={`${window.location.hostname.includes('lovable') ? window.location.origin : 'https://conectaios.com.br'}/broker/${profile.username || 'seu-usuario'}`}
+                    value={generateMinisiteUrl(profile.username || 'seu-usuario')}
                     readOnly
                     className="font-mono"
                   />

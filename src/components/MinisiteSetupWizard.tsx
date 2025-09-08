@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Globe, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { toast } from '@/hooks/use-toast';
+import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
 
 interface MinisiteSetupWizardProps {
   onComplete: () => void;
@@ -16,7 +17,7 @@ export function MinisiteSetupWizard({ onComplete }: MinisiteSetupWizardProps) {
   const { broker, updateBrokerProfile } = useBroker();
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState(
-    broker?.username || broker?.name?.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || ''
+    broker?.username || cleanUsername(broker?.name || '') || ''
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +78,7 @@ export function MinisiteSetupWizard({ onComplete }: MinisiteSetupWizardProps) {
                 <Input
                   id="username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                  onChange={(e) => setUsername(cleanUsername(e.target.value))}
                   placeholder="seuusername"
                   className="rounded-l-none font-mono"
                   required
@@ -91,7 +92,7 @@ export function MinisiteSetupWizard({ onComplete }: MinisiteSetupWizardProps) {
                     <span>Seu minisite será:</span>
                   </div>
                   <div className="font-mono text-sm mt-1 text-success">
-                    {window.location.origin}/@{username}
+                    {username ? generateMinisiteUrl(username) : 'Configure o username primeiro'}
                   </div>
                 </div>
               )}

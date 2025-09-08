@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { supabase } from '@/integrations/supabase/client';
+import { generateMinisiteUrl, generateBrokerIdentifier, generateMinisitePath } from '@/lib/urls';
 
 interface MinisiteConfig {
   template: string;
@@ -104,9 +105,9 @@ export function FunctionalMinisite() {
     setIsGenerating(true);
     
     try {
-      // Generate unique URL based on broker username
-      const uniqueId = broker.username || `broker-${broker.id.slice(0, 8)}`;
-      const minisiteUrl = `broker/${uniqueId}`;
+      // Generate unique identifier and paths using utilities
+      const uniqueId = generateBrokerIdentifier(broker);
+      const minisitePath = generateMinisitePath(uniqueId);
       
       // Save or update minisite config in database
       const minisiteData = {
@@ -124,7 +125,7 @@ export function FunctionalMinisite() {
         show_contact_form: config.showContactForm,
         show_about: config.showAbout,
         config_data: config as any,
-        generated_url: minisiteUrl,
+        generated_url: minisitePath,
         is_active: true
       };
 
@@ -157,7 +158,7 @@ export function FunctionalMinisite() {
         throw result.error;
       }
       
-      const fullUrl = `${window.location.origin}/${minisiteUrl}`;
+      const fullUrl = generateMinisiteUrl(uniqueId);
       setGeneratedUrl(fullUrl);
       
       toast({

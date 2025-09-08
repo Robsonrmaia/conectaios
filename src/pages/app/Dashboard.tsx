@@ -9,6 +9,7 @@ import { formatCurrency } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { generateMinisiteUrl } from '@/lib/urls';
 
 const Dashboard = () => {
   const { broker } = useBroker();
@@ -23,11 +24,7 @@ const Dashboard = () => {
 
   const handleMinisiteAccess = () => {
     if (broker && broker.username) {
-      // Use conectaios.com.br domain for production, sandbox for development
-      const domain = window.location.hostname.includes('lovable') 
-        ? window.location.origin 
-        : 'https://conectaios.com.br';
-      const minisiteUrl = `${domain}/broker/${broker.username}`;
+      const minisiteUrl = generateMinisiteUrl(broker.username);
       window.open(minisiteUrl, '_blank');
       toast({
         title: "Minisite aberto",
@@ -44,11 +41,7 @@ const Dashboard = () => {
 
   const copyMinisiteUrl = () => {
     if (broker && broker.username) {
-      // Use conectaios.com.br domain for production, sandbox for development
-      const domain = window.location.hostname.includes('lovable') 
-        ? window.location.origin 
-        : 'https://conectaios.com.br';
-      const minisiteUrl = `${domain}/broker/${broker.username}`;
+      const minisiteUrl = generateMinisiteUrl(broker.username);
       navigator.clipboard.writeText(minisiteUrl);
       toast({
         title: "URL copiada",
@@ -265,7 +258,7 @@ const Dashboard = () => {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -311,6 +304,44 @@ const Dashboard = () => {
               <div className="flex justify-between items-center">
                 <span className="text-sm">Buscar Matches</span>
                 <Target className="h-4 w-4 text-muted-foreground" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Insights Recentes */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Insights Recentes
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  📈 Apartamentos lideram portfólio
+                </p>
+                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+                  50% dos imóveis são apartamentos - demanda aquecida no mercado
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                <p className="text-sm font-medium text-green-900 dark:text-green-100">
+                  💰 Potencial premium em coberturas
+                </p>
+                <p className="text-xs text-green-700 dark:text-green-300 mt-1">
+                  Coberturas têm valor médio 10x superior - mercado de luxo ativo
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
+                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
+                  🎯 Foco em conversão
+                </p>
+                <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">
+                  14 clientes ativos no CRM - oportunidade de follow-up
+                </p>
               </div>
             </div>
           </CardContent>
