@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
-import { AsaasTestButton } from '@/components/AsaasTestButton';
+import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
@@ -188,16 +188,47 @@ const Index = () => {
       </main>
 
       {/* Mobile: Seção separada com texto completo */}
-      <section className="sm:hidden bg-background py-8">
+      <section className="sm:hidden bg-background py-4">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto">
-            <div className="bg-gradient-to-br from-primary/20 to-brand-secondary/20 rounded-2xl p-8 border-2 border-primary/30 shadow-2xl backdrop-blur-md">
-              <p className="text-xl text-foreground mb-0 leading-relaxed font-semibold">
-                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-                encontra clientes certos com inteligência artificial e fecha negócios de forma 
-                <span className="text-primary font-bold"> simples, rápida e segura</span>.
-              </p>
+            <div className="relative overflow-hidden rounded-3xl p-8 shadow-2xl backdrop-blur-xl border border-primary/20">
+              {/* Gradient Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-brand-secondary/5 to-brand-accent/10"></div>
+              
+              {/* Animated Circles */}
+              <div className="absolute -top-4 -left-4 w-24 h-24 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+              <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-brand-secondary/20 rounded-full blur-xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+              
+              {/* Content */}
+              <div className="relative z-10">
+                <div className="mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-brand-secondary rounded-full flex items-center justify-center mx-auto shadow-lg">
+                    <Building2 className="h-8 w-8 text-white" />
+                  </div>
+                </div>
+                
+                <p className="text-lg text-foreground mb-0 leading-relaxed font-medium">
+                  Deixe para trás a <span className="font-bold text-destructive">burocracia</span>, as 
+                  <span className="font-bold text-warning"> planilhas confusas</span> e as 
+                  <span className="font-bold text-destructive"> negociações travadas</span>.
+                </p>
+                
+                <div className="mt-4 p-4 bg-gradient-to-r from-primary/20 to-brand-secondary/20 rounded-2xl border-l-4 border-primary">
+                  <p className="text-base text-foreground font-semibold">
+                    Com o <span className="text-primary font-bold">ConectaIOS</span>, você se conecta a outros corretores, 
+                    organiza seus imóveis, encontra clientes certos com 
+                    <span className="text-brand-accent font-bold"> inteligência artificial</span> e fecha negócios de forma 
+                    <span className="text-success font-bold"> simples, rápida e segura</span>.
+                  </p>
+                </div>
+                
+                {/* Call to Action */}
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <div className="h-1 w-8 bg-gradient-to-r from-primary to-brand-secondary rounded-full"></div>
+                  <span className="text-sm font-medium text-muted-foreground">Transforme sua carreira hoje!</span>
+                  <div className="h-1 w-8 bg-gradient-to-r from-brand-secondary to-primary rounded-full"></div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -415,12 +446,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                   <Button 
-                     onClick={() => navigate('/auth')}
-                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
-                   >
-                     Assinar Plano Básico
-                   </Button>
+                   <AsaasPaymentButton 
+                     planName="Básico"
+                     planValue={97}
+                     planId="basico"
+                     className="bg-primary hover:bg-primary/90 text-white mt-4"
+                   />
                 </CardContent>
               </Card>
 
@@ -448,12 +479,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                   <Button 
-                     onClick={() => navigate('/auth')}
-                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
-                   >
-                     Assinar Plano Profissional
-                   </Button>
+                   <AsaasPaymentButton 
+                     planName="Profissional"
+                     planValue={147}
+                     planId="profissional"
+                     className="bg-primary hover:bg-primary/90 text-white mt-4"
+                   />
                 </CardContent>
               </Card>
 
@@ -481,12 +512,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                   <Button 
-                     onClick={() => navigate('/auth')}
-                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
-                   >
-                     Assinar Plano Premium
-                   </Button>
+                   <AsaasPaymentButton 
+                     planName="Premium"
+                     planValue={197}
+                     planId="premium"
+                     className="bg-primary hover:bg-primary/90 text-white mt-4"
+                   />
                 </CardContent>
               </Card>
             </div>
