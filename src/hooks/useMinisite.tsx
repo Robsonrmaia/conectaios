@@ -21,7 +21,7 @@ interface MinisiteConfig {
   custom_message?: string;
   generated_url?: string;
   is_active: boolean;
-  config_data?: Record<string, any>;
+  config_data?: any;
 }
 
 interface MinisiteContextType {
@@ -62,10 +62,10 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       }
 
       if (data) {
-        setConfig(data);
+        setConfig(data as MinisiteConfig);
       } else {
         // Create default config
-        const defaultConfig: Partial<MinisiteConfig> = {
+        const defaultConfig = {
           broker_id: broker.id,
           title: broker.name || 'Meu Mini Site',
           description: broker.bio || '',
@@ -84,12 +84,12 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
 
         const { data: newConfig, error: createError } = await supabase
           .from('minisite_configs')
-          .insert([defaultConfig])
+          .insert(defaultConfig)
           .select()
           .single();
 
         if (createError) throw createError;
-        setConfig(newConfig);
+        setConfig(newConfig as MinisiteConfig);
       }
     } catch (error) {
       console.error('Error fetching minisite config:', error);
