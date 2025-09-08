@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { PaymentSystem } from './PaymentSystem';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from '@/hooks/use-toast';
 
 interface AsaasPaymentButtonProps {
   planName: string;
@@ -12,25 +11,31 @@ interface AsaasPaymentButtonProps {
 }
 
 export function AsaasPaymentButtonFixed({ planName, planValue, planId, variant = "default", className = "" }: AsaasPaymentButtonProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  
+  const handleClick = () => {
+    try {
+      // Redirecionar direto para o Asaas
+      const asaasUrl = 'https://www.asaas.com/cadastro';
+      window.open(asaasUrl, '_blank');
+      
+      toast({
+        title: "Redirecionado para Asaas",
+        description: "Complete seu cadastro e assinatura no Asaas."
+      });
+
+    } catch (error) {
+      console.error('Erro:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao abrir página do Asaas",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant={variant} className={className}>
-          Assinar {planName} - R$ {planValue.toFixed(2)}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Finalizar Assinatura</DialogTitle>
-        </DialogHeader>
-        <PaymentSystem 
-          planName={planName}
-          planValue={planValue}
-          planId={planId}
-        />
-      </DialogContent>
-    </Dialog>
+    <Button variant={variant} className={className} onClick={handleClick}>
+      Assinar {planName} - R$ {planValue.toFixed(2)}
+    </Button>
   );
 }

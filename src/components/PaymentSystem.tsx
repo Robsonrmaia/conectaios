@@ -32,13 +32,7 @@ interface UserData {
 }
 
 export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProps) {
-  const { user } = useAuth();
-  const { broker } = useBroker();
   const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'userData' | 'select' | 'processing' | 'success' | 'error'>('userData');
-  const [selectedPayment, setSelectedPayment] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [userData, setUserData] = useState<UserData | null>(null);
 
   const paymentOptions: PaymentOption[] = [
     {
@@ -64,23 +58,14 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
     }
   ];
 
-  const handleUserData = (data: UserData) => {
-    setUserData(data);
-    setCurrentStep('select');
-  };
-
-  const handleAsaasPayment = async () => {
+  const handleAsaasPayment = () => {
     setLoading(true);
-    setCurrentStep('processing');
     
     try {
-      console.log('Redirecionando para Asaas...');
-
       // Redirecionar direto para o Asaas
       const asaasUrl = 'https://www.asaas.com/cadastro';
       window.open(asaasUrl, '_blank');
       
-      setCurrentStep('success');
       toast({
         title: "Redirecionado para Asaas",
         description: "Complete seu cadastro e assinatura no Asaas que foi aberto em nova aba."
@@ -88,211 +73,48 @@ export function PaymentSystem({ planName, planValue, planId }: PaymentSystemProp
 
     } catch (error: any) {
       console.error('Erro:', error);
-      setErrorMessage('Erro ao abrir Asaas');
-      setCurrentStep('error');
+      toast({
+        title: "Erro",
+        description: "Erro ao abrir página do Asaas",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePayment = async (optionId: string) => {
-    setSelectedPayment(optionId);
-    
-    switch (optionId) {
-      case 'asaas':
-        await handleAsaasPayment();
-        break;
-      case 'mercadopago':
-        toast({
-          title: "Em desenvolvimento",
-          description: "Mercado Pago será disponibilizado em breve",
-          variant: "default"
-        });
-        break;
-      case 'stripe':
-        toast({
-          title: "Em desenvolvimento", 
-          description: "Stripe será disponibilizado em breve",
-          variant: "default"
-        });
-        break;
-      default:
-        toast({
-          title: "Opção inválida",
-          description: "Selecione uma opção de pagamento válida",
-          variant: "destructive"
-        });
-    }
-  };
-
-  if (currentStep === 'userData') {
-    return (
-      <UserDataForm 
-        onSubmit={handleUserData}
-        loading={loading}
-        initialData={broker ? {
-          name: broker.name || '',
-          email: broker.email || '',
-          phone: broker.phone || '',
-          cpfCnpj: ''
-        } : undefined}
-      />
-    );
-  }
-
-  if (currentStep === 'processing') {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center gap-4">
-            <Loader2 className="w-8 h-8 animate-spin" />
-            <p className="text-center text-muted-foreground">
-              Processando pagamento...
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (currentStep === 'success') {
-    return (
-      <Card className="w-full max-w-md mx-auto border-green-200">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center gap-4">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-            <p className="text-center text-green-600 font-medium">
-              Checkout aberto com sucesso!
-            </p>
-            <p className="text-center text-sm text-muted-foreground">
-              Complete seu pagamento na nova aba que foi aberta.
-            </p>
-            <div className="flex gap-2 w-full">
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentStep('userData')}
-                className="flex-1"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentStep('select')}
-                className="flex-1"
-              >
-                Outro método
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (currentStep === 'error') {
-    return (
-      <Card className="w-full max-w-md mx-auto border-red-200">
-        <CardContent className="pt-6">
-          <div className="flex flex-col items-center gap-4">
-            <AlertCircle className="w-8 h-8 text-red-600" />
-            <p className="text-center text-red-600 font-medium">
-              Erro no pagamento
-            </p>
-            <p className="text-center text-sm text-muted-foreground">
-              {errorMessage}
-            </p>
-            <div className="flex gap-2 w-full">
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentStep('userData')}
-                className="flex-1"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Voltar
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => setCurrentStep('select')}
-                className="flex-1"
-              >
-                Tentar novamente
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <div className="flex items-center gap-2 mb-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCurrentStep('userData')}
-            className="p-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Button>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="w-5 h-5" />
-            Escolha seu método de pagamento
-          </CardTitle>
-        </div>
+        <CardTitle className="flex items-center gap-2">
+          <CreditCard className="w-5 h-5" />
+          Finalizar Assinatura
+        </CardTitle>
         <CardDescription>
           Plano {planName} - R$ {planValue.toFixed(2)}/mês
         </CardDescription>
-        {userData && (
-          <div className="mt-2 p-2 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>{userData.name}</strong> • {userData.email}
-            </p>
-          </div>
-        )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {paymentOptions.map((option) => (
-          <div key={option.id} className="space-y-2">
-            <Button
-              variant={option.available ? "outline" : "ghost"}
-              disabled={!option.available || loading}
-              onClick={() => handlePayment(option.id)}
-              className={`w-full justify-start gap-3 h-auto p-4 ${
-                selectedPayment === option.id ? 'border-primary' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3 flex-1">
-                {option.icon}
-                <div className="text-left flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{option.name}</span>
-                    {!option.available && (
-                      <Badge variant="secondary" className="text-xs">
-                        Em breve
-                      </Badge>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {option.description}
-                  </p>
-                </div>
-              </div>
-              {loading && selectedPayment === option.id && (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              )}
-            </Button>
-            {option.id !== paymentOptions[paymentOptions.length - 1].id && (
-              <Separator />
-            )}
+        <Button
+          onClick={handleAsaasPayment}
+          disabled={loading}
+          className="w-full justify-start gap-3 h-auto p-4"
+        >
+          <div className="flex items-center gap-3 flex-1">
+            <CreditCard className="w-5 h-5" />
+            <div className="text-left flex-1">
+              <span className="font-medium">Assinar via Asaas</span>
+              <p className="text-sm text-muted-foreground">
+                PIX, Cartão de Crédito ou Boleto
+              </p>
+            </div>
           </div>
-        ))}
+          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        </Button>
         
         <div className="pt-4 border-t">
           <p className="text-xs text-muted-foreground text-center">
-            🔒 Pagamentos processados de forma segura
+            🔒 Você será redirecionado para o Asaas para finalizar o pagamento
           </p>
         </div>
       </CardContent>
