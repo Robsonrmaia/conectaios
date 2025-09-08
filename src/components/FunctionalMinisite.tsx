@@ -106,7 +106,7 @@ export function FunctionalMinisite() {
     try {
       // Generate unique URL based on broker username
       const uniqueId = broker.username || `broker-${broker.id.slice(0, 8)}`;
-      const minisiteUrl = `@${uniqueId}`;
+      const minisiteUrl = `broker/${uniqueId}`;
       
       // Save or update minisite config in database
       const minisiteData = {
@@ -157,7 +157,7 @@ export function FunctionalMinisite() {
         throw result.error;
       }
       
-      const fullUrl = `https://conectaios.lovable.app/${minisiteUrl}`;
+      const fullUrl = `${window.location.origin}/${minisiteUrl}`;
       setGeneratedUrl(fullUrl);
       
       toast({

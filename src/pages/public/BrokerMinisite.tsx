@@ -59,6 +59,7 @@ interface ContactForm {
 
 export default function BrokerMinisite() {
   const { username } = useParams<{ username: string }>();
+  const cleanUsername = username?.startsWith('@') ? username.slice(1) : username;
   const [broker, setBroker] = useState<BrokerProfile | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
@@ -88,27 +89,28 @@ export default function BrokerMinisite() {
     try {
       console.log('=== MINISITE DEBUG ===');
       console.log('1. Username from URL params:', username);
-      console.log('2. Current URL:', window.location.href);
+      console.log('2. Clean username for query:', cleanUsername);
+      console.log('3. Current URL:', window.location.href);
       
-      if (!username) {
-        console.error('3. No username provided in URL');
+      if (!cleanUsername) {
+        console.error('4. No username provided in URL');
         return;
       }
 
-      console.log('4. Fetching broker with username:', username);
+      console.log('5. Fetching broker with username:', cleanUsername);
       
       // Fetch broker by username
       const { data: brokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
         .select('*')
-        .eq('username', username)
+        .eq('username', cleanUsername)
         .eq('status', 'active')
         .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
 
-      console.log('5. Broker query result:');
+      console.log('6. Broker query result:');
       console.log('   - Data:', brokerData);
       console.log('   - Error:', brokerError);
-      console.log('   - Query URL would be:', `conectaios_brokers?username=${username}&status=active`);
+      console.log('   - Query URL would be:', `conectaios_brokers?username=${cleanUsername}&status=active`);
 
       if (brokerError) {
         console.error('6. Broker query error details:', brokerError);
@@ -119,7 +121,7 @@ export default function BrokerMinisite() {
         console.log('7. No broker found - showing error message');
         toast({
           title: "Erro",
-          description: `Corretor @${username} não encontrado ou página não disponível`,
+          description: `Corretor ${cleanUsername} não encontrado ou página não disponível`,
           variant: "destructive",
         });
         return;
