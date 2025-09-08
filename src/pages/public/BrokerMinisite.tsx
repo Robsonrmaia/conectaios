@@ -136,6 +136,7 @@ export default function BrokerMinisite() {
         .from('conectaios_properties')
         .select('*')
         .eq('user_id', brokerData.user_id)
+        .eq('is_public', true)
         .eq('visibility', 'public_site')
         .order('created_at', { ascending: false });
 
