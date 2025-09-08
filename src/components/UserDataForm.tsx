@@ -8,14 +8,69 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { User, Mail, Phone, FileText } from 'lucide-react';
 
+// Função para validar CPF
+const validateCPF = (cpf: string): boolean => {
+  const cleaned = cpf.replace(/\D/g, '');
+  if (cleaned.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(cleaned)) return false; // Rejeita sequências iguais
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += parseInt(cleaned.charAt(i)) * (10 - i);
+  }
+  let remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  if (remainder !== parseInt(cleaned.charAt(9))) return false;
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += parseInt(cleaned.charAt(i)) * (11 - i);
+  }
+  remainder = (sum * 10) % 11;
+  if (remainder === 10 || remainder === 11) remainder = 0;
+  return remainder === parseInt(cleaned.charAt(10));
+};
+
+// Função para validar CNPJ
+const validateCNPJ = (cnpj: string): boolean => {
+  const cleaned = cnpj.replace(/\D/g, '');
+  if (cleaned.length !== 14) return false;
+  if (/^(\d)\1{13}$/.test(cleaned)) return false; // Rejeita sequências iguais
+
+  let sum = 0;
+  let weight = 2;
+  for (let i = 11; i >= 0; i--) {
+    sum += parseInt(cleaned.charAt(i)) * weight;
+    weight = weight === 9 ? 2 : weight + 1;
+  }
+  let remainder = sum % 11;
+  let digit = remainder < 2 ? 0 : 11 - remainder;
+  if (digit !== parseInt(cleaned.charAt(12))) return false;
+
+  sum = 0;
+  weight = 2;
+  for (let i = 12; i >= 0; i--) {
+    sum += parseInt(cleaned.charAt(i)) * weight;
+    weight = weight === 9 ? 2 : weight + 1;
+  }
+  remainder = sum % 11;
+  digit = remainder < 2 ? 0 : 11 - remainder;
+  return digit === parseInt(cleaned.charAt(13));
+};
+
 const userDataSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   phone: z.string().min(10, 'Telefone inválido'),
   cpfCnpj: z.string().min(11, 'CPF/CNPJ inválido').refine((val) => {
     const cleaned = val.replace(/\D/g, '');
-    return cleaned.length === 11 || cleaned.length === 14;
-  }, 'CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos')
+    if (cleaned.length === 11) {
+      return validateCPF(cleaned);
+    } else if (cleaned.length === 14) {
+      return validateCNPJ(cleaned);
+    }
+    return false;
+  }, 'CPF ou CNPJ inválido')
 });
 
 type UserDataForm = z.infer<typeof userDataSchema>;
@@ -30,13 +85,22 @@ export function UserDataForm({ onSubmit, loading = false, initialData }: UserDat
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     setValue
   } = useForm<UserDataForm>({
     resolver: zodResolver(userDataSchema),
-    defaultValues: initialData
+    defaultValues: initialData,
+    mode: 'onChange'
   });
+
+  const watchedCpfCnpj = watch('cpfCnpj');
+  const isCpfCnpjValid = watchedCpfCnpj ? (() => {
+    const cleaned = watchedCpfCnpj.replace(/\D/g, '');
+    if (cleaned.length === 11) return validateCPF(cleaned);
+    if (cleaned.length === 14) return validateCNPJ(cleaned);
+    return false;
+  })() : false;
 
   const formatPhone = (value: string) => {
     const cleaned = value.replace(/\D/g, '');
@@ -154,15 +218,19 @@ export function UserDataForm({ onSubmit, loading = false, initialData }: UserDat
             <Label htmlFor="cpfCnpj" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               CPF ou CNPJ
+              {isCpfCnpjValid && watchedCpfCnpj.replace(/\D/g, '').length >= 11 && (
+                <span className="text-green-600 text-sm">✓ Válido</span>
+              )}
             </Label>
             <Input
               id="cpfCnpj"
               placeholder="000.000.000-00 ou 00.000.000/0000-00"
               {...register('cpfCnpj')}
               disabled={loading}
+              className={isCpfCnpjValid && watchedCpfCnpj.replace(/\D/g, '').length >= 11 ? 'border-green-500' : ''}
               onChange={(e) => {
                 const formatted = formatCpfCnpj(e.target.value);
-                setValue('cpfCnpj', formatted);
+                setValue('cpfCnpj', formatted, { shouldValidate: true });
               }}
             />
             {errors.cpfCnpj && (
@@ -170,7 +238,7 @@ export function UserDataForm({ onSubmit, loading = false, initialData }: UserDat
             )}
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading || !isValid}>
             {loading ? 'Validando...' : 'Continuar para Pagamento'}
           </Button>
         </form>
