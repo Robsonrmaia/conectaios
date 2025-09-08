@@ -174,32 +174,32 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex gap-6">
+    <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Sidebar */}
-      <div className="w-80 space-y-4">
+      <div className="lg:w-80 xl:w-96 space-y-4 order-2 lg:order-1">
         {/* Quick Actions */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 line-clamp-1">
+              <Zap className="h-5 w-5 flex-shrink-0" />
               Ações Rápidas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 p-3">
             {quickActions.map((action) => {
               const IconComponent = action.icon;
               return (
                 <Button
                   key={action.id}
                   variant="ghost"
-                  className="w-full justify-start h-auto p-3"
+                  className="w-full justify-start h-auto p-3 text-left"
                   onClick={() => handleQuickAction(action.action)}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 w-full">
                     <IconComponent className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                    <div className="text-left min-w-0 flex-1">
-                      <div className="font-medium text-sm break-words">{action.title}</div>
-                      <div className="text-xs text-muted-foreground break-words leading-relaxed">{action.description}</div>
+                    <div className="text-left min-w-0 flex-1 overflow-hidden">
+                      <div className="font-medium text-sm mb-1 line-clamp-2">{action.title}</div>
+                      <div className="text-xs text-muted-foreground leading-relaxed line-clamp-3 word-wrap break-words">{action.description}</div>
                     </div>
                   </div>
                 </Button>
@@ -209,21 +209,21 @@ export default function AIAssistant() {
         </Card>
 
         {/* Recent Insights */}
-        <Card>
+        <Card className="overflow-hidden">
           <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 line-clamp-1">
+              <Star className="h-5 w-5 flex-shrink-0" />
               Insights Recentes
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-3 p-3">
             {recentInsights.map((insight) => (
               <div
                 key={insight.id}
                 className={`p-3 rounded-lg border-l-2 ${getPriorityColor(insight.priority)}`}
               >
-                <h4 className="font-medium text-sm mb-1">{insight.title}</h4>
-                <p className="text-xs text-muted-foreground">{insight.content}</p>
+                <h4 className="font-medium text-sm mb-1 line-clamp-2">{insight.title}</h4>
+                <p className="text-xs text-muted-foreground line-clamp-3 word-wrap break-words">{insight.content}</p>
                 <Badge
                   variant="secondary"
                   className={`mt-2 text-xs ${
@@ -242,19 +242,19 @@ export default function AIAssistant() {
       </div>
 
       {/* Chat */}
-      <Card className="flex-1 flex flex-col">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-primary to-brand-secondary rounded-full flex items-center justify-center">
+      <Card className="flex-1 flex flex-col order-1 lg:order-2 min-h-0 overflow-hidden">
+        <CardHeader className="pb-3 flex-shrink-0">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 bg-gradient-to-r from-primary to-brand-secondary rounded-full flex items-center justify-center flex-shrink-0">
               <Bot className="h-5 w-5 text-white" />
             </div>
-            <div>
-              <CardTitle>Assistente IA ConectaIOS</CardTitle>
-              <CardDescription>Seu consultor inteligente para vendas imobiliárias</CardDescription>
+            <div className="min-w-0 flex-1">
+              <CardTitle className="line-clamp-1">Assistente IA ConectaIOS</CardTitle>
+              <CardDescription className="line-clamp-2">Seu consultor inteligente para vendas imobiliárias</CardDescription>
             </div>
           </div>
         </CardHeader>
-        <Separator />
+        <Separator className="flex-shrink-0" />
 
         {/* Chat Messages */}
         <CardContent className="flex-1 overflow-y-auto p-4">
@@ -264,7 +264,7 @@ export default function AIAssistant() {
                 key={msg.id}
                 className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex gap-3 max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
+                <div className={`flex gap-3 max-w-[85%] md:max-w-[80%] ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                     msg.type === 'user' 
                       ? 'bg-primary text-primary-foreground' 
@@ -277,13 +277,13 @@ export default function AIAssistant() {
                     )}
                   </div>
                   <div
-                    className={`px-4 py-2 rounded-lg ${
+                    className={`px-4 py-2 rounded-lg min-w-0 max-w-full ${
                       msg.type === 'user'
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
                     }`}
                   >
-                    <div className="text-sm whitespace-pre-wrap">{msg.content}</div>
+                    <div className="text-sm whitespace-pre-wrap word-wrap break-words overflow-hidden">{msg.content}</div>
                     <div className={`text-xs mt-1 ${
                       msg.type === 'user' 
                         ? 'text-primary-foreground/70' 
@@ -299,14 +299,14 @@ export default function AIAssistant() {
         </CardContent>
 
         {/* Message Input */}
-        <div className="p-4 border-t">
+        <div className="p-4 border-t flex-shrink-0">
           <div className="flex gap-2">
             <Input
               placeholder="Digite sua pergunta..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && !loading && handleSendMessage()}
-              className="flex-1"
+              className="flex-1 min-w-0"
               disabled={loading}
             />
             <Button 
@@ -321,7 +321,7 @@ export default function AIAssistant() {
               )}
             </Button>
           </div>
-          <div className="text-xs text-muted-foreground mt-2">
+          <div className="text-xs text-muted-foreground mt-2 line-clamp-2">
             💡 Dica: Pergunte sobre seus imóveis, clientes, tarefas ou peça análises de mercado
           </div>
         </div>
