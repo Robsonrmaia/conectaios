@@ -67,8 +67,8 @@ const Index = () => {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-background">
-      {/* Header Branco */}
-      <header className="relative z-30 bg-white border-b border-gray-200 shadow-sm">
+      {/* Header - Desktop e Mobile */}
+      <header className="relative z-30 bg-white/90 sm:bg-white backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
@@ -143,48 +143,42 @@ const Index = () => {
         </div>
 
         {/* Mobile Layout - Apenas para telas pequenas */}
-        <div className="sm:hidden">
-          {/* Título inicial */}
-          <div className="bg-background py-8">
-            <div className="container mx-auto px-6">
-              <h1 className="text-2xl font-bold text-center leading-tight">
-                Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                e <span className="text-primary">Inteligente</span>
-              </h1>
-            </div>
-          </div>
-
-          {/* Vídeo */}
-          <div className="relative h-[65vh] overflow-hidden">
+        <div className="sm:hidden relative">
+          {/* Vídeo em tamanho real como fundo */}
+          <div className="relative w-full h-screen">
             <iframe
               src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
               title="ConectaIOS Hero Video Mobile Vertical"
-              className="w-full h-full"
+              className="w-full h-full object-cover"
               style={{
                 width: '100%',
                 height: '100%',
-                border: 'none',
-                objectFit: 'contain'
+                border: 'none'
               }}
               allow="autoplay; fullscreen"
               allowFullScreen
             ></iframe>
-          </div>
-
-          {/* Botões sobre o vídeo */}
-          <div className="bg-background py-6">
-            <div className="container mx-auto px-6">
-              <div className="flex gap-3 justify-center items-center">
-                <Button 
-                  onClick={() => navigate('/auth')}
-                  size="sm"
-                  className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
-                >
-                  Começar Agora
-                  <ArrowRight className="ml-2 h-3 w-3" />
-                </Button>
-                <SaibaMaisDialog />
+            
+            {/* Conteúdo sobreposto no meio para baixo */}
+            <div className="absolute inset-0 bg-black/20 flex flex-col justify-center items-center px-6">
+              <div className="text-center space-y-6 mt-32">
+                <h1 className="text-2xl font-bold leading-tight text-white drop-shadow-lg">
+                  Sua rotina <span className="text-primary">imobiliária</span><br />
+                  <span className="text-primary">simplificada</span>, <span className="text-white">Organizada</span><br />
+                  e <span className="text-primary">Inteligente</span>
+                </h1>
+                
+                <div className="flex gap-3 justify-center items-center">
+                  <Button 
+                    onClick={() => navigate('/auth')}
+                    size="lg"
+                    className="text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+                  >
+                    Começar Agora
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                  <SaibaMaisDialog />
+                </div>
               </div>
             </div>
           </div>
@@ -420,6 +414,14 @@ const Index = () => {
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
                 </CardContent>
+                <div className="p-6 pt-0">
+                  <AsaasPaymentButtonFixed 
+                    planName="Básico"
+                    planValue={97}
+                    planId="basic"
+                    className="w-full"
+                  />
+                </div>
               </Card>
 
               {/* Plano Profissional */}
