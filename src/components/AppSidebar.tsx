@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -17,16 +16,7 @@ import {
   MessageSquare,
   HandHeart,
   Wrench,
-  Video,
-  Gift,
-  Handshake,
-  Settings,
   User,
-  Bot,
-  Shield,
-  Search,
-  FileText,
-  Activity,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -42,19 +32,9 @@ const navigationItems = [
     icon: Building2,
   },
   {
-    title: 'Marketplace',
-    url: '/app/marketplace',
-    icon: Search,
-  },
-  {
-    title: 'Match',
-    url: '/app/match',
-    icon: HandHeart,
-  },
-  {
-    title: 'Negociações',
-    url: '/app/deals',
-    icon: FileText,
+    title: 'CRM',
+    url: '/app/crm',
+    icon: Users,
   },
   {
     title: 'Mensagens',
@@ -62,61 +42,27 @@ const navigationItems = [
     icon: MessageSquare,
   },
   {
-    title: 'CRM',
-    url: '/app/crm',
-    icon: Users,
+    title: 'Match',
+    url: '/app/match',
+    icon: HandHeart,
   },
-];
-
-const toolsItems = [
   {
     title: 'Ferramentas',
     url: '/app/ferramentas',
     icon: Wrench,
   },
   {
-    title: 'Vídeos',
-    url: '/app/videos',
-    icon: Video,
-  },
-  {
-    title: 'Indique e Ganhe',
-    url: '/app/indicacoes',
-    icon: Gift,
-  },
-  {
-    title: 'Patrocínios',
-    url: '/app/patrocinios',
-    icon: Handshake,
-  },
-  {
-    title: 'IA Assistant',
-    url: '/app/ai-assistant',
-    icon: Bot,
-  },
-];
-
-const configItems = [
-  {
     title: 'Perfil',
     url: '/app/perfil',
     icon: User,
   },
-  {
-    title: 'Logs de Auditoria',
-    url: '/app/audit-logs',
-    icon: Activity,
-  },
-  {
-    title: 'Admin',
-    url: '/app/admin',
-    icon: Shield,
-  },
 ];
 
 export function AppSidebar() {
+  console.log('[AppSidebar] Component renderizing...');
   const location = useLocation();
   const currentPath = location.pathname;
+  console.log('[AppSidebar] Current path:', currentPath);
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -129,22 +75,34 @@ export function AppSidebar() {
       : 'hover:bg-accent hover:text-accent-foreground';
   };
 
+  console.log('[AppSidebar] About to render sidebar content...');
+
   return (
-    <Sidebar 
-      collapsible="icon"
-      className="border-r"
-    >
+    <Sidebar className="border-r bg-red-100">
       <SidebarContent>
+        {/* Debug Visual Test */}
+        <div className="p-2 bg-green-500 text-white text-xs">
+          SIDEBAR FUNCIONANDO - Rota: {currentPath}
+        </div>
+        
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
+            <img 
+              src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" 
+              alt="ConectaIOS" 
+              className="h-8 w-auto" 
+              onError={(e) => {
+                console.log('[AppSidebar] Logo failed to load');
+                e.currentTarget.style.display = 'none';
+              }}
+            />
           </div>
         </div>
 
-        {/* Main Navigation */}
+        {/* Navigation */}
         <SidebarGroup>
-          <SidebarGroupLabel>Principal</SidebarGroupLabel>
+          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navigationItems.map((item) => (
@@ -152,51 +110,11 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink 
                       to={item.url} 
-                      className={getNavClassName(item.url, item.exact)}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Tools */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Ferramentas</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {toolsItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(item.url)}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Configuration */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Configurações</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {configItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(item.url)}
+                      className={({ isActive }) =>
+                        isActive || (item.exact && currentPath === item.url)
+                          ? 'bg-primary text-primary-foreground font-medium' 
+                          : 'hover:bg-accent hover:text-accent-foreground'
+                      }
                     >
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
