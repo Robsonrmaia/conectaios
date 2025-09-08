@@ -31,10 +31,38 @@ import { useBroker } from '@/hooks/useBroker';
 import { useMinisite } from '@/hooks/useMinisite';
 
 const TEMPLATES = [
-  { id: 'modern', name: 'Moderno', preview: '/templates/modern.jpg' },
-  { id: 'classic', name: 'Clássico', preview: '/templates/classic.jpg' },
-  { id: 'minimal', name: 'Minimalista', preview: '/templates/minimal.jpg' },
-  { id: 'luxury', name: 'Luxo', preview: '/templates/luxury.jpg' }
+  { 
+    id: 'modern', 
+    name: 'Moderno', 
+    preview: '/templates/modern.jpg',
+    description: 'Design limpo e contemporâneo',
+    colors: { primary: '#1CA9C9', secondary: '#64748B' },
+    style: 'modern'
+  },
+  { 
+    id: 'classic', 
+    name: 'Clássico', 
+    preview: '/templates/classic.jpg',
+    description: 'Elegante e tradicional',
+    colors: { primary: '#8B5CF6', secondary: '#374151' },
+    style: 'classic'
+  },
+  { 
+    id: 'minimal', 
+    name: 'Minimalista', 
+    preview: '/templates/minimal.jpg',
+    description: 'Simplicidade e foco no conteúdo',
+    colors: { primary: '#10B981', secondary: '#6B7280' },
+    style: 'minimal'
+  },
+  { 
+    id: 'luxury', 
+    name: 'Luxo', 
+    preview: '/templates/luxury.jpg',
+    description: 'Sofisticado para imóveis premium',
+    colors: { primary: '#F59E0B', secondary: '#1F2937' },
+    style: 'luxury'
+  }
 ];
 
 export function MinisiteEditorIntegrated() {
@@ -225,17 +253,37 @@ export function MinisiteEditorIntegrated() {
                     {TEMPLATES.map((template) => (
                       <div
                         key={template.id}
-                        className={`relative cursor-pointer rounded-lg border-2 p-2 ${
+                        className={`relative cursor-pointer rounded-lg border-2 p-3 transition-all ${
                           config.template_id === template.id 
-                            ? 'border-primary' 
-                            : 'border-border hover:border-muted-foreground'
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border hover:border-muted-foreground hover:bg-muted/30'
                         }`}
-                        onClick={() => updateConfig({ template_id: template.id })}
+                        onClick={() => {
+                          updateConfig({ 
+                            template_id: template.id,
+                            primary_color: template.colors.primary,
+                            secondary_color: template.colors.secondary
+                          });
+                        }}
                       >
-                        <div className="aspect-video bg-muted rounded mb-2" />
-                        <p className="text-sm font-medium text-center">{template.name}</p>
+                        <div 
+                          className="aspect-video rounded mb-2 bg-gradient-to-br"
+                          style={{
+                            background: `linear-gradient(135deg, ${template.colors.primary}20, ${template.colors.secondary}20)`
+                          }}
+                        >
+                          <div className="h-full w-full rounded bg-white/80 flex items-center justify-center">
+                            <div className="text-xs font-medium" style={{ color: template.colors.primary }}>
+                              {template.name}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-sm font-medium">{template.name}</p>
+                          <p className="text-xs text-muted-foreground">{template.description}</p>
+                        </div>
                         {config.template_id === template.id && (
-                          <Badge className="absolute -top-2 -right-2">Ativo</Badge>
+                          <Badge className="absolute -top-2 -right-2 bg-primary">Ativo</Badge>
                         )}
                       </div>
                     ))}

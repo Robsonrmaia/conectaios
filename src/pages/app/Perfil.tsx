@@ -362,7 +362,17 @@ export default function Perfil() {
         </TabsContent>
 
         <TabsContent value="minisite" className="space-y-6">
-          <MinisiteEditorIntegrated />
+          <Card>
+            <CardHeader>
+              <CardTitle>Editor do Mini Site</CardTitle>
+              <CardDescription>
+                Personalize a aparência e configurações do seu mini site
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <MinisiteEditorIntegrated />
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">

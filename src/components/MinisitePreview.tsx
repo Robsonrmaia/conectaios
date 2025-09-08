@@ -13,6 +13,43 @@ interface MinisitePreviewProps {
 export function MinisitePreview({ config, broker, properties = [], preview }: MinisitePreviewProps) {
   const primaryColor = config?.primary_color || '#1CA9C9';
   const secondaryColor = config?.secondary_color || '#64748B';
+  const templateId = config?.template_id || 'modern';
+
+  const getTemplateStyles = () => {
+    switch (templateId) {
+      case 'classic':
+        return {
+          headerBg: 'bg-gradient-to-r from-gray-800 to-gray-900',
+          heroBg: 'bg-gradient-to-b from-gray-50 to-white',
+          cardStyle: 'shadow-md hover:shadow-lg transition-shadow',
+          fontFamily: 'serif'
+        };
+      case 'minimal':
+        return {
+          headerBg: 'bg-white border-b-2',
+          heroBg: 'bg-white',
+          cardStyle: 'border border-gray-200 hover:border-gray-300 transition-colors',
+          fontFamily: 'sans-serif'
+        };
+      case 'luxury':
+        return {
+          headerBg: 'bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200',
+          heroBg: 'bg-gradient-to-b from-amber-50 via-orange-50 to-white',
+          cardStyle: 'shadow-xl border border-amber-100 hover:shadow-2xl transition-all',
+          fontFamily: 'serif'
+        };
+      case 'modern':
+      default:
+        return {
+          headerBg: 'bg-white/90 backdrop-blur border-b',
+          heroBg: 'bg-gradient-to-b from-blue-50 to-white',
+          cardStyle: 'shadow-sm hover:shadow-md transition-shadow',
+          fontFamily: 'sans-serif'
+        };
+    }
+  };
+
+  const templateStyles = getTemplateStyles();
 
   const getPreviewClasses = () => {
     switch (preview) {
@@ -54,7 +91,7 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
     <div className={`${getPreviewClasses()} border rounded-lg bg-white overflow-hidden shadow-lg`}>
       <div className="h-full overflow-y-auto">
         {/* Header */}
-        <header className="sticky top-0 z-10 bg-white/90 backdrop-blur border-b">
+        <header className={`sticky top-0 z-10 ${templateStyles.headerBg}`}>
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div 
@@ -71,7 +108,7 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
                   <Building2 className="h-5 w-5" />
                 )}
               </div>
-              <span className="font-semibold text-lg">
+              <span className={`font-semibold text-lg ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
                 {broker?.name || config?.title || 'Corretor'}
               </span>
             </div>
@@ -87,29 +124,41 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
         </header>
 
         {/* Hero Section */}
-        <section className="p-6 bg-gradient-to-b from-blue-50 to-white">
-          <div className="text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
-              <Building2 className="h-4 w-4" />
-              Atendimento especializado
+        <section className="relative">
+          {/* Cover Image */}
+          {broker?.cover_url && (
+            <div 
+              className="h-48 bg-cover bg-center"
+              style={{ backgroundImage: `url(${broker.cover_url})` }}
+            >
+              <div className="absolute inset-0 bg-black/20"></div>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              {config?.title || 'Encontre seu imóvel ideal'}
-            </h1>
-            <p className="text-gray-600 max-w-md mx-auto text-sm">
-              {config?.description || broker?.bio || 'Especialista em imóveis com atendimento personalizado e transparente.'}
-            </p>
-            <div className="flex gap-2 justify-center">
-              <Button 
-                size="sm" 
-                className="text-white"
-                style={{ backgroundColor: primaryColor }}
-              >
-                Ver Imóveis
-              </Button>
-              <Button variant="outline" size="sm">
-                Fale Conosco
-              </Button>
+          )}
+          
+          <div className={`p-6 ${broker?.cover_url ? 'bg-white -mt-6 mx-4 rounded-t-xl relative z-10 shadow-lg' : templateStyles.heroBg}`}>
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+                <Building2 className="h-4 w-4" />
+                Atendimento especializado
+              </div>
+              <h1 className={`text-2xl md:text-3xl font-bold text-gray-900 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
+                {config?.title || 'Encontre seu imóvel ideal'}
+              </h1>
+              <p className="text-gray-600 max-w-md mx-auto text-sm">
+                {config?.description || broker?.bio || 'Especialista em imóveis com atendimento personalizado e transparente.'}
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button 
+                  size="sm" 
+                  className="text-white"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  Ver Imóveis
+                </Button>
+                <Button variant="outline" size="sm">
+                  Fale Conosco
+                </Button>
+              </div>
             </div>
           </div>
         </section>
@@ -120,7 +169,7 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
             <h2 className="text-xl font-bold mb-4">Imóveis em Destaque</h2>
             <div className="grid gap-4">
               {displayProperties.map((property) => (
-                <Card key={property.id} className="overflow-hidden">
+                <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
                   <div className="flex">
                     {property.fotos && property.fotos.length > 0 ? (
                       <img
@@ -134,7 +183,9 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
                       </div>
                     )}
                     <CardContent className="flex-1 p-3">
-                      <h3 className="font-medium text-sm mb-1">{property.titulo}</h3>
+                      <h3 className={`font-medium text-sm mb-1 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
+                        {property.titulo}
+                      </h3>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
                         {property.quartos && (
                           <span className="flex items-center gap-1">

@@ -111,6 +111,7 @@ export default function BrokerMinisite() {
 
       // Se não houver props na conectaios_properties, tentar a tabela properties
       if (!props || props.length === 0) {
+        console.log('No properties found in conectaios_properties, trying properties table');
         const { data: fallbackProps, error: fallbackErr } = await supabase
           .from("properties")
           .select("id, titulo, valor, fotos, city, neighborhood, quartos, bathrooms, area, user_id, listing_type, property_type, descricao")
@@ -121,6 +122,9 @@ export default function BrokerMinisite() {
         
         props = fallbackProps;
         propsErr = fallbackErr;
+        console.log('Properties from fallback table:', fallbackProps?.length || 0);
+      } else {
+        console.log('Properties from conectaios_properties:', props.length);
       }
 
       if (propsErr) pushErr("properties.query", propsErr);
