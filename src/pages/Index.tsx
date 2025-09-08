@@ -67,12 +67,12 @@ const Index = () => {
   return (
     <PageWrapper>
       <div className="min-h-screen bg-background">
-      {/* Header Branco */}
-      <header className="relative z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-6">
+      {/* Header Transparente e Móvel */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-12 w-auto" />
+              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-10 w-auto" />
             </div>
             <Button 
               onClick={() => navigate('/auth')}
@@ -86,7 +86,7 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Layout com Vídeo ao Lado */}
-      <main className="bg-background">
+      <main className="bg-background pt-20">
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
         <div className="hidden sm:block">
           <div className="container mx-auto px-6 py-8">
@@ -144,45 +144,41 @@ const Index = () => {
 
         {/* Mobile Layout - Apenas para telas pequenas */}
         <div className="sm:hidden">
-          {/* Título inicial */}
-          <div className="bg-background py-8">
-            <div className="container mx-auto px-6">
-              <h1 className="text-2xl font-bold text-center leading-tight">
-                Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                e <span className="text-primary">Inteligente</span>
-              </h1>
-            </div>
-          </div>
-
-          {/* Vídeo */}
-          <div className="relative h-[65vh] overflow-hidden">
+          {/* Vídeo com título sobreposto */}
+          <div className="relative h-screen overflow-hidden">
             <iframe
               src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
               title="ConectaIOS Hero Video Mobile Vertical"
-              className="w-full h-full"
+              className="w-full h-full object-cover"
               style={{
                 width: '100%',
                 height: '100%',
-                border: 'none',
-                objectFit: 'contain'
+                border: 'none'
               }}
               allow="autoplay; fullscreen"
               allowFullScreen
             ></iframe>
-          </div>
-
-          {/* Botões sobre o vídeo */}
-          <div className="bg-background py-6">
-            <div className="container mx-auto px-6">
+            
+            {/* Título e botões sobrepostos no meio/centro do vídeo */}
+            <div className="absolute inset-0 flex flex-col justify-center items-center px-6 text-center">
+              <h1 className="text-3xl font-bold leading-tight text-white mb-8" 
+                  style={{
+                    textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)'
+                  }}>
+                Sua rotina <span className="text-primary">imobiliária</span><br />
+                <span className="text-primary">simplificada</span>, <span className="text-white">Organizada</span><br />
+                e <span className="text-primary">Inteligente</span>
+              </h1>
+              
+              {/* Botões centralizados */}
               <div className="flex gap-3 justify-center items-center">
                 <Button 
                   onClick={() => navigate('/auth')}
-                  size="sm"
-                  className="text-sm px-4 py-2 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+                  size="lg"
+                  className="text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
                 >
                   Começar Agora
-                  <ArrowRight className="ml-2 h-3 w-3" />
+                  <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
                 <SaibaMaisDialog />
               </div>
@@ -419,7 +415,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                  <AsaasTestButton />
+                   <Button 
+                     onClick={() => navigate('/auth')}
+                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
+                   >
+                     Assinar Plano Básico
+                   </Button>
                 </CardContent>
               </Card>
 
@@ -447,7 +448,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                  <AsaasTestButton />
+                   <Button 
+                     onClick={() => navigate('/auth')}
+                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
+                   >
+                     Assinar Plano Profissional
+                   </Button>
                 </CardContent>
               </Card>
 
@@ -475,7 +481,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                  <AsaasTestButton />
+                   <Button 
+                     onClick={() => navigate('/auth')}
+                     className="w-full bg-primary hover:bg-primary/90 text-white mt-4"
+                   >
+                     Assinar Plano Premium
+                   </Button>
                 </CardContent>
               </Card>
             </div>
