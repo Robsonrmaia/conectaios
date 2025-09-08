@@ -1613,6 +1613,145 @@ export type Database = {
         }
         Relationships: []
       }
+      plantoes_sistema_availability: {
+        Row: {
+          created_at: string | null
+          id: string
+          preference: string | null
+          shift_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          preference?: string | null
+          shift_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          preference?: string | null
+          shift_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plantoes_sistema_availability_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "plantoes_sistema_shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plantoes_sistema_locations: {
+        Row: {
+          capacity: number | null
+          created_at: string | null
+          id: string
+          name: string
+          periods: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string | null
+          id: string
+          name: string
+          periods?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          periods?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      plantoes_sistema_profiles: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          creci: string | null
+          email: string
+          id: string
+          name: string
+          phone: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          creci?: string | null
+          email: string
+          id: string
+          name: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          creci?: string | null
+          email?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      plantoes_sistema_shifts: {
+        Row: {
+          assignments: Json | null
+          capacity: number | null
+          created_at: string | null
+          date: string
+          id: string
+          location_id: string | null
+          slot: string
+          updated_at: string | null
+        }
+        Insert: {
+          assignments?: Json | null
+          capacity?: number | null
+          created_at?: string | null
+          date: string
+          id: string
+          location_id?: string | null
+          slot: string
+          updated_at?: string | null
+        }
+        Update: {
+          assignments?: Json | null
+          capacity?: number | null
+          created_at?: string | null
+          date?: string
+          id?: string
+          location_id?: string | null
+          slot?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plantoes_sistema_shifts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "plantoes_sistema_locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
