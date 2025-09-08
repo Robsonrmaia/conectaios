@@ -59,10 +59,8 @@ const navigationItems = [
 ];
 
 export function AppSidebar() {
-  console.log('[AppSidebar] Component renderizing...');
   const location = useLocation();
   const currentPath = location.pathname;
-  console.log('[AppSidebar] Current path:', currentPath);
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -75,16 +73,9 @@ export function AppSidebar() {
       : 'hover:bg-accent hover:text-accent-foreground';
   };
 
-  console.log('[AppSidebar] About to render sidebar content...');
-
   return (
-    <Sidebar className="border-r bg-red-100">
+    <Sidebar className="border-r">
       <SidebarContent>
-        {/* Debug Visual Test */}
-        <div className="p-2 bg-green-500 text-white text-xs">
-          SIDEBAR FUNCIONANDO - Rota: {currentPath}
-        </div>
-        
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
@@ -92,10 +83,6 @@ export function AppSidebar() {
               src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" 
               alt="ConectaIOS" 
               className="h-8 w-auto" 
-              onError={(e) => {
-                console.log('[AppSidebar] Logo failed to load');
-                e.currentTarget.style.display = 'none';
-              }}
             />
           </div>
         </div>

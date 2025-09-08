@@ -64,11 +64,9 @@ const UserInfo = () => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  console.log('[AppLayout] Rendering layout...');
   const { shouldShowTour, completeTour, loading } = useOnboarding();
 
   if (loading) {
-    console.log('[AppLayout] Loading state - showing spinner');
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full items-center justify-center">
@@ -78,12 +76,11 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  console.log('[AppLayout] Rendering main layout with sidebar');
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col min-w-0">
           <header className="h-14 flex items-center justify-between border-b bg-background px-4 shrink-0">
             <SidebarTrigger />
             <UserInfo />
