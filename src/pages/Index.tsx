@@ -188,8 +188,8 @@ const Index = () => {
       </main>
 
       {/* Mobile: Seção de texto após o vídeo */}
-      <div className="sm:hidden py-2 px-6 bg-background">
-        <div className="text-center space-y-4">
+      <div className="sm:hidden px-6 bg-background">
+        <div className="text-center space-y-2">
           <p className="text-base text-muted-foreground leading-relaxed">
             Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
             Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
@@ -199,7 +199,7 @@ const Index = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-16">
+      <div className="container mx-auto px-4 py-8 sm:py-16">
         <div className="max-w-4xl mx-auto">
           {/* Banners Section - Carousel */}
           {banners.length > 0 && (
