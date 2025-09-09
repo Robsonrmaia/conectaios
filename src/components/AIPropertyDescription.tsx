@@ -59,7 +59,8 @@ INSTRUÇÕES:
 4. Inclua call-to-action ao final
 5. Máximo 200 palavras
 6. Destaque pontos únicos do imóvel
-7. Use emojis moderadamente para atrair atenção
+7. NÃO use emojis, asteriscos (*) ou caracteres especiais
+8. Use apenas texto limpo e profissional
 
 Gere apenas a descrição, sem explicações adicionais.`;
 

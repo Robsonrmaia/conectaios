@@ -7,7 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
-import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home } from 'lucide-react';
+import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home, Volume2 } from 'lucide-react';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { formatCurrency } from '@/lib/utils';
 
 interface MinisiteConfig {
   id: string;
@@ -43,10 +45,14 @@ interface Property {
   fotos: string[];
   neighborhood: string;
   city: string;
+  descricao: string;
+  bathrooms: number;
+  parking_spots: number;
 }
 
 export default function MinisiteView() {
   const { username } = useParams();
+  const { speak, stop, isSpeaking } = useTextToSpeech();
   const [config, setConfig] = useState<MinisiteConfig | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,16 +94,25 @@ export default function MinisiteView() {
 
       // Fetch broker's properties if show_properties is enabled
       if (configData.show_properties) {
-        const { data: propertiesData, error: propertiesError } = await supabase
-          .from('conectaios_properties')
-          .select('id, titulo, valor, quartos, area, fotos, neighborhood, city')
-          .eq('user_id', configData.broker_id)
-          .eq('is_public', true)
-          .eq('visibility', 'public_site')
-          .limit(6);
+        // First get broker info to find the correct user_id
+        const { data: brokerData } = await supabase
+          .from('conectaios_brokers')
+          .select('user_id')
+          .eq('id', configData.broker_id)
+          .single();
 
-        if (propertiesError) throw propertiesError;
-        setProperties(propertiesData || []);
+        if (brokerData?.user_id) {
+          const { data: propertiesData, error: propertiesError } = await supabase
+            .from('properties')
+            .select('id, titulo, valor, quartos, area, fotos, neighborhood, city, descricao, bathrooms, parking_spots')
+            .eq('user_id', brokerData.user_id)
+            .eq('is_public', true)
+            .in('visibility', ['public_site', 'match_only'])
+            .limit(6);
+
+          if (propertiesError) throw propertiesError;
+          setProperties(propertiesData || []);
+        }
       }
     } catch (error) {
       console.error('Error fetching minisite data:', error);
@@ -245,18 +260,37 @@ export default function MinisiteView() {
                         )}
                         <h3 className="font-semibold mb-2">{property.titulo}</h3>
                         <p className="text-lg font-bold text-primary mb-2">
-                          R$ {property.valor?.toLocaleString('pt-BR')}
+                          {formatCurrency(property.valor)}
                         </p>
-                        <div className="flex gap-4 text-sm text-muted-foreground">
+                        <div className="flex gap-4 text-sm text-muted-foreground mb-2">
                           <span>{property.quartos} quartos</span>
                           <span>{property.area}m²</span>
+                          <span>{property.bathrooms || 0} banheiros</span>
+                          <span>{property.parking_spots || 0} vagas</span>
                         </div>
                         {(property.neighborhood || property.city) && (
-                          <p className="text-sm text-muted-foreground mt-2 flex items-center gap-1">
+                          <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
                             {property.neighborhood} {property.city && `- ${property.city}`}
                           </p>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            if (isSpeaking) {
+                              stop();
+                            } else {
+                              const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
+                              speak(descricao);
+                            }
+                          }}
+                          className="w-full"
+                          title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                        >
+                          <Volume2 className="h-4 w-4 mr-2" />
+                          {isSpeaking ? "Parar Áudio" : "Ouvir Descrição"}
+                        </Button>
                       </div>
                     ))}
                   </div>

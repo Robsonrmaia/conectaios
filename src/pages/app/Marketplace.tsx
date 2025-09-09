@@ -13,11 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { formatCurrency } from '@/lib/utils';
 
 interface Property {
   id: string;
@@ -43,6 +45,7 @@ interface Property {
 export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { speak, stop, isSpeaking } = useTextToSpeech();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -358,48 +361,66 @@ export default function Marketplace() {
                        <Phone className="h-3 w-3 mr-1" />
                        Contatar
                      </Button>
-                     <div className="grid grid-cols-4 gap-1">
-                       <Button
-                         size="sm"
-                         variant="outline"
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           handleMatch(property.id);
-                         }}
-                         className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
-                         title="Match"
-                       >
-                         <Target className="h-3 w-3" />
-                         <span className="sr-only">Match</span>
-                       </Button>
-                       <div className="w-full">
-                         <FavoritesManager 
-                           propertyId={property.id} 
-                           onToggle={() => {}}
-                         />
-                       </div>
+                      <div className="grid grid-cols-5 gap-1">
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigate('/app/inbox');
+                            handleMatch(property.id);
+                          }}
+                          className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
+                          title="Match"
+                        >
+                          <Target className="h-3 w-3" />
+                          <span className="sr-only">Match</span>
+                        </Button>
+                        <div className="w-full">
+                          <FavoritesManager 
+                            propertyId={property.id} 
+                            onToggle={() => {}}
+                          />
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isSpeaking) {
+                              stop();
+                            } else {
+                              const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
+                              speak(descricao);
+                            }
                           }}
                           className="h-7 w-full p-0 hover:bg-primary hover:text-white"
-                          title="Mensagem"
+                          title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
                         >
-                          <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
-                          <span className="sr-only">Mensagem</span>
+                          <Volume2 className="h-3 w-3" />
+                          <span className="sr-only">{isSpeaking ? "Parar" : "Voz IA"}</span>
                         </Button>
-                       <div className="w-full">
-                         <ShareButton
-                           propertyId={property.id}
-                           propertyTitle={property.titulo}
-                           ownerUserId={property.user_id}
-                           isOwner={false}
-                         />
-                       </div>
-                     </div>
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             navigate('/app/inbox');
+                           }}
+                           className="h-7 w-full p-0 hover:bg-primary hover:text-white"
+                           title="Mensagem"
+                         >
+                           <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
+                           <span className="sr-only">Mensagem</span>
+                         </Button>
+                        <div className="w-full">
+                          <ShareButton
+                            propertyId={property.id}
+                            propertyTitle={property.titulo}
+                            ownerUserId={property.user_id}
+                            isOwner={false}
+                          />
+                        </div>
+                      </div>
                    </div>
                 </CardContent>
               </AnimatedCard>
