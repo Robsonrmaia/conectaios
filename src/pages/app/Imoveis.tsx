@@ -659,91 +659,291 @@ export default function Imoveis() {
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedProperties.map((property) => (
-          <Card key={property.id} className="group hover:shadow-lg transition-all duration-300">
-            <CardHeader>
-              <CardTitle>{property.titulo}</CardTitle>
-              <CardDescription>{property.descricao?.substring(0, 100)}...</CardDescription>
+          <Card key={property.id} className="group hover:shadow-lg transition-all duration-300 overflow-hidden">
+            {/* Property Image */}
+            <div className="relative h-48 bg-muted">
+              {property.fotos && property.fotos.length > 0 ? (
+                <img
+                  src={property.fotos[0]}
+                  alt={property.titulo}
+                  className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                  onClick={() => openPhotoGallery(property.fotos, 0)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Building2 className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
+              
+              {/* Photo Count Badge */}
+              {property.fotos && property.fotos.length > 1 && (
+                <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded-md text-sm">
+                  <FileImage className="h-3 w-3 inline mr-1" />
+                  {property.fotos.length}
+                </div>
+              )}
+
+              {/* Banner */}
+              {property.banner_type && property.banner_type !== 'none' && (
+                <div className="absolute top-2 left-2">
+                  <PropertyBanner bannerType={property.banner_type} />
+                </div>
+              )}
+
+              {/* Visibility Badge */}
+              <div className="absolute bottom-2 left-2">
+                {property.visibility === 'public_site' ? (
+                  <Badge variant="secondary" className="bg-green-500/90 text-white">
+                    <Globe className="h-3 w-3 mr-1" />
+                    Público
+                  </Badge>
+                ) : property.visibility === 'private' ? (
+                  <Badge variant="secondary" className="bg-red-500/90 text-white">
+                    <EyeOff className="h-3 w-3 mr-1" />
+                    Privado
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="bg-blue-500/90 text-white">
+                    <Eye className="h-3 w-3 mr-1" />
+                    Corretores
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            <CardHeader className="pb-2">
+              <div className="flex items-start justify-between">
+                <CardTitle className="text-lg leading-tight">{property.titulo}</CardTitle>
+                {property.reference_code && (
+                  <Badge variant="outline" className="text-xs">
+                    {property.reference_code}
+                  </Badge>
+                )}
+              </div>
+              <CardDescription className="line-clamp-2">
+                {property.descricao || 'Sem descrição'}
+              </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
+
+            <CardContent className="pt-0">
+              <div className="space-y-3">
+                {/* Property Type and Location */}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Building2 className="h-4 w-4" />
-                  <span>{property.property_type}</span>
+                  <span className="capitalize">{property.property_type}</span>
+                  {property.city && (
+                    <>
+                      <span>•</span>
+                      <MapPin className="h-3 w-3" />
+                      <span>{property.city}</span>
+                    </>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  <span>{property.city || 'Localização não informada'}</span>
-                </div>
-                <div className="flex items-center gap-4">
+
+                {/* Property Details */}
+                <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
-                    <Bed className="h-4 w-4" />
-                    <span>{property.quartos}</span>
+                    <Bed className="h-4 w-4 text-muted-foreground" />
+                    <span>{property.quartos} quarto{property.quartos !== 1 ? 's' : ''}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Bath className="h-4 w-4" />
+                    <Bath className="h-4 w-4 text-muted-foreground" />
                     <span>{property.bathrooms}</span>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Car className="h-4 w-4" />
+                    <Car className="h-4 w-4 text-muted-foreground" />
                     <span>{property.parking_spots}</span>
                   </div>
+                  {property.area > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {property.area}m²
+                    </div>
+                  )}
                 </div>
-                <div className="text-lg font-semibold text-primary">
+
+                {/* Price */}
+                <div className="text-xl font-bold text-primary">
                   {formatCurrency(property.valor)}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{property.listing_type}</Badge>
-                  <Badge variant="outline">{property.visibility}</Badge>
+
+                {/* Property Features */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className="text-xs">
+                    {property.listing_type}
+                  </Badge>
+                  {property.is_furnished && (
+                    <Badge variant="outline" className="text-xs">
+                      Mobiliado
+                    </Badge>
+                  )}
+                  {property.has_sea_view && (
+                    <Badge variant="outline" className="text-xs text-blue-600">
+                      Vista Mar
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardContent>
-            <div className="flex justify-end gap-2 p-4 border-t border-muted/20">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSelectedProperty(property);
-                  setFormData({
-                    titulo: property.titulo,
-                    valor: property.valor.toString(),
-                    area: property.area.toString(),
-                    quartos: property.quartos.toString(),
-                    bathrooms: property.bathrooms.toString(),
-                    parking_spots: property.parking_spots.toString(),
-                    listing_type: property.listing_type,
-                    property_type: property.property_type,
-                    visibility: property.visibility,
-                    broker_minisite_enabled: false,
-                    descricao: property.descricao,
-                    fotos: property.fotos,
-                    videos: property.videos.join(', '),
-                    address: property.address || '',
-                    neighborhood: property.neighborhood || '',
-                    city: property.city || '',
-                    condominium_fee: '',
-                    iptu: '',
-                    commission_percentage: 6,
-                    commission_value: 0,
-                    commission_split_type: '50/50',
-                    commission_buyer_split: 50,
-                    commission_seller_split: 50,
-                    banner_type: property.banner_type || '',
-                    is_furnished: property.is_furnished || false,
-                    has_sea_view: property.has_sea_view || false,
-                    watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
-                  });
-                  setIsAddDialogOpen(true);
-                }}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleDeleteProperty(property.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+
+            {/* Action Buttons */}
+            <div className="p-4 border-t border-muted/20 space-y-2">
+              {/* Primary Actions */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAiDescriptionProperty(property);
+                    setShowAiDescription(true);
+                  }}
+                  className="flex-1"
+                >
+                  <Wand2 className="h-4 w-4 mr-1" />
+                  IA Descrição
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedPropertyForWatermark(property);
+                    setShowWatermark(true);
+                  }}
+                  className="flex-1"
+                >
+                  <Droplet className="h-4 w-4 mr-1" />
+                  Marca d'água
+                </Button>
+              </div>
+
+              {/* Secondary Actions */}
+              <div className="flex items-center gap-2">
+                <ShareButton
+                  propertyId={property.id}
+                  propertyTitle={property.titulo}
+                  ownerUserId={user?.id}
+                  isOwner={true}
+                  isAuthorized={true}
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (property.fotos && property.fotos.length > 0) {
+                      setVirtualStagingProperty(property.fotos[0]);
+                    } else {
+                      toast({
+                        title: "Erro",
+                        description: "Adicione pelo menos uma foto para usar Virtual Staging",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={!property.fotos || property.fotos.length === 0}
+                >
+                  <Palette className="h-4 w-4 mr-1" />
+                  Virtual
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (property.descricao) {
+                      const speechId = `property-${property.id}`;
+                      if (isCurrentlySpeaking(speechId)) {
+                        stop();
+                      } else {
+                        speak(property.descricao, speechId);
+                      }
+                    }
+                  }}
+                  className={isCurrentlySpeaking(`property-${property.id}`) ? "bg-primary/10" : ""}
+                >
+                  <Volume2 className={`h-4 w-4 mr-1 ${isCurrentlySpeaking(`property-${property.id}`) ? "text-primary animate-pulse" : ""}`} />
+                  {isCurrentlySpeaking(`property-${property.id}`) ? "Pausar" : "Ouvir"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(`/marketplace/property/${property.id}`)}
+                >
+                  <Target className="h-4 w-4 mr-1" />
+                  Match
+                </Button>
+              </div>
+
+              {/* Management Actions */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedProperty(property);
+                    setFormData({
+                      titulo: property.titulo,
+                      valor: property.valor.toString(),
+                      area: property.area.toString(),
+                      quartos: property.quartos.toString(),
+                      bathrooms: property.bathrooms.toString(),
+                      parking_spots: property.parking_spots.toString(),
+                      listing_type: property.listing_type,
+                      property_type: property.property_type,
+                      visibility: property.visibility,
+                      broker_minisite_enabled: false,
+                      descricao: property.descricao,
+                      fotos: property.fotos,
+                      videos: property.videos.join(', '),
+                      address: property.address || '',
+                      neighborhood: property.neighborhood || '',
+                      city: property.city || '',
+                      condominium_fee: '',
+                      iptu: '',
+                      commission_percentage: 6,
+                      commission_value: 0,
+                      commission_split_type: '50/50',
+                      commission_buyer_split: 50,
+                      commission_seller_split: 50,
+                      banner_type: property.banner_type || '',
+                      is_furnished: property.is_furnished || false,
+                      has_sea_view: property.has_sea_view || false,
+                      watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
+                    });
+                    setIsAddDialogOpen(true);
+                  }}
+                  className="flex-1"
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const newVisibility = property.visibility === 'public_site' ? 'private' : 'public_site';
+                    updatePropertyVisibility(property.id, newVisibility);
+                  }}
+                  className="flex-1"
+                >
+                  {property.visibility === 'public_site' ? (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-1" />
+                      Ocultar
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-1" />
+                      Publicar
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDeleteProperty(property.id)}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </Card>
         ))}
@@ -783,7 +983,87 @@ export default function Imoveis() {
         </div>
       )}
 
-      {/* Additional dialogs and components can be added here */}
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={galleryPhotos}
+        initialIndex={galleryInitialIndex}
+        isOpen={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
+
+      {/* AI Property Description Dialog */}
+      <Dialog open={showAiDescription} onOpenChange={setShowAiDescription}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Gerar Descrição com IA</DialogTitle>
+            <DialogDescription>
+              Use inteligência artificial para criar uma descrição atrativa para seu imóvel
+            </DialogDescription>
+          </DialogHeader>
+          {aiDescriptionProperty && (
+            <AIPropertyDescription
+              property={aiDescriptionProperty}
+              onDescriptionGenerated={(description) => {
+                setSelectedProperty(aiDescriptionProperty);
+                setFormData(prev => ({ ...prev, descricao: description }));
+                setShowAiDescription(false);
+                setIsAddDialogOpen(true);
+              }}
+              onClose={() => setShowAiDescription(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Watermark Manager Dialog */}
+      <Dialog open={showWatermark} onOpenChange={setShowWatermark}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gerenciar Marca d'água</DialogTitle>
+            <DialogDescription>
+              Aplique marca d'água nas fotos do imóvel para proteção
+            </DialogDescription>
+          </DialogHeader>
+          {selectedPropertyForWatermark && (
+            <WatermarkManager
+              images={selectedPropertyForWatermark.fotos}
+              onWatermarkedImages={(watermarkedImages) => {
+                // Update property with watermarked images
+                const newPhotos = watermarkedImages.map(img => img.watermarked);
+                setSelectedProperty(selectedPropertyForWatermark);
+                setFormData(prev => ({ ...prev, fotos: newPhotos }));
+                setShowWatermark(false);
+                setIsAddDialogOpen(true);
+              }}
+              defaultWatermarkText="ConectAIOS"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Virtual Staging */}
+      {virtualStagingProperty && (
+        <Dialog open={!!virtualStagingProperty} onOpenChange={() => setVirtualStagingProperty(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Virtual Staging</DialogTitle>
+              <DialogDescription>
+                Transforme ambientes vazios em espaços mobiliados usando IA
+              </DialogDescription>
+            </DialogHeader>
+            <VirtualStaging
+              imageUrl={virtualStagingProperty}
+              onStagedImage={(processedUrl) => {
+                toast({
+                  title: "Sucesso",
+                  description: "Imagem processada com staging virtual!",
+                });
+                setVirtualStagingProperty(null);
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
