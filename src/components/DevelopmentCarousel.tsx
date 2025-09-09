@@ -70,27 +70,18 @@ export function DevelopmentCarousel() {
   const handleMouseEnter = () => setIsPlaying(false);
   const handleMouseLeave = () => setIsPlaying(true);
 
-  // Show 3 developments stacked vertically
+  // Show 2 developments stacked vertically to match size limit
   const visibleDevelopments = [
     developments[currentIndex],
-    developments[(currentIndex + 1) % developments.length],
-    developments[(currentIndex + 2) % developments.length]
+    developments[(currentIndex + 1) % developments.length]
   ];
 
   return (
     <div 
-      className="relative bg-gradient-to-br from-primary/5 to-secondary/5 p-6 rounded-2xl backdrop-blur-sm border border-primary/10"
+      className="relative bg-gradient-to-br from-primary/5 to-secondary/5 p-4 rounded-2xl backdrop-blur-sm border border-primary/10"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          Novos Empreendimentos
-        </h2>
-        <p className="text-muted-foreground">
-          Descubra os lançamentos mais exclusivos
-        </p>
-      </div>
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -109,7 +100,7 @@ export function DevelopmentCarousel() {
               transition={{ delay: index * 0.1, duration: 0.3 }}
               className="group relative overflow-hidden rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg transition-all duration-300"
             >
-              <div className="p-4">
+              <div className="p-3">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10 text-primary flex-shrink-0">
                     <Building2 className="h-4 w-4" />
