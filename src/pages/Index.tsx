@@ -17,7 +17,7 @@ import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
-import { CreateAdminButton } from '@/components/CreateAdminButton';
+import CreateAdminButton from '@/components/CreateAdminButton';
 
 const Index = () => {
   const { user } = useAuth();

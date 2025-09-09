@@ -28,6 +28,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
+import XMLImportExport from '@/components/XMLImportExport';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 
 interface Property {
@@ -382,33 +383,35 @@ export default function Imoveis() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
-          >
-            <Home className="h-4 w-4" />
-            Dashboard
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-primary">
-              Imóveis
-            </h1>
-            <p className="text-muted-foreground">
-              Gerencie seu portfólio de imóveis
-            </p>
-          </div>
-        </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
-              <Plus className="h-4 w-4 mr-2" />
-              Adicionar Imóvel
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/app')}
+              className="flex items-center gap-2"
+            >
+              <Home className="h-4 w-4" />
+              Dashboard
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">
+                Imóveis
+              </h1>
+              <p className="text-muted-foreground">
+                Gerencie seu portfólio de imóveis
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <XMLImportExport />
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Imóvel
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
               <DialogDescription>
@@ -666,8 +669,9 @@ export default function Imoveis() {
               </Button>
             </div>
           </DialogContent>
-        </Dialog>
-      </div>
+            </div>
+          </div>
+        </div>
 
       {/* Search and Filters */}
       <div className="flex gap-4">

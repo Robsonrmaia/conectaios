@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { Shield } from 'lucide-react';
 
-export function CreateAdminButton() {
+export default function CreateAdminButton() {
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateAdmin = async () => {
