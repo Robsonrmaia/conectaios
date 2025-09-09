@@ -28,7 +28,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 
 interface Property {
   id: string;
@@ -72,7 +72,7 @@ export default function Imoveis() {
   const [showAiDescription, setShowAiDescription] = useState(false);
   const [showWatermark, setShowWatermark] = useState(false);
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { speak, stop, isSpeaking } = useElevenLabsVoice();
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',

@@ -18,7 +18,7 @@ import { toast } from '@/components/ui/use-toast';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
 
 interface Property {
@@ -45,7 +45,7 @@ interface Property {
 export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { speak, stop, isSpeaking } = useElevenLabsVoice();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home, Volume2 } from 'lucide-react';
-import { useTextToSpeech } from '@/hooks/useTextToSpeech';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
 
 interface MinisiteConfig {
@@ -52,7 +52,7 @@ interface Property {
 
 export default function MinisiteView() {
   const { username } = useParams();
-  const { speak, stop, isSpeaking } = useTextToSpeech();
+  const { speak, stop, isSpeaking } = useElevenLabsVoice();
   const [config, setConfig] = useState<MinisiteConfig | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
