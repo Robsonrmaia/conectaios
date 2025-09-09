@@ -166,6 +166,15 @@ export default function Ferramentas() {
       category: 'CRM',
       planRequired: 'starter',
       isAvailable: true
+    },
+    {
+      id: 'image-creator-pro',
+      name: 'Criador de Imagens Corretor Pró',
+      description: 'Ferramenta profissional para criação e edição de imagens imobiliárias',
+      icon: Camera,
+      category: 'Marketing',
+      planRequired: 'professional',
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
     }
   ];
 
@@ -185,6 +194,13 @@ export default function Ferramentas() {
         break;
       case 'contracts':
         navigate('/app/deals');
+        break;
+      case 'image-creator-pro':
+        window.open('https://imagens-conectaios-420832656535.us-west1.run.app', '_blank');
+        toast({
+          title: "Ferramenta Externa",
+          description: "Abrindo Criador de Imagens Corretor Pró em nova aba...",
+        });
         break;
       default:
         toast({
