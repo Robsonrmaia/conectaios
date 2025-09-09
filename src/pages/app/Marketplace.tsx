@@ -361,7 +361,7 @@ export default function Marketplace() {
                        <Phone className="h-3 w-3 mr-1" />
                        Contatar
                      </Button>
-                       <div className="grid grid-cols-5 gap-1">
+                       <div className="flex items-center justify-between gap-1">
                          <Button
                            size="sm"
                            variant="outline"
@@ -369,18 +369,13 @@ export default function Marketplace() {
                              e.stopPropagation();
                              handleMatch(property.id);
                            }}
-                           className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
+                           className="h-8 px-2 hover:bg-primary hover:text-white group flex-1"
                            title="Match"
                          >
                            <Target className="h-3 w-3" />
                            <span className="sr-only">Match</span>
                          </Button>
-                         <div className="w-full h-7 flex items-center justify-center">
-                           <FavoritesManager 
-                             propertyId={property.id} 
-                             onToggle={() => {}}
-                           />
-                         </div>
+                         
                          <Button
                            size="sm"
                            variant="outline"
@@ -393,12 +388,13 @@ export default function Marketplace() {
                                speak(descricao);
                              }
                            }}
-                           className={`h-7 w-full p-0 hover:bg-primary hover:text-white ${isSpeaking ? 'bg-primary text-white animate-pulse' : ''}`}
+                           className={`h-8 px-2 hover:bg-primary hover:text-white flex-1 ${isSpeaking ? 'bg-primary text-white animate-pulse' : ''}`}
                            title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
                          >
                            <Volume2 className="h-3 w-3" />
                            <span className="sr-only">{isSpeaking ? "Parar" : "Voz IA"}</span>
                          </Button>
+                          
                           <Button
                             size="sm"
                             variant="outline"
@@ -406,13 +402,21 @@ export default function Marketplace() {
                               e.stopPropagation();
                               navigate('/app/inbox');
                             }}
-                            className="h-7 w-full p-0 hover:bg-primary hover:text-white"
+                            className="h-8 px-2 hover:bg-primary hover:text-white flex-1"
                             title="Mensagem"
                           >
                             <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
                             <span className="sr-only">Mensagem</span>
                           </Button>
-                         <div className="w-full h-7 flex items-center justify-center">
+                          
+                         <div className="h-8 flex items-center justify-center flex-1">
+                           <FavoritesManager 
+                             propertyId={property.id} 
+                             onToggle={() => {}}
+                           />
+                         </div>
+                         
+                         <div className="h-8 flex items-center justify-center flex-1">
                            <ShareButton
                              propertyId={property.id}
                              propertyTitle={property.titulo}

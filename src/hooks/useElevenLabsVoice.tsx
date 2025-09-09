@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 
+// Variável global para controlar apenas um áudio por vez
+let globalCurrentAudio: HTMLAudioElement | null = null;
+
 export const useElevenLabsVoice = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
@@ -10,9 +13,10 @@ export const useElevenLabsVoice = () => {
     return text
       // Remove emojis
       .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-      // Remove asteriscos e caracteres especiais
+      // Remove asteriscos mas mantém acentos e cedilha
       .replace(/\*/g, '')
-      .replace(/[^\w\s\.\,\!\?\:\;\-\(\)]/g, ' ')
+      // Remove apenas caracteres especiais problemáticos, mantendo acentos, cedilha e pontuação
+      .replace(/[^\w\s\.\,\!\?\:\;\-\(\)àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝŸ]/g, ' ')
       // Trata valores monetários
       .replace(/R\$\s*(\d{1,3}(?:\.\d{3})*),(\d{2})/g, '$1 reais e $2 centavos')
       .replace(/R\$\s*(\d{1,3}(?:\.\d{3})*)/g, '$1 reais')
@@ -33,9 +37,16 @@ export const useElevenLabsVoice = () => {
       return;
     }
 
-    if (isSpeaking) {
-      toast.info('Aguarde o áudio anterior terminar');
-      return;
+    // Parar qualquer áudio que esteja tocando
+    if (globalCurrentAudio) {
+      globalCurrentAudio.pause();
+      globalCurrentAudio.currentTime = 0;
+      globalCurrentAudio = null;
+    }
+
+    // Cancelar síntese nativa se estiver ativa
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
 
     setIsSpeaking(true);
@@ -70,18 +81,21 @@ export const useElevenLabsVoice = () => {
       const audioUrl = URL.createObjectURL(audioBlob);
       const audio = new Audio(audioUrl);
       
-      // Armazenar referência do áudio atual
+      // Armazenar referência do áudio atual globalmente
+      globalCurrentAudio = audio;
       setCurrentAudio(audio);
 
       audio.onended = () => {
         setIsSpeaking(false);
         setCurrentAudio(null);
+        globalCurrentAudio = null;
         URL.revokeObjectURL(audioUrl);
       };
 
       audio.onerror = () => {
         setIsSpeaking(false);
         setCurrentAudio(null);
+        globalCurrentAudio = null;
         URL.revokeObjectURL(audioUrl);
         toast.error('Erro ao reproduzir áudio');
       };
@@ -139,7 +153,14 @@ export const useElevenLabsVoice = () => {
     console.log('Parando áudio...');
     setIsSpeaking(false);
     
-    // Parar áudio ElevenLabs se estiver tocando
+    // Parar áudio ElevenLabs global
+    if (globalCurrentAudio) {
+      globalCurrentAudio.pause();
+      globalCurrentAudio.currentTime = 0;
+      globalCurrentAudio = null;
+    }
+    
+    // Parar áudio local também
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
