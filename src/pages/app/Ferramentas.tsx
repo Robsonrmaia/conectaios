@@ -174,7 +174,7 @@ export default function Ferramentas() {
       icon: Camera,
       category: 'Marketing',
       planRequired: 'professional',
-      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+      isAvailable: true
     }
   ];
 
