@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
@@ -347,42 +347,6 @@ export default function Imoveis() {
         variant: "destructive",
       });
     }
-  };
-
-  const toggleMarketVisibility = async (propertyId: string, property: Property) => {
-    const isMarketVisible = ['match_only', 'both'].includes(property.visibility);
-    const isSiteVisible = ['public_site', 'both'].includes(property.visibility);
-    
-    let newVisibility: string;
-    if (isMarketVisible) {
-      // Remove from market
-      newVisibility = isSiteVisible ? 'public_site' : 'hidden';
-    } else {
-      // Add to market
-      newVisibility = isSiteVisible ? 'both' : 'match_only';
-    }
-    
-    await updatePropertyVisibility(propertyId, newVisibility);
-  };
-
-  const toggleSiteVisibility = async (propertyId: string, property: Property) => {
-    const isMarketVisible = ['match_only', 'both'].includes(property.visibility);
-    const isSiteVisible = ['public_site', 'both'].includes(property.visibility);
-    
-    let newVisibility: string;
-    if (isSiteVisible) {
-      // Remove from site
-      newVisibility = isMarketVisible ? 'match_only' : 'hidden';
-    } else {
-      // Add to site
-      newVisibility = isMarketVisible ? 'both' : 'public_site';
-    }
-    
-    await updatePropertyVisibility(propertyId, newVisibility);
-  };
-
-  const hideProperty = async (propertyId: string) => {
-    await updatePropertyVisibility(propertyId, 'hidden');
   };
 
   const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
@@ -978,10 +942,13 @@ export default function Imoveis() {
                    <div className="grid grid-cols-3 gap-2">
                      <Button
                        size="sm"
-                       variant={['match_only', 'both'].includes(property.visibility) ? 'default' : 'outline'}
+                       variant={property.visibility === 'match_only' || property.visibility === 'both' ? 'default' : 'outline'}
                        onClick={(e) => {
                          e.stopPropagation();
-                         toggleMarketVisibility(property.id, property);
+                         updatePropertyVisibility(property.id, 
+                           property.visibility === 'match_only' ? 'hidden' : 
+                           property.visibility === 'both' ? 'public_site' : 'match_only'
+                         );
                        }}
                        title="Marketplace"
                        className="text-xs h-6 flex items-center justify-center"
@@ -991,10 +958,13 @@ export default function Imoveis() {
                      </Button>
                      <Button
                        size="sm"
-                       variant={['public_site', 'both'].includes(property.visibility) ? 'default' : 'outline'}
+                       variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
                        onClick={(e) => {
                          e.stopPropagation();
-                         toggleSiteVisibility(property.id, property);
+                         updatePropertyVisibility(property.id, 
+                           property.visibility === 'public_site' ? 'hidden' : 
+                           property.visibility === 'both' ? 'match_only' : 'public_site'
+                         );
                        }}
                        title="Site Público"
                        className="text-xs h-6 flex items-center justify-center"
@@ -1007,7 +977,7 @@ export default function Imoveis() {
                        variant={property.visibility === 'hidden' ? 'default' : 'outline'}
                        onClick={(e) => {
                          e.stopPropagation();
-                         hideProperty(property.id);
+                         updatePropertyVisibility(property.id, 'hidden');
                        }}
                        title="Oculto - Visível apenas para você"
                        className="text-xs h-6 flex items-center justify-center"

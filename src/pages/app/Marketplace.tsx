@@ -13,13 +13,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Search, Filter, MapPin, Bath, Bed, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { Card } from '@/components/ui/card';
+import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 interface Property {
   id: string;
