@@ -361,66 +361,66 @@ export default function Marketplace() {
                        <Phone className="h-3 w-3 mr-1" />
                        Contatar
                      </Button>
-                      <div className="grid grid-cols-5 gap-1">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleMatch(property.id);
-                          }}
-                          className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
-                          title="Match"
-                        >
-                          <Target className="h-3 w-3" />
-                          <span className="sr-only">Match</span>
-                        </Button>
-                        <div className="w-full">
-                          <FavoritesManager 
-                            propertyId={property.id} 
-                            onToggle={() => {}}
-                          />
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (isSpeaking) {
-                              stop();
-                            } else {
-                              const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
-                              speak(descricao);
-                            }
-                          }}
-                          className="h-7 w-full p-0 hover:bg-primary hover:text-white"
-                          title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
-                        >
-                          <Volume2 className="h-3 w-3" />
-                          <span className="sr-only">{isSpeaking ? "Parar" : "Voz IA"}</span>
-                        </Button>
+                       <div className="grid grid-cols-5 gap-1">
                          <Button
                            size="sm"
                            variant="outline"
                            onClick={(e) => {
                              e.stopPropagation();
-                             navigate('/app/inbox');
+                             handleMatch(property.id);
                            }}
-                           className="h-7 w-full p-0 hover:bg-primary hover:text-white"
-                           title="Mensagem"
+                           className="h-7 w-full p-0 hover:bg-primary hover:text-white group"
+                           title="Match"
                          >
-                           <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
-                           <span className="sr-only">Mensagem</span>
+                           <Target className="h-3 w-3" />
+                           <span className="sr-only">Match</span>
                          </Button>
-                        <div className="w-full">
-                          <ShareButton
-                            propertyId={property.id}
-                            propertyTitle={property.titulo}
-                            ownerUserId={property.user_id}
-                            isOwner={false}
-                          />
-                        </div>
-                      </div>
+                         <div className="w-full h-7 flex items-center justify-center">
+                           <FavoritesManager 
+                             propertyId={property.id} 
+                             onToggle={() => {}}
+                           />
+                         </div>
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             if (isSpeaking) {
+                               stop();
+                             } else {
+                               const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
+                               speak(descricao);
+                             }
+                           }}
+                           className={`h-7 w-full p-0 hover:bg-primary hover:text-white ${isSpeaking ? 'bg-primary text-white animate-pulse' : ''}`}
+                           title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                         >
+                           <Volume2 className="h-3 w-3" />
+                           <span className="sr-only">{isSpeaking ? "Parar" : "Voz IA"}</span>
+                         </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate('/app/inbox');
+                            }}
+                            className="h-7 w-full p-0 hover:bg-primary hover:text-white"
+                            title="Mensagem"
+                          >
+                            <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
+                            <span className="sr-only">Mensagem</span>
+                          </Button>
+                         <div className="w-full h-7 flex items-center justify-center">
+                           <ShareButton
+                             propertyId={property.id}
+                             propertyTitle={property.titulo}
+                             ownerUserId={property.user_id}
+                             isOwner={false}
+                           />
+                         </div>
+                       </div>
                    </div>
                 </CardContent>
               </AnimatedCard>
