@@ -22,7 +22,8 @@ import {
   Globe,
   Smartphone,
   Laptop,
-  Monitor
+  Monitor,
+  Sparkles
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -587,27 +588,25 @@ export function MinisiteEditorIntegrated() {
                         </div>
                       )}
                       <div className="flex gap-2">
-                       <div className="flex flex-wrap gap-2">
-                         <div>
-                           <input
-                             type="file"
-                             accept="image/*"
-                             onChange={(e) => {
-                               const file = e.target.files?.[0];
-                               if (file) handleImageUpload(file, 'logo');
-                             }}
-                             className="hidden"
-                             id="logo-upload"
-                           />
-                           <Label htmlFor="logo-upload" className="cursor-pointer">
-                             <Button variant="outline" asChild>
-                               <span>
-                                 <Upload className="h-4 w-4 mr-2" />
-                                 Upload Logo
-                               </span>
-                             </Button>
-                           </Label>
-                         </div>
+                       <div className="flex gap-2">
+                         <input
+                           type="file"
+                           accept="image/*"
+                           onChange={(e) => {
+                             const file = e.target.files?.[0];
+                             if (file) handleImageUpload(file, 'logo');
+                           }}
+                           className="hidden"
+                           id="logo-upload"
+                         />
+                         <Label htmlFor="logo-upload" className="cursor-pointer">
+                           <Button variant="outline" asChild>
+                             <span>
+                               <Upload className="h-4 w-4 mr-2" />
+                               Upload Logo
+                             </span>
+                           </Button>
+                         </Label>
                          <Button
                            variant="outline"
                            onClick={() => {
@@ -616,17 +615,8 @@ export function MinisiteEditorIntegrated() {
                            }}
                            disabled={isGeneratingLogo}
                          >
-                           {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar com IA'}
-                         </Button>
-                         <Button
-                           variant="outline"
-                           onClick={() => {
-                             const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna e minimalista', 'casa elegante'):");
-                             if (prompt) generateWithGemini(prompt, 'logo');
-                           }}
-                           disabled={isGeneratingLogo}
-                         >
-                           {isGeneratingLogo ? 'Processando...' : '🤖 Gemini Nano'}
+                           <Sparkles className="h-4 w-4 mr-2" />
+                           {isGeneratingLogo ? 'Gerando...' : 'Criar Logo com IA'}
                          </Button>
                        </div>
                       </div>
@@ -686,46 +676,37 @@ export function MinisiteEditorIntegrated() {
                           <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
-                       <div className="flex flex-wrap gap-2">
-                         <input
-                           type="file"
-                           accept="image/*"
-                           onChange={(e) => {
-                             const file = e.target.files?.[0];
-                             if (file) handleImageUpload(file, 'cover');
-                           }}
-                           className="hidden"
-                           id="cover-upload"
-                         />
-                         <Label htmlFor="cover-upload" className="cursor-pointer">
-                           <Button variant="outline" asChild>
-                             <span>
-                               <Upload className="h-4 w-4 mr-2" />
-                               Alterar Capa
-                             </span>
-                           </Button>
-                         </Label>
-                         <Button
-                           variant="outline"
-                           onClick={() => {
-                             const prompt = window.prompt("Descreva a imagem de capa (ex: 'casa moderna com jardim', 'prédio elegante'):");
-                             if (prompt) generateCoverWithAI(prompt);
-                           }}
-                           disabled={isGeneratingLogo}
-                         >
-                           {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar Capa com IA'}
-                         </Button>
-                         <Button
-                           variant="outline"
-                           onClick={() => {
-                             const prompt = window.prompt("Descreva a imagem de capa que você quer (ex: 'casa luxuosa', 'paisagem urbana moderna'):");
-                             if (prompt) generateWithGemini(prompt, 'cover');
-                           }}
-                           disabled={isGeneratingLogo}
-                         >
-                           {isGeneratingLogo ? 'Processando...' : '🤖 Gemini Nano'}
-                         </Button>
-                       </div>
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'cover');
+                            }}
+                            className="hidden"
+                            id="cover-upload"
+                          />
+                          <Label htmlFor="cover-upload" className="cursor-pointer">
+                            <Button variant="outline" asChild>
+                              <span>
+                                <Upload className="h-4 w-4 mr-2" />
+                                Upload Capa
+                              </span>
+                            </Button>
+                          </Label>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              const prompt = window.prompt("Descreva a imagem de capa (ex: 'casa moderna com jardim', 'prédio elegante'):");
+                              if (prompt) generateCoverWithAI(prompt);
+                            }}
+                            disabled={isGeneratingLogo}
+                          >
+                            <Sparkles className="h-4 w-4 mr-2" />
+                            {isGeneratingLogo ? 'Gerando...' : 'Criar Capa com IA'}
+                          </Button>
+                        </div>
                     </div>
                   </div>
                 </CardContent>

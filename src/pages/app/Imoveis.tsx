@@ -940,38 +940,38 @@ export default function Imoveis() {
 
                    {/* Visibility Toggle Buttons - 3 columns, same width as above */}
                    <div className="grid grid-cols-3 gap-2">
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'match_only' || property.visibility === 'both' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 
-                           property.visibility === 'match_only' ? 'hidden' : 
-                           property.visibility === 'both' ? 'public_site' : 'match_only'
-                         );
-                       }}
-                       title="Marketplace"
-                       className="text-xs h-6 flex items-center justify-center"
-                     >
-                       <Target className="h-2 w-2 mr-1" />
-                       Market
-                     </Button>
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 
-                           property.visibility === 'public_site' ? 'hidden' : 
-                           property.visibility === 'both' ? 'match_only' : 'public_site'
-                         );
-                       }}
-                       title="Site Público"
-                       className="text-xs h-6 flex items-center justify-center"
-                     >
-                       <Globe className="h-2 w-2 mr-1" />
-                       Site
-                     </Button>
+                      <Button
+                        size="sm"
+                        variant={property.visibility === 'match_only' || property.visibility === 'both' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newVisibility = property.visibility === 'match_only' ? 'hidden' : 
+                                               property.visibility === 'both' ? 'public_site' : 
+                                               property.visibility === 'public_site' ? 'both' : 'match_only';
+                          updatePropertyVisibility(property.id, newVisibility);
+                        }}
+                        title="Marketplace"
+                        className="text-xs h-6 flex items-center justify-center"
+                      >
+                        <Target className="h-2 w-2 mr-1" />
+                        Market
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newVisibility = property.visibility === 'public_site' ? 'hidden' : 
+                                               property.visibility === 'both' ? 'match_only' : 
+                                               property.visibility === 'match_only' ? 'both' : 'public_site';
+                          updatePropertyVisibility(property.id, newVisibility);
+                        }}
+                        title="Site Público"
+                        className="text-xs h-6 flex items-center justify-center"
+                      >
+                        <Globe className="h-2 w-2 mr-1" />
+                        Site
+                      </Button>
                      <Button
                        size="sm"
                        variant={property.visibility === 'hidden' ? 'default' : 'outline'}
