@@ -18,6 +18,10 @@ const bannerConfig = {
   exclusivo: {
     text: 'EXCLUSIVO',
     className: 'bg-gradient-to-r from-purple-600 to-yellow-500 text-white'
+  },
+  abaixo_mercado: {
+    text: 'ABAIXO DO MERCADO',
+    className: 'bg-red-600 text-white'
   }
 };
 
