@@ -126,6 +126,106 @@ export function MinisiteEditorIntegrated() {
     }
   };
 
+  const generateWithGemini = async (prompt: string, type: 'logo' | 'cover') => {
+    setIsGeneratingLogo(true);
+    try {
+      console.log('Starting Gemini generation with prompt:', prompt, 'type:', type);
+      
+      const response = await supabase.functions.invoke('generate-with-gemini', {
+        body: { prompt, type }
+      });
+
+      console.log('Gemini generation response:', response);
+
+      if (response.error) {
+        console.error('Gemini generation error:', response.error);
+        throw new Error(response.error.message || 'Erro na geração com Gemini');
+      }
+
+      // Since Gemini 2.5 Nano doesn't generate images directly, show the text response
+      if (response.data?.text) {
+        toast({
+          title: "Gemini Nano - Sugestão Gerada",
+          description: `Sugestão: ${response.data.text}. Use esta descrição com o botão "Gerar com IA" para criar a imagem.`,
+        });
+      } else if (response.data?.note) {
+        toast({
+          title: "Info",
+          description: response.data.note,
+        });
+      }
+    } catch (error) {
+      console.error('Error with Gemini:', error);
+      
+      toast({
+        title: "Erro",
+        description: "Erro ao processar com Gemini. Tente novamente ou use o gerador com IA.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingLogo(false);
+    }
+  };
+
+  const generateCoverWithAI = async (prompt: string) => {
+    setIsGeneratingLogo(true);
+    try {
+      console.log('Starting cover generation with prompt:', prompt);
+      
+      const enhancedPrompt = `Professional real estate cover image: ${prompt}. High quality, architectural photography style, bright and welcoming`;
+      
+      const response = await supabase.functions.invoke('generate-logo', {
+        body: { prompt: enhancedPrompt }
+      });
+
+      console.log('Cover generation response:', response);
+
+      if (response.error) {
+        console.error('Cover generation error:', response.error);
+        throw new Error(response.error.message || 'Erro na geração da capa');
+      }
+
+      if (!response.data?.image) {
+        throw new Error('Nenhuma imagem foi retornada');
+      }
+
+      // Convert base64 to blob and upload
+      const base64Data = response.data.image.split(',')[1];
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'image/png' });
+      
+      const file = new File([blob], `cover_${Date.now()}.png`, { type: 'image/png' });
+      await handleImageUpload(file, 'cover');
+      
+      toast({
+        title: "Capa gerada!",
+        description: "Sua imagem de capa foi criada e aplicada com sucesso.",
+      });
+    } catch (error) {
+      console.error('Error generating cover:', error);
+      
+      let errorMessage = "Erro ao gerar capa. Tente novamente.";
+      if (error.message?.includes('insufficient permissions')) {
+        errorMessage = "Token do Hugging Face sem permissão. Configure um novo token.";
+      } else if (error.message?.includes('token not configured')) {
+        errorMessage = "Token do Hugging Face não configurado.";
+      }
+      
+      toast({
+        title: "Erro",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingLogo(false);
+    }
+  };
+
   const generateLogoWithAI = async (prompt: string) => {
     setIsGeneratingLogo(true);
     try {
@@ -487,36 +587,48 @@ export function MinisiteEditorIntegrated() {
                         </div>
                       )}
                       <div className="flex gap-2">
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file, 'logo');
-                            }}
-                            className="hidden"
-                            id="logo-upload"
-                          />
-                          <Label htmlFor="logo-upload" className="cursor-pointer">
-                            <Button variant="outline" asChild>
-                              <span>
-                                <Upload className="h-4 w-4 mr-2" />
-                                Upload Logo
-                              </span>
-                            </Button>
-                          </Label>
-                        </div>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna', 'casa azul', etc.):");
-                            if (prompt) generateLogoWithAI(prompt);
-                          }}
-                          disabled={isGeneratingLogo}
-                        >
-                          {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar com IA'}
-                        </Button>
+                       <div className="flex flex-wrap gap-2">
+                         <div>
+                           <input
+                             type="file"
+                             accept="image/*"
+                             onChange={(e) => {
+                               const file = e.target.files?.[0];
+                               if (file) handleImageUpload(file, 'logo');
+                             }}
+                             className="hidden"
+                             id="logo-upload"
+                           />
+                           <Label htmlFor="logo-upload" className="cursor-pointer">
+                             <Button variant="outline" asChild>
+                               <span>
+                                 <Upload className="h-4 w-4 mr-2" />
+                                 Upload Logo
+                               </span>
+                             </Button>
+                           </Label>
+                         </div>
+                         <Button
+                           variant="outline"
+                           onClick={() => {
+                             const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna', 'casa azul', etc.):");
+                             if (prompt) generateLogoWithAI(prompt);
+                           }}
+                           disabled={isGeneratingLogo}
+                         >
+                           {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar com IA'}
+                         </Button>
+                         <Button
+                           variant="outline"
+                           onClick={() => {
+                             const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna e minimalista', 'casa elegante'):");
+                             if (prompt) generateWithGemini(prompt, 'logo');
+                           }}
+                           disabled={isGeneratingLogo}
+                         >
+                           {isGeneratingLogo ? 'Processando...' : '🤖 Gemini Nano'}
+                         </Button>
+                       </div>
                       </div>
                     </div>
                   </div>
@@ -574,26 +686,46 @@ export function MinisiteEditorIntegrated() {
                           <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
-                      <div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleImageUpload(file, 'cover');
-                          }}
-                          className="hidden"
-                          id="cover-upload"
-                        />
-                        <Label htmlFor="cover-upload" className="cursor-pointer">
-                          <Button variant="outline" asChild>
-                            <span>
-                              <Upload className="h-4 w-4 mr-2" />
-                              Alterar Capa
-                            </span>
-                          </Button>
-                        </Label>
-                      </div>
+                       <div className="flex flex-wrap gap-2">
+                         <input
+                           type="file"
+                           accept="image/*"
+                           onChange={(e) => {
+                             const file = e.target.files?.[0];
+                             if (file) handleImageUpload(file, 'cover');
+                           }}
+                           className="hidden"
+                           id="cover-upload"
+                         />
+                         <Label htmlFor="cover-upload" className="cursor-pointer">
+                           <Button variant="outline" asChild>
+                             <span>
+                               <Upload className="h-4 w-4 mr-2" />
+                               Alterar Capa
+                             </span>
+                           </Button>
+                         </Label>
+                         <Button
+                           variant="outline"
+                           onClick={() => {
+                             const prompt = window.prompt("Descreva a imagem de capa (ex: 'casa moderna com jardim', 'prédio elegante'):");
+                             if (prompt) generateCoverWithAI(prompt);
+                           }}
+                           disabled={isGeneratingLogo}
+                         >
+                           {isGeneratingLogo ? 'Gerando...' : '🎨 Gerar Capa com IA'}
+                         </Button>
+                         <Button
+                           variant="outline"
+                           onClick={() => {
+                             const prompt = window.prompt("Descreva a imagem de capa que você quer (ex: 'casa luxuosa', 'paisagem urbana moderna'):");
+                             if (prompt) generateWithGemini(prompt, 'cover');
+                           }}
+                           disabled={isGeneratingLogo}
+                         >
+                           {isGeneratingLogo ? 'Processando...' : '🤖 Gemini Nano'}
+                         </Button>
+                       </div>
                     </div>
                   </div>
                 </CardContent>

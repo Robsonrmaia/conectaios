@@ -177,11 +177,11 @@ export default function Perfil() {
                 <CardHeader>
                   <CardTitle>Foto do Perfil</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Avatar className="w-32 h-32">
-                      <AvatarImage src={profile.avatar} />
-                      <AvatarFallback className="text-2xl">{profile.name.charAt(0)}</AvatarFallback>
+                <CardContent className="space-y-3">
+                  <div className="flex flex-col items-center space-y-3">
+                    <Avatar className="w-20 h-20">
+                      <AvatarImage src={profile.avatar} className="object-cover" />
+                      <AvatarFallback className="text-xl">{profile.name.charAt(0)}</AvatarFallback>
                     </Avatar>
                     <div className="text-center">
                      <Button variant="outline" size="sm" onClick={() => {
