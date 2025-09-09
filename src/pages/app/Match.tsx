@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Heart, X, Sparkles, User, MapPin, Bed, Bath, Car, Home, Plus, Target, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Building2, Heart, X, Sparkles, User, MapPin, Bed, Bath, Car, Home, Plus, Target, ArrowLeft, ArrowRight, MessageSquare } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { CounterProposalDialog } from '@/components/CounterProposalDialog';
 
 interface Property {
   id: string;
@@ -65,6 +66,7 @@ export default function Match() {
   const [loading, setLoading] = useState(true);
   const [showPreferences, setShowPreferences] = useState(false);
   const [selectedClient, setSelectedClient] = useState<string>('');
+  const [showCounterProposal, setShowCounterProposal] = useState(false);
   const [preferences, setPreferences] = useState<ClientPreferences>({
     min_price: 0,
     max_price: 1000000,
@@ -461,6 +463,18 @@ export default function Match() {
               </Button>
             </motion.div>
 
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => setShowCounterProposal(true)}
+                className="bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+              >
+                <MessageSquare className="h-5 w-5 mr-2" />
+                Fazer Proposta
+              </Button>
+            </motion.div>
+
             <Dialog>
               <DialogTrigger asChild>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -542,6 +556,16 @@ export default function Match() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Counter Proposal Dialog */}
+      {currentMatch && (
+        <CounterProposalDialog
+          isOpen={showCounterProposal}
+          onClose={() => setShowCounterProposal(false)}
+          property={currentMatch.property_data}
+          matchScore={currentMatch.match_score}
+        />
       )}
     </div>
   );

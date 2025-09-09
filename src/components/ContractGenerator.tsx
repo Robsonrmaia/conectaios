@@ -36,11 +36,23 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
       propertyAddress: deal?.propertyAddress || '',
       currentDate: new Date().toLocaleDateString('pt-BR'),
       firstBrokerPercentage: deal?.commissionSplit?.includes('/') ? 
-        deal.commissionSplit.split('/')[0] : '50'
+        deal.commissionSplit.split('/')[0] : '50',
+      // Novos campos
+      contractDuration: '180 dias',
+      specialClauses: '',
+      partnerBrokerName: '',
+      partnerBrokerCreci: '',
+      partnerBrokerPhone: '',
+      partnerBrokerEmail: '',
+      exclusivityClause: true,
+      marketingResponsibility: 'Compartilhada',
+      documentResponsibility: 'Corretor A',
+      negotiationLeadership: 'Corretor A'
     }
   });
 
   const [showPreview, setShowPreview] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const handleGenerateContract = () => {
     toast({
@@ -80,7 +92,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
     }
   };
 
-  if (!showPreview) {
+  if (!showPreview && !showEditForm) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="max-w-md">
@@ -120,9 +132,133 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
               <Button onClick={() => onClose()} variant="outline" className="flex-1">
                 Cancelar
               </Button>
+              <Button onClick={() => setShowEditForm(true)} variant="outline" className="flex-1">
+                <FileText className="h-4 w-4 mr-2" />
+                Personalizar
+              </Button>
               <Button onClick={handleGenerateContract} className="flex-1">
                 <FileText className="h-4 w-4 mr-2" />
                 Gerar Rascunho
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (showEditForm) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Personalizar Contrato</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Nome do Parceiro</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.partnerBrokerName}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, partnerBrokerName: e.target.value }
+                  }))}
+                  placeholder="Nome do corretor parceiro"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">CRECI do Parceiro</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.partnerBrokerCreci}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, partnerBrokerCreci: e.target.value }
+                  }))}
+                  placeholder="CRECI do parceiro"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Telefone do Parceiro</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.partnerBrokerPhone}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, partnerBrokerPhone: e.target.value }
+                  }))}
+                  placeholder="Telefone do parceiro"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Email do Parceiro</label>
+                <input
+                  type="email"
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.partnerBrokerEmail}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, partnerBrokerEmail: e.target.value }
+                  }))}
+                  placeholder="Email do parceiro"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Duração do Contrato</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.contractDuration}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, contractDuration: e.target.value }
+                  }))}
+                  placeholder="180 dias"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Responsabilidade de Marketing</label>
+                <select
+                  className="w-full p-2 border rounded-md"
+                  value={contractData.contractDetails.marketingResponsibility}
+                  onChange={(e) => setContractData(prev => ({
+                    ...prev,
+                    contractDetails: { ...prev.contractDetails, marketingResponsibility: e.target.value }
+                  }))}
+                >
+                  <option value="Compartilhada">Compartilhada</option>
+                  <option value="Corretor A">Corretor A</option>
+                  <option value="Corretor B">Corretor B</option>
+                </select>
+              </div>
+            </div>
+            
+            <div>
+              <label className="text-sm font-medium">Cláusulas Especiais</label>
+              <textarea
+                className="w-full p-2 border rounded-md mt-1"
+                rows={3}
+                value={contractData.contractDetails.specialClauses}
+                onChange={(e) => setContractData(prev => ({
+                  ...prev,
+                  contractDetails: { ...prev.contractDetails, specialClauses: e.target.value }
+                }))}
+                placeholder="Adicione cláusulas especiais..."
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button onClick={() => setShowEditForm(false)} variant="outline" className="flex-1">
+                Voltar
+              </Button>
+              <Button onClick={() => { setShowEditForm(false); handleGenerateContract(); }} className="flex-1">
+                <FileText className="h-4 w-4 mr-2" />
+                Gerar Contrato
               </Button>
             </div>
           </div>
@@ -189,13 +325,13 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
                   <div className="space-y-2 text-sm">
                     <div className="grid grid-cols-[120px_1fr] gap-2">
                       <div><strong>Corretor B</strong></div>
-                      <div>_______________________</div>
+                      <div>{contractData.contractDetails.partnerBrokerName || '_______________________'}</div>
                       <div>CRECI</div>
-                      <div>_______________________</div>
+                      <div>{contractData.contractDetails.partnerBrokerCreci || '_______________________'}</div>
                       <div>Telefone</div>
-                      <div>_______________________</div>
+                      <div>{contractData.contractDetails.partnerBrokerPhone || '_______________________'}</div>
                       <div>E-mail</div>
-                      <div>_______________________</div>
+                      <div>{contractData.contractDetails.partnerBrokerEmail || '_______________________'}</div>
                     </div>
                   </div>
                 </div>
@@ -252,7 +388,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
                   <td className="border border-gray-200 p-2">{contractData.contractDetails.firstBrokerPercentage}%</td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-200 p-2">Corretor B – _______________________</td>
+                  <td className="border border-gray-200 p-2">Corretor B – {contractData.contractDetails.partnerBrokerName || '_______________________'}</td>
                   <td className="border border-gray-200 p-2">{100 - parseInt(contractData.contractDetails.firstBrokerPercentage)}%</td>
                 </tr>
                 <tr>
@@ -270,8 +406,13 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
                 <li>Cada corretor responde pela precisão das informações repassadas ao cliente.</li>
                 <li>Este documento é um <strong>acordo simples de cavalheiros</strong>, não substitui a legislação aplicável nem as normas do CRECI.</li>
                 <li>Qualquer alteração de condições ou percentuais exige anuência de todas as partes.</li>
+                <li>Responsabilidade de marketing: <strong>{contractData.contractDetails.marketingResponsibility}</strong></li>
+                <li>Duração da parceria: <strong>{contractData.contractDetails.contractDuration}</strong></li>
                 <li>Despesas e materiais de divulgação poderão ser rateadas conforme acordo informal entre as partes.</li>
                 <li>Em caso de desistência do cliente ou cancelamento, nenhuma das partes fará jus à comissão.</li>
+                {contractData.contractDetails.specialClauses && (
+                  <li><strong>Cláusulas Especiais:</strong> {contractData.contractDetails.specialClauses}</li>
+                )}
               </ul>
             </section>
 
@@ -296,8 +437,8 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
                 </div>
                 <div className="text-center">
                   <div className="h-20 border-t-2 border-black pt-2">
-                    <p className="font-semibold text-sm">_______________________</p>
-                    <p className="text-xs">CRECI _______ — Tel: _______</p>
+                    <p className="font-semibold text-sm">{contractData.contractDetails.partnerBrokerName || '_______________________'}</p>
+                    <p className="text-xs">CRECI {contractData.contractDetails.partnerBrokerCreci || '_______'} — Tel: {contractData.contractDetails.partnerBrokerPhone || '_______'}</p>
                   </div>
                 </div>
                 <div></div>
@@ -313,7 +454,7 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button onClick={() => setShowPreview(false)} variant="outline">
+            <Button onClick={() => { setShowPreview(false); setShowEditForm(true); }} variant="outline">
               <Eye className="h-4 w-4 mr-2" />
               Editar
             </Button>
