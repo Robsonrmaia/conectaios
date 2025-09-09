@@ -72,7 +72,7 @@ export default function Imoveis() {
   const [showAiDescription, setShowAiDescription] = useState(false);
   const [showWatermark, setShowWatermark] = useState(false);
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
-  const { speak, stop, isSpeaking } = useElevenLabsVoice();
+  const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -459,21 +459,97 @@ export default function Imoveis() {
                     onChange={(e) => setFormData({...formData, quartos: e.target.value})}
                     placeholder="3"
                   />
-                </div>
-                <div>
-                  <Label htmlFor="listing_type">Finalidade</Label>
-                  <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="venda">Venda</SelectItem>
-                      <SelectItem value="locacao">Locação</SelectItem>
-                      <SelectItem value="temporada">Temporada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                 </div>
+                 <div>
+                   <Label htmlFor="bathrooms">Banheiros</Label>
+                   <Input
+                     id="bathrooms"
+                     type="number"
+                     value={formData.bathrooms}
+                     onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
+                     placeholder="2"
+                   />
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-3 gap-4">
+                 <div>
+                   <Label htmlFor="parking_spots">Vagas</Label>
+                   <Input
+                     id="parking_spots"
+                     type="number"
+                     value={formData.parking_spots}
+                     onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
+                     placeholder="1"
+                   />
+                 </div>
+                 <div>
+                   <Label htmlFor="listing_type">Finalidade</Label>
+                   <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
+                     <SelectTrigger>
+                       <SelectValue />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="venda">Venda</SelectItem>
+                       <SelectItem value="locacao">Locação</SelectItem>
+                       <SelectItem value="temporada">Temporada</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
+                 <div>
+                   <Label htmlFor="property_type">Tipo</Label>
+                   <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
+                     <SelectTrigger>
+                       <SelectValue />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="apartamento">Apartamento</SelectItem>
+                       <SelectItem value="casa">Casa</SelectItem>
+                       <SelectItem value="sobrado">Sobrado</SelectItem>
+                       <SelectItem value="terreno">Terreno</SelectItem>
+                       <SelectItem value="comercial">Comercial</SelectItem>
+                       <SelectItem value="chacara">Chácara</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <Label htmlFor="banner_type">Banner</Label>
+                   <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
+                     <SelectTrigger>
+                       <SelectValue placeholder="Selecione um banner" />
+                     </SelectTrigger>
+                     <SelectContent>
+                       <SelectItem value="">Nenhum</SelectItem>
+                       <SelectItem value="vendido">Vendido</SelectItem>
+                       <SelectItem value="alugado">Alugado</SelectItem>
+                       <SelectItem value="oportunidade">Oportunidade</SelectItem>
+                       <SelectItem value="exclusivo">Exclusivo</SelectItem>
+                       <SelectItem value="abaixo_mercado">Abaixo do Mercado</SelectItem>
+                     </SelectContent>
+                   </Select>
+                 </div>
+                 <div className="space-y-4">
+                   <div className="flex items-center space-x-2">
+                     <Switch
+                       id="is_furnished"
+                       checked={formData.is_furnished}
+                       onCheckedChange={(checked) => setFormData({...formData, is_furnished: checked})}
+                     />
+                     <Label htmlFor="is_furnished">Mobiliado</Label>
+                   </div>
+                   <div className="flex items-center space-x-2">
+                     <Switch
+                       id="has_sea_view"
+                       checked={formData.has_sea_view}
+                       onCheckedChange={(checked) => setFormData({...formData, has_sea_view: checked})}
+                     />
+                     <Label htmlFor="has_sea_view">Vista Mar</Label>
+                   </div>
+                 </div>
+               </div>
 
               <div>
                 <Label htmlFor="descricao">Descrição</Label>
@@ -530,6 +606,7 @@ export default function Imoveis() {
                 <div className="border-t pt-4">
                   <CommissionCalculator
                     propertyValue={parseValueInput(formData.valor)}
+                    businessType={formData.listing_type}
                     onCommissionChange={(commission) => {
                       setFormData({
                         ...formData,
@@ -607,6 +684,9 @@ export default function Imoveis() {
         {paginatedProperties.map((property) => (
           <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video bg-muted relative">
+              {/* Property Banner */}
+              <PropertyBanner bannerType={property.banner_type} />
+              
               {(() => {
                 const photosArray = Array.isArray(property.fotos) ? property.fotos : [];
                 const hasValidPhoto = photosArray.length > 0 && photosArray[0];
@@ -635,13 +715,23 @@ export default function Imoveis() {
                     )}
                     
                     {property.fotos.some(photo => photo.includes('enhanced=')) && (
-                      <div className="absolute top-2 left-2">
+                      <div className="absolute bottom-2 left-2">
                         <Badge variant="secondary" className="text-xs flex items-center gap-1">
                           <Sparkles className="h-3 w-3" />
                           IA
                         </Badge>
                       </div>
                     )}
+                    
+                    {/* Property Features */}
+                    <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {property.is_furnished && (
+                        <Badge variant="secondary" className="text-xs">Mobiliado</Badge>
+                      )}
+                      {property.has_sea_view && (
+                        <Badge variant="secondary" className="text-xs">Vista Mar</Badge>
+                      )}
+                    </div>
                   </div>
                 );
               })()}
@@ -796,18 +886,19 @@ export default function Imoveis() {
                        variant="outline" 
                        size="sm"
                        onClick={() => {
-                         if (isSpeaking) {
+                         const audioId = `property-${property.id}`;
+                         if (isSpeaking && currentSpeakingId === audioId) {
                            stop();
                          } else {
-                           const descricao = property.descricao || `Imóvel de ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
-                           speak(descricao);
+                           const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
+                           speak(descricao, audioId);
                          }
                        }}
-                       title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                       title={isSpeaking && currentSpeakingId === `property-${property.id}` ? "Parar reprodução" : "Ouvir descrição"}
                        className="h-8 text-xs"
                      >
                        <Volume2 className="h-3 w-3 mr-1" />
-                       {isSpeaking ? "Parar" : "Voz IA"}
+                       {isSpeaking && currentSpeakingId === `property-${property.id}` ? "Parar" : "Voz IA"}
                      </Button>
                    </div>
                   

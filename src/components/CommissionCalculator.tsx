@@ -48,7 +48,7 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
   // Calculate commission value and splits based on business type
   const getCommissionValue = () => {
     switch (currentBusinessType) {
-      case "aluguel":
+      case "locacao":
         // For rentals, commission is 100% of the first rent
         return propertyValue;
       case "temporada":
@@ -96,13 +96,13 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="venda">Venda</SelectItem>
-                <SelectItem value="aluguel">Aluguel</SelectItem>
+                <SelectItem value="locacao">Locação</SelectItem>
                 <SelectItem value="temporada">Temporada</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          {currentBusinessType !== "aluguel" && (
+          {currentBusinessType !== "locacao" && (
             <div className="space-y-2">
               <label className="text-sm font-medium">
                 {currentBusinessType === "temporada" 
@@ -125,10 +125,10 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
             </div>
           )}
 
-          {currentBusinessType === "aluguel" && (
+          {currentBusinessType === "locacao" && (
             <div className="p-3 bg-info/10 rounded-lg border border-info/20">
               <p className="text-sm text-info-foreground">
-                <strong>Aluguel:</strong> A comissão é de 100% do valor do primeiro aluguel.
+                <strong>Locação:</strong> A comissão é de 100% do valor do primeiro aluguel.
               </p>
             </div>
           )}
@@ -197,9 +197,9 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
             <div className="flex justify-between">
               <span>
                 Comissão Total 
-                {currentBusinessType === "aluguel" 
-                  ? " (100% do 1º aluguel)" 
-                  : ` (${commissionPercentage}%)`
+                 {currentBusinessType === "locacao" 
+                   ? " (100% do 1º aluguel)" 
+                   : ` (${commissionPercentage}%)`
                 }:
               </span>
               <span className="font-medium text-primary">{formatCurrency(commissionValue)}</span>
