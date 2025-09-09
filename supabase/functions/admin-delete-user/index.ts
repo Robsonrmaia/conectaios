@@ -40,28 +40,35 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     // Get the authorization header from the request
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const token = authHeader.replace('Bearer ', '');
 
     // Verify the user is authenticated and is admin
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(token);
     if (authError || !user) {
+      console.error('Invalid authorization token:', authError);
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Invalid authorization token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Check if user is admin
-    const { data: profile, error: profileError } = await supabaseClient
-      .from('profiles')
-      .select('role')
-      .eq('user_id', user.id)
-      .single();
+    // Use the secure is_admin function to check admin status
+    const { data: isAdmin, error: adminCheckError } = await supabaseAdmin
+      .rpc('is_admin', { user_uuid: user.id });
 
-    if (profileError || profile?.role !== 'admin') {
+    if (adminCheckError || !isAdmin) {
+      console.error('Admin check failed:', adminCheckError, 'isAdmin:', isAdmin);
       return new Response(
-        JSON.stringify({ error: 'Forbidden - Admin access required' }),
+        JSON.stringify({ error: 'Unauthorized: Admin access required' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

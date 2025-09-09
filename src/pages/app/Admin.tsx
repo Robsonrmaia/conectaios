@@ -18,7 +18,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
-import AdminUserManagement from '@/components/AdminUserManagement';
+import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -286,7 +286,7 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="usuarios" className="space-y-6">
-          <AdminUserManagement />
+          <SecureAdminUserManagement />
         </TabsContent>
 
         <TabsContent value="sistema" className="space-y-6">
