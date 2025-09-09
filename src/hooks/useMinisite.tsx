@@ -95,10 +95,29 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error fetching minisite config:', error);
+      // Fallback: create local config if database fails
+      const fallbackConfig = {
+        broker_id: broker?.id || '',
+        title: broker?.name || 'Meu Mini Site',
+        description: broker?.bio || '',
+        primary_color: '#1CA9C9',
+        secondary_color: '#64748B',
+        template_id: 'modern',
+        show_properties: true,
+        show_contact_form: true,
+        show_about: true,
+        phone: broker?.phone || '',
+        email: broker?.email || '',
+        whatsapp: broker?.phone || '',
+        is_active: true,
+        config_data: {}
+      };
+      setConfig(fallbackConfig);
+      
       toast({
-        title: "Erro",
-        description: "Erro ao carregar configurações do minisite.",
-        variant: "destructive",
+        title: "Aviso",
+        description: "Usando configuração local. Salve para sincronizar com o servidor.",
+        variant: "default",
       });
     } finally {
       setLoading(false);
