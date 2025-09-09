@@ -46,6 +46,9 @@ interface Property {
   fotos: string[];
   videos: string[];
   created_at: string;
+  address?: string;
+  neighborhood?: string;
+  city?: string;
   reference_code?: string;
   banner_type?: string | null;
   is_furnished?: boolean;
@@ -134,6 +137,9 @@ export default function Imoveis() {
         fotos: prop.fotos || [],
         videos: prop.videos || [],
         created_at: prop.created_at,
+        address: prop.address,
+        neighborhood: prop.neighborhood,
+        city: prop.city,
         reference_code: prop.reference_code,
         banner_type: prop.banner_type || null,
         is_furnished: prop.is_furnished || false,
@@ -517,7 +523,7 @@ export default function Imoveis() {
                   <Label htmlFor="fotos">Fotos</Label>
                   <PhotoUploader
                     photos={formData.fotos}
-                    onChange={(photos) => setFormData({ ...formData, fotos: photos })}
+                    onPhotosChange={(photos) => setFormData({ ...formData, fotos: photos })}
                   />
                 </div>
                 <div>
@@ -666,7 +672,7 @@ export default function Imoveis() {
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  <span>{property.address}</span>
+                  <span>{property.city || 'Localização não informada'}</span>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-1">
@@ -711,9 +717,9 @@ export default function Imoveis() {
                     descricao: property.descricao,
                     fotos: property.fotos,
                     videos: property.videos.join(', '),
-                    address: '',
-                    neighborhood: '',
-                    city: '',
+                    address: property.address || '',
+                    neighborhood: property.neighborhood || '',
+                    city: property.city || '',
                     condominium_fee: '',
                     iptu: '',
                     commission_percentage: 6,
@@ -743,24 +749,39 @@ export default function Imoveis() {
         ))}
       </div>
 
-      {/* Pagination */}
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={setCurrentPage}
-      >
-        <PaginationPrevious>Anterior</PaginationPrevious>
-        <PaginationContent>
-          {Array.from({ length: totalPages }, (_, i) => (
-            <PaginationItem key={i} active={currentPage === i + 1}>
-              <PaginationLink onClick={() => setCurrentPage(i + 1)}>
-                {i + 1}
-              </PaginationLink>
-            </PaginationItem>
+      {/* Custom Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+          >
+            Anterior
+          </Button>
+          
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <Button
+              key={page}
+              variant={page === currentPage ? "default" : "outline"}
+              size="sm"
+              onClick={() => setCurrentPage(page)}
+            >
+              {page}
+            </Button>
           ))}
-        </PaginationContent>
-        <PaginationNext>Próximo</PaginationNext>
-      </Pagination>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Próximo
+          </Button>
+        </div>
+      )}
 
       {/* Additional dialogs and components can be added here */}
     </div>
