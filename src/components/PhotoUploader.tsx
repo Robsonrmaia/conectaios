@@ -7,7 +7,7 @@ import { FileImage, Upload, X, Loader, Wand2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { VirtualStaging } from './VirtualStaging';
-import { WatermarkManager } from './WatermarkManager';
+import { EnhancedWatermarkManager } from './EnhancedWatermarkManager';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet } from 'lucide-react';
@@ -317,7 +317,7 @@ export function PhotoUploader({
 
           <TabsContent value="watermark">
             {watermarkEnabled && (
-              <WatermarkManager
+              <EnhancedWatermarkManager
                 images={photos}
                 onWatermarkedImages={(watermarkedImages) => {
                   // Replace original photos with watermarked versions
