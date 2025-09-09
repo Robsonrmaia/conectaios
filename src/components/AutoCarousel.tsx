@@ -127,20 +127,6 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
         </motion.div>
       </AnimatePresence>
 
-      {/* Progress Indicators */}
-      <div className="flex justify-center mt-2 gap-0.5">
-        {properties.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`w-1 h-1 rounded-full transition-all duration-300 ${
-              index === currentIndex 
-                ? 'bg-primary scale-110' 
-                : 'bg-primary/30 hover:bg-primary/50'
-            }`}
-          />
-        ))}
-      </div>
 
       {/* Auto-play indicator */}
       <div className="absolute top-2 right-2 bg-black/20 backdrop-blur-sm rounded-full p-1">

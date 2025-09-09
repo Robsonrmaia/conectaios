@@ -101,24 +101,24 @@ export default function AIAssistant() {
   const recentInsights = [
     {
       id: 1,
-      title: 'Oportunidade de Mercado',
-      content: 'Apartamentos de 2 quartos no Jardins estão com alta demanda (+15% este mês)',
+      title: 'Mercado de Veraneio',
+      content: 'Temporada 2024/2025 apresenta alta demanda por imóveis de temporada na Praia dos Milionários (+20%)',
       type: 'opportunity',
       priority: 'high'
     },
     {
       id: 2,
-      title: 'Ajuste de Preço',
-      content: 'Considere reduzir em 5% o preço do imóvel na Vila Madalena para acelerar a venda',
+      title: 'Oportunidade Centro',
+      content: 'Apartamentos no centro de Ilhéus com potencial de valorização devido à revitalização urbana',
       type: 'pricing',
       priority: 'medium'
     },
     {
       id: 3,
-      title: 'Lead Qualificado',
-      content: 'Maria Silva demonstrou alto interesse. Recomendo contato em até 2 horas',
+      title: 'Trend Condomínios',
+      content: 'Crescimento de 25% na procura por condomínios fechados na região do Jardim Vitória',
       type: 'lead',
-      priority: 'high'
+      priority: 'low'
     }
   ];
 
