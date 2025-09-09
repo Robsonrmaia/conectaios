@@ -833,6 +833,7 @@ export type Database = {
         Row: {
           address: string | null
           area: number | null
+          banner_type: string | null
           bathrooms: number | null
           broker_minisite_enabled: boolean | null
           city: string | null
@@ -843,9 +844,11 @@ export type Database = {
           features: Json | null
           finalidade: string | null
           fotos: string[] | null
+          has_sea_view: boolean | null
           id: string
           iptu: number | null
           is_featured: boolean | null
+          is_furnished: boolean | null
           is_public: boolean | null
           last_viewed_at: string | null
           listing_type: string | null
@@ -863,11 +866,13 @@ export type Database = {
           videos: string[] | null
           views_count: number | null
           visibility: string | null
+          watermark_enabled: boolean | null
           zipcode: string | null
         }
         Insert: {
           address?: string | null
           area?: number | null
+          banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
@@ -878,9 +883,11 @@ export type Database = {
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
+          has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
           is_featured?: boolean | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           last_viewed_at?: string | null
           listing_type?: string | null
@@ -898,11 +905,13 @@ export type Database = {
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
+          watermark_enabled?: boolean | null
           zipcode?: string | null
         }
         Update: {
           address?: string | null
           area?: number | null
+          banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
@@ -913,9 +922,11 @@ export type Database = {
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
+          has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
           is_featured?: boolean | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           last_viewed_at?: string | null
           listing_type?: string | null
@@ -933,6 +944,7 @@ export type Database = {
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
+          watermark_enabled?: boolean | null
           zipcode?: string | null
         }
         Relationships: []

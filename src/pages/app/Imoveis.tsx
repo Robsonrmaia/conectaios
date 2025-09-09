@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2 } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
@@ -20,6 +20,8 @@ import { formatCurrency, parseValueInput } from '@/lib/utils';
 import { PhotoUploader } from '@/components/PhotoUploader';
 import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
+import { WatermarkManager } from '@/components/WatermarkManager';
+import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
 import { PhotoGallery } from '@/components/PhotoGallery';
@@ -44,6 +46,10 @@ interface Property {
   videos: string[];
   created_at: string;
   reference_code?: string;
+  banner_type?: string | null;
+  is_furnished?: boolean;
+  has_sea_view?: boolean;
+  watermark_enabled?: boolean;
 }
 
 export default function Imoveis() {
@@ -64,6 +70,8 @@ export default function Imoveis() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [aiDescriptionProperty, setAiDescriptionProperty] = useState<Property | null>(null);
   const [showAiDescription, setShowAiDescription] = useState(false);
+  const [showWatermark, setShowWatermark] = useState(false);
+  const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
   const { speak, stop, isSpeaking } = useTextToSpeech();
   const [formData, setFormData] = useState({
     titulo: '',
@@ -88,7 +96,11 @@ export default function Imoveis() {
     commission_value: 0,
     commission_split_type: '50/50',
     commission_buyer_split: 50,
-    commission_seller_split: 50
+    commission_seller_split: 50,
+    banner_type: '',
+    is_furnished: false,
+    has_sea_view: false,
+    watermark_enabled: true,
   });
 
   useEffect(() => {
@@ -120,7 +132,11 @@ export default function Imoveis() {
         fotos: prop.fotos || [],
         videos: prop.videos || [],
         created_at: prop.created_at,
-        reference_code: prop.reference_code
+        reference_code: prop.reference_code,
+        banner_type: prop.banner_type || null,
+        is_furnished: prop.is_furnished || false,
+        has_sea_view: prop.has_sea_view || false,
+        watermark_enabled: prop.watermark_enabled !== undefined ? prop.watermark_enabled : true,
       }));
       
       setProperties(mappedData);
@@ -192,7 +208,11 @@ export default function Imoveis() {
         neighborhood: formData.neighborhood,
         city: formData.city,
         condominium_fee: formData.condominium_fee ? parseValue(formData.condominium_fee) : null,
-        iptu: formData.iptu ? parseValue(formData.iptu) : null
+        iptu: formData.iptu ? parseValue(formData.iptu) : null,
+        banner_type: formData.banner_type || null,
+        is_furnished: formData.is_furnished || false,
+        has_sea_view: formData.has_sea_view || false,
+        watermark_enabled: formData.watermark_enabled !== undefined ? formData.watermark_enabled : true,
       };
 
       console.log('Final property data to save:', propertyData);
@@ -255,7 +275,11 @@ export default function Imoveis() {
         commission_value: 0,
         commission_split_type: '50/50',
         commission_buyer_split: 50,
-        commission_seller_split: 50
+        commission_seller_split: 50,
+        banner_type: '',
+        is_furnished: false,
+        has_sea_view: false,
+        watermark_enabled: true,
       });
       fetchProperties();
     } catch (error) {

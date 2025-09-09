@@ -13,6 +13,22 @@ export const useTextToSpeech = () => {
       .replace(/\*/g, '')
       // Remove caracteres especiais excessivos
       .replace(/[^\w\s\.\,\!\?\:\;\-\(\)]/g, ' ')
+      // Melhor tratamento de acentos e cedilha para pronúncia
+      .replace(/ç/g, 'ss')
+      .replace(/ã/g, 'an')
+      .replace(/ão/g, 'ão')
+      .replace(/õe/g, 'ões')
+      // Adiciona pausas em pontuações
+      .replace(/\./g, '. ')
+      .replace(/\,/g, ', ')
+      .replace(/\:/g, ': ')
+      .replace(/\;/g, '; ')
+      // Trata valores monetários
+      .replace(/R\$\s*(\d+)\.(\d+)/g, '$1 reais e $2 centavos')
+      .replace(/R\$\s*(\d+)/g, '$1 reais')
+      // Trata metros quadrados
+      .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
+      .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
       // Remove espaços duplos
       .replace(/\s+/g, ' ')
       .trim();
@@ -33,15 +49,42 @@ export const useTextToSpeech = () => {
     // Para qualquer fala em andamento
     window.speechSynthesis.cancel();
 
-    // Limpa o texto antes de criar o utterance
-    const cleanText = cleanTextForSpeech(text);
-    const utterance = new SpeechSynthesisUtterance(cleanText);
-    
-    // Configurações da fala
-    utterance.lang = 'pt-BR';
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = 1;
+    // Aguarda um pouco para garantir que as vozes estão carregadas
+    const loadVoices = () => {
+      return new Promise<void>((resolve) => {
+        if (window.speechSynthesis.getVoices().length > 0) {
+          resolve();
+        } else {
+          window.speechSynthesis.addEventListener('voiceschanged', () => resolve(), { once: true });
+        }
+      });
+    };
+
+    loadVoices().then(() => {
+      // Limpa o texto antes de criar o utterance
+      const cleanText = cleanTextForSpeech(text);
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      
+      // Buscar voz feminina brasileira ou similar
+      const voices = window.speechSynthesis.getVoices();
+      const femalePortuguese = voices.find(voice => 
+        (voice.lang.includes('pt-BR') || voice.lang.includes('pt')) && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('feminina') ||
+         voice.name.toLowerCase().includes('maria') ||
+         voice.name.toLowerCase().includes('ana'))
+      );
+      
+      const portugueseVoice = voices.find(voice => 
+        voice.lang.includes('pt-BR') || voice.lang.includes('pt')
+      );
+      
+      // Configurações da fala
+      utterance.voice = femalePortuguese || portugueseVoice || null;
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.85;
+      utterance.pitch = 1.1;
+      utterance.volume = 1;
 
     // Event listeners
     utterance.onstart = () => {
@@ -60,6 +103,7 @@ export const useTextToSpeech = () => {
 
     // Inicia a fala
     window.speechSynthesis.speak(utterance);
+    });
   }, []);
 
   const stop = useCallback(() => {
