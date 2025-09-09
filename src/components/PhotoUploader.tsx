@@ -7,13 +7,26 @@ import { FileImage, Upload, X, Loader, Wand2 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { VirtualStaging } from './VirtualStaging';
+import { WatermarkManager } from './WatermarkManager';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Droplet } from 'lucide-react';
 
 interface PhotoUploaderProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
+  watermarkEnabled?: boolean;
+  onWatermarkEnabledChange?: (enabled: boolean) => void;
+  watermarkText?: string;
 }
 
-export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
+export function PhotoUploader({ 
+  photos, 
+  onPhotosChange, 
+  watermarkEnabled = false, 
+  onWatermarkEnabledChange,
+  watermarkText = "ConectaIOS" 
+}: PhotoUploaderProps) {
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -147,9 +160,24 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label>Fotos do Imóvel</Label>
-        <span className="text-sm text-muted-foreground">
-          {photos.length}/{MAX_PHOTOS}
-        </span>
+        <div className="flex items-center gap-4">
+          {onWatermarkEnabledChange && (
+            <div className="flex items-center gap-2">
+              <Droplet className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="watermark-enabled" className="text-sm">
+                Marca d'água
+              </Label>
+              <Switch
+                id="watermark-enabled"
+                checked={watermarkEnabled}
+                onCheckedChange={onWatermarkEnabledChange}
+              />
+            </div>
+          )}
+          <span className="text-sm text-muted-foreground">
+            {photos.length}/{MAX_PHOTOS}
+          </span>
+        </div>
       </div>
       
       {/* File Upload */}
@@ -216,69 +244,92 @@ export function PhotoUploader({ photos, onPhotosChange }: PhotoUploaderProps) {
         </div>
       </div>
 
-      {/* Photo List */}
-      {photos.length > 0 && (
-        <div className="space-y-2">
-          <Label>Fotos adicionadas ({photos.length})</Label>
-          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {photos.map((photo, index) => (
-              <div key={index} className="group relative border rounded-lg overflow-hidden">
-                <div className="aspect-video bg-muted">
-                  <img
-                    src={photo}
-                    alt={`Foto ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      target.nextElementSibling?.classList.remove('hidden');
-                    }}
-                  />
-                  <div className="hidden w-full h-full flex items-center justify-center">
-                    <FileImage className="h-8 w-8 text-muted-foreground" />
+      {/* Main Content with Tabs */}
+      {photos.length > 0 ? (
+        <Tabs defaultValue="photos" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="photos">Fotos ({photos.length})</TabsTrigger>
+            <TabsTrigger value="watermark" disabled={!watermarkEnabled}>
+              <Droplet className="h-4 w-4 mr-2" />
+              Marca d'Água
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="photos" className="space-y-2">
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {photos.map((photo, index) => (
+                <div key={index} className="group relative border rounded-lg overflow-hidden">
+                  <div className="aspect-video bg-muted">
+                    <img
+                      src={photo}
+                      alt={`Foto ${index + 1}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        target.nextElementSibling?.classList.remove('hidden');
+                      }}
+                    />
+                    <div className="hidden w-full h-full flex items-center justify-center">
+                      <FileImage className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  </div>
+                  
+                  {/* Actions overlay */}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowVirtualStaging(photo)}
+                      className="bg-white/20 hover:bg-white/30 text-white"
+                    >
+                      <Wand2 className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEnhancePhoto(photo, index)}
+                      disabled={enhancing === photo}
+                      className="bg-white/20 hover:bg-white/30 text-white"
+                    >
+                      {enhancing === photo ? (
+                        <Loader className="h-3 w-3 animate-spin" />
+                      ) : (
+                        "✨"
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removePhoto(index)}
+                      className="bg-white/20 hover:bg-white/30 text-white"
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
-                
-                {/* Actions overlay */}
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowVirtualStaging(photo)}
-                    className="bg-white/20 hover:bg-white/30 text-white"
-                  >
-                    <Wand2 className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEnhancePhoto(photo, index)}
-                    disabled={enhancing === photo}
-                    className="bg-white/20 hover:bg-white/30 text-white"
-                  >
-                    {enhancing === photo ? (
-                      <Loader className="h-3 w-3 animate-spin" />
-                    ) : (
-                      "✨"
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removePhoto(index)}
-                    className="bg-white/20 hover:bg-white/30 text-white"
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="watermark">
+            {watermarkEnabled && (
+              <WatermarkManager
+                images={photos}
+                onWatermarkedImages={(watermarkedImages) => {
+                  // Replace original photos with watermarked versions
+                  const watermarkedUrls = watermarkedImages.map(img => img.watermarked);
+                  onPhotosChange(watermarkedUrls);
+                }}
+                defaultWatermarkText={watermarkText}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
+      ) : null}
 
       {/* Bulk URLs */}
       <div className="space-y-2">

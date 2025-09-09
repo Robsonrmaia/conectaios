@@ -573,6 +573,11 @@ export default function Imoveis() {
                   console.log('Photos length:', Array.isArray(photos) ? photos.length : 'not array');
                   setFormData({...formData, fotos: photos});
                 }}
+                watermarkEnabled={formData.watermark_enabled}
+                onWatermarkEnabledChange={(enabled) => {
+                  setFormData({...formData, watermark_enabled: enabled});
+                }}
+                watermarkText="ConectaIOS"
               />
               
               {/* Photo Order Manager */}
