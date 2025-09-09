@@ -1493,13 +1493,6 @@ export type Database = {
             referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "fk_minisite_configs_broker"
-            columns: ["broker_id"]
-            isOneToOne: false
-            referencedRelation: "public_broker_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       notes: {
@@ -2595,39 +2588,7 @@ export type Database = {
       }
     }
     Views: {
-      public_broker_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          cover_url: string | null
-          created_at: string | null
-          id: string | null
-          name: string | null
-          status: string | null
-          username: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-          status?: string | null
-          username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-          status?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_change_user_role: {
@@ -2669,6 +2630,19 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_public_broker_profiles: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          avatar_url: string
+          bio: string
+          cover_url: string
+          created_at: string
+          id: string
+          name: string
+          status: string
+          username: string
+        }[]
       }
       has_role: {
         Args: {
