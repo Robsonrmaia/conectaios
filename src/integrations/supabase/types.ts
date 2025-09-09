@@ -2630,6 +2630,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_change_user_role: {
+        Args: { new_role: string; target_user_id: string }
+        Returns: Json
+      }
       check_plan_limit: {
         Args: { _limit_column: string; _resource_type: string }
         Returns: boolean
@@ -2671,6 +2675,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_admin: {
+        Args: { user_uuid?: string }
         Returns: boolean
       }
       log_audit_event: {
