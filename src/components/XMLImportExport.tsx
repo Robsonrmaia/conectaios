@@ -117,6 +117,17 @@ export default function XMLImportExport() {
 
   const parseXMLToProperties = (xml: Document): Property[] => {
     const properties: Property[] = [];
+    
+    // Detectar formato VivaReal
+    const isVivaRealFormat = xml.getElementsByTagName('ListingDataFeed').length > 0;
+    
+    if (isVivaRealFormat) {
+      console.log('Detectado formato VivaReal');
+      return parseVivaRealXML(xml);
+    }
+    
+    // Formato genérico/legado
+    console.log('Usando parser genérico');
     const listings = xml.getElementsByTagName('Listing') || xml.getElementsByTagName('imovel');
     
     Array.from(listings).forEach((listing, index) => {
@@ -146,6 +157,111 @@ export default function XMLImportExport() {
         transaction_type: getTagValue('TransactionType') || getTagValue('transacao') || 'venda',
         photos
       });
+    });
+
+    return properties;
+  };
+
+  const parseVivaRealXML = (xml: Document): Property[] => {
+    const properties: Property[] = [];
+    const listings = xml.getElementsByTagName('Listing');
+    
+    console.log(`Encontrados ${listings.length} imóveis no XML VivaReal`);
+    
+    Array.from(listings).forEach((listing, index) => {
+      const getTagValue = (tagName: string) => {
+        const element = listing.getElementsByTagName(tagName)[0];
+        return element?.textContent?.trim() || '';
+      };
+
+      // Extrair informações básicas
+      const titulo = getTagValue('Title') || 'Imóvel Importado';
+      const listingId = getTagValue('ListingID');
+      const transactionType = getTagValue('TransactionType');
+      const description = getTagValue('Description') || '';
+      
+      console.log(`Processando imóvel ${index + 1}: ${titulo}`);
+
+      // Processar imagens da tag Media
+      const mediaItems = listing.getElementsByTagName('Item');
+      const photos = Array.from(mediaItems)
+        .filter(item => item.getAttribute('medium') === 'image')
+        .map(item => item.textContent?.trim())
+        .filter(Boolean);
+      
+      console.log(`Encontradas ${photos.length} fotos para o imóvel`);
+
+      // Extrair detalhes do imóvel usando regex na descrição e título
+      const extractNumber = (text: string, pattern: RegExp): number => {
+        const match = text.match(pattern);
+        return match ? parseFloat(match[1].replace(/[^\d,]/g, '').replace(',', '.')) : 0;
+      };
+
+      // Tentar extrair informações do DetailViewUrl, Title ou Description
+      const fullText = `${titulo} ${description}`.toLowerCase();
+      
+      const quartos = extractNumber(fullText, /(\d+)\s*(?:quartos?|dormitórios?|suítes?)/i) || 
+                     extractNumber(fullText, /(\d+)\s*(?:rooms?|bedrooms?)/i);
+      
+      const banheiros = extractNumber(fullText, /(\d+)\s*(?:banheiros?|wc)/i) || 
+                       extractNumber(fullText, /(\d+)\s*(?:bathrooms?)/i);
+      
+      const vagas = extractNumber(fullText, /(\d+)\s*(?:vagas?|garagens?)/i) || 
+                   extractNumber(fullText, /(\d+)\s*(?:parking|garage)/i);
+      
+      const area = extractNumber(fullText, /(\d+(?:,\d+)?)\s*(?:m²|m2|metros)/i);
+      
+      // Extrair valor se disponível na descrição
+      const valor = extractNumber(fullText, /r\$\s*(\d+(?:\.\d{3})*(?:,\d{2})?)/i) || 0;
+
+      // Extrair localização do título
+      const locationMatch = titulo.match(/(?:no bairro|em)\s+([^-]+)\s*-\s*([^,]+),?\s*([A-Z]{2})?/i);
+      const neighborhood = locationMatch ? locationMatch[1]?.trim() : '';
+      const city = locationMatch ? locationMatch[2]?.trim() : '';
+      const state = locationMatch ? locationMatch[3]?.trim() : '';
+
+      // Determinar tipo de propriedade
+      let propertyType = 'apartamento';
+      if (/casa|sobrado|residência/i.test(fullText)) propertyType = 'casa';
+      else if (/terreno|lote/i.test(fullText)) propertyType = 'terreno';
+      else if (/comercial|loja|sala/i.test(fullText)) propertyType = 'comercial';
+
+      // Converter tipo de transação
+      let transactionTypeConverted = 'venda';
+      if (transactionType?.toLowerCase().includes('rent') || /aluguel|locação/i.test(fullText)) {
+        transactionTypeConverted = 'aluguel';
+      }
+
+      const property: Property = {
+        id: `vivareal_${listingId || index}`,
+        titulo,
+        descricao: description,
+        valor,
+        area,
+        quartos,
+        banheiros,
+        vagas,
+        endereco: neighborhood || '',
+        city: city || '',
+        state: state || '',
+        cep: '',
+        property_type: propertyType,
+        transaction_type: transactionTypeConverted,
+        photos
+      };
+
+      console.log('Dados extraídos:', {
+        titulo: property.titulo,
+        valor: property.valor,
+        area: property.area,
+        quartos: property.quartos,
+        banheiros: property.banheiros,
+        vagas: property.vagas,
+        city: property.city,
+        photos: property.photos.length
+      });
+
+      properties.push(property);
     });
 
     return properties;
