@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
@@ -26,6 +26,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 
 interface Property {
   id: string;
@@ -63,6 +64,7 @@ export default function Imoveis() {
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [aiDescriptionProperty, setAiDescriptionProperty] = useState<Property | null>(null);
   const [showAiDescription, setShowAiDescription] = useState(false);
+  const { speak, stop, isSpeaking } = useTextToSpeech();
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -764,8 +766,25 @@ export default function Imoveis() {
                         <Wand2 className="h-3 w-3 mr-1" />
                         Móveis
                       </Button>
-                    )}
-                  </div>
+                     )}
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         if (isSpeaking) {
+                           stop();
+                         } else {
+                           const descricao = property.descricao || `Imóvel de ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
+                           speak(descricao);
+                         }
+                       }}
+                       title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                       className="h-8 text-xs"
+                     >
+                       <Volume2 className="h-3 w-3 mr-1" />
+                       {isSpeaking ? "Parar" : "Voz IA"}
+                     </Button>
+                   </div>
                   
                   <div className="grid grid-cols-2 gap-2">
                     <Button 
