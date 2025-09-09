@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { Download, Upload } from 'lucide-react';
 
 interface Property {
@@ -26,6 +27,15 @@ interface Property {
 export default function XMLImportExport() {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const { user } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-muted-foreground">Você precisa estar logado para importar/exportar imóveis.</p>
+      </div>
+    );
+  }
 
   const handleImportXML = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -44,28 +54,38 @@ export default function XMLImportExport() {
 
       const properties = parseXMLToProperties(xml);
       
+      if (properties.length === 0) {
+        throw new Error('Nenhum imóvel encontrado no arquivo XML');
+      }
+      
+      console.log(`Tentando importar ${properties.length} imóveis`);
+      
       for (const property of properties) {
         const { error } = await supabase
           .from('properties')
           .insert({
+            user_id: user.id,
             titulo: property.titulo,
             descricao: property.descricao,
             valor: property.valor,
             area: property.area,
             quartos: property.quartos,
-            banheiros: property.banheiros,
-            vagas: property.vagas,
-            endereco: property.endereco,
+            bathrooms: property.banheiros, // Map banheiros -> bathrooms
+            parking_spots: property.vagas, // Map vagas -> parking_spots  
+            address: property.endereco, // Map endereco -> address
             city: property.city,
             state: property.state,
-            cep: property.cep,
+            zipcode: property.cep, // Map cep -> zipcode
             property_type: property.property_type,
-            transaction_type: property.transaction_type,
-            photos: property.photos || []
+            listing_type: property.transaction_type, // Map transaction_type -> listing_type
+            fotos: property.photos || [], // Map photos -> fotos
+            visibility: 'public_site',
+            is_public: true
           });
 
         if (error) {
           console.error('Erro ao inserir propriedade:', error);
+          toast.error(`Erro ao inserir imóvel: ${property.titulo}`);
         }
       }
 
@@ -87,13 +107,21 @@ export default function XMLImportExport() {
       const { data: properties, error } = await supabase
         .from('properties')
         .select('*')
+        .eq('user_id', user.id)
         .eq('is_public', true);
 
       if (error) {
         throw new Error('Erro ao buscar propriedades');
       }
 
-      const xml = generateXMLFromProperties(properties || []);
+      if (!properties || properties.length === 0) {
+        toast.error('Nenhum imóvel público encontrado para exportar');
+        return;
+      }
+
+      console.log(`Exportando ${properties.length} imóveis`);
+      
+      const xml = generateXMLFromProperties(properties);
       const blob = new Blob([xml], { type: 'application/xml' });
       const url = URL.createObjectURL(blob);
       
@@ -105,7 +133,7 @@ export default function XMLImportExport() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast.success('XML exportado com sucesso!');
+      toast.success(`${properties.length} imóveis exportados com sucesso!`);
       
     } catch (error) {
       console.error('Erro na exportação:', error);
@@ -279,18 +307,18 @@ export default function XMLImportExport() {
       xml += `    <Price>${property.valor || 0}</Price>\n`;
       xml += `    <Area>${property.area || 0}</Area>\n`;
       xml += `    <Bedrooms>${property.quartos || 0}</Bedrooms>\n`;
-      xml += `    <Bathrooms>${property.banheiros || 0}</Bathrooms>\n`;
-      xml += `    <Garages>${property.vagas || 0}</Garages>\n`;
-      xml += `    <Address><![CDATA[${property.endereco || ''}]]></Address>\n`;
+      xml += `    <Bathrooms>${property.bathrooms || 0}</Bathrooms>\n`;
+      xml += `    <Garages>${property.parking_spots || 0}</Garages>\n`;
+      xml += `    <Address><![CDATA[${property.address || ''}]]></Address>\n`;
       xml += `    <City><![CDATA[${property.city || ''}]]></City>\n`;
       xml += `    <State><![CDATA[${property.state || ''}]]></State>\n`;
-      xml += `    <ZipCode>${property.cep || ''}</ZipCode>\n`;
+      xml += `    <ZipCode>${property.zipcode || ''}</ZipCode>\n`;
       xml += `    <PropertyType>${property.property_type || 'apartamento'}</PropertyType>\n`;
-      xml += `    <TransactionType>${property.transaction_type || 'venda'}</TransactionType>\n`;
+      xml += `    <TransactionType>${property.listing_type || 'venda'}</TransactionType>\n`;
       xml += `    <Photos>\n`;
       
-      if (property.photos && Array.isArray(property.photos)) {
-        property.photos.forEach((photo: string, index: number) => {
+      if (property.fotos && Array.isArray(property.fotos)) {
+        property.fotos.forEach((photo: string, index: number) => {
           xml += `      <Photo order="${index + 1}"><![CDATA[${photo}]]></Photo>\n`;
         });
       }
