@@ -112,6 +112,7 @@ export default function Imoveis() {
       const { data, error } = await supabase
         .from('conectaios_properties')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -839,7 +840,11 @@ export default function Imoveis() {
                           commission_value: 0,
                           commission_split_type: '50/50',
                           commission_buyer_split: 50,
-                          commission_seller_split: 50
+                          commission_seller_split: 50,
+                          banner_type: property.banner_type || '',
+                          is_furnished: property.is_furnished || false,
+                          has_sea_view: property.has_sea_view || false,
+                          watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
                         });
                         setSelectedProperty(property);
                         setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
