@@ -24,8 +24,11 @@ export default function ImageCreator() {
 
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-logo', {
-        body: { prompt }
+      const { data, error } = await supabase.functions.invoke('generate-with-huggingface', {
+        body: { 
+          prompt: `Professional real estate image: ${prompt}`,
+          model: 'black-forest-labs/FLUX.1-schnell'
+        }
       });
 
       if (error) throw error;

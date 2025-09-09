@@ -1567,6 +1567,33 @@ export type Database = {
         }
         Relationships: []
       }
+      password_reset_tokens: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          token: string
+          used: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          token: string
+          used?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          token?: string
+          used?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pipelines: {
         Row: {
           created_at: string
@@ -2607,7 +2634,15 @@ export type Database = {
         Args: { _limit_column: string; _resource_type: string }
         Returns: boolean
       }
+      cleanup_expired_reset_tokens: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       cleanup_old_login_events: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      create_admin_user: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

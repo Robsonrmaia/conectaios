@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Building } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 
 interface Development {
   id: string;
@@ -58,10 +58,10 @@ export function DevelopmentCarousel() {
   const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isPlaying || developments.length <= 2) return;
+    if (!isPlaying || developments.length <= 3) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % (developments.length - 1));
+      setCurrentIndex((prev) => (prev + 1) % (developments.length - 2));
     }, 5000);
 
     return () => clearInterval(interval);
@@ -70,60 +70,72 @@ export function DevelopmentCarousel() {
   const handleMouseEnter = () => setIsPlaying(false);
   const handleMouseLeave = () => setIsPlaying(true);
 
-  const visibleDevelopments = developments.slice(currentIndex, currentIndex + 2);
-  if (visibleDevelopments.length === 1) {
-    visibleDevelopments.push(developments[0]);
-  }
+  // Show 3 developments stacked vertically
+  const visibleDevelopments = [
+    developments[currentIndex],
+    developments[(currentIndex + 1) % developments.length],
+    developments[(currentIndex + 2) % developments.length]
+  ];
 
   return (
     <div 
-      className="relative h-32 overflow-hidden"
+      className="relative bg-gradient-to-br from-primary/5 to-secondary/5 p-6 rounded-2xl backdrop-blur-sm border border-primary/10"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-foreground mb-2">
+          Novos Empreendimentos
+        </h2>
+        <p className="text-muted-foreground">
+          Descubra os lançamentos mais exclusivos
+        </p>
+      </div>
+
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.4, ease: "easeInOut" }}
-          className="absolute inset-0 flex gap-3"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -30 }}
+          transition={{ duration: 0.5 }}
+          className="space-y-4"
         >
-          {visibleDevelopments.map((development, index) => (
-            <div key={development.id} className="flex-1 min-w-0">
-              <div className="flex gap-3 p-3 bg-white/60 rounded-lg border border-green-100 h-full">
-                <div className="flex-shrink-0">
-                  <div className={`w-16 h-16 ${development.image} rounded-lg flex items-center justify-center`}>
-                    <Building className="h-6 w-6 text-green-600" />
+          {visibleDevelopments.map((dev, index) => (
+            <motion.div
+              key={`${dev.id}-${index}`}
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: index * 0.1, duration: 0.3 }}
+              className="group relative overflow-hidden rounded-lg bg-card/80 backdrop-blur-sm border border-border/50 shadow-md hover:shadow-lg transition-all duration-300"
+            >
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary flex-shrink-0">
+                    <Building2 className="h-4 w-4" />
                   </div>
-                </div>
-                <div className="flex-1 min-w-0 flex flex-col justify-between">
-                  <div>
-                    <h4 className="font-semibold text-sm text-foreground mb-1 truncate">
-                      {development.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {development.description}
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                      {dev.title}
+                    </h3>
+                    <p className="text-muted-foreground text-xs leading-relaxed mb-3">
+                      {dev.description}
                     </p>
-                  </div>
-                  <div className="mt-2">
                     <Button 
-                      size="sm" 
-                      className="h-6 text-xs px-3"
-                      disabled={development.disabled}
-                      onClick={() => {
-                        if (development.url && !development.disabled) {
-                          window.open(development.url, '_blank');
-                        }
-                      }}
+                      variant={dev.disabled ? "secondary" : "default"}
+                      size="sm"
+                      disabled={dev.disabled}
+                      onClick={() => dev.url && !dev.disabled && window.open(dev.url, '_blank')}
+                      className="w-full text-xs py-1 h-7"
                     >
-                      {development.buttonText}
+                      {dev.buttonText}
                     </Button>
                   </div>
                 </div>
               </div>
-            </div>
+              
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </motion.div>
           ))}
         </motion.div>
       </AnimatePresence>
