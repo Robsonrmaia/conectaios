@@ -82,10 +82,10 @@ export default function BrokerMinisite() {
       setLoading(true);
       setErrs([]);
 
-      // 1) Busca corretor por username na TABELA CERTA
+      // 1) Busca corretor por username na TABELA CERTA (only public-safe fields)
       const bq = await supabase
         .from("conectaios_brokers")
-        .select("id, user_id, username, name, avatar_url, cover_url, bio, status, phone, email, creci")
+        .select("id, user_id, username, name, avatar_url, cover_url, bio, status")
         .eq("username", cleanUsername)
         .maybeSingle();
 

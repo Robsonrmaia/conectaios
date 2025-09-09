@@ -53,13 +53,16 @@ interface Property {
 
 interface BrokerProfile {
   id: string;
-  user_id: string;
+  user_id?: string; // Optional since not accessible in public queries
   name: string;
-  email: string;
-  phone: string;
+  email?: string; // Protected field, not accessible in public queries
+  phone?: string; // Protected field, not accessible in public queries
   bio: string;
   avatar_url: string;
-  creci: string;
+  creci?: string; // Protected field, not accessible in public queries
+  username?: string;
+  cover_url?: string;
+  status?: string;
 }
 
 export default function PropertyDetail() {
@@ -95,10 +98,10 @@ export default function PropertyDetail() {
       if (propertyError) throw propertyError;
       setProperty(propertyData);
 
-      // Fetch broker info
+      // Fetch broker info (only business-safe fields for public access)
       const { data: brokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
-        .select('*')
+        .select('id, name, username, bio, avatar_url, cover_url, status')
         .eq('user_id', propertyData.user_id)
         .eq('status', 'active')
         .single();
