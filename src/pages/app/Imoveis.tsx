@@ -210,7 +210,7 @@ export default function Imoveis() {
         city: formData.city,
         condominium_fee: formData.condominium_fee ? parseValue(formData.condominium_fee) : null,
         iptu: formData.iptu ? parseValue(formData.iptu) : null,
-        banner_type: formData.banner_type || null,
+        banner_type: formData.banner_type === "none" ? null : formData.banner_type,
         is_furnished: formData.is_furnished || false,
         has_sea_view: formData.has_sea_view || false,
         watermark_enabled: formData.watermark_enabled !== undefined ? formData.watermark_enabled : true,
@@ -522,7 +522,7 @@ export default function Imoveis() {
                        <SelectValue placeholder="Selecione um banner" />
                      </SelectTrigger>
                      <SelectContent>
-                       <SelectItem value="">Nenhum</SelectItem>
+                       <SelectItem value="none">Nenhum</SelectItem>
                        <SelectItem value="vendido">Vendido</SelectItem>
                        <SelectItem value="alugado">Alugado</SelectItem>
                        <SelectItem value="oportunidade">Oportunidade</SelectItem>

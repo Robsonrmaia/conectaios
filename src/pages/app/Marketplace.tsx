@@ -45,7 +45,7 @@ interface Property {
 export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { speak, stop, isSpeaking } = useElevenLabsVoice();
+  const { speak, stop, isSpeaking, isCurrentlySpeaking } = useElevenLabsVoice();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -376,24 +376,25 @@ export default function Marketplace() {
                            <span className="sr-only">Match</span>
                          </Button>
                          
-                         <Button
-                           size="sm"
-                           variant="outline"
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             if (isSpeaking) {
-                               stop();
-                             } else {
-                               const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
-                               speak(descricao);
-                             }
-                           }}
-                           className={`h-8 px-2 hover:bg-primary hover:text-white flex-1 ${isSpeaking ? 'bg-primary text-white animate-pulse' : ''}`}
-                           title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
-                         >
-                           <Volume2 className="h-3 w-3" />
-                           <span className="sr-only">{isSpeaking ? "Parar" : "Voz IA"}</span>
-                         </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const audioId = `marketplace-${property.id}`;
+                              if (isCurrentlySpeaking(audioId)) {
+                                stop();
+                              } else {
+                                const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
+                                speak(descricao, audioId);
+                              }
+                            }}
+                            className={`h-8 px-2 hover:bg-primary hover:text-white flex-1 ${isCurrentlySpeaking(`marketplace-${property.id}`) ? 'bg-primary text-white animate-pulse' : ''}`}
+                            title={isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar reprodução" : "Ouvir descrição"}
+                          >
+                            <Volume2 className="h-3 w-3" />
+                            <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
+                          </Button>
                           
                           <Button
                             size="sm"

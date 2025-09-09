@@ -1,75 +1,90 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 
-// Declare global window property
-declare global {
-  interface Window {
-    currentGlobalAudio?: HTMLAudioElement | null;
-  }
-}
+// Global audio control system
+const globalAudioInstances = new Map<string, HTMLAudioElement>();
+const globalSpeakingStates = new Map<string, boolean>();
+let globalCurrentSpeakingId: string | null = null;
+
+// Global state change listeners
+const stateListeners = new Set<() => void>();
 
 export const useElevenLabsVoice = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentSpeakingId, setCurrentSpeakingId] = useState<string | null>(null);
   const currentAudio = useRef<HTMLAudioElement | null>(null);
 
-  // Função para limpar texto para melhor síntese de voz
+  // Listen to global state changes
+  useEffect(() => {
+    const listener = () => {
+      setCurrentSpeakingId(globalCurrentSpeakingId);
+      setIsSpeaking(globalCurrentSpeakingId !== null);
+    };
+    stateListeners.add(listener);
+    return () => {
+      stateListeners.delete(listener);
+    };
+  }, []);
+
+  // Enhanced text cleaning for better Portuguese speech
   const cleanTextForSpeech = (text: string): string => {
     return text
-      // Remove emojis básicos
+      // Remove emojis and special characters
       .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-      // Remove asteriscos mas mantém acentos e cedilha
-      .replace(/\*/g, '')
-      // Melhora tratamento de acentos e cedilha - especificamente para português
-      .replace(/ç/g, 'ç')
-      .replace(/Ç/g, 'Ç')
-      // Remove apenas caracteres especiais problemáticos, mantendo acentos, cedilha e pontuação
-      .replace(/[^\w\s\.\,\!\?\:\;\-\(\)àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿÀÁÂÃÄÅÆÇÈÉÊËÌÍÎ��ÑÒÓÔÕÖØÙÚÛÜÝŸ]/g, ' ')
-      // Trata valores monetários
-      .replace(/R\$\s*(\d{1,3}(?:\.\d{3})*),(\d{2})/g, '$1 reais e $2 centavos')
-      .replace(/R\$\s*(\d{1,3}(?:\.\d{3})*)/g, '$1 reais')
-      // Trata metros quadrados
+      // Clean up common problematic characters
+      .replace(/[""'']/g, '"')
+      .replace(/[–—]/g, '-')
+      // Handle currency better
+      .replace(/R\$\s*(\d+)/g, '$1 reais')
       .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
-      .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
-      // Melhora pontuação para pausas naturais
-      .replace(/\./g, '. ')
-      .replace(/\,/g, ', ')
-      // Remove espaços duplos
+      // Handle Portuguese accents and special chars better
+      .replace(/ção/g, 'ssão')
+      .replace(/ções/g, 'ssões')
+      // Clean up multiple spaces
       .replace(/\s+/g, ' ')
       .trim();
+  };
+
+  // Stop all global audios
+  const stopAllGlobalAudios = () => {
+    globalAudioInstances.forEach((audio, id) => {
+      if (!audio.paused) {
+        audio.pause();
+        audio.currentTime = 0;
+      }
+      globalSpeakingStates.set(id, false);
+    });
+    
+    // Stop native speech synthesis
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    
+    globalCurrentSpeakingId = null;
+    
+    // Notify all listeners
+    stateListeners.forEach(listener => listener());
   };
 
   const speak = useCallback(async (text: string, audioId?: string) => {
     if (!text.trim()) return;
 
-    const speakingId = audioId || `audio-${Date.now()}`;
+    const cleanedText = cleanTextForSpeech(text);
 
     try {
-      // Stop any current audio globally
-      if (window.currentGlobalAudio) {
-        window.currentGlobalAudio.pause();
-        window.currentGlobalAudio.currentTime = 0;
+      // Stop any currently playing audio globally
+      stopAllGlobalAudios();
+      
+      console.log('Speaking:', cleanedText, 'with ID:', audioId);
+
+      // Set global state
+      if (audioId) {
+        globalCurrentSpeakingId = audioId;
+        globalSpeakingStates.set(audioId, true);
       }
-
-      // Stop current audio from this hook
-      if (currentAudio.current) {
-        currentAudio.current.pause();
-        currentAudio.current.currentTime = 0;
-        currentAudio.current = null;
-      }
-
-      // Stop native speech if it's running
-      if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-      }
-
-      setIsSpeaking(true);
-      setCurrentSpeakingId(speakingId);
-
-      // Clean the text for better speech
-      const cleanedText = cleanTextForSpeech(text);
-
-      console.log('🎤 Trying ElevenLabs for:', cleanedText.substring(0, 50) + '...');
+      
+      // Notify all listeners of state change
+      stateListeners.forEach(listener => listener());
 
       const response = await fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/text-to-speech', {
         method: 'POST',
@@ -86,134 +101,93 @@ export const useElevenLabsVoice = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ ElevenLabs API error:', errorText);
+        console.error('ElevenLabs API error:', errorText);
         throw new Error('ElevenLabs synthesis failed');
       }
 
-      console.log('✅ ElevenLabs responded successfully');
       const audioBuffer = await response.arrayBuffer();
       const audioBlob = new Blob([audioBuffer], { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(audioBlob);
-      
+
       const audio = new Audio(audioUrl);
+      
+      // Store in global map if audioId provided
+      if (audioId) {
+        globalAudioInstances.set(audioId, audio);
+      }
+      
       currentAudio.current = audio;
-      window.currentGlobalAudio = audio; // Global reference
-      
-      audio.onplay = () => {
-        console.log('🔊 Audio started playing');
-        setIsSpeaking(true);
-      };
-      
+
       audio.onended = () => {
-        console.log('🔇 Audio playback ended');
-        setIsSpeaking(false);
-        setCurrentSpeakingId(null);
-        URL.revokeObjectURL(audioUrl);
-        currentAudio.current = null;
-        if (window.currentGlobalAudio === audio) {
-          window.currentGlobalAudio = null;
+        if (audioId) {
+          globalSpeakingStates.set(audioId, false);
+          globalAudioInstances.delete(audioId);
         }
+        globalCurrentSpeakingId = null;
+        URL.revokeObjectURL(audioUrl);
+        
+        // Notify all listeners
+        stateListeners.forEach(listener => listener());
       };
-      
+
       audio.onerror = (error) => {
-        console.error('🚨 Audio playback error:', error);
-        setIsSpeaking(false);
-        setCurrentSpeakingId(null);
-        URL.revokeObjectURL(audioUrl);
-        currentAudio.current = null;
-        if (window.currentGlobalAudio === audio) {
-          window.currentGlobalAudio = null;
+        console.error('Audio playback error:', error);
+        if (audioId) {
+          globalSpeakingStates.set(audioId, false);
+          globalAudioInstances.delete(audioId);
         }
+        globalCurrentSpeakingId = null;
+        URL.revokeObjectURL(audioUrl);
+        
+        // Notify all listeners
+        stateListeners.forEach(listener => listener());
       };
-      
+
       await audio.play();
 
     } catch (error) {
-      console.error('❌ Error in ElevenLabs synthesis:', error);
+      console.error('ElevenLabs failed, using native speech synthesis');
       
-      // Fallback to native speech
-      try {
-        if ('speechSynthesis' in window) {
-          const utterance = new SpeechSynthesisUtterance(cleanTextForSpeech(text));
-          utterance.lang = 'pt-BR';
-          utterance.rate = 0.9;
-          utterance.pitch = 1.1;
-          
-          // Wait for voices to load if needed
-          const loadVoices = () => {
-            const voices = window.speechSynthesis.getVoices();
-            
-            // Try to find a female Portuguese voice
-            const femalePortugueseVoice = voices.find(voice => 
-              voice.lang.startsWith('pt') && 
-              (voice.name.toLowerCase().includes('female') || 
-               voice.name.toLowerCase().includes('feminina') ||
-               voice.name.toLowerCase().includes('zira') ||
-               voice.name.toLowerCase().includes('raquel'))
-            ) || voices.find(voice => voice.lang.startsWith('pt'));
-            
-            if (femalePortugueseVoice) {
-              utterance.voice = femalePortugueseVoice;
-              console.log('🎙️ Using voice:', femalePortugueseVoice.name);
-            }
-            
-            utterance.onend = () => {
-              console.log('🔇 Native speech ended');
-              setIsSpeaking(false);
-              setCurrentSpeakingId(null);
-            };
-            
-            utterance.onerror = (error) => {
-              console.error('🚨 Native speech error:', error);
-              setIsSpeaking(false);
-              setCurrentSpeakingId(null);
-            };
-            
-            window.speechSynthesis.speak(utterance);
-          };
-          
-          if (window.speechSynthesis.getVoices().length === 0) {
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-          } else {
-            loadVoices();
-          }
+      const utterance = new SpeechSynthesisUtterance(cleanedText);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.9;
+      utterance.pitch = 1.0;
+      
+      utterance.onend = () => {
+        if (audioId) {
+          globalSpeakingStates.set(audioId, false);
         }
-      } catch (fallbackError) {
-        console.error('❌ Fallback speech error:', fallbackError);
-        setIsSpeaking(false);
-        setCurrentSpeakingId(null);
-        toast.error('Erro na síntese de voz');
-      }
+        globalCurrentSpeakingId = null;
+        
+        // Notify all listeners
+        stateListeners.forEach(listener => listener());
+      };
+      
+      utterance.onerror = (error) => {
+        console.error('Speech synthesis error:', error);
+        if (audioId) {
+          globalSpeakingStates.set(audioId, false);
+        }
+        globalCurrentSpeakingId = null;
+        
+        // Notify all listeners
+        stateListeners.forEach(listener => listener());
+      };
+      
+      window.speechSynthesis.speak(utterance);
     }
   }, []);
 
   const stop = useCallback(() => {
-    setIsSpeaking(false);
-    setCurrentSpeakingId(null);
-    
-    // Stop ElevenLabs audio
-    if (currentAudio.current) {
-      currentAudio.current.pause();
-      currentAudio.current.currentTime = 0;
-      currentAudio.current = null;
-    }
-    
-    // Stop global audio
-    if (window.currentGlobalAudio) {
-      window.currentGlobalAudio.pause();
-      window.currentGlobalAudio.currentTime = 0;
-      window.currentGlobalAudio = null;
-    }
-    
-    // Stop native speech synthesis
-    if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
-      window.speechSynthesis.cancel();
-    }
+    stopAllGlobalAudios();
   }, []);
 
-  const isCurrentlySpeaking = useCallback((audioId?: string) => {
-    return isSpeaking && (!audioId || currentSpeakingId === audioId);
-  }, [isSpeaking, currentSpeakingId]);
+  const isCurrentlySpeaking = useCallback((audioId?: string): boolean => {
+    if (audioId) {
+      return globalCurrentSpeakingId === audioId;
+    }
+    return globalCurrentSpeakingId !== null;
+  }, []);
 
   return { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId };
 };
