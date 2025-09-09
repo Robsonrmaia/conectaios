@@ -11,7 +11,7 @@ export default function CreateAdminButton() {
     try {
       setIsCreating(true);
       
-      const { data, error } = await supabase.functions.invoke('create-admin-user');
+      const { data, error } = await supabase.functions.invoke('ensure-admin-profile');
       
       if (error) {
         console.error('Error creating admin:', error);

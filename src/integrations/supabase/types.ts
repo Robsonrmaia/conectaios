@@ -2642,9 +2642,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      create_admin_user: {
+      ensure_admin_profile: {
         Args: Record<PropertyKey, never>
-        Returns: undefined
+        Returns: Json
       }
       find_property_matches: {
         Args: { client_preferences: Json }
