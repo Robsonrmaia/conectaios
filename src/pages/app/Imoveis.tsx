@@ -402,7 +402,7 @@ export default function Imoveis() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+           <div className="flex items-center gap-4">
             <XMLImportExport />
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
@@ -412,7 +412,12 @@ export default function Imoveis() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
+                <DialogHeader>
+                  <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
+                  <DialogDescription>
+                    {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
+                  </DialogDescription>
+                </DialogHeader>
               <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
               <DialogDescription>
                 {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
