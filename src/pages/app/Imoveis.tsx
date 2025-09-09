@@ -667,11 +667,11 @@ export default function Imoveis() {
               <Button onClick={handleAddProperty}>
                 {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
               </Button>
-            </div>
-          </DialogContent>
-            </div>
-          </div>
+             </div>
+           </DialogContent>
+        </Dialog>
         </div>
+      </div>
 
       {/* Search and Filters */}
       <div className="flex gap-4">
