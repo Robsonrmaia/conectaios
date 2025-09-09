@@ -253,52 +253,90 @@ export default function Marketplace() {
 
             {/* Opportunities Section - 2/3 width */}
             <div className="lg:col-span-2">
-              <div className="bg-gradient-to-br from-orange-500/10 via-yellow-500/5 to-orange-600/10 rounded-2xl p-8 h-full min-h-[400px] relative overflow-hidden">
-                <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
-                <div className="relative z-10 h-full flex">
-                  {/* Image Section */}
-                  <div className="flex-1 relative rounded-xl overflow-hidden mr-6">
-                    <img
-                      src="/placeholder.svg"
-                      alt="Oportunidade Especial"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                        OPORTUNIDADE
-                      </div>
+              <div className="bg-gradient-to-br from-orange-500/10 via-yellow-500/5 to-orange-600/10 rounded-2xl p-6 h-full">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                    Novos Empreendimentos
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Oportunidades exclusivas
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Orquidário Residencial */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-4 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src="/placeholder.svg"
+                        alt="Orquidário Residencial"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-900/20 to-transparent" />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground mb-1">Orquidário Residencial</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        Lançamento exclusivo com apartamentos de 2 e 3 quartos em localização privilegiada.
+                      </p>
+                      <Button 
+                        size="sm" 
+                        className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600"
+                        onClick={() => window.open('https://orquidario.gicarneiroimoveis.com.br', '_blank')}
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1" />
+                        Ver Empreendimento
+                      </Button>
+                    </div>
                   </div>
 
-                  {/* Content Section */}
-                  <div className="flex-1 flex flex-col justify-center">
-                    <h2 className="text-3xl font-bold text-foreground mb-4">
-                      Novos Empreendimentos
-                    </h2>
-                    <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
-                      Descubra oportunidades exclusivas em lançamentos imobiliários. 
-                      Apartamentos e casas em construção com condições especiais de pagamento.
-                    </p>
-                    
-                    <div className="space-y-3 mb-8">
-                      <div className="flex items-center gap-3 text-foreground">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Financiamento facilitado</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-foreground">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Preços de lançamento</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-foreground">
-                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                        <span>Localização privilegiada</span>
-                      </div>
+                  {/* Vila das Palmeiras */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-4 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src="/placeholder.svg"
+                        alt="Vila das Palmeiras"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground mb-1">Vila das Palmeiras</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        Condomínio residencial em construção com casas de 3 e 4 quartos e área de lazer completa.
+                      </p>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                      >
+                        <Target className="h-3 w-3 mr-1" />
+                        Em Breve
+                      </Button>
+                    </div>
+                  </div>
 
-                    <button className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-                      Saiba Mais
-                    </button>
+                  {/* Residencial Boa Vista */}
+                  <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 flex items-center gap-4 hover:bg-white/90 transition-all duration-300 shadow-sm hover:shadow-md">
+                    <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
+                      <img
+                        src="/placeholder.svg"
+                        alt="Residencial Boa Vista"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-foreground mb-1">Residencial Boa Vista</h3>
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                        Apartamentos de alto padrão com vista panorâmica. Últimas unidades disponíveis.
+                      </p>
+                      <Button 
+                        size="sm" 
+                        variant="secondary"
+                        className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200"
+                      >
+                        <Building2 className="h-3 w-3 mr-1" />
+                        Últimas Unidades
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
