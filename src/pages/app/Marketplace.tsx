@@ -23,6 +23,7 @@ import { ShareButton } from '@/components/ShareButton';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { AutoCarousel } from '@/components/AutoCarousel';
 
 interface Property {
   id: string;
@@ -100,8 +101,8 @@ export default function Marketplace() {
 
       setProperties(propertiesWithProfiles);
       
-      // Set recent properties (last 5 added)
-      setRecentProperties(propertiesWithProfiles.slice(0, 5));
+      // Set recent properties (last 10 added)
+      setRecentProperties(propertiesWithProfiles.slice(0, 10));
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -184,7 +185,7 @@ export default function Marketplace() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Hero Section with Recent Properties Carousel */}
+        {/* Hero Section */}
         <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden mb-8">
           <div className="relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
@@ -223,76 +224,87 @@ export default function Marketplace() {
           </div>
         </div>
 
-        {/* Recent Properties Carousel */}
-        {recentProperties.length > 0 && (
-          <section className="mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-foreground">Últimos Imóveis Adicionados</h2>
-            <div className="relative">
-              <Carousel className="w-full">
-                <CarouselContent className="-ml-2 md:-ml-4">
-                  {recentProperties.map((property) => (
-                    <CarouselItem key={property.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-border bg-card">
-                          <div className="relative aspect-video">
-                            {property.fotos && property.fotos[0] ? (
-                              <img 
-                                src={property.fotos[0]}
-                                alt={property.titulo}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-muted flex items-center justify-center">
-                                <Home className="h-8 w-8 text-muted-foreground" />
-                              </div>
-                            )}
-                            <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground">
-                              Novo
-                            </Badge>
-                          </div>
-                          <CardContent className="p-4">
-                            <h3 className="font-semibold text-base mb-2 line-clamp-1 text-foreground">
-                              {property.titulo}
-                            </h3>
-                            <p className="text-2xl font-bold text-primary mb-2">
-                              {formatCurrency(property.valor)}
-                            </p>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                              <div className="flex items-center gap-1">
-                                <Home className="h-4 w-4" />
-                                <span>{property.area}m²</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <BedDouble className="h-4 w-4" />
-                                <span>{property.quartos}</span>
-                              </div>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                              onClick={() => {
-                                setSelectedProperty(property);
-                                setIsDetailDialogOpen(true);
-                              }}
-                            >
-                              Ver Detalhes
-                            </Button>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious className="hidden md:flex -left-12 bg-background border-border" />
-                <CarouselNext className="hidden md:flex -right-12 bg-background border-border" />
-              </Carousel>
+        {/* Hero Section with Layout: Carousel (1 col) + Opportunities (2 cols) */}
+        <section className="mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Carousel Column - 1/3 width */}
+            <div className="lg:col-span-1">
+              <div className="bg-gradient-to-br from-blue-500/10 via-primary/5 to-blue-600/10 rounded-2xl p-6 h-full">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                    Últimos Adicionados
+                  </h2>
+                  <p className="text-muted-foreground text-sm">
+                    Oportunidades recentes
+                  </p>
+                </div>
+
+                {recentProperties.length > 0 && (
+                  <AutoCarousel 
+                    properties={recentProperties.slice(0, 10)}
+                    onPropertyClick={(property) => {
+                      setSelectedProperty(property);
+                      setIsDetailDialogOpen(true);
+                    }}
+                  />
+                )}
+              </div>
             </div>
-          </section>
-        )}
+
+            {/* Opportunities Section - 2/3 width */}
+            <div className="lg:col-span-2">
+              <div className="bg-gradient-to-br from-orange-500/10 via-yellow-500/5 to-orange-600/10 rounded-2xl p-8 h-full min-h-[400px] relative overflow-hidden">
+                <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+                <div className="relative z-10 h-full flex">
+                  {/* Image Section */}
+                  <div className="flex-1 relative rounded-xl overflow-hidden mr-6">
+                    <img
+                      src="/placeholder.svg"
+                      alt="Oportunidade Especial"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <div className="bg-gradient-to-r from-orange-500 to-yellow-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                        OPORTUNIDADE
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-900/20 to-transparent" />
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <h2 className="text-3xl font-bold text-foreground mb-4">
+                      Novos Empreendimentos
+                    </h2>
+                    <p className="text-muted-foreground text-lg mb-6 leading-relaxed">
+                      Descubra oportunidades exclusivas em lançamentos imobiliários. 
+                      Apartamentos e casas em construção com condições especiais de pagamento.
+                    </p>
+                    
+                    <div className="space-y-3 mb-8">
+                      <div className="flex items-center gap-3 text-foreground">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span>Financiamento facilitado</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-foreground">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span>Preços de lançamento</span>
+                      </div>
+                      <div className="flex items-center gap-3 text-foreground">
+                        <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                        <span>Localização privilegiada</span>
+                      </div>
+                    </div>
+
+                    <button className="bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                      Saiba Mais
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Search and Filters */}
         <motion.div 
