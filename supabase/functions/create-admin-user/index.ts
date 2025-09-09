@@ -38,7 +38,7 @@ serve(async (req) => {
 
     // Check if user with email admin already exists
     const { data: existingUser } = await supabaseAdmin.auth.admin.listUsers();
-    const adminUser = existingUser.users?.find(user => user.email === 'admin');
+    const adminUser = existingUser.users?.find(user => user.email === 'admin@conectaios.com.br');
 
     let userId: string;
 
@@ -48,7 +48,7 @@ serve(async (req) => {
     } else {
       // Create admin user in auth
       const { data: newUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-        email: 'admin',
+        email: 'admin@conectaios.com.br',
         password: 'admin123',
         email_confirm: true
       });
@@ -87,7 +87,7 @@ serve(async (req) => {
       message: 'Admin user created successfully',
       user: profile,
       credentials: {
-        email: 'admin',
+        email: 'admin@conectaios.com.br',
         password: 'admin123'
       }
     }), {

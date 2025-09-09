@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
+import { CreateAdminButton } from '@/components/CreateAdminButton';
 import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -95,6 +96,15 @@ const Auth = () => {
           </CardHeader>
 
           <CardContent>
+            <div className="space-y-4 mb-4">
+              <div className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  Admin: admin@conectaios.com.br / admin123
+                </p>
+                <CreateAdminButton />
+              </div>
+            </div>
+            
             <Tabs defaultValue="signin" className="space-y-4">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Entrar</TabsTrigger>
