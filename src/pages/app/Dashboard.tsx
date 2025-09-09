@@ -21,6 +21,12 @@ const Dashboard = () => {
     messages: 0,
     deals: 0
   });
+  
+  const [insights, setInsights] = useState([
+    { type: 'info', title: '📈 Apartamentos lideram portfólio', description: '50% dos imóveis são apartamentos - demanda aquecida no mercado' },
+    { type: 'success', title: '💰 Potencial premium em coberturas', description: 'Coberturas têm valor médio 10x superior - mercado de luxo ativo' },
+    { type: 'primary', title: '🎯 Foco em conversão', description: '14 clientes ativos no CRM - oportunidade de follow-up' }
+  ]);
 
   const handleMinisiteAccess = () => {
     if (broker && broker.username) {
@@ -64,10 +70,10 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      // Fetch properties count
-      const { count: propertiesCount } = await supabase
+      // Fetch properties with details for insights
+      const { data: properties, count: propertiesCount } = await supabase
         .from('properties')
-        .select('*', { count: 'exact', head: true })
+        .select('property_type, valor, visibility', { count: 'exact' })
         .eq('user_id', user?.id);
 
       // Fetch clients count
@@ -88,9 +94,72 @@ const Dashboard = () => {
         messages: 156, // Mock data
         deals: dealsCount || 0
       });
+
+      // Generate insights from real data
+      if (properties && properties.length > 0) {
+        generateInsights(properties);
+      }
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
+  };
+
+  const generateInsights = (properties: any[]) => {
+    const newInsights = [];
+
+    // Property type analysis
+    const typeCount = properties.reduce((acc, prop) => {
+      const type = prop.property_type || 'apartamento';
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {});
+    
+    const mostCommonType = Object.keys(typeCount).reduce((a, b) => 
+      typeCount[a] > typeCount[b] ? a : b
+    );
+    const typePercentage = Math.round((typeCount[mostCommonType] / properties.length) * 100);
+
+    newInsights.push({
+      type: 'info',
+      title: `📈 ${mostCommonType}s lideram portfólio`,
+      description: `${typePercentage}% dos imóveis são ${mostCommonType}s - tipo mais popular do portfólio`
+    });
+
+    // Price analysis
+    const prices = properties.filter(p => p.valor > 0).map(p => Number(p.valor));
+    if (prices.length > 0) {
+      const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const maxPrice = Math.max(...prices);
+      const priceRatio = maxPrice / avgPrice;
+      
+      if (priceRatio > 5) {
+        newInsights.push({
+          type: 'success',
+          title: '💰 Portfólio diversificado',
+          description: `Imóvel premium ${priceRatio.toFixed(1)}x acima da média - potencial de alto valor`
+        });
+      }
+    }
+
+    // Visibility analysis
+    const hiddenCount = properties.filter(p => p.visibility === 'hidden').length;
+    const visibleCount = properties.length - hiddenCount;
+    
+    if (hiddenCount > 0) {
+      newInsights.push({
+        type: 'primary',
+        title: '🎯 Oportunidade de exposição',
+        description: `${hiddenCount} imóveis ocultos - considere torná-los públicos para mais visibilidade`
+      });
+    } else if (visibleCount > 0) {
+      newInsights.push({
+        type: 'primary',
+        title: '🎯 Portfólio ativo',
+        description: `Todos os ${visibleCount} imóveis estão visíveis - ótima estratégia de marketing`
+      });
+    }
+
+    setInsights(newInsights);
   };
 
   return (
@@ -319,30 +388,30 @@ const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-                  📈 Apartamentos lideram portfólio
-                </p>
-                <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
-                  50% dos imóveis são apartamentos - demanda aquecida no mercado
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
-                <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                  💰 Potencial premium em coberturas
-                </p>
-                <p className="text-xs text-green-700 dark:text-green-300 mt-1">
-                  Coberturas têm valor médio 10x superior - mercado de luxo ativo
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800">
-                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">
-                  🎯 Foco em conversão
-                </p>
-                <p className="text-xs text-purple-700 dark:text-purple-300 mt-1">
-                  14 clientes ativos no CRM - oportunidade de follow-up
-                </p>
-              </div>
+              {insights.map((insight, index) => {
+                const colorClasses = {
+                  info: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100',
+                  success: 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800 text-green-900 dark:text-green-100',
+                  primary: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800 text-purple-900 dark:text-purple-100'
+                };
+                
+                const textColorClasses = {
+                  info: 'text-blue-700 dark:text-blue-300',
+                  success: 'text-green-700 dark:text-green-300',
+                  primary: 'text-purple-700 dark:text-purple-300'
+                };
+
+                return (
+                  <div key={index} className={`p-3 rounded-lg border ${colorClasses[insight.type as keyof typeof colorClasses]}`}>
+                    <p className="text-sm font-medium">
+                      {insight.title}
+                    </p>
+                    <p className={`text-xs mt-1 ${textColorClasses[insight.type as keyof typeof textColorClasses]}`}>
+                      {insight.description}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>

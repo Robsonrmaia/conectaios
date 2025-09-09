@@ -317,36 +317,72 @@ export default function Imoveis() {
     }
   };
 
-  const updatePropertyVisibility = async (id: string, visibility: string) => {
+  const updatePropertyVisibility = async (propertyId: string, visibility: string) => {
     try {
       const { error } = await supabase
-        .from('conectaios_properties' as any)
+        .from('conectaios_properties')
         .update({ visibility })
-        .eq('id', id);
+        .eq('id', propertyId);
 
       if (error) throw error;
 
       // Update local state
-      setProperties(prev => prev.map(prop => 
-        prop.id === id ? { ...prop, visibility } : prop
-      ));
+      setProperties(prev => 
+        prev.map(prop => 
+          prop.id === propertyId 
+            ? { ...prop, visibility }
+            : prop
+        )
+      );
 
       toast({
         title: "Visibilidade atualizada",
-        description: `Imóvel agora está configurado como: ${
-          visibility === 'public_site' ? 'Site Público' :
-          visibility === 'match_only' ? 'Apenas Marketplace' : 
-          visibility === 'both' ? 'Site e Marketplace' : 'Oculto'
-        }`,
+        description: "A visibilidade do imóvel foi alterada com sucesso.",
       });
     } catch (error) {
-      console.error('Error updating property visibility:', error);
+      console.error('Error updating visibility:', error);
       toast({
         title: "Erro",
-        description: "Erro ao atualizar visibilidade",
+        description: "Erro ao atualizar visibilidade do imóvel.",
         variant: "destructive",
       });
     }
+  };
+
+  const toggleMarketVisibility = async (propertyId: string, property: Property) => {
+    const isMarketVisible = ['match_only', 'both'].includes(property.visibility);
+    const isSiteVisible = ['public_site', 'both'].includes(property.visibility);
+    
+    let newVisibility: string;
+    if (isMarketVisible) {
+      // Remove from market
+      newVisibility = isSiteVisible ? 'public_site' : 'hidden';
+    } else {
+      // Add to market
+      newVisibility = isSiteVisible ? 'both' : 'match_only';
+    }
+    
+    await updatePropertyVisibility(propertyId, newVisibility);
+  };
+
+  const toggleSiteVisibility = async (propertyId: string, property: Property) => {
+    const isMarketVisible = ['match_only', 'both'].includes(property.visibility);
+    const isSiteVisible = ['public_site', 'both'].includes(property.visibility);
+    
+    let newVisibility: string;
+    if (isSiteVisible) {
+      // Remove from site
+      newVisibility = isMarketVisible ? 'match_only' : 'hidden';
+    } else {
+      // Add to site
+      newVisibility = isMarketVisible ? 'both' : 'public_site';
+    }
+    
+    await updatePropertyVisibility(propertyId, newVisibility);
+  };
+
+  const hideProperty = async (propertyId: string) => {
+    await updatePropertyVisibility(propertyId, 'hidden');
   };
 
   const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
@@ -818,200 +854,168 @@ export default function Imoveis() {
                   </div>
                 </div>
                 
-                {/* Action Buttons - Better organized layout */}
-                <div className="space-y-3 mt-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setSelectedProperty(property);
-                        setIsDetailDialogOpen(true);
-                      }}
-                      title="Visualizar Imóvel"
-                      className="h-8 text-xs"
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
-                        setGalleryInitialIndex(0);
-                        setGalleryOpen(true);
-                      }}
-                      title="Editar Fotos"
-                      className="h-8 text-xs"
-                    >
-                      <FileImage className="h-3 w-3 mr-1" />
-                      Fotos
-                    </Button>
-                  </div>
-                  
+                 {/* Action Buttons Grid - 2 columns for top buttons */}
+                 <div className="space-y-3 mt-4">
                    <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setAiDescriptionProperty(property);
-                        setShowAiDescription(true);
-                      }}
-                      title="Gerar Descrição com IA"
-                      className="h-8 text-xs"
-                    >
-                      <Wand2 className="h-3 w-3 mr-1" />
-                      IA Desc
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // Implementar melhoria de qualidade
-                        toast({
-                          title: "Melhorar Qualidade",
-                          description: "Funcionalidade em desenvolvimento",
-                        });
-                      }}
-                      title="Melhorar Qualidade"
-                      className="h-8 text-xs"
-                    >
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      Qualidade
-                    </Button>
-                    {Array.isArray(property.fotos) && property.fotos.length > 0 && (
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setVirtualStagingProperty(property.id);
-                        }}
-                        title="Virtual Staging"
-                        className="h-8 text-xs"
-                      >
-                        <Wand2 className="h-3 w-3 mr-1" />
-                        Móveis
-                      </Button>
-                     )}
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          const audioId = `property-${property.id}`;
-                          if (isCurrentlySpeaking(audioId)) {
-                            stop();
-                          } else {
-                            const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
-                            speak(descricao, audioId);
-                          }
-                        }}
-                        title={isCurrentlySpeaking(`property-${property.id}`) ? "Parar reprodução" : "Ouvir descrição"}
-                        className={`h-8 text-xs ${isCurrentlySpeaking(`property-${property.id}`) ? 'animate-pulse' : ''}`}
-                      >
-                        <Volume2 className={`h-3 w-3 mr-1 ${isCurrentlySpeaking(`property-${property.id}`) ? 'text-primary animate-spin' : ''}`} />
-                        {isCurrentlySpeaking(`property-${property.id}`) ? "Parar" : "Voz IA"}
-                      </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         setSelectedProperty(property);
+                         setIsDetailDialogOpen(true);
+                       }}
+                       title="Visualizar Imóvel"
+                       className="h-8 text-xs"
+                     >
+                       <Eye className="h-3 w-3 mr-1" />
+                       Ver
+                     </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
+                         setGalleryInitialIndex(0);
+                         setGalleryOpen(true);
+                       }}
+                       title="Editar Fotos"
+                       className="h-8 text-xs"
+                     >
+                       <FileImage className="h-3 w-3 mr-1" />
+                       Fotos
+                     </Button>
                    </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // Preenche o formulário com os dados do imóvel selecionado
-                        setFormData({
-                          titulo: property.titulo,
-                          valor: property.valor.toString(),
-                          area: property.area.toString(),
-                          quartos: property.quartos.toString(),
-                          bathrooms: property.bathrooms.toString(),
-                          parking_spots: property.parking_spots.toString(),
-                          listing_type: property.listing_type,
-                          property_type: property.property_type,
-                          visibility: property.visibility,
-                          broker_minisite_enabled: false,
-                          descricao: property.descricao || '',
-                          fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                          videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
-                          address: '',
-                          neighborhood: '',
-                          city: '',
-                          condominium_fee: '',
-                          iptu: '',
-                          commission_percentage: 6,
-                          commission_value: 0,
-                          commission_split_type: '50/50',
-                          commission_buyer_split: 50,
-                          commission_seller_split: 50,
-                          banner_type: property.banner_type || '',
-                          is_furnished: property.is_furnished || false,
-                          has_sea_view: property.has_sea_view || false,
-                          watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
-                        });
-                        setSelectedProperty(property);
-                        setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
-                      }}
-                      title="Editar Imóvel"
-                      className="h-8 text-xs"
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Editar
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDeleteProperty(property.id)}
-                      title="Excluir Imóvel"
-                      className="h-8 hover:bg-destructive/10 text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Excluir
-                    </Button>
-                  </div>
+                   
+                   <div className="grid grid-cols-2 gap-2">
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         setAiDescriptionProperty(property);
+                         setShowAiDescription(true);
+                       }}
+                       title="Gerar Descrição com IA"
+                       className="h-8 text-xs"
+                     >
+                       <Wand2 className="h-3 w-3 mr-1" />
+                       IA Desc
+                     </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         // Implementar melhoria de qualidade
+                         toast({
+                           title: "Melhorar Qualidade",
+                           description: "Funcionalidade em desenvolvimento",
+                         });
+                       }}
+                       title="Melhorar Qualidade"
+                       className="h-8 text-xs"
+                     >
+                       <Sparkles className="h-3 w-3 mr-1" />
+                       Qualidade
+                     </Button>
+                   </div>
+                   
+                   <div className="grid grid-cols-2 gap-2">
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => {
+                         // Preenche o formulário com os dados do imóvel selecionado
+                         setFormData({
+                           titulo: property.titulo,
+                           valor: property.valor.toString(),
+                           area: property.area.toString(),
+                           quartos: property.quartos.toString(),
+                           bathrooms: property.bathrooms.toString(),
+                           parking_spots: property.parking_spots.toString(),
+                           listing_type: property.listing_type,
+                           property_type: property.property_type,
+                           visibility: property.visibility,
+                           broker_minisite_enabled: false,
+                           descricao: property.descricao || '',
+                           fotos: Array.isArray(property.fotos) ? property.fotos : [],
+                           videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
+                           address: '',
+                           neighborhood: '',
+                           city: '',
+                           condominium_fee: '',
+                           iptu: '',
+                           commission_percentage: 6,
+                           commission_value: 0,
+                           commission_split_type: '50/50',
+                           commission_buyer_split: 50,
+                           commission_seller_split: 50,
+                           banner_type: property.banner_type || '',
+                           is_furnished: property.is_furnished || false,
+                           has_sea_view: property.has_sea_view || false,
+                           watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
+                         });
+                         setSelectedProperty(property);
+                         setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
+                       }}
+                       title="Editar Imóvel"
+                       className="h-8 text-xs"
+                     >
+                       <Edit className="h-3 w-3 mr-1" />
+                       Editar
+                     </Button>
+                     <Button 
+                       variant="outline" 
+                       size="sm"
+                       onClick={() => handleDeleteProperty(property.id)}
+                       title="Excluir Imóvel"
+                       className="h-8 hover:bg-destructive/10 text-xs"
+                     >
+                       <Trash2 className="h-3 w-3 mr-1" />
+                       Excluir
+                     </Button>
+                   </div>
 
-                  {/* Visibility Toggle Buttons - Side by Side */}
-                  <div className="flex gap-1 mt-2">
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'match_only' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updatePropertyVisibility(property.id, 'match_only');
-                      }}
-                      title="Marketplace"
-                      className="text-xs px-2 h-6"
-                    >
-                      <Globe className="h-2 w-2 mr-1" />
-                      Market
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'public_site' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updatePropertyVisibility(property.id, 'public_site');
-                      }}
-                      title="Site Público"
-                      className="text-xs px-2 h-6"
-                    >
-                      <Eye className="h-2 w-2 mr-1" />
-                      Site
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updatePropertyVisibility(property.id, 'hidden');
-                      }}
-                      title="Oculto - Visível apenas para você"
-                      className="text-xs px-2 h-6"
-                    >
-                      <EyeOff className="h-2 w-2 mr-1" />
-                      Oculto
-                    </Button>
-                  </div>
+                   {/* Visibility Toggle Buttons - 3 columns, same width as above */}
+                   <div className="grid grid-cols-3 gap-2">
+                     <Button
+                       size="sm"
+                       variant={['match_only', 'both'].includes(property.visibility) ? 'default' : 'outline'}
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         toggleMarketVisibility(property.id, property);
+                       }}
+                       title="Marketplace"
+                       className="text-xs h-6 flex items-center justify-center"
+                     >
+                       <Target className="h-2 w-2 mr-1" />
+                       Market
+                     </Button>
+                     <Button
+                       size="sm"
+                       variant={['public_site', 'both'].includes(property.visibility) ? 'default' : 'outline'}
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         toggleSiteVisibility(property.id, property);
+                       }}
+                       title="Site Público"
+                       className="text-xs h-6 flex items-center justify-center"
+                     >
+                       <Globe className="h-2 w-2 mr-1" />
+                       Site
+                     </Button>
+                     <Button
+                       size="sm"
+                       variant={property.visibility === 'hidden' ? 'default' : 'outline'}
+                       onClick={(e) => {
+                         e.stopPropagation();
+                         hideProperty(property.id);
+                       }}
+                       title="Oculto - Visível apenas para você"
+                       className="text-xs h-6 flex items-center justify-center"
+                     >
+                       <EyeOff className="h-2 w-2 mr-1" />
+                       Oculto
+                     </Button>
+                   </div>
                 </div>
             </CardContent>
           </Card>

@@ -61,6 +61,7 @@ export default function Marketplace() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [recentProperties, setRecentProperties] = useState<Property[]>([]);
 
   useEffect(() => {
     fetchPublicProperties();
@@ -68,17 +69,19 @@ export default function Marketplace() {
 
   const fetchPublicProperties = async () => {
     try {
-      const { data: propertiesData, error: propertiesError } = await supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from('conectaios_properties')
         .select('*')
         .eq('is_public', true)
+        .in('visibility', ['public_site', 'both'])
         .order('created_at', { ascending: false });
 
-      if (propertiesError) throw propertiesError;
+      if (error) throw error;
 
       // Fetch profiles for each property
       const propertiesWithProfiles = await Promise.all(
-        (propertiesData || []).map(async (property) => {
+        (data || []).map(async (property) => {
           const { data: profileData } = await supabase
             .from('conectaios_profiles')
             .select('nome')
@@ -93,6 +96,9 @@ export default function Marketplace() {
       );
 
       setProperties(propertiesWithProfiles);
+      
+      // Set recent properties (last 5 added)
+      setRecentProperties(propertiesWithProfiles.slice(0, 5));
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -175,8 +181,8 @@ export default function Marketplace() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Hero Section */}
-        <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden">
+        {/* Hero Section with Recent Properties Carousel */}
+        <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden mb-8">
           <div className="relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
               <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -213,6 +219,77 @@ export default function Marketplace() {
             </div>
           </div>
         </div>
+
+        {/* Recent Properties Carousel */}
+        {recentProperties.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold mb-4 text-foreground">Últimos Imóveis Adicionados</h2>
+            <div className="relative">
+              <Carousel className="w-full">
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {recentProperties.map((property) => (
+                    <CarouselItem key={property.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border border-border bg-card">
+                          <div className="relative aspect-video">
+                            {property.fotos && property.fotos[0] ? (
+                              <img 
+                                src={property.fotos[0]}
+                                alt={property.titulo}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-muted flex items-center justify-center">
+                                <Home className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
+                            <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground">
+                              Novo
+                            </Badge>
+                          </div>
+                          <CardContent className="p-4">
+                            <h3 className="font-semibold text-base mb-2 line-clamp-1 text-foreground">
+                              {property.titulo}
+                            </h3>
+                            <p className="text-2xl font-bold text-primary mb-2">
+                              {formatCurrency(property.valor)}
+                            </p>
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                              <div className="flex items-center gap-1">
+                                <Home className="h-4 w-4" />
+                                <span>{property.area}m²</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <BedDouble className="h-4 w-4" />
+                                <span>{property.quartos}</span>
+                              </div>
+                            </div>
+                            <Button 
+                              size="sm" 
+                              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                              onClick={() => {
+                                setSelectedProperty(property);
+                                setIsDetailDialogOpen(true);
+                              }}
+                            >
+                              Ver Detalhes
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden md:flex -left-12 bg-background border-border" />
+                <CarouselNext className="hidden md:flex -right-12 bg-background border-border" />
+              </Carousel>
+            </div>
+          </section>
+        )}
 
         {/* Search and Filters */}
         <motion.div 
