@@ -1060,31 +1060,35 @@ export default function Imoveis() {
                     <div className="space-y-2">
                      <Button className="w-full" variant="outline" onClick={() => {
                          // Preenche o formulário com os dados do imóvel selecionado
-                         setFormData({
-                           titulo: selectedProperty.titulo,
-                           valor: selectedProperty.valor.toString(),
-                           area: selectedProperty.area.toString(),
-                           quartos: selectedProperty.quartos.toString(),
-                           bathrooms: selectedProperty.bathrooms.toString(),
-                           parking_spots: selectedProperty.parking_spots.toString(),
-                           listing_type: selectedProperty.listing_type,
-                           property_type: selectedProperty.property_type,
-                           visibility: selectedProperty.visibility,
-                           broker_minisite_enabled: false,
-                           descricao: selectedProperty.descricao || '',
-                           fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                           videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
-                           address: '',
-                           neighborhood: '',
-                           city: '',
-                           condominium_fee: '',
-                           iptu: '',
-                           commission_percentage: 6,
-                           commission_value: 0,
-                           commission_split_type: '50/50',
-                           commission_buyer_split: 50,
-                           commission_seller_split: 50
-                         });
+                          setFormData({
+                            titulo: selectedProperty.titulo,
+                            valor: selectedProperty.valor.toString(),
+                            area: selectedProperty.area.toString(),
+                            quartos: selectedProperty.quartos.toString(),
+                            bathrooms: selectedProperty.bathrooms.toString(),
+                            parking_spots: selectedProperty.parking_spots.toString(),
+                            listing_type: selectedProperty.listing_type,
+                            property_type: selectedProperty.property_type,
+                            visibility: selectedProperty.visibility,
+                            broker_minisite_enabled: false,
+                            descricao: selectedProperty.descricao || '',
+                            fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
+                            videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
+                            address: '',
+                            neighborhood: '',
+                            city: '',
+                            condominium_fee: '',
+                            iptu: '',
+                            commission_percentage: 6,
+                            commission_value: 0,
+                            commission_split_type: '50/50',
+                            commission_buyer_split: 50,
+                            commission_seller_split: 50,
+                            banner_type: selectedProperty.banner_type || 'vendas',
+                            is_furnished: selectedProperty.is_furnished || false,
+                            has_sea_view: selectedProperty.has_sea_view || false,
+                            watermark_enabled: selectedProperty.watermark_enabled || false,
+                          });
                          setIsDetailDialogOpen(false);
                          setIsAddDialogOpen(true);
                        }}>
