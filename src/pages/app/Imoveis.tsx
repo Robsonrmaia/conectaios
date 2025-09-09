@@ -165,31 +165,16 @@ export default function Imoveis() {
     }
 
     try {
-      console.log('=== DEBUGGING PROPERTY SAVE ===');
-      console.log('FormData.fotos:', formData.fotos);
-      console.log('FormData.fotos type:', typeof formData.fotos);
-      console.log('FormData.fotos length:', Array.isArray(formData.fotos) ? formData.fotos.length : 'not array');
-      console.log('Raw value input:', formData.valor);
-      console.log('Parsed value:', parseValueInput(formData.valor));
-      
-      // Use existing parseValueInput from utils
       const parseValue = parseValueInput;
-
-      // Handle photos from both upload and URLs
       let photosArray: string[] = [];
       
-      // If editing, start with existing photos
       if (selectedProperty && selectedProperty.fotos) {
         photosArray = Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [];
       }
       
-      // Add new photos from form data
       if (Array.isArray(formData.fotos)) {
         photosArray = [...photosArray, ...formData.fotos];
       }
-      
-      console.log('Final photos array:', photosArray);
-      console.log('Photos array length:', photosArray.length);
       
       const propertyData = {
         user_id: user.id,
@@ -217,13 +202,9 @@ export default function Imoveis() {
         watermark_enabled: formData.watermark_enabled !== undefined ? formData.watermark_enabled : true,
       };
 
-      console.log('Final property data to save:', propertyData);
-      console.log('Property data fotos field:', propertyData.fotos);
-
       let result;
       
       if (selectedProperty) {
-        // Editar imóvel existente
         result = await supabase
           .from('conectaios_properties')
           .update(propertyData)
@@ -231,7 +212,6 @@ export default function Imoveis() {
           .select()
           .single();
       } else {
-        // Adicionar novo imóvel - gera código automaticamente no banco via trigger
         result = await supabase
           .from('conectaios_properties')
           .insert(propertyData)
@@ -240,12 +220,8 @@ export default function Imoveis() {
       }
 
       if (result.error) {
-        console.error('Error saving property:', result.error);
         throw result.error;
       }
-
-      console.log('Property saved successfully:', result.data);
-      console.log('Saved photos in database:', result.data.fotos);
 
       toast({
         title: "Sucesso",
@@ -327,7 +303,6 @@ export default function Imoveis() {
 
       if (error) throw error;
 
-      // Update local state
       setProperties(prev => 
         prev.map(prop => 
           prop.id === propertyId 
@@ -361,14 +336,12 @@ export default function Imoveis() {
     property.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Pagination logic
   const totalItems = filteredProperties.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
 
-  // Reset to first page when search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -383,298 +356,280 @@ export default function Imoveis() {
 
   return (
     <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/app')}
-              className="flex items-center gap-2"
-            >
-              <Home className="h-4 w-4" />
-              Dashboard
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-primary">
-                Imóveis
-              </h1>
-              <p className="text-muted-foreground">
-                Gerencie seu portfólio de imóveis
-              </p>
-            </div>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/app')}
+            className="flex items-center gap-2"
+          >
+            <Home className="h-4 w-4" />
+            Dashboard
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold text-primary">
+              Imóveis
+            </h1>
+            <p className="text-muted-foreground">
+              Gerencie seu portfólio de imóveis
+            </p>
           </div>
-           <div className="flex items-center gap-4">
-            <XMLImportExport />
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Imóvel
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
-                  <DialogDescription>
-                    {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
-                  </DialogDescription>
-                </DialogHeader>
-              <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
-              <DialogDescription>
-                {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+        </div>
+        <div className="flex items-center gap-4">
+          <XMLImportExport />
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Imóvel
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
+                <DialogDescription>
+                  {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
                 <div>
                   <Label htmlFor="titulo">Título</Label>
                   <Input
                     id="titulo"
                     value={formData.titulo}
-                    onChange={(e) => setFormData({...formData, titulo: e.target.value})}
-                    placeholder="Ex: Apartamento 2 quartos Jardins"
+                    onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                    placeholder="Título do imóvel"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="valor">Valor (R$)</Label>
+                  <Label htmlFor="valor">Valor</Label>
                   <Input
                     id="valor"
                     value={formData.valor}
-                    onChange={(e) => setFormData({...formData, valor: e.target.value})}
-                    placeholder="650.000,00"
+                    onChange={(e) => setFormData({ ...formData, valor: e.target.value })}
+                    placeholder="Valor do imóvel"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Use formato brasileiro: 650.000,00
-                  </p>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="area">Área (m²)</Label>
                   <Input
                     id="area"
-                    type="number"
                     value={formData.area}
-                    onChange={(e) => setFormData({...formData, area: e.target.value})}
-                    placeholder="120"
+                    onChange={(e) => setFormData({ ...formData, area: e.target.value })}
+                    placeholder="Área do imóvel"
                   />
                 </div>
                 <div>
                   <Label htmlFor="quartos">Quartos</Label>
                   <Input
                     id="quartos"
-                    type="number"
                     value={formData.quartos}
-                    onChange={(e) => setFormData({...formData, quartos: e.target.value})}
-                    placeholder="3"
-                  />
-                 </div>
-                 <div>
-                   <Label htmlFor="bathrooms">Banheiros</Label>
-                   <Input
-                     id="bathrooms"
-                     type="number"
-                     value={formData.bathrooms}
-                     onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
-                     placeholder="2"
-                   />
-                 </div>
-               </div>
-
-               <div className="grid grid-cols-3 gap-4">
-                 <div>
-                   <Label htmlFor="parking_spots">Vagas</Label>
-                   <Input
-                     id="parking_spots"
-                     type="number"
-                     value={formData.parking_spots}
-                     onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
-                     placeholder="1"
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="listing_type">Finalidade</Label>
-                   <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="venda">Venda</SelectItem>
-                       <SelectItem value="locacao">Locação</SelectItem>
-                       <SelectItem value="temporada">Temporada</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-                 <div>
-                   <Label htmlFor="property_type">Tipo</Label>
-                   <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="apartamento">Apartamento</SelectItem>
-                       <SelectItem value="casa">Casa</SelectItem>
-                       <SelectItem value="sobrado">Sobrado</SelectItem>
-                       <SelectItem value="terreno">Terreno</SelectItem>
-                       <SelectItem value="comercial">Comercial</SelectItem>
-                       <SelectItem value="chacara">Chácara</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-               </div>
-
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="banner_type">Banner</Label>
-                   <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue placeholder="Selecione um banner" />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="none">Nenhum</SelectItem>
-                       <SelectItem value="vendido">Vendido</SelectItem>
-                       <SelectItem value="alugado">Alugado</SelectItem>
-                       <SelectItem value="oportunidade">Oportunidade</SelectItem>
-                       <SelectItem value="exclusivo">Exclusivo</SelectItem>
-                       <SelectItem value="abaixo_mercado">Abaixo do Mercado</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-                 <div className="space-y-4">
-                   <div className="flex items-center space-x-2">
-                     <Switch
-                       id="is_furnished"
-                       checked={formData.is_furnished}
-                       onCheckedChange={(checked) => setFormData({...formData, is_furnished: checked})}
-                     />
-                     <Label htmlFor="is_furnished">Mobiliado</Label>
-                   </div>
-                   <div className="flex items-center space-x-2">
-                     <Switch
-                       id="has_sea_view"
-                       checked={formData.has_sea_view}
-                       onCheckedChange={(checked) => setFormData({...formData, has_sea_view: checked})}
-                     />
-                     <Label htmlFor="has_sea_view">Vista Mar</Label>
-                   </div>
-                 </div>
-               </div>
-
-              <div>
-                <Label htmlFor="descricao">Descrição</Label>
-                <Textarea
-                  id="descricao"
-                  value={formData.descricao}
-                  onChange={(e) => setFormData({...formData, descricao: e.target.value})}
-                  placeholder="Descrição detalhada do imóvel..."
-                />
-              </div>
-
-              <PhotoUploader 
-                photos={Array.isArray(formData.fotos) ? formData.fotos : []}
-                onPhotosChange={(photos) => {
-                  console.log('PhotoUploader onPhotosChange called with:', photos);
-                  console.log('Photos type:', typeof photos);
-                  console.log('Photos length:', Array.isArray(photos) ? photos.length : 'not array');
-                  setFormData({...formData, fotos: photos});
-                }}
-              />
-              
-              {/* Photo Order Manager */}
-              {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
-                <div className="border-t pt-4">
-                  <PhotoOrderManager
-                    photos={formData.fotos}
-                    onPhotosReorder={(reorderedPhotos) => {
-                      setFormData({...formData, fotos: reorderedPhotos});
-                    }}
-                    onCoverPhotoSelect={(coverIndex) => {
-                      // Move selected photo to first position
-                      const newPhotos = [...formData.fotos];
-                      const [coverPhoto] = newPhotos.splice(coverIndex, 1);
-                      newPhotos.unshift(coverPhoto);
-                      setFormData({...formData, fotos: newPhotos});
-                    }}
-                    coverPhotoIndex={0}
+                    onChange={(e) => setFormData({ ...formData, quartos: e.target.value })}
+                    placeholder="Número de quartos"
                   />
                 </div>
-              )}
-
-              <div>
-                <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
-                <Textarea
-                  id="videos"
-                  value={formData.videos}
-                  onChange={(e) => setFormData({...formData, videos: e.target.value})}
-                  placeholder="https://youtube.com/watch?v=..., https://vimeo.com/..."
-                />
-              </div>
-
-              {/* Commission Calculator */}
-              {formData.valor && parseValueInput(formData.valor) > 0 && (
-                <div className="border-t pt-4">
-                  <CommissionCalculator
-                    propertyValue={parseValueInput(formData.valor)}
-                    businessType={formData.listing_type}
-                    onCommissionChange={(commission) => {
-                      setFormData({
-                        ...formData,
-                        commission_percentage: commission.percentage,
-                        commission_value: commission.value,
-                        commission_split_type: commission.splitType,
-                        commission_buyer_split: commission.buyerSplit,
-                        commission_seller_split: commission.sellerSplit
-                      });
-                    }}
-                    initialCommission={{
-                      percentage: formData.commission_percentage,
-                      splitType: formData.commission_split_type,
-                      buyerSplit: formData.commission_buyer_split,
-                      sellerSplit: formData.commission_seller_split
-                    }}
-                  />
-                </div>
-              )}
-
-              <div className="space-y-4">
                 <div>
-                  <Label>Visibilidade do Imóvel</Label>
-                  <Select value={formData.visibility} onValueChange={(value) => setFormData({...formData, visibility: value})}>
+                  <Label htmlFor="bathrooms">Banheiros</Label>
+                  <Input
+                    id="bathrooms"
+                    value={formData.bathrooms}
+                    onChange={(e) => setFormData({ ...formData, bathrooms: e.target.value })}
+                    placeholder="Número de banheiros"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="parking_spots">Vagas de garagem</Label>
+                  <Input
+                    id="parking_spots"
+                    value={formData.parking_spots}
+                    onChange={(e) => setFormData({ ...formData, parking_spots: e.target.value })}
+                    placeholder="Número de vagas"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="listing_type">Tipo de listagem</Label>
+                  <Select
+                    value={formData.listing_type}
+                    onValueChange={(value) => setFormData({ ...formData, listing_type: value })}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione onde mostrar" />
+                      <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="public_site">Site Público</SelectItem>
-                      <SelectItem value="match_only">Apenas Marketplace</SelectItem>
-                      <SelectItem value="both">Site e Marketplace</SelectItem>
-                      <SelectItem value="hidden">Oculto</SelectItem>
+                      <SelectItem value="venda">Venda</SelectItem>
+                      <SelectItem value="aluguel">Aluguel</SelectItem>
+                      <SelectItem value="temporada">Temporada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-                
+                <div>
+                  <Label htmlFor="property_type">Tipo de imóvel</Label>
+                  <Select
+                    value={formData.property_type}
+                    onValueChange={(value) => setFormData({ ...formData, property_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="apartamento">Apartamento</SelectItem>
+                      <SelectItem value="casa">Casa</SelectItem>
+                      <SelectItem value="terreno">Terreno</SelectItem>
+                      <SelectItem value="comercial">Comercial</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="visibility">Visibilidade</Label>
+                  <Select
+                    value={formData.visibility}
+                    onValueChange={(value) => setFormData({ ...formData, visibility: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a visibilidade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public_site">Público no site</SelectItem>
+                      <SelectItem value="private">Privado</SelectItem>
+                      <SelectItem value="broker_only">Apenas corretores</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center space-x-2">
                   <Switch
-                    id="minisite"
                     checked={formData.broker_minisite_enabled}
-                    onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
+                    onCheckedChange={(checked) => setFormData({ ...formData, broker_minisite_enabled: checked })}
+                    id="broker_minisite_enabled"
                   />
-                  <Label htmlFor="minisite">Mostrar no Meu Site</Label>
+                  <Label htmlFor="broker_minisite_enabled">Habilitar minisite do corretor</Label>
+                </div>
+                <div>
+                  <Label htmlFor="descricao">Descrição</Label>
+                  <Textarea
+                    id="descricao"
+                    value={formData.descricao}
+                    onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                    placeholder="Descrição do imóvel"
+                    rows={4}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="fotos">Fotos</Label>
+                  <PhotoUploader
+                    photos={formData.fotos}
+                    onChange={(photos) => setFormData({ ...formData, fotos: photos })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="videos">Vídeos (URLs separados por vírgula)</Label>
+                  <Textarea
+                    id="videos"
+                    value={formData.videos}
+                    onChange={(e) => setFormData({ ...formData, videos: e.target.value })}
+                    placeholder="URLs dos vídeos"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="address">Endereço</Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    placeholder="Endereço do imóvel"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="neighborhood">Bairro</Label>
+                  <Input
+                    id="neighborhood"
+                    value={formData.neighborhood}
+                    onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                    placeholder="Bairro"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="Cidade"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="condominium_fee">Condomínio</Label>
+                  <Input
+                    id="condominium_fee"
+                    value={formData.condominium_fee}
+                    onChange={(e) => setFormData({ ...formData, condominium_fee: e.target.value })}
+                    placeholder="Valor do condomínio"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="iptu">IPTU</Label>
+                  <Input
+                    id="iptu"
+                    value={formData.iptu}
+                    onChange={(e) => setFormData({ ...formData, iptu: e.target.value })}
+                    placeholder="Valor do IPTU"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="banner_type">Tipo de banner</Label>
+                  <Select
+                    value={formData.banner_type}
+                    onValueChange={(value) => setFormData({ ...formData, banner_type: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o banner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Nenhum</SelectItem>
+                      <SelectItem value="destaque">Destaque</SelectItem>
+                      <SelectItem value="novo">Novo</SelectItem>
+                      <SelectItem value="lancamento">Lançamento</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.is_furnished}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_furnished: checked })}
+                    id="is_furnished"
+                  />
+                  <Label htmlFor="is_furnished">Mobiliado</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.has_sea_view}
+                    onCheckedChange={(checked) => setFormData({ ...formData, has_sea_view: checked })}
+                    id="has_sea_view"
+                  />
+                  <Label htmlFor="has_sea_view">Vista para o mar</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.watermark_enabled}
+                    onCheckedChange={(checked) => setFormData({ ...formData, watermark_enabled: checked })}
+                    id="watermark_enabled"
+                  />
+                  <Label htmlFor="watermark_enabled">Marca d'água ativada</Label>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => {
+                    setIsAddDialogOpen(false);
+                    setSelectedProperty(null);
+                  }}>
+                    Cancelar
+                  </Button>
+                  <Button onClick={handleAddProperty}>
+                    {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
+                  </Button>
                 </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => {
-                setIsAddDialogOpen(false);
-                setSelectedProperty(null);
-              }}>
-                Cancelar
-              </Button>
-              <Button onClick={handleAddProperty}>
-                {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
-              </Button>
-             </div>
-           </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -698,649 +653,116 @@ export default function Imoveis() {
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedProperties.map((property) => (
-          <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="aspect-video bg-muted relative">
-              {/* Property Banner */}
-              <PropertyBanner bannerType={property.banner_type} />
-              
-              {(() => {
-                const photosArray = Array.isArray(property.fotos) ? property.fotos : [];
-                const hasValidPhoto = photosArray.length > 0 && photosArray[0];
-                
-                return (
-                  <div 
-                    className="w-full h-full cursor-pointer"
-                    onClick={() => photosArray.length > 0 && openPhotoGallery(photosArray, 0)}
-                  >
-                    {hasValidPhoto ? (
-                      <img
-                        src={String(photosArray[0])}
-                        alt={property.titulo}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-muted">
-                        <Building2 className="h-12 w-12 text-muted-foreground" />
-                      </div>
-                    )}
-                    
-                    {photosArray.length > 1 && (
-                      <div className="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
-                        +{photosArray.length - 1} fotos
-                      </div>
-                    )}
-                    
-                    {property.fotos.some(photo => photo.includes('enhanced=')) && (
-                      <div className="absolute bottom-2 left-2">
-                        <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                          <Sparkles className="h-3 w-3" />
-                          IA
-                        </Badge>
-                      </div>
-                    )}
-                    
-                    {/* Property Features */}
-                    <div className="absolute top-2 right-2 flex flex-col gap-1">
-                      {property.is_furnished && (
-                        <Badge variant="secondary" className="text-xs">Mobiliado</Badge>
-                      )}
-                      {property.has_sea_view && (
-                        <Badge variant="secondary" className="text-xs">Vista Mar</Badge>
-                      )}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-            
+          <Card key={property.id} className="group hover:shadow-lg transition-all duration-300">
             <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{property.titulo}</CardTitle>
-                  <CardDescription>
-                    {property.descricao && property.descricao.substring(0, 100)}...
-                  </CardDescription>
-                </div>
-                {property.reference_code && (
-                  <Badge variant="outline" className="text-xs">
-                    {property.reference_code}
-                  </Badge>
-                )}
-              </div>
+              <CardTitle>{property.titulo}</CardTitle>
+              <CardDescription>{property.descricao?.substring(0, 100)}...</CardDescription>
             </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <div className="text-2xl font-bold text-primary">
-                {formatCurrency(Number(property.valor) || 0)}
-              </div>
-              
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Building2 className="h-3 w-3" />
-                  {property.area}m²
+            <CardContent>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  <span>{property.property_type}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Bed className="h-3 w-3" />
-                  {property.quartos}
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4" />
+                  <span>{property.address}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                  <Bath className="h-3 w-3" />
-                  {property.bathrooms}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Car className="h-3 w-3" />
-                  {property.parking_spots}
-                </div>
-              </div>
-
-               <div className="flex justify-between items-start">
-                 <div className="space-y-2">
-                   <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
-                    {property.visibility === 'public_site' ? (
-                      <Badge variant="default" className="text-xs">
-                        <Eye className="h-3 w-3 mr-1" />
-                        Site Público
-                      </Badge>
-                    ) : property.visibility === 'match_only' ? (
-                      <Badge variant="secondary" className="text-xs">
-                        <Globe className="h-3 w-3 mr-1" />
-                        Marketplace
-                      </Badge>
-                    ) : property.visibility === 'both' ? (
-                      <Badge variant="default" className="text-xs">
-                        <Eye className="h-3 w-3 mr-1" />
-                        Site + Market
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-xs">
-                        <EyeOff className="h-3 w-3 mr-1" />
-                        Oculto
-                      </Badge>
-                    )}
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Bed className="h-4 w-4" />
+                    <span>{property.quartos}</span>
                   </div>
-                  <div className="text-right space-y-2">
-                    {property.reference_code && (
-                      <Badge variant="outline" className="text-xs font-mono">
-                        {property.reference_code}
-                      </Badge>
-                    )}
+                  <div className="flex items-center gap-1">
+                    <Bath className="h-4 w-4" />
+                    <span>{property.bathrooms}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Car className="h-4 w-4" />
+                    <span>{property.parking_spots}</span>
                   </div>
                 </div>
-                
-                 {/* Action Buttons Grid - 2 columns for top buttons */}
-                 <div className="space-y-3 mt-4">
-                   <div className="grid grid-cols-2 gap-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setSelectedProperty(property);
-                         setIsDetailDialogOpen(true);
-                       }}
-                       title="Visualizar Imóvel"
-                       className="h-8 text-xs"
-                     >
-                       <Eye className="h-3 w-3 mr-1" />
-                       Ver
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
-                         setGalleryInitialIndex(0);
-                         setGalleryOpen(true);
-                       }}
-                       title="Editar Fotos"
-                       className="h-8 text-xs"
-                     >
-                       <FileImage className="h-3 w-3 mr-1" />
-                       Fotos
-                     </Button>
-                   </div>
-                   
-                   <div className="grid grid-cols-2 gap-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setAiDescriptionProperty(property);
-                         setShowAiDescription(true);
-                       }}
-                       title="Gerar Descrição com IA"
-                       className="h-8 text-xs"
-                     >
-                       <Wand2 className="h-3 w-3 mr-1" />
-                       IA Desc
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         // Implementar melhoria de qualidade
-                         toast({
-                           title: "Melhorar Qualidade",
-                           description: "Funcionalidade em desenvolvimento",
-                         });
-                       }}
-                       title="Melhorar Qualidade"
-                       className="h-8 text-xs"
-                     >
-                       <Sparkles className="h-3 w-3 mr-1" />
-                       Qualidade
-                     </Button>
-                   </div>
-                   
-                   <div className="grid grid-cols-2 gap-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         // Preenche o formulário com os dados do imóvel selecionado
-                         setFormData({
-                           titulo: property.titulo,
-                           valor: property.valor.toString(),
-                           area: property.area.toString(),
-                           quartos: property.quartos.toString(),
-                           bathrooms: property.bathrooms.toString(),
-                           parking_spots: property.parking_spots.toString(),
-                           listing_type: property.listing_type,
-                           property_type: property.property_type,
-                           visibility: property.visibility,
-                           broker_minisite_enabled: false,
-                           descricao: property.descricao || '',
-                           fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                           videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
-                           address: '',
-                           neighborhood: '',
-                           city: '',
-                           condominium_fee: '',
-                           iptu: '',
-                           commission_percentage: 6,
-                           commission_value: 0,
-                           commission_split_type: '50/50',
-                           commission_buyer_split: 50,
-                           commission_seller_split: 50,
-                           banner_type: property.banner_type || '',
-                           is_furnished: property.is_furnished || false,
-                           has_sea_view: property.has_sea_view || false,
-                           watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
-                         });
-                         setSelectedProperty(property);
-                         setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
-                       }}
-                       title="Editar Imóvel"
-                       className="h-8 text-xs"
-                     >
-                       <Edit className="h-3 w-3 mr-1" />
-                       Editar
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => handleDeleteProperty(property.id)}
-                       title="Excluir Imóvel"
-                       className="h-8 hover:bg-destructive/10 text-xs"
-                     >
-                       <Trash2 className="h-3 w-3 mr-1" />
-                       Excluir
-                     </Button>
-                   </div>
-
-                   {/* Visibility Toggle Buttons - 3 columns, same width as above */}
-                   <div className="grid grid-cols-3 gap-2">
-                      <Button
-                        size="sm"
-                        variant={property.visibility === 'match_only' || property.visibility === 'both' ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newVisibility = property.visibility === 'match_only' ? 'hidden' : 
-                                               property.visibility === 'both' ? 'public_site' : 
-                                               property.visibility === 'public_site' ? 'both' : 'match_only';
-                          updatePropertyVisibility(property.id, newVisibility);
-                        }}
-                        title="Marketplace"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <Target className="h-2 w-2 mr-1" />
-                        Market
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newVisibility = property.visibility === 'public_site' ? 'hidden' : 
-                                               property.visibility === 'both' ? 'match_only' : 
-                                               property.visibility === 'match_only' ? 'both' : 'public_site';
-                          updatePropertyVisibility(property.id, newVisibility);
-                        }}
-                        title="Site Público"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <Globe className="h-2 w-2 mr-1" />
-                        Site
-                      </Button>
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 'hidden');
-                       }}
-                       title="Oculto - Visível apenas para você"
-                       className="text-xs h-6 flex items-center justify-center"
-                     >
-                       <EyeOff className="h-2 w-2 mr-1" />
-                       Oculto
-                     </Button>
-                   </div>
+                <div className="text-lg font-semibold text-primary">
+                  {formatCurrency(property.valor)}
                 </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary">{property.listing_type}</Badge>
+                  <Badge variant="outline">{property.visibility}</Badge>
+                </div>
+              </div>
             </CardContent>
+            <div className="flex justify-end gap-2 p-4 border-t border-muted/20">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedProperty(property);
+                  setFormData({
+                    titulo: property.titulo,
+                    valor: property.valor.toString(),
+                    area: property.area.toString(),
+                    quartos: property.quartos.toString(),
+                    bathrooms: property.bathrooms.toString(),
+                    parking_spots: property.parking_spots.toString(),
+                    listing_type: property.listing_type,
+                    property_type: property.property_type,
+                    visibility: property.visibility,
+                    broker_minisite_enabled: false,
+                    descricao: property.descricao,
+                    fotos: property.fotos,
+                    videos: property.videos.join(', '),
+                    address: '',
+                    neighborhood: '',
+                    city: '',
+                    condominium_fee: '',
+                    iptu: '',
+                    commission_percentage: 6,
+                    commission_value: 0,
+                    commission_split_type: '50/50',
+                    commission_buyer_split: 50,
+                    commission_seller_split: 50,
+                    banner_type: property.banner_type || '',
+                    is_furnished: property.is_furnished || false,
+                    has_sea_view: property.has_sea_view || false,
+                    watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
+                  });
+                  setIsAddDialogOpen(true);
+                }}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleDeleteProperty(property.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </Card>
         ))}
       </div>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-8">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} imóveis
-            </span>
-            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-              setItemsPerPage(parseInt(value));
-              setCurrentPage(1);
-            }}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="10">10 por página</SelectItem>
-                <SelectItem value="20">20 por página</SelectItem>
-                <SelectItem value="40">40 por página</SelectItem>
-                <SelectItem value="50">50 por página</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Pagination>
-            <PaginationContent className="flex-wrap gap-1">
-              <PaginationItem>
-                <PaginationPrevious 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
-                  }}
-                  className={`text-xs px-2 py-1 h-8 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
-                />
-              </PaginationItem>
-              
-              {[...Array(Math.min(3, totalPages))].map((_, i) => {
-                let pageNum;
-                if (totalPages <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 2) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 1) {
-                  pageNum = totalPages - 2 + i;
-                } else {
-                  pageNum = currentPage - 1 + i;
-                }
-                
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(pageNum);
-                      }}
-                      isActive={currentPage === pageNum}
-                      className="text-xs px-2 py-1 min-w-[32px] h-8"
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                );
-              })}
-              
-              <PaginationItem>
-                <PaginationNext 
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-                  }}
-                  className={`text-xs px-2 py-1 h-8 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-      )}
+      {/* Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      >
+        <PaginationPrevious>Anterior</PaginationPrevious>
+        <PaginationContent>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <PaginationItem key={i} active={currentPage === i + 1}>
+              <PaginationLink onClick={() => setCurrentPage(i + 1)}>
+                {i + 1}
+              </PaginationLink>
+            </PaginationItem>
+          ))}
+        </PaginationContent>
+        <PaginationNext>Próximo</PaginationNext>
+      </Pagination>
 
-      {filteredProperties.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Nenhum imóvel encontrado</h3>
-          <p className="text-muted-foreground">
-            Adicione seu primeiro imóvel para começar
-          </p>
-        </div>
-      )}
-
-      {/* Property Detail Dialog */}
-      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedProperty?.titulo}</DialogTitle>
-            <DialogDescription>
-              Detalhes completos do imóvel
-            </DialogDescription>
-          </DialogHeader>
-          {selectedProperty && (
-            <div className="space-y-6">
-              {/* Image Gallery */}
-              <div className="grid grid-cols-2 gap-4">
-                {selectedProperty.fotos?.map((foto, index) => (
-                  <div key={index} className="aspect-video rounded-lg overflow-hidden">
-                    <img 
-                      src={foto} 
-                      alt={`Foto ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-              
-              {/* Property Details */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Informações Básicas</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Valor:</span>
-                        <span className="font-semibold">{formatCurrency(selectedProperty.valor || 0)}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Área:</span>
-                        <span>{selectedProperty.area}m²</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Quartos:</span>
-                        <span>{selectedProperty.quartos}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Banheiros:</span>
-                        <span>{selectedProperty.bathrooms}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Garagem:</span>
-                        <span>{selectedProperty.parking_spots}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tipo:</span>
-                        <span>{selectedProperty.listing_type === 'venda' ? 'Venda' : selectedProperty.listing_type === 'locacao' ? 'Locação' : 'Temporada'}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Tipo de Imóvel</h3>
-                    <Badge variant="outline">{selectedProperty.property_type}</Badge>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Ações</h3>
-                    <div className="space-y-2">
-                     <Button className="w-full" variant="outline" onClick={() => {
-                         // Preenche o formulário com os dados do imóvel selecionado
-                          setFormData({
-                            titulo: selectedProperty.titulo,
-                            valor: selectedProperty.valor.toString(),
-                            area: selectedProperty.area.toString(),
-                            quartos: selectedProperty.quartos.toString(),
-                            bathrooms: selectedProperty.bathrooms.toString(),
-                            parking_spots: selectedProperty.parking_spots.toString(),
-                            listing_type: selectedProperty.listing_type,
-                            property_type: selectedProperty.property_type,
-                            visibility: selectedProperty.visibility,
-                            broker_minisite_enabled: false,
-                            descricao: selectedProperty.descricao || '',
-                            fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                            videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
-                            address: '',
-                            neighborhood: '',
-                            city: '',
-                            condominium_fee: '',
-                            iptu: '',
-                            commission_percentage: 6,
-                            commission_value: 0,
-                            commission_split_type: '50/50',
-                            commission_buyer_split: 50,
-                            commission_seller_split: 50,
-                            banner_type: selectedProperty.banner_type || 'vendas',
-                            is_furnished: selectedProperty.is_furnished || false,
-                            has_sea_view: selectedProperty.has_sea_view || false,
-                            watermark_enabled: selectedProperty.watermark_enabled || false,
-                          });
-                         setIsDetailDialogOpen(false);
-                         setIsAddDialogOpen(true);
-                       }}>
-                         <Edit className="h-4 w-4 mr-2" />
-                         Editar Imóvel
-                       </Button>
-                      <Button 
-                        className="w-full" 
-                        variant="destructive"
-                        onClick={() => {
-                          handleDeleteProperty(selectedProperty.id);
-                          setIsDetailDialogOpen(false);
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Excluir Imóvel
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Description */}
-              {selectedProperty.descricao && (
-                <div>
-                  <h3 className="font-semibold mb-2">Descrição</h3>
-                  <p className="text-muted-foreground">{selectedProperty.descricao}</p>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Photo Gallery */}
-      <PhotoGallery
-        photos={galleryPhotos}
-        initialIndex={galleryInitialIndex}
-        isOpen={galleryOpen}
-        onClose={() => setGalleryOpen(false)}
-      />
-
-      {/* Virtual Staging Modal */}
-      {virtualStagingProperty && (
-        <Dialog open={!!virtualStagingProperty} onOpenChange={() => setVirtualStagingProperty(null)}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Virtual Staging - {properties.find(p => p.id === virtualStagingProperty)?.titulo}</DialogTitle>
-              <DialogDescription>
-                Transforme fotos vazias em ambientes mobiliados usando IA
-              </DialogDescription>
-            </DialogHeader>
-            {(() => {
-              const property = properties.find(p => p.id === virtualStagingProperty);
-              const photos = Array.isArray(property?.fotos) ? property.fotos : [];
-              
-              return (
-                <div className="space-y-6">
-                  {photos.length > 0 ? (
-                    <div className="grid gap-4">
-                      {photos.map((photo, index) => (
-                        <div key={index} className="space-y-4">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">Foto {index + 1}</h4>
-                            <Badge variant="outline">
-                              {photo.includes('?enhanced=true') ? 'Melhorada' : 'Original'}
-                            </Badge>
-                          </div>
-                          <VirtualStaging
-                            imageUrl={photo}
-                            onStagedImage={(stagedUrl) => {
-                              // Atualizar a propriedade adicionando a nova foto
-                              const updatedPhotos = [...photos, stagedUrl];
-                              const updatedProperty = { ...property, fotos: updatedPhotos };
-                              
-                              // Atualizar no estado local
-                              setProperties(prev => prev.map(p => 
-                                p.id === virtualStagingProperty ? updatedProperty : p
-                              ));
-                              
-                              // Opcional: salvar no banco também
-                              supabase
-                                .from('conectaios_properties')
-                                .update({ fotos: updatedPhotos })
-                                .eq('id', virtualStagingProperty)
-                                .then(() => {
-                                  toast({
-                                    title: "Virtual Staging Salvo!",
-                                    description: "A versão mobiliada foi adicionada ao imóvel.",
-                                  });
-                                });
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <FileImage className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Nenhuma foto disponível para Virtual Staging.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-          </DialogContent>
-        </Dialog>
-      )}
-
-      {/* AI Description Dialog */}
-      {showAiDescription && aiDescriptionProperty && (
-        <Dialog open={showAiDescription} onOpenChange={setShowAiDescription}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-            <AIPropertyDescription
-              property={aiDescriptionProperty}
-              onDescriptionGenerated={(description) => {
-                // Atualizar a descrição do imóvel
-                const updatedProperty = { ...aiDescriptionProperty, descricao: description };
-                
-                // Atualizar no banco de dados
-                supabase
-                  .from('conectaios_properties')
-                  .update({ descricao: description })
-                  .eq('id', aiDescriptionProperty.id)
-                  .then(({ error }) => {
-                    if (error) {
-                      toast({
-                        title: "Erro",
-                        description: "Não foi possível salvar a descrição.",
-                        variant: "destructive",
-                      });
-                    } else {
-                      // Atualizar estado local
-                      setProperties(prev => prev.map(p => 
-                        p.id === aiDescriptionProperty.id ? updatedProperty : p
-                      ));
-                      toast({
-                        title: "Descrição salva!",
-                        description: "A descrição foi atualizada no imóvel.",
-                      });
-                    }
-                  });
-              }}
-              onClose={() => {
-                setShowAiDescription(false);
-                setAiDescriptionProperty(null);
-              }}
-            />
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* Additional dialogs and components can be added here */}
     </div>
   );
 }
