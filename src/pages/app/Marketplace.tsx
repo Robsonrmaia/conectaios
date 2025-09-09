@@ -391,10 +391,10 @@ export default function Marketplace() {
                             }}
                             className={`h-8 px-2 hover:bg-primary hover:text-white flex-1 ${isCurrentlySpeaking(`marketplace-${property.id}`) ? 'bg-primary text-white animate-pulse' : ''}`}
                             title={isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar reprodução" : "Ouvir descrição"}
-                          >
-                            <Volume2 className="h-3 w-3" />
-                            <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
-                          </Button>
+                           >
+                             <Volume2 className={`h-3 w-3 ${isCurrentlySpeaking(`marketplace-${property.id}`) ? 'animate-spin' : ''}`} />
+                             <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
+                           </Button>
                           
                           <Button
                             size="sm"

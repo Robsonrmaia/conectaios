@@ -334,8 +334,9 @@ export default function Imoveis() {
       toast({
         title: "Visibilidade atualizada",
         description: `Imóvel agora está configurado como: ${
-          visibility === 'public_site' ? 'Marketplace' :
-          visibility === 'match_only' ? 'Apenas Match' : 'Oculto'
+          visibility === 'public_site' ? 'Site Público' :
+          visibility === 'match_only' ? 'Apenas Marketplace' : 
+          visibility === 'both' ? 'Site e Marketplace' : 'Oculto'
         }`,
       });
     } catch (error) {
@@ -628,13 +629,19 @@ export default function Imoveis() {
               )}
 
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="marketplace"
-                    checked={formData.visibility === 'public_site'}
-                    onCheckedChange={(checked) => setFormData({...formData, visibility: checked ? 'public_site' : 'hidden'})}
-                  />
-                  <Label htmlFor="marketplace">Mostrar no Marketplace</Label>
+                <div>
+                  <Label>Visibilidade do Imóvel</Label>
+                  <Select value={formData.visibility} onValueChange={(value) => setFormData({...formData, visibility: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione onde mostrar" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public_site">Site Público</SelectItem>
+                      <SelectItem value="match_only">Apenas Marketplace</SelectItem>
+                      <SelectItem value="both">Site e Marketplace</SelectItem>
+                      <SelectItem value="hidden">Oculto</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div className="flex items-center space-x-2">
@@ -780,22 +787,27 @@ export default function Imoveis() {
                <div className="flex justify-between items-start">
                  <div className="space-y-2">
                    <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
-                   {property.visibility === 'public_site' ? (
-                     <Badge variant="default" className="text-xs">
-                       <Eye className="h-3 w-3 mr-1" />
-                       Marketplace
-                     </Badge>
-                   ) : property.visibility === 'match_only' ? (
-                     <Badge variant="secondary" className="text-xs">
-                       <Globe className="h-3 w-3 mr-1" />
-                       Match
-                     </Badge>
-                   ) : (
-                     <Badge variant="secondary" className="text-xs">
-                       <EyeOff className="h-3 w-3 mr-1" />
-                       Oculto
-                     </Badge>
-                   )}
+                    {property.visibility === 'public_site' ? (
+                      <Badge variant="default" className="text-xs">
+                        <Eye className="h-3 w-3 mr-1" />
+                        Site Público
+                      </Badge>
+                    ) : property.visibility === 'match_only' ? (
+                      <Badge variant="secondary" className="text-xs">
+                        <Globe className="h-3 w-3 mr-1" />
+                        Marketplace
+                      </Badge>
+                    ) : property.visibility === 'both' ? (
+                      <Badge variant="default" className="text-xs">
+                        <Eye className="h-3 w-3 mr-1" />
+                        Site + Market
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="text-xs">
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        Oculto
+                      </Badge>
+                    )}
                   </div>
                   <div className="text-right space-y-2">
                     {property.reference_code && (
@@ -882,24 +894,24 @@ export default function Imoveis() {
                         Móveis
                       </Button>
                      )}
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         const audioId = `property-${property.id}`;
-                         if (isSpeaking && currentSpeakingId === audioId) {
-                           stop();
-                         } else {
-                           const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
-                           speak(descricao, audioId);
-                         }
-                       }}
-                       title={isSpeaking && currentSpeakingId === `property-${property.id}` ? "Parar reprodução" : "Ouvir descrição"}
-                       className="h-8 text-xs"
-                     >
-                       <Volume2 className="h-3 w-3 mr-1" />
-                       {isSpeaking && currentSpeakingId === `property-${property.id}` ? "Parar" : "Voz IA"}
-                     </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          const audioId = `property-${property.id}`;
+                          if (isCurrentlySpeaking(audioId)) {
+                            stop();
+                          } else {
+                            const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms} banheiros e ${property.parking_spots} vagas de garagem.`;
+                            speak(descricao, audioId);
+                          }
+                        }}
+                        title={isCurrentlySpeaking(`property-${property.id}`) ? "Parar reprodução" : "Ouvir descrição"}
+                        className={`h-8 text-xs ${isCurrentlySpeaking(`property-${property.id}`) ? 'animate-pulse' : ''}`}
+                      >
+                        <Volume2 className={`h-3 w-3 mr-1 ${isCurrentlySpeaking(`property-${property.id}`) ? 'text-primary animate-spin' : ''}`} />
+                        {isCurrentlySpeaking(`property-${property.id}`) ? "Parar" : "Voz IA"}
+                      </Button>
                    </div>
                   
                   <div className="grid grid-cols-2 gap-2">
@@ -985,6 +997,19 @@ export default function Imoveis() {
                     >
                       <Eye className="h-2 w-2 mr-1" />
                       Site
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updatePropertyVisibility(property.id, 'hidden');
+                      }}
+                      title="Oculto - Visível apenas para você"
+                      className="text-xs px-2 h-6"
+                    >
+                      <EyeOff className="h-2 w-2 mr-1" />
+                      Oculto
                     </Button>
                   </div>
                 </div>

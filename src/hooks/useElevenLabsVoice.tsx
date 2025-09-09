@@ -72,12 +72,21 @@ export const useElevenLabsVoice = () => {
     const cleanedText = cleanTextForSpeech(text);
 
     try {
+      // Set global state IMMEDIATELY when function is called
+      if (audioId) {
+        globalCurrentSpeakingId = audioId;
+        globalSpeakingStates.set(audioId, true);
+      }
+      
+      // Notify all listeners of state change IMMEDIATELY
+      stateListeners.forEach(listener => listener());
+
       // Stop any currently playing audio globally
       stopAllGlobalAudios();
       
       console.log('Speaking:', cleanedText, 'with ID:', audioId);
 
-      // Set global state
+      // Set global state again after stopping others
       if (audioId) {
         globalCurrentSpeakingId = audioId;
         globalSpeakingStates.set(audioId, true);
