@@ -272,20 +272,13 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Título e Texto */}
+            {/* Título */}
             <div className="text-center space-y-6">
               <h1 className="text-3xl md:text-4xl font-bold leading-tight text-foreground">
                 Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
                 <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                 e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
               </h1>
-              
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-                encontra clientes certos com inteligência artificial e fecha negócios de forma 
-                simples, rápida e segura.
-              </p>
             </div>
 
             {/* Imagem do Rapaz com Cards Mobile */}
@@ -337,6 +330,16 @@ const Index = () => {
                 alt="Profissional ConectaIOS" 
                 className="max-w-[280px] h-auto object-contain drop-shadow-xl relative z-10"
               />
+            </div>
+
+            {/* Texto Descritivo - Após Imagem */}
+            <div className="text-center px-4">
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+                encontra clientes certos com inteligência artificial e fecha negócios de forma 
+                simples, rápida e segura.
+              </p>
             </div>
 
             {/* Stats mobile */}
