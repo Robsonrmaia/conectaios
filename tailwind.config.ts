@@ -18,9 +18,10 @@ export default {
 			}
 		},
 		extend: {
-			fontFamily: {
-				'signature': ['Dancing Script', 'cursive'],
-			},
+      fontFamily: {
+        'signature': ['Dancing Script', 'cursive'],
+        'amsterdam': ['New Amsterdam', 'cursive'],
+      },
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -105,13 +106,35 @@ export default {
 				'pulse-gentle': {
 					'0%, 100%': { opacity: '0.1' },
 					'50%': { opacity: '0.2' }
+				},
+				'neural-glow': {
+					'0%, 100%': { 
+						filter: 'drop-shadow(0 0 4px hsl(var(--primary)))',
+						transform: 'scale(1)'
+					},
+					'50%': { 
+						filter: 'drop-shadow(0 0 8px hsl(var(--primary)))',
+						transform: 'scale(1.1)'
+					}
+				},
+				'network-line': {
+					'0%': { 'stroke-dasharray': '0 200', opacity: '0' },
+					'50%': { 'stroke-dasharray': '100 100', opacity: '0.6' },
+					'100%': { 'stroke-dasharray': '200 0', opacity: '0.3' }
+				},
+				'neural-float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-5px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'line-draw': 'line-draw 8s ease-in-out infinite',
-				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite'
+				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite',
+				'neural-glow': 'neural-glow 4s ease-in-out infinite',
+				'network-line': 'network-line 3s ease-in-out infinite',
+				'neural-float': 'neural-float 6s ease-in-out infinite'
 			}
 		}
 	},

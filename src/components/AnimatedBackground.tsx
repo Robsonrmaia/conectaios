@@ -1,114 +1,188 @@
 import React from 'react';
 
 export default function AnimatedBackground() {
+  // Neural network nodes positioned more towards the top
+  const nodes = [
+    // Top layer - most concentrated
+    { x: 150, y: 60, size: 2, delay: 0 },
+    { x: 300, y: 40, size: 1.5, delay: 0.5 },
+    { x: 450, y: 70, size: 2.5, delay: 1 },
+    { x: 600, y: 50, size: 1.8, delay: 1.5 },
+    { x: 750, y: 80, size: 2, delay: 2 },
+    
+    // Second layer
+    { x: 100, y: 120, size: 1.5, delay: 0.3 },
+    { x: 250, y: 100, size: 2, delay: 0.8 },
+    { x: 400, y: 130, size: 1.8, delay: 1.3 },
+    { x: 550, y: 110, size: 2.2, delay: 1.8 },
+    { x: 700, y: 140, size: 1.5, delay: 2.3 },
+    
+    // Third layer
+    { x: 180, y: 180, size: 1.8, delay: 0.6 },
+    { x: 320, y: 160, size: 1.5, delay: 1.1 },
+    { x: 480, y: 190, size: 2, delay: 1.6 },
+    { x: 620, y: 170, size: 1.6, delay: 2.1 },
+    
+    // Fourth layer - sparser
+    { x: 120, y: 240, size: 1.3, delay: 0.9 },
+    { x: 380, y: 220, size: 1.8, delay: 1.4 },
+    { x: 580, y: 250, size: 1.5, delay: 1.9 },
+    
+    // Bottom layer - very sparse
+    { x: 200, y: 300, size: 1.2, delay: 1.2 },
+    { x: 500, y: 280, size: 1.4, delay: 1.7 }
+  ];
+
+  // Connection lines between nearby nodes
+  const connections = [
+    // Top layer connections
+    { from: 0, to: 1 }, { from: 1, to: 2 }, { from: 2, to: 3 }, { from: 3, to: 4 },
+    
+    // Vertical connections from top to second layer
+    { from: 0, to: 5 }, { from: 1, to: 6 }, { from: 2, to: 7 }, { from: 3, to: 8 }, { from: 4, to: 9 },
+    
+    // Second layer horizontal
+    { from: 5, to: 6 }, { from: 6, to: 7 }, { from: 7, to: 8 }, { from: 8, to: 9 },
+    
+    // Second to third layer
+    { from: 6, to: 10 }, { from: 7, to: 11 }, { from: 8, to: 12 }, { from: 9, to: 13 },
+    
+    // Third layer connections
+    { from: 10, to: 11 }, { from: 11, to: 12 }, { from: 12, to: 13 },
+    
+    // Third to fourth layer
+    { from: 10, to: 14 }, { from: 12, to: 15 }, { from: 13, to: 16 },
+    
+    // Fourth layer connections
+    { from: 14, to: 15 }, { from: 15, to: 16 },
+    
+    // Fourth to bottom
+    { from: 14, to: 17 }, { from: 16, to: 18 },
+    
+    // Some diagonal connections for complexity
+    { from: 1, to: 7 }, { from: 2, to: 8 }, { from: 7, to: 13 }, { from: 11, to: 15 }
+  ];
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <svg
-        className="w-full h-full"
+        className="w-full h-full opacity-30"
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 800 600"
+        viewBox="0 0 800 400"
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>
-          <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
-            <circle cx="30" cy="30" r="0.8" fill="hsl(142 76% 36%)" className="animate-pulse-gentle" />
-          </pattern>
+          {/* Gradient for connections */}
+          <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
+            <stop offset="50%" stopColor="hsl(142 76% 36%)" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
+          </linearGradient>
+          
+          {/* Glow filter for nodes */}
+          <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feMerge> 
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
         </defs>
         
-        {/* Background grid pattern */}
-        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.15" />
-        
-        {/* Animated connecting lines */}
-        <g stroke="hsl(142 76% 36%)" strokeWidth="0.3" fill="none" opacity="0.25">
-          {/* Top area horizontal lines */}
-          <path 
-            d="M 80 50 Q 280 45 480 50 T 720 55" 
-            className="animate-line-draw"
-            style={{ animationDelay: '0s' }}
-          />
-          <path 
-            d="M 50 80 Q 250 75 450 80 T 750 85" 
-            className="animate-line-draw"
-            style={{ animationDelay: '1s' }}
-          />
-          <path 
-            d="M 120 110 Q 320 105 520 110 T 680 115" 
-            className="animate-line-draw"
-            style={{ animationDelay: '2s' }}
-          />
-          <path 
-            d="M 90 140 Q 290 135 490 140 T 710 145" 
-            className="animate-line-draw"
-            style={{ animationDelay: '3s' }}
-          />
-          
-          {/* Middle area lines */}
-          <path 
-            d="M 60 180 Q 260 175 460 180 T 740 185" 
-            className="animate-line-draw"
-            style={{ animationDelay: '4s' }}
-          />
-          <path 
-            d="M 130 220 Q 330 215 530 220 T 670 225" 
-            className="animate-line-draw"
-            style={{ animationDelay: '1.5s' }}
-          />
-          
-          {/* Vertical connections - focusing on top area */}
-          <path 
-            d="M 180 30 Q 175 80 180 130 T 185 230" 
-            className="animate-line-draw"
-            style={{ animationDelay: '0.5s' }}
-          />
-          <path 
-            d="M 350 40 Q 345 90 350 140 T 355 240" 
-            className="animate-line-draw"
-            style={{ animationDelay: '2.5s' }}
-          />
-          <path 
-            d="M 520 35 Q 515 85 520 135 T 525 235" 
-            className="animate-line-draw"
-            style={{ animationDelay: '4.5s' }}
-          />
-          <path 
-            d="M 650 45 Q 645 95 650 145 T 655 245" 
-            className="animate-line-draw"
-            style={{ animationDelay: '3.5s' }}
-          />
-          
-          {/* Diagonal connections - more in top area */}
-          <path 
-            d="M 100 60 Q 250 90 400 120 T 600 180" 
-            className="animate-line-draw"
-            style={{ animationDelay: '1.2s' }}
-          />
-          <path 
-            d="M 600 70 Q 450 100 300 130 T 100 190" 
-            className="animate-line-draw"
-            style={{ animationDelay: '3.2s' }}
-          />
-          <path 
-            d="M 200 40 Q 350 80 500 120 T 700 200" 
-            className="animate-line-draw"
-            style={{ animationDelay: '2.8s' }}
-          />
-          <path 
-            d="M 700 50 Q 550 90 400 130 T 200 210" 
-            className="animate-line-draw"
-            style={{ animationDelay: '4.8s' }}
-          />
+        {/* Connection lines */}
+        <g stroke="url(#connectionGradient)" strokeWidth="0.5" fill="none">
+          {connections.map((connection, index) => {
+            const fromNode = nodes[connection.from];
+            const toNode = nodes[connection.to];
+            
+            return (
+              <line
+                key={index}
+                x1={fromNode.x}
+                y1={fromNode.y}
+                x2={toNode.x}
+                y2={toNode.y}
+                className="animate-network-line"
+                style={{ 
+                  animationDelay: `${(fromNode.delay + toNode.delay) / 2}s`,
+                  animationDuration: '4s'
+                }}
+              />
+            );
+          })}
         </g>
         
-        {/* Connection nodes - more concentrated in top area */}
-        <g fill="hsl(142 76% 36%)" opacity="0.25">
-          <circle cx="180" cy="80" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '0.5s' }} />
-          <circle cx="350" cy="120" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '1.5s' }} />
-          <circle cx="520" cy="100" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '2.5s' }} />
-          <circle cx="280" cy="60" r="1" className="animate-pulse-gentle" style={{ animationDelay: '3s' }} />
-          <circle cx="450" cy="90" r="1" className="animate-pulse-gentle" style={{ animationDelay: '4s' }} />
-          <circle cx="620" cy="140" r="1" className="animate-pulse-gentle" style={{ animationDelay: '1.8s' }} />
-          <circle cx="150" cy="110" r="1" className="animate-pulse-gentle" style={{ animationDelay: '3.8s' }} />
-          <circle cx="680" cy="80" r="1.2" className="animate-pulse-gentle" style={{ animationDelay: '2.2s' }} />
+        {/* Neural network nodes */}
+        <g>
+          {nodes.map((node, index) => (
+            <g key={index}>
+              {/* Node glow effect */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 2}
+                fill="hsl(142 76% 36%)"
+                opacity="0.1"
+                filter="url(#nodeGlow)"
+                className="animate-neural-glow"
+                style={{ 
+                  animationDelay: `${node.delay}s`,
+                  animationDuration: '5s'
+                }}
+              />
+              
+              {/* Main node */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size}
+                fill="hsl(142 76% 36%)"
+                className="animate-neural-float"
+                style={{ 
+                  animationDelay: `${node.delay + 1}s`,
+                  animationDuration: '8s'
+                }}
+              />
+              
+              {/* Inner core */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 0.4}
+                fill="hsl(142 86% 46%)"
+                opacity="0.8"
+                className="animate-pulse-gentle"
+                style={{ 
+                  animationDelay: `${node.delay + 0.5}s`,
+                  animationDuration: '3s'
+                }}
+              />
+            </g>
+          ))}
+        </g>
+        
+        {/* Data flow particles */}
+        <g fill="hsl(142 76% 36%)" opacity="0.6">
+          {connections.slice(0, 8).map((connection, index) => {
+            const fromNode = nodes[connection.from];
+            const toNode = nodes[connection.to];
+            const midX = (fromNode.x + toNode.x) / 2;
+            const midY = (fromNode.y + toNode.y) / 2;
+            
+            return (
+              <circle
+                key={`particle-${index}`}
+                cx={midX}
+                cy={midY}
+                r="0.8"
+                className="animate-pulse-gentle"
+                style={{ 
+                  animationDelay: `${index * 0.3}s`,
+                  animationDuration: '2s'
+                }}
+              />
+            );
+          })}
         </g>
       </svg>
     </div>

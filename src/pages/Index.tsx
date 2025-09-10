@@ -231,8 +231,8 @@ const Index = () => {
                     className="max-w-full h-auto max-h-[500px] object-contain drop-shadow-2xl"
                   />
                   <div className="text-center mt-6">
-                    <p className="text-2xl font-signature font-semibold text-foreground/80 italic">
-                      Iago Bittencourt - CEO
+                    <p className="text-2xl font-amsterdam font-semibold text-foreground/80">
+                      Iago Bittencourt
                     </p>
                   </div>
                 </div>
