@@ -18,6 +18,7 @@ import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 import CreateAdminButton from '@/components/CreateAdminButton';
+import garotonectaImg from '@/assets/garoto-conecta.png';
 
 const Index = () => {
   const { user } = useAuth();
@@ -86,12 +87,12 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section - Layout com Vídeo ao Lado */}
+      {/* Hero Section - Layout com Imagem do Rapaz */}
       <main className="bg-background pt-20">
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
         <div className="hidden sm:block">
           <div className="container mx-auto px-6 py-8">
-            <div className="grid lg:grid-cols-2 gap-16 items-start pt-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-center pt-8">
               {/* Coluna Esquerda - Conteúdo */}
               <div className="space-y-8 pt-8">
                 <div className="space-y-6">
@@ -122,8 +123,21 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Coluna Direita - Vídeo */}
-              <div className="relative pt-4">
+              {/* Coluna Direita - Imagem do Rapaz */}
+              <div className="relative pt-4 flex justify-center lg:justify-end">
+                <div className="relative">
+                  <img 
+                    src={garotonectaImg} 
+                    alt="Profissional ConectaIOS" 
+                    className="max-w-full h-auto max-h-[500px] object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            {/* Vídeo Menor Centralizado */}
+            <div className="flex justify-center mt-16">
+              <div className="w-full max-w-2xl">
                 <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
                   <iframe
                     src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
@@ -145,60 +159,65 @@ const Index = () => {
 
         {/* Mobile Layout - Apenas para telas pequenas */}
         <div className="sm:hidden">
-          {/* Vídeo com título sobreposto */}
-          <div className="relative h-screen overflow-hidden">
-            <iframe
-              src="https://fast.wistia.net/embed/iframe/nulz88uy00?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-              title="ConectaIOS Hero Video Mobile Vertical"
-              className="w-full h-full object-cover"
-              style={{
-                width: '100%',
-                height: '100%',
-                border: 'none'
-              }}
-              allow="autoplay; fullscreen"
-              allowFullScreen
-            ></iframe>
-            
-            {/* Título e botões sobrepostos no meio/centro do vídeo */}
-            <div className="absolute inset-0 flex flex-col justify-center items-center px-6 text-center">
-              <h1 className="text-3xl font-bold leading-tight text-white mb-8" 
-                  style={{
-                    textShadow: '2px 2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(0,0,0,0.6)'
-                  }}>
+          <div className="px-6 py-8 space-y-8">
+            {/* Título e Texto */}
+            <div className="text-center space-y-6">
+              <h1 className="text-3xl font-bold leading-tight text-foreground">
                 Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>, <span className="text-white">Organizada</span><br />
+                <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                 e <span className="text-primary">Inteligente</span>
               </h1>
               
-              {/* Botões centralizados */}
-              <div className="flex gap-3 justify-center items-center">
-                <Button 
-                  onClick={() => navigate('/auth')}
-                  size="lg"
-                  className="text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
-                >
-                  Começar Agora
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <SaibaMaisDialog />
+              <p className="text-base text-muted-foreground leading-relaxed">
+                Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
+                Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
+                encontra clientes certos com inteligência artificial e fecha negócios de forma 
+                simples, rápida e segura.
+              </p>
+            </div>
+
+            {/* Imagem do Rapaz */}
+            <div className="flex justify-center py-4">
+              <img 
+                src={garotonectaImg} 
+                alt="Profissional ConectaIOS" 
+                className="max-w-[280px] h-auto object-contain"
+              />
+            </div>
+
+            {/* Botões */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <Button 
+                onClick={() => navigate('/auth')}
+                size="lg"
+                className="w-full sm:w-auto text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+              >
+                Começar Agora
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+              <SaibaMaisDialog />
+            </div>
+
+            {/* Vídeo Menor */}
+            <div className="mt-8">
+              <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                <iframe
+                  src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+                  title="ConectaIOS Hero Video Mobile"
+                  className="w-full h-full"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    border: 'none'
+                  }}
+                  allow="autoplay; fullscreen"
+                  allowFullScreen
+                ></iframe>
               </div>
             </div>
           </div>
         </div>
       </main>
-
-      {/* Mobile: Seção de texto após o vídeo */}
-      <div className="sm:hidden px-6 bg-background">
-        <div className="text-center space-y-2">
-          <p className="text-base text-muted-foreground leading-relaxed">
-            Deixe para trás a burocracia, as planilhas confusas e as negociações travadas.
-            Com o ConectaIOS, você se conecta a outros corretores, organiza seus imóveis, 
-            encontra clientes certos com inteligência artificial e fecha negócios de forma 
-            simples, rápida e segura.
-          </p>
-        </div>
-      </div>
 
       <div className="container mx-auto px-4 py-8 sm:py-16">
         <div className="max-w-4xl mx-auto">
