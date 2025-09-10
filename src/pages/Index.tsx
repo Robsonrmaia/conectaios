@@ -109,7 +109,7 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
                     Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
                     <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                     e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
@@ -274,7 +274,7 @@ const Index = () => {
 
             {/* Título e Texto */}
             <div className="text-center space-y-6">
-              <h1 className="text-3xl font-bold leading-tight text-foreground">
+              <h1 className="text-3xl md:text-4xl font-bold leading-tight text-foreground">
                 Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
                 <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                 e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
@@ -288,20 +288,54 @@ const Index = () => {
               </p>
             </div>
 
-            {/* Imagem do Rapaz */}
+            {/* Imagem do Rapaz com Cards Mobile */}
             <div className="flex justify-center py-4 relative">
-              {/* Elementos decorativos mobile */}
-              <div className="absolute top-2 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2 border text-xs animate-bounce" style={{ animationDelay: '1s' }}>
+              {/* Cards flutuantes mobile adaptados */}
+              
+              {/* Card Vendido - Superior Direito */}
+              <div className="absolute top-4 right-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-2 border border-green-200 animate-bounce text-xs" style={{ animationDelay: '0.5s', animationDuration: '3s' }}>
                 <div className="flex items-center gap-1">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  Online
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-medium text-green-700">Vendido!</span>
+                </div>
+              </div>
+
+              {/* Card Procura - Esquerdo Superior */}
+              <div className="absolute top-8 left-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-2 border border-blue-200 animate-bounce text-xs" style={{ animationDelay: '1.2s', animationDuration: '3.5s' }}>
+                <div className="flex items-center gap-1">
+                  <Search className="w-3 h-3 text-blue-600" />
+                  <span className="font-medium text-blue-700">Procura</span>
+                </div>
+              </div>
+
+              {/* Card Match - Direito Meio */}
+              <div className="absolute top-1/3 right-0 bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-2 border border-purple-200 animate-bounce text-xs" style={{ animationDelay: '1.8s', animationDuration: '4s' }}>
+                <div className="flex items-center gap-1">
+                  <Heart className="w-3 h-3 text-purple-600" />
+                  <span className="font-medium text-purple-700">Match!</span>
+                </div>
+              </div>
+
+              {/* Card Lançamento - Inferior Direito */}
+              <div className="absolute bottom-12 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-2 border border-yellow-200 animate-bounce text-xs" style={{ animationDelay: '2.2s', animationDuration: '3.5s' }}>
+                <div className="flex items-center gap-1">
+                  <Star className="w-3 h-3 text-yellow-600" />
+                  <span className="font-medium text-yellow-700">Lançamento</span>
+                </div>
+              </div>
+
+              {/* Card Negociação - Inferior Esquerdo */}
+              <div className="absolute bottom-8 left-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-md p-2 border border-emerald-200 animate-bounce text-xs" style={{ animationDelay: '2.8s', animationDuration: '4s' }}>
+                <div className="flex items-center gap-1">
+                  <Handshake className="w-3 h-3 text-emerald-600" />
+                  <span className="font-medium text-emerald-700">Fechado</span>
                 </div>
               </div>
 
               <img 
                 src={garotonectaImg} 
                 alt="Profissional ConectaIOS" 
-                className="max-w-[280px] h-auto object-contain drop-shadow-xl"
+                className="max-w-[280px] h-auto object-contain drop-shadow-xl relative z-10"
               />
             </div>
 
