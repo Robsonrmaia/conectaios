@@ -33,6 +33,7 @@ import AuditLogs from "./pages/app/AuditLogs";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
 import Suporte from "./pages/app/Suporte";
+import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
@@ -121,6 +122,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/admin-master" element={<AdminMaster />} />
                 <Route path="/@:username" element={<AtRedirect />} />
                 <Route path="/broker" element={<BrokerRedirect />} />
                 <Route path="/broker/:username" element={<BrokerMinisite />} />
@@ -145,7 +147,6 @@ const App = () => (
                         <Route path="ai-assistant" element={<AIAssistant />} />
                          <Route path="audit-logs" element={<AuditLogs />} />
                          <Route path="perfil" element={<Perfil />} />
-                         <Route path="admin" element={<Admin />} />
                          <Route path="suporte" element={<Suporte />} />
                          <Route path="*" element={<NotFound />} />
                       </Routes>

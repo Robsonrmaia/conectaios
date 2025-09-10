@@ -12,11 +12,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading } = useAuth();
   const { broker, loading: brokerLoading } = useBroker();
 
-  // Debug logs
-  console.log('Current URL:', window.location.pathname);
-
   if (authLoading || brokerLoading) {
-    console.log('ProtectedRoute - Still loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -28,7 +24,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user) {
-    console.log('ProtectedRoute - No user, redirecting to auth');
     return <Navigate to="/auth" replace />;
   }
 

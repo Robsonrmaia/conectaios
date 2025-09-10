@@ -113,11 +113,6 @@ const configItems = [
     url: '/app/audit-logs',
     icon: Activity,
   },
-  {
-    title: 'Admin',
-    url: '/app/admin',
-    icon: Shield,
-  },
 ];
 
 export function AppSidebar() {

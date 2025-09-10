@@ -79,7 +79,6 @@ export function PhotoUploader({
       return;
     }
     
-    console.log('PhotoUploader - Files selected:', files.length);
     setUploadedFiles(files);
     setUploading(true);
 
@@ -87,7 +86,6 @@ export function PhotoUploader({
       const uploadedUrls: string[] = [];
       
       for (const file of files) {
-        console.log('PhotoUploader - Uploading file:', file.name);
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
@@ -105,7 +103,6 @@ export function PhotoUploader({
           .getPublicUrl(fileName);
         
         uploadedUrls.push(urlData.publicUrl);
-        console.log('PhotoUploader - File uploaded successfully:', urlData.publicUrl);
       }
       
       const updatedPhotos = [...photos, ...uploadedUrls];

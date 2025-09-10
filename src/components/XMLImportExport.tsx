@@ -58,8 +58,6 @@ export default function XMLImportExport() {
         throw new Error('Nenhum imóvel encontrado no arquivo XML');
       }
       
-      console.log(`Tentando importar ${properties.length} imóveis`);
-      
       for (const property of properties) {
         const { error } = await supabase
           .from('conectaios_properties')
