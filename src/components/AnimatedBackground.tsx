@@ -10,70 +10,105 @@ export default function AnimatedBackground() {
         preserveAspectRatio="xMidYMid slice"
       >
         <defs>
-          <pattern id="grid" width="80" height="80" patternUnits="userSpaceOnUse">
-            <circle cx="40" cy="40" r="1" fill="hsl(142 76% 36%)" className="animate-pulse-gentle" />
+          <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+            <circle cx="30" cy="30" r="0.8" fill="hsl(142 76% 36%)" className="animate-pulse-gentle" />
           </pattern>
         </defs>
         
         {/* Background grid pattern */}
-        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.1" />
+        <rect width="100%" height="100%" fill="url(#grid)" opacity="0.15" />
         
         {/* Animated connecting lines */}
-        <g stroke="hsl(142 76% 36%)" strokeWidth="1" fill="none" opacity="0.15">
-          {/* Horizontal lines */}
+        <g stroke="hsl(142 76% 36%)" strokeWidth="0.3" fill="none" opacity="0.25">
+          {/* Top area horizontal lines */}
           <path 
-            d="M 100 150 Q 300 140 500 150 T 700 160" 
+            d="M 80 50 Q 280 45 480 50 T 720 55" 
             className="animate-line-draw"
             style={{ animationDelay: '0s' }}
           />
           <path 
-            d="M 50 250 Q 250 240 450 250 T 750 260" 
-            className="animate-line-draw"
-            style={{ animationDelay: '2s' }}
-          />
-          <path 
-            d="M 120 350 Q 320 340 520 350 T 680 360" 
-            className="animate-line-draw"
-            style={{ animationDelay: '4s' }}
-          />
-          
-          {/* Vertical connections */}
-          <path 
-            d="M 200 100 Q 190 200 200 300 T 210 500" 
+            d="M 50 80 Q 250 75 450 80 T 750 85" 
             className="animate-line-draw"
             style={{ animationDelay: '1s' }}
           />
           <path 
-            d="M 400 120 Q 390 220 400 320 T 410 480" 
+            d="M 120 110 Q 320 105 520 110 T 680 115" 
+            className="animate-line-draw"
+            style={{ animationDelay: '2s' }}
+          />
+          <path 
+            d="M 90 140 Q 290 135 490 140 T 710 145" 
             className="animate-line-draw"
             style={{ animationDelay: '3s' }}
           />
-          <path 
-            d="M 600 110 Q 590 210 600 310 T 610 490" 
-            className="animate-line-draw"
-            style={{ animationDelay: '5s' }}
-          />
           
-          {/* Diagonal connections */}
+          {/* Middle area lines */}
           <path 
-            d="M 150 180 Q 300 250 450 320 T 650 420" 
+            d="M 60 180 Q 260 175 460 180 T 740 185" 
+            className="animate-line-draw"
+            style={{ animationDelay: '4s' }}
+          />
+          <path 
+            d="M 130 220 Q 330 215 530 220 T 670 225" 
             className="animate-line-draw"
             style={{ animationDelay: '1.5s' }}
           />
+          
+          {/* Vertical connections - focusing on top area */}
           <path 
-            d="M 650 180 Q 500 250 350 320 T 150 420" 
+            d="M 180 30 Q 175 80 180 130 T 185 230" 
+            className="animate-line-draw"
+            style={{ animationDelay: '0.5s' }}
+          />
+          <path 
+            d="M 350 40 Q 345 90 350 140 T 355 240" 
+            className="animate-line-draw"
+            style={{ animationDelay: '2.5s' }}
+          />
+          <path 
+            d="M 520 35 Q 515 85 520 135 T 525 235" 
+            className="animate-line-draw"
+            style={{ animationDelay: '4.5s' }}
+          />
+          <path 
+            d="M 650 45 Q 645 95 650 145 T 655 245" 
             className="animate-line-draw"
             style={{ animationDelay: '3.5s' }}
           />
+          
+          {/* Diagonal connections - more in top area */}
+          <path 
+            d="M 100 60 Q 250 90 400 120 T 600 180" 
+            className="animate-line-draw"
+            style={{ animationDelay: '1.2s' }}
+          />
+          <path 
+            d="M 600 70 Q 450 100 300 130 T 100 190" 
+            className="animate-line-draw"
+            style={{ animationDelay: '3.2s' }}
+          />
+          <path 
+            d="M 200 40 Q 350 80 500 120 T 700 200" 
+            className="animate-line-draw"
+            style={{ animationDelay: '2.8s' }}
+          />
+          <path 
+            d="M 700 50 Q 550 90 400 130 T 200 210" 
+            className="animate-line-draw"
+            style={{ animationDelay: '4.8s' }}
+          />
         </g>
         
-        {/* Connection nodes */}
-        <g fill="hsl(142 76% 36%)" opacity="0.2">
-          <circle cx="200" cy="150" r="2" className="animate-pulse-gentle" style={{ animationDelay: '0.5s' }} />
-          <circle cx="400" cy="250" r="2" className="animate-pulse-gentle" style={{ animationDelay: '1.5s' }} />
-          <circle cx="600" cy="350" r="2" className="animate-pulse-gentle" style={{ animationDelay: '2.5s' }} />
-          <circle cx="300" cy="200" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '3s' }} />
-          <circle cx="500" cy="300" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '4s' }} />
+        {/* Connection nodes - more concentrated in top area */}
+        <g fill="hsl(142 76% 36%)" opacity="0.25">
+          <circle cx="180" cy="80" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '0.5s' }} />
+          <circle cx="350" cy="120" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '1.5s' }} />
+          <circle cx="520" cy="100" r="1.5" className="animate-pulse-gentle" style={{ animationDelay: '2.5s' }} />
+          <circle cx="280" cy="60" r="1" className="animate-pulse-gentle" style={{ animationDelay: '3s' }} />
+          <circle cx="450" cy="90" r="1" className="animate-pulse-gentle" style={{ animationDelay: '4s' }} />
+          <circle cx="620" cy="140" r="1" className="animate-pulse-gentle" style={{ animationDelay: '1.8s' }} />
+          <circle cx="150" cy="110" r="1" className="animate-pulse-gentle" style={{ animationDelay: '3.8s' }} />
+          <circle cx="680" cy="80" r="1.2" className="animate-pulse-gentle" style={{ animationDelay: '2.2s' }} />
         </g>
       </svg>
     </div>
