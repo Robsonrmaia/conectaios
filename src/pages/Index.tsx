@@ -11,6 +11,7 @@ import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart,
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
+import AnimatedBackground from '@/components/AnimatedBackground';
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
@@ -95,6 +96,9 @@ const Index = () => {
           <div className="absolute top-60 -left-20 w-60 h-60 bg-blue-500/3 rounded-full blur-3xl"></div>
           <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-green-500/4 rounded-full blur-2xl"></div>
         </div>
+
+        {/* Animated connecting lines background */}
+        <AnimatedBackground />
 
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
         <div className="hidden sm:block relative">
@@ -226,8 +230,8 @@ const Index = () => {
                     alt="Profissional ConectaIOS" 
                     className="max-w-full h-auto max-h-[500px] object-contain drop-shadow-2xl"
                   />
-                  <div className="text-center mt-4">
-                    <p className="text-lg font-medium text-foreground">
+                  <div className="text-center mt-6">
+                    <p className="text-2xl font-signature font-semibold text-foreground/80 italic">
                       Iago Bittencourt - CEO
                     </p>
                   </div>

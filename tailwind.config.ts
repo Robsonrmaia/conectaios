@@ -18,6 +18,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				'signature': ['Dancing Script', 'cursive'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -84,11 +87,31 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'line-draw': {
+					'0%': { 
+						'stroke-dasharray': '0 1000',
+						opacity: '0.1'
+					},
+					'50%': { 
+						'stroke-dasharray': '1000 1000',
+						opacity: '0.3'
+					},
+					'100%': { 
+						'stroke-dasharray': '0 1000',
+						opacity: '0.1'
+					}
+				},
+				'pulse-gentle': {
+					'0%, 100%': { opacity: '0.1' },
+					'50%': { opacity: '0.2' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'line-draw': 'line-draw 8s ease-in-out infinite',
+				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite'
 			}
 		}
 	},
