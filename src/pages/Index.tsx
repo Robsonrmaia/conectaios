@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2 } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
@@ -99,9 +99,9 @@ const Index = () => {
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
         <div className="hidden sm:block relative">
           <div className="container mx-auto px-6 py-8">
-            <div className="grid lg:grid-cols-2 gap-8 items-center pt-8 relative">
+            <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 items-center pt-8 relative">
               {/* Coluna Esquerda - Conteúdo */}
-              <div className="space-y-8 pt-8 relative z-10">
+              <div className="space-y-8 pt-8 relative z-10 lg:pr-8">
                 {/* Badge decorativo */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
@@ -165,24 +165,58 @@ const Index = () => {
               </div>
 
               {/* Coluna Direita - Imagem do Rapaz */}
-              <div className="relative pt-4 flex justify-center lg:justify-end">
+              <div className="relative pt-4 flex justify-center lg:justify-start lg:pl-4">
                 {/* Elementos decorativos atrás da imagem */}
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-72 h-72 bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-2xl"></div>
                 </div>
                 
                 {/* Cards flutuantes decorativos */}
-                <div className="absolute top-16 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 border animate-bounce" style={{ animationDelay: '1s', animationDuration: '3s' }}>
+                {/* Card Apartamento Vendido - Superior Esquerdo */}
+                <div className="absolute top-12 -left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-green-200 animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '3s' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-xs font-medium">Match encontrado!</span>
+                    <span className="text-xs font-medium text-green-700">Apartamento Vendido!</span>
                   </div>
                 </div>
 
-                <div className="absolute bottom-20 right-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 border animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
+                {/* Card Cliente Procura - Esquerdo Médio */}
+                <div className="absolute top-1/3 -left-8 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-blue-200 animate-bounce" style={{ animationDelay: '1.5s', animationDuration: '4s' }}>
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-medium">+3 Imóveis</span>
+                    <Search className="w-4 h-4 text-blue-600" />
+                    <span className="text-xs font-medium text-blue-700">Cliente Procura Imóvel</span>
+                  </div>
+                </div>
+
+                {/* Card Match encontrado - Superior Direito */}
+                <div className="absolute top-16 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-purple-200 animate-bounce" style={{ animationDelay: '1s', animationDuration: '3s' }}>
+                  <div className="flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-purple-600" />
+                    <span className="text-xs font-medium text-purple-700">Match encontrado!</span>
+                  </div>
+                </div>
+
+                {/* Card Lançamento à Vista - Direito Inferior */}
+                <div className="absolute bottom-32 right-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-yellow-200 animate-bounce" style={{ animationDelay: '2.5s', animationDuration: '3.5s' }}>
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 text-yellow-600" />
+                    <span className="text-xs font-medium text-yellow-700">Lançamento à Vista</span>
+                  </div>
+                </div>
+
+                {/* Card Negociação Fechada - Inferior */}
+                <div className="absolute bottom-16 -right-6 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-emerald-200 animate-bounce" style={{ animationDelay: '3s', animationDuration: '4s' }}>
+                  <div className="flex items-center gap-2">
+                    <Handshake className="w-4 h-4 text-emerald-600" />
+                    <span className="text-xs font-medium text-emerald-700">Negociação Fechada</span>
+                  </div>
+                </div>
+
+                {/* Card +3 Imóveis - Esquerdo Inferior */}
+                <div className="absolute bottom-20 -left-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-indigo-200 animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-indigo-600" />
+                    <span className="text-xs font-medium text-indigo-700">+3 Imóveis Cadastrados</span>
                   </div>
                 </div>
 
