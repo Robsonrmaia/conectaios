@@ -87,23 +87,11 @@ const testimonials = [
 ];
 
 export function TestimonialsSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 3) % testimonials.length);
-    }, 4000); // Muda a cada 4 segundos
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
-
-  const visibleTestimonials = [
-    testimonials[currentIndex],
-    testimonials[(currentIndex + 1) % testimonials.length],
-    testimonials[(currentIndex + 2) % testimonials.length]
+  // Display specific testimonials from the user's image: Juliana Rodrigues, Ricardo Almeida, Patrícia Oliveira
+  const featuredTestimonials = [
+    testimonials.find(t => t.name === "Juliana Rodrigues") || testimonials[6],
+    testimonials.find(t => t.name === "Ricardo Almeida") || testimonials[7],
+    testimonials.find(t => t.name === "Patrícia Oliveira") || testimonials[8]
   ];
 
   const renderStars = (rating: number) => {
@@ -127,15 +115,11 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div 
-          className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto"
-          onMouseEnter={() => setIsAutoPlaying(false)}
-          onMouseLeave={() => setIsAutoPlaying(true)}
-        >
-          {visibleTestimonials.map((testimonial, index) => (
+        <div className="flex overflow-x-auto gap-6 max-w-6xl mx-auto pb-4">
+          {featuredTestimonials.map((testimonial, index) => (
             <Card 
-              key={`${testimonial.id}-${currentIndex}`}
-              className="relative overflow-hidden hover:shadow-xl transition-all duration-500 border-2 hover:border-primary/20 bg-card/50 backdrop-blur-sm animate-fade-in"
+              key={testimonial.id}
+              className="relative flex-shrink-0 w-80 overflow-hidden hover:shadow-xl transition-all duration-500 border-2 hover:border-primary/20 bg-card/50 backdrop-blur-sm animate-fade-in"
               style={{ 
                 animationDelay: `${index * 0.1}s`,
                 transform: `translateY(${index === 1 ? '-10px' : '0'})` // Destaque o do meio
@@ -173,24 +157,6 @@ export function TestimonialsSection() {
                 </div>
               )}
             </Card>
-          ))}
-        </div>
-
-        {/* Indicadores */}
-        <div className="flex justify-center mt-8 gap-2">
-          {Array.from({ length: Math.ceil(testimonials.length / 3) }, (_, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                setCurrentIndex(i * 3);
-                setIsAutoPlaying(false);
-              }}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                Math.floor(currentIndex / 3) === i 
-                  ? 'bg-primary' 
-                  : 'bg-primary/30 hover:bg-primary/50'
-              }`}
-            />
           ))}
         </div>
 

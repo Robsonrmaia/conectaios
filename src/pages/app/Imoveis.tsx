@@ -28,7 +28,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
-import XMLImportExport from '@/components/XMLImportExport';
+
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 
 interface Property {
@@ -403,7 +403,6 @@ export default function Imoveis() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-            <XMLImportExport />
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
@@ -952,54 +951,70 @@ export default function Imoveis() {
                      </Button>
                    </div>
 
-                   {/* Visibility Toggle Buttons - 3 columns, same width as above */}
-                   <div className="grid grid-cols-3 gap-2">
+                    {/* Visibility Toggle Buttons - Simplified System */}
+                    <div className="grid grid-cols-3 gap-2">
+                       <Button
+                         size="sm"
+                         variant={property.visibility === 'marketplace' || property.visibility === 'both' ? 'default' : 'outline'}
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           // Toggle marketplace visibility
+                           let newVisibility = property.visibility;
+                           if (property.visibility === 'marketplace') {
+                             newVisibility = 'hidden';
+                           } else if (property.visibility === 'public_site') {
+                             newVisibility = 'both';
+                           } else if (property.visibility === 'both') {
+                             newVisibility = 'public_site';
+                           } else {
+                             newVisibility = 'marketplace';
+                           }
+                           updatePropertyVisibility(property.id, newVisibility);
+                         }}
+                         title="Marketplace - Imóvel aparece no marketplace"
+                         className="text-xs h-6 flex items-center justify-center"
+                       >
+                         <Target className="h-2 w-2 mr-1" />
+                         Market
+                       </Button>
+                       <Button
+                         size="sm"
+                         variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           // Toggle public site visibility
+                           let newVisibility = property.visibility;
+                           if (property.visibility === 'public_site') {
+                             newVisibility = 'hidden';
+                           } else if (property.visibility === 'marketplace') {
+                             newVisibility = 'both';
+                           } else if (property.visibility === 'both') {
+                             newVisibility = 'marketplace';
+                           } else {
+                             newVisibility = 'public_site';
+                           }
+                           updatePropertyVisibility(property.id, newVisibility);
+                         }}
+                         title="Site Público - Imóvel aparece no site público e minisite"
+                         className="text-xs h-6 flex items-center justify-center"
+                       >
+                         <Globe className="h-2 w-2 mr-1" />
+                         Site
+                       </Button>
                       <Button
                         size="sm"
-                        variant={property.visibility === 'match_only' || property.visibility === 'both' ? 'default' : 'outline'}
+                        variant={property.visibility === 'hidden' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          const newVisibility = property.visibility === 'match_only' ? 'hidden' : 
-                                               property.visibility === 'both' ? 'public_site' : 
-                                               property.visibility === 'public_site' ? 'both' : 'match_only';
-                          updatePropertyVisibility(property.id, newVisibility);
+                          updatePropertyVisibility(property.id, 'hidden');
                         }}
-                        title="Marketplace"
+                        title="Oculto - Visível apenas para você no painel"
                         className="text-xs h-6 flex items-center justify-center"
                       >
-                        <Target className="h-2 w-2 mr-1" />
-                        Market
+                        <EyeOff className="h-2 w-2 mr-1" />
+                        Oculto
                       </Button>
-                      <Button
-                        size="sm"
-                        variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const newVisibility = property.visibility === 'public_site' ? 'hidden' : 
-                                               property.visibility === 'both' ? 'match_only' : 
-                                               property.visibility === 'match_only' ? 'both' : 'public_site';
-                          updatePropertyVisibility(property.id, newVisibility);
-                        }}
-                        title="Site Público"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <Globe className="h-2 w-2 mr-1" />
-                        Site
-                      </Button>
-                     <Button
-                       size="sm"
-                       variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                       onClick={(e) => {
-                         e.stopPropagation();
-                         updatePropertyVisibility(property.id, 'hidden');
-                       }}
-                       title="Oculto - Visível apenas para você"
-                       className="text-xs h-6 flex items-center justify-center"
-                     >
-                       <EyeOff className="h-2 w-2 mr-1" />
-                       Oculto
-                     </Button>
-                   </div>
+                    </div>
                 </div>
             </CardContent>
           </Card>

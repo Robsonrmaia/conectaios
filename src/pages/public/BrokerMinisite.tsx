@@ -104,7 +104,7 @@ export default function BrokerMinisite() {
       console.log('Fetching properties for user_id:', bq.data.user_id);
       
       const { data: props, error: propsErr } = await supabase
-        .from("properties")
+        .from("conectaios_properties")
         .select(`
           id, titulo, valor, quartos, bathrooms, area, fotos, 
           property_type, listing_type, finalidade, descricao, address,

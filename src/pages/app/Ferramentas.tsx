@@ -34,6 +34,7 @@ import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
 import { HelpCenter } from '@/components/HelpCenter';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
+import XMLImportExport from '@/components/XMLImportExport';
 
 interface Tool {
   id: string;
@@ -236,6 +237,7 @@ export default function Ferramentas() {
       <Tabs defaultValue="tools" className="space-y-4">
         <TabsList>
           <TabsTrigger value="tools">Ferramentas</TabsTrigger>
+          <TabsTrigger value="import-export">Import/Export</TabsTrigger>
           <TabsTrigger value="help">Central de Ajuda</TabsTrigger>
           <TabsTrigger value="test">Teste Asaas</TabsTrigger>
         </TabsList>
@@ -312,6 +314,20 @@ export default function Ferramentas() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+        
+        <TabsContent value="import-export" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Importar/Exportar Imóveis</CardTitle>
+              <CardDescription>
+                Importe imóveis de arquivo XML ou exporte seus imóveis existentes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <XMLImportExport />
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="help" className="space-y-4">

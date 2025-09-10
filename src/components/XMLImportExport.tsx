@@ -62,7 +62,7 @@ export default function XMLImportExport() {
       
       for (const property of properties) {
         const { error } = await supabase
-          .from('properties')
+          .from('conectaios_properties')
           .insert({
             user_id: user.id,
             titulo: property.titulo,
@@ -105,7 +105,7 @@ export default function XMLImportExport() {
     
     try {
       const { data: properties, error } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('user_id', user.id)
         .eq('is_public', true);
