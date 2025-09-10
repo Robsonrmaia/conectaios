@@ -224,19 +224,19 @@ export default function Match() {
   const currentMatch = matches[currentIndex];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="space-y-6 max-w-4xl mx-auto px-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-fit"
           >
             <Home className="h-4 w-4" />
             Dashboard
           </Button>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
               Match IA
             </h1>
             <p className="text-muted-foreground">
@@ -245,7 +245,7 @@ export default function Match() {
           </div>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <Dialog open={showPreferences} onOpenChange={setShowPreferences}>
             <DialogTrigger asChild>
               <Button variant="outline">
@@ -253,7 +253,7 @@ export default function Match() {
                 Preferências
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Configurar Preferências</DialogTitle>
                 <DialogDescription>
@@ -263,36 +263,40 @@ export default function Match() {
               <div className="space-y-4">
                 <div>
                   <Label>Faixa de Preço</Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input
                       type="number"
                       placeholder="Mín"
                       value={preferences.min_price}
                       onChange={(e) => setPreferences({...preferences, min_price: Number(e.target.value)})}
+                      className="h-11"
                     />
                     <Input
                       type="number"
                       placeholder="Máx"
                       value={preferences.max_price}
                       onChange={(e) => setPreferences({...preferences, max_price: Number(e.target.value)})}
+                      className="h-11"
                     />
                   </div>
                 </div>
                 
                 <div>
                   <Label>Área (m²)</Label>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input
                       type="number"
                       placeholder="Mín"
                       value={preferences.min_area}
                       onChange={(e) => setPreferences({...preferences, min_area: Number(e.target.value)})}
+                      className="h-11"
                     />
                     <Input
                       type="number"
                       placeholder="Máx"
                       value={preferences.max_area}
                       onChange={(e) => setPreferences({...preferences, max_area: Number(e.target.value)})}
+                      className="h-11"
                     />
                   </div>
                 </div>
@@ -438,37 +442,37 @@ export default function Match() {
           </AnimatePresence>
 
           {/* Action Buttons */}
-          <div className="flex justify-center gap-4">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4">
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={handlePass}
-                className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200"
+                className="bg-red-50 hover:bg-red-100 text-red-600 border-red-200 w-full h-12"
               >
                 <X className="h-5 w-5 mr-2" />
                 Pular
               </Button>
             </motion.div>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={handleLike}
-                className="bg-green-50 hover:bg-green-100 text-green-600 border-green-200"
+                className="bg-green-50 hover:bg-green-100 text-green-600 border-green-200 w-full h-12"
               >
                 <Heart className="h-5 w-5 mr-2" />
                 Curtir
               </Button>
             </motion.div>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial">
               <Button
                 variant="outline"
                 size="lg"
                 onClick={() => setShowCounterProposal(true)}
-                className="bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200 w-full h-12"
               >
                 <MessageSquare className="h-5 w-5 mr-2" />
                 Fazer Proposta

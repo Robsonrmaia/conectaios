@@ -190,7 +190,7 @@ export default function Marketplace() {
         <div className="relative bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-xl p-8 overflow-hidden mb-8">
           <div className="relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex flex-col gap-4">
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/app')}
@@ -199,7 +199,7 @@ export default function Marketplace() {
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Button>
-                <h1 className="text-2xl sm:text-4xl font-bold text-primary">
+                <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-primary">
                   Marketplace de Imóveis
                 </h1>
               </div>
@@ -275,7 +275,7 @@ export default function Marketplace() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-card rounded-lg border"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4 bg-card rounded-lg border"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -412,12 +412,12 @@ export default function Marketplace() {
                          e.stopPropagation();
                          handleContactBroker(property.profiles?.nome || 'Corretor');
                        }}
-                       className="w-full h-8 text-xs"
+                       className="w-full h-11 text-sm"
                      >
-                       <Phone className="h-3 w-3 mr-1" />
+                       <Phone className="h-4 w-4 mr-2" />
                        Contatar
                      </Button>
-                       <div className="flex items-center justify-between gap-1">
+                       <div className="flex items-center justify-between gap-2">
                          <Button
                            size="sm"
                            variant="outline"
@@ -425,7 +425,7 @@ export default function Marketplace() {
                              e.stopPropagation();
                              handleMatch(property.id);
                            }}
-                           className="h-8 px-2 hover:bg-primary hover:text-white group flex-1"
+                           className="h-11 px-3 hover:bg-primary hover:text-white group flex-1"
                            title="Match"
                          >
                            <Target className="h-3 w-3" />

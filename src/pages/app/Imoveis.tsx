@@ -383,18 +383,18 @@ export default function Imoveis() {
 
   return (
     <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <Button 
               variant="outline" 
               onClick={() => navigate('/app')}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-fit"
             >
               <Home className="h-4 w-4" />
               Dashboard
             </Button>
             <div>
-              <h1 className="text-3xl font-bold text-primary">
+              <h1 className="text-2xl sm:text-3xl font-bold text-primary">
                 Imóveis
               </h1>
               <p className="text-muted-foreground">
@@ -402,16 +402,16 @@ export default function Imoveis() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
             <XMLImportExport />
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+                <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
                   <Plus className="h-4 w-4 mr-2" />
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
               <DialogDescription>
@@ -419,7 +419,7 @@ export default function Imoveis() {
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="titulo">Título</Label>
                   <Input
@@ -427,6 +427,7 @@ export default function Imoveis() {
                     value={formData.titulo}
                     onChange={(e) => setFormData({...formData, titulo: e.target.value})}
                     placeholder="Ex: Apartamento 2 quartos Jardins"
+                    className="h-11"
                   />
                 </div>
                 <div>
@@ -436,6 +437,7 @@ export default function Imoveis() {
                     value={formData.valor}
                     onChange={(e) => setFormData({...formData, valor: e.target.value})}
                     placeholder="650.000,00"
+                    className="h-11"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     Use formato brasileiro: 650.000,00
@@ -443,7 +445,7 @@ export default function Imoveis() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <Label htmlFor="area">Área (m²)</Label>
                   <Input
@@ -452,6 +454,7 @@ export default function Imoveis() {
                     value={formData.area}
                     onChange={(e) => setFormData({...formData, area: e.target.value})}
                     placeholder="120"
+                    className="h-11"
                   />
                 </div>
                 <div>
@@ -462,6 +465,7 @@ export default function Imoveis() {
                     value={formData.quartos}
                     onChange={(e) => setFormData({...formData, quartos: e.target.value})}
                     placeholder="3"
+                    className="h-11"
                   />
                  </div>
                  <div>
@@ -472,11 +476,12 @@ export default function Imoveis() {
                      value={formData.bathrooms}
                      onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
                      placeholder="2"
+                     className="h-11"
                    />
                  </div>
                </div>
 
-               <div className="grid grid-cols-3 gap-4">
+               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                  <div>
                    <Label htmlFor="parking_spots">Vagas</Label>
                    <Input

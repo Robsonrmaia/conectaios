@@ -338,16 +338,16 @@ export function MinisiteEditorIntegrated() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Editor Panel */}
-        <div className="space-y-6">
+        <div className="space-y-6 order-2 lg:order-1">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="design">Design</TabsTrigger>
-              <TabsTrigger value="content">Conteúdo</TabsTrigger>
-              <TabsTrigger value="images">Imagens</TabsTrigger>
-              <TabsTrigger value="seo">SEO</TabsTrigger>
-              <TabsTrigger value="domain">Domínio</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 h-auto gap-1 p-1">
+              <TabsTrigger value="design" className="text-xs sm:text-sm">Design</TabsTrigger>
+              <TabsTrigger value="content" className="text-xs sm:text-sm">Conteúdo</TabsTrigger>
+              <TabsTrigger value="images" className="text-xs sm:text-sm">Imagens</TabsTrigger>
+              <TabsTrigger value="seo" className="text-xs sm:text-sm">SEO</TabsTrigger>
+              <TabsTrigger value="domain" className="text-xs sm:text-sm">Domínio</TabsTrigger>
             </TabsList>
 
             <TabsContent value="design" className="space-y-4">
@@ -363,7 +363,7 @@ export function MinisiteEditorIntegrated() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                      {TEMPLATES.map((template) => (
                        <div
                          key={template.id}
@@ -760,7 +760,7 @@ export function MinisiteEditorIntegrated() {
         </div>
 
         {/* Preview Panel */}
-        <div className="space-y-4">
+        <div className="space-y-4 order-1 lg:order-2">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -778,7 +778,7 @@ export function MinisiteEditorIntegrated() {
               {config.generated_url && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
                   <p className="text-sm font-medium">URL do Mini Site:</p>
-                  <code className="text-xs bg-white p-1 rounded">{config.generated_url || '/broker/' + broker?.username}</code>
+                  <code className="text-xs bg-white p-1 rounded break-all">{config.generated_url || '/broker/' + broker?.username}</code>
                 </div>
               )}
             </CardContent>

@@ -120,9 +120,9 @@ export default function Perfil() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-primary">
+          <h1 className="text-2xl sm:text-3xl font-bold text-primary">
             Meu Perfil
           </h1>
           <p className="text-muted-foreground">
@@ -132,12 +132,12 @@ export default function Perfil() {
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="perfil">Perfil</TabsTrigger>
-          <TabsTrigger value="minisite">Minisite</TabsTrigger>
-          <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
-          <TabsTrigger value="conquistas">Conquistas</TabsTrigger>
-          <TabsTrigger value="plano">Plano</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1">
+          <TabsTrigger value="perfil" className="text-xs sm:text-sm">Perfil</TabsTrigger>
+          <TabsTrigger value="minisite" className="text-xs sm:text-sm">Minisite</TabsTrigger>
+          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm">Config</TabsTrigger>
+          <TabsTrigger value="conquistas" className="text-xs sm:text-sm">Awards</TabsTrigger>
+          <TabsTrigger value="plano" className="text-xs sm:text-sm">Plano</TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil" className="space-y-6">
@@ -224,13 +224,14 @@ export default function Perfil() {
                 <CardTitle>Informações Básicas</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">Nome Completo</Label>
                     <Input
                       id="name"
                       value={profile.name}
                       onChange={(e) => setProfile({...profile, name: e.target.value})}
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -240,6 +241,7 @@ export default function Perfil() {
                       type="email"
                       value={profile.email}
                       onChange={(e) => setProfile({...profile, email: e.target.value})}
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -248,6 +250,7 @@ export default function Perfil() {
                       id="phone"
                       value={profile.phone}
                       onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -257,6 +260,7 @@ export default function Perfil() {
                       value={profile.secondaryPhone || ''}
                       onChange={(e) => setProfile({...profile, secondaryPhone: e.target.value})}
                       placeholder="(opcional)"
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -265,6 +269,7 @@ export default function Perfil() {
                       id="creci"
                       value={profile.creci}
                       onChange={(e) => setProfile({...profile, creci: e.target.value})}
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -274,6 +279,7 @@ export default function Perfil() {
                       value={profile.username}
                       onChange={(e) => setProfile({...profile, username: e.target.value})}
                       placeholder="seunome_corretor"
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -282,6 +288,7 @@ export default function Perfil() {
                       id="location"
                       value={profile.location}
                       onChange={(e) => setProfile({...profile, location: e.target.value})}
+                      className="h-11"
                     />
                   </div>
                   <div className="space-y-2">
@@ -291,37 +298,39 @@ export default function Perfil() {
                       value={profile.website}
                       onChange={(e) => setProfile({...profile, website: e.target.value})}
                       placeholder="https://seusiteimobiliario.com"
+                      className="h-11"
                     />
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="instagram">Instagram</Label>
-                      <Input
-                        id="instagram"
-                        value={profile.instagram || ''}
-                        onChange={(e) => setProfile({...profile, instagram: e.target.value})}
-                        placeholder="@seuusuario"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="linkedin">LinkedIn</Label>
-                      <Input
-                        id="linkedin"
-                        value={profile.linkedin || ''}
-                        onChange={(e) => setProfile({...profile, linkedin: e.target.value})}
-                        placeholder="linkedin.com/in/perfil"
-                      />
-                    </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="specialties">Especialidades</Label>
-                    <Input
-                      id="specialties"
-                      value={profile.specialties || ''}
-                      onChange={(e) => setProfile({...profile, specialties: e.target.value})}
-                      placeholder="Ex: Imóveis de luxo, Comercial, Residencial..."
-                    />
-                  </div>
+                     <Label htmlFor="instagram">Instagram</Label>
+                     <Input
+                       id="instagram"
+                       value={profile.instagram || ''}
+                       onChange={(e) => setProfile({...profile, instagram: e.target.value})}
+                       placeholder="@seuusuario"
+                       className="h-11"
+                     />
+                   </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="linkedin">LinkedIn</Label>
+                     <Input
+                       id="linkedin"
+                       value={profile.linkedin || ''}
+                       onChange={(e) => setProfile({...profile, linkedin: e.target.value})}
+                       placeholder="linkedin.com/in/perfil"
+                       className="h-11"
+                     />
+                   </div>
+                   <div className="space-y-2 sm:col-span-2">
+                     <Label htmlFor="specialties">Especialidades</Label>
+                     <Input
+                       id="specialties"
+                       value={profile.specialties || ''}
+                       onChange={(e) => setProfile({...profile, specialties: e.target.value})}
+                       placeholder="Ex: Imóveis de luxo, Comercial, Residencial..."
+                       className="h-11"
+                     />
+                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Biografia</Label>
