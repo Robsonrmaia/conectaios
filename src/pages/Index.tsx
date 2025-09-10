@@ -17,7 +17,7 @@ import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FooterBankLinks } from '@/components/FooterBankLinks';
 import { TestimonialsSection } from '@/components/TestimonialsSection';
-import CreateAdminButton from '@/components/CreateAdminButton';
+
 import garotonectaImg from '@/assets/garoto-conecta.png';
 
 const Index = () => {
@@ -750,12 +750,6 @@ const Index = () => {
         {/* Testimonials Section */}
         <TestimonialsSection />
 
-        {/* Admin Setup Section */}
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-md mx-auto">
-            <CreateAdminButton />
-          </div>
-        </div>
 
         {/* Footer */}
       <FooterBankLinks />

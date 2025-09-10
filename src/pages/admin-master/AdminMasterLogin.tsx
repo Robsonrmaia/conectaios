@@ -21,7 +21,7 @@ export default function AdminMasterLogin({ onLogin }: AdminMasterLoginProps) {
     setLoading(true);
 
     // Master password - in production this should be from env variables
-    const MASTER_PASSWORD = 'ConectaIOS2024@Admin';
+    const MASTER_PASSWORD = 'admin123';
     
     if (password === MASTER_PASSWORD) {
       toast.success('Acesso autorizado!');

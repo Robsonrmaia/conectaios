@@ -36,28 +36,27 @@ export function TestimonialsSection() {
           </p>
         </div>
 
-        <div className="flex overflow-x-auto gap-4 max-w-4xl mx-auto pb-2">
-          {testimonials.map((testimonial, index) => (
+        <div className="flex overflow-x-auto gap-8 max-w-6xl mx-auto pb-2">
+          {testimonials.map((testimonial) => (
             <div 
               key={testimonial.id}
-              className="flex-shrink-0 bg-muted/30 rounded-lg p-4 min-w-[280px] border"
+              className="flex-shrink-0 min-w-[320px] text-center"
             >
-              <div className="flex items-start gap-3">
-                <img 
-                  src={testimonial.photo} 
-                  alt={testimonial.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-sm">{testimonial.name}</h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-2">{testimonial.role}</p>
-                  <p className="text-sm leading-relaxed text-foreground">
-                    {testimonial.text}
-                  </p>
+              <img 
+                src={testimonial.photo} 
+                alt={testimonial.name}
+                className="w-12 h-12 rounded-full object-cover mx-auto mb-3"
+              />
+              <div className="flex justify-center mb-2">
+                <div className="flex text-yellow-500 text-lg">
+                  ⭐⭐⭐⭐⭐
                 </div>
               </div>
+              <h4 className="font-medium text-base mb-1">{testimonial.name}</h4>
+              <p className="text-sm text-muted-foreground mb-3">{testimonial.role}</p>
+              <p className="text-sm leading-relaxed text-foreground italic">
+                "{testimonial.text}"
+              </p>
             </div>
           ))}
         </div>
