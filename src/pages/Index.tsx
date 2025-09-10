@@ -88,18 +88,31 @@ const Index = () => {
       </header>
 
       {/* Hero Section - Layout com Imagem do Rapaz */}
-      <main className="bg-background pt-20">
+      <main className="bg-background pt-20 relative overflow-hidden">
+        {/* Elementos decorativos de fundo */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-20 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-60 -left-20 w-60 h-60 bg-blue-500/3 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-green-500/4 rounded-full blur-2xl"></div>
+        </div>
+
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
-        <div className="hidden sm:block">
+        <div className="hidden sm:block relative">
           <div className="container mx-auto px-6 py-8">
-            <div className="grid lg:grid-cols-2 gap-16 items-center pt-8">
+            <div className="grid lg:grid-cols-2 gap-8 items-center pt-8 relative">
               {/* Coluna Esquerda - Conteúdo */}
-              <div className="space-y-8 pt-8">
+              <div className="space-y-8 pt-8 relative z-10">
+                {/* Badge decorativo */}
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                  Plataforma #1 em Inovação Imobiliária
+                </div>
+
                 <div className="space-y-6">
                   <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-[1.1] tracking-tight">
-                    Sua rotina <span className="text-primary">imobiliária</span><br />
-                    <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                    e <span className="text-primary">Inteligente</span>
+                    Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
+                    <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
+                    e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
                   </h1>
                   
                   <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
@@ -110,35 +123,92 @@ const Index = () => {
                   </p>
                 </div>
 
+                {/* Stats rápidos */}
+                <div className="flex gap-6 py-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">500+</div>
+                    <div className="text-sm text-muted-foreground">Corretores</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">10k+</div>
+                    <div className="text-sm text-muted-foreground">Imóveis</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">95%</div>
+                    <div className="text-sm text-muted-foreground">Satisfação</div>
+                  </div>
+                </div>
+
                 <div className="flex gap-4 items-center">
                   <Button 
                     onClick={() => navigate('/auth')}
                     size="lg"
-                    className="text-base px-8 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+                    className="text-base px-8 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-r from-primary to-primary/90 text-white font-semibold border-0 shadow-lg hover:shadow-primary/25"
                   >
                     Começar Agora
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                   <SaibaMaisDialog />
                 </div>
+
+                {/* Indicadores visuais */}
+                <div className="flex items-center gap-4 pt-2">
+                  <div className="flex -space-x-2">
+                    {[1,2,3,4].map((i) => (
+                      <div key={i} className="w-8 h-8 bg-gradient-to-br from-primary to-blue-600 rounded-full border-2 border-white flex items-center justify-center text-white text-xs font-bold">
+                        {i}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-sm text-muted-foreground">Mais de 500 corretores confiam no ConectaIOS</span>
+                </div>
               </div>
 
               {/* Coluna Direita - Imagem do Rapaz */}
               <div className="relative pt-4 flex justify-center lg:justify-end">
-                <div className="relative">
+                {/* Elementos decorativos atrás da imagem */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-72 h-72 bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-2xl"></div>
+                </div>
+                
+                {/* Cards flutuantes decorativos */}
+                <div className="absolute top-16 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 border animate-bounce" style={{ animationDelay: '1s', animationDuration: '3s' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                    <span className="text-xs font-medium">Match encontrado!</span>
+                  </div>
+                </div>
+
+                <div className="absolute bottom-20 right-0 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 border animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-primary" />
+                    <span className="text-xs font-medium">+3 Imóveis</span>
+                  </div>
+                </div>
+
+                <div className="relative z-10">
                   <img 
                     src={garotonectaImg} 
                     alt="Profissional ConectaIOS" 
-                    className="max-w-full h-auto max-h-[500px] object-contain"
+                    className="max-w-full h-auto max-h-[500px] object-contain drop-shadow-2xl"
                   />
                 </div>
               </div>
             </div>
             
             {/* Vídeo Menor Centralizado */}
-            <div className="flex justify-center mt-16">
-              <div className="w-full max-w-2xl">
-                <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl">
+            <div className="flex justify-center mt-20">
+              <div className="w-full max-w-2xl relative">
+                {/* Badge acima do vídeo */}
+                <div className="text-center mb-6">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    Veja a plataforma em ação
+                  </div>
+                </div>
+
+                <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
                   <iframe
                     src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
                     title="ConectaIOS Hero Video Desktop"
@@ -158,14 +228,22 @@ const Index = () => {
         </div>
 
         {/* Mobile Layout - Apenas para telas pequenas */}
-        <div className="sm:hidden">
+        <div className="sm:hidden relative">
           <div className="px-6 py-8 space-y-8">
+            {/* Badge decorativo mobile */}
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-medium border border-primary/20">
+                <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></div>
+                #1 em Inovação Imobiliária
+              </div>
+            </div>
+
             {/* Título e Texto */}
             <div className="text-center space-y-6">
               <h1 className="text-3xl font-bold leading-tight text-foreground">
-                Sua rotina <span className="text-primary">imobiliária</span><br />
-                <span className="text-primary">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                e <span className="text-primary">Inteligente</span>
+                Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
+                <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
+                e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
               </h1>
               
               <p className="text-base text-muted-foreground leading-relaxed">
@@ -177,12 +255,36 @@ const Index = () => {
             </div>
 
             {/* Imagem do Rapaz */}
-            <div className="flex justify-center py-4">
+            <div className="flex justify-center py-4 relative">
+              {/* Elementos decorativos mobile */}
+              <div className="absolute top-2 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-2 border text-xs animate-bounce" style={{ animationDelay: '1s' }}>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  Online
+                </div>
+              </div>
+
               <img 
                 src={garotonectaImg} 
                 alt="Profissional ConectaIOS" 
-                className="max-w-[280px] h-auto object-contain"
+                className="max-w-[280px] h-auto object-contain drop-shadow-xl"
               />
+            </div>
+
+            {/* Stats mobile */}
+            <div className="flex justify-center gap-4 py-4">
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">500+</div>
+                <div className="text-xs text-muted-foreground">Corretores</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">10k+</div>
+                <div className="text-xs text-muted-foreground">Imóveis</div>
+              </div>
+              <div className="text-center">
+                <div className="text-lg font-bold text-primary">95%</div>
+                <div className="text-xs text-muted-foreground">Satisfação</div>
+              </div>
             </div>
 
             {/* Botões */}
@@ -190,7 +292,7 @@ const Index = () => {
               <Button 
                 onClick={() => navigate('/auth')}
                 size="lg"
-                className="w-full sm:w-auto text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-primary hover:bg-primary/90 text-white font-semibold"
+                className="w-full sm:w-auto text-base px-6 py-3 transition-all duration-300 hover:scale-105 hover:shadow-xl bg-gradient-to-r from-primary to-primary/90 text-white font-semibold shadow-lg"
               >
                 Começar Agora
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -198,8 +300,15 @@ const Index = () => {
               <SaibaMaisDialog />
             </div>
 
-            {/* Vídeo Menor */}
+            {/* Vídeo Menor Mobile */}
             <div className="mt-8">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-xs font-medium border border-primary/20">
+                  <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
+                  Demonstração
+                </div>
+              </div>
+              
               <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
                 <iframe
                   src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
