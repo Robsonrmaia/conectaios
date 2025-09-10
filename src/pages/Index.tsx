@@ -226,6 +226,11 @@ const Index = () => {
                     alt="Profissional ConectaIOS" 
                     className="max-w-full h-auto max-h-[500px] object-contain drop-shadow-2xl"
                   />
+                  <div className="text-center mt-4">
+                    <p className="text-lg font-medium text-foreground">
+                      Iago Bittencourt - CEO
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

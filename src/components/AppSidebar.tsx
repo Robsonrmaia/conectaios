@@ -108,11 +108,6 @@ const configItems = [
     url: '/app/suporte',
     icon: HelpCircle,
   },
-  {
-    title: 'Logs de Auditoria',
-    url: '/app/audit-logs',
-    icon: Activity,
-  },
 ];
 
 export function AppSidebar() {
