@@ -588,16 +588,16 @@ export function MinisiteEditorIntegrated() {
                         </div>
                       )}
                       <div className="flex gap-2">
-                       <div className="flex gap-2">
-                         <input
-                           type="file"
-                           accept="image/*"
-                           onChange={(e) => {
-                             const file = e.target.files?.[0];
-                             if (file) handleImageUpload(file, 'logo');
-                           }}
-                           className="hidden"
-                           id="logo-upload"
+                        <div className="flex gap-2">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageUpload(file, 'logo');
+                            }}
+                            className="hidden"
+                            id="logo-upload"
                          />
                          <Label htmlFor="logo-upload" className="cursor-pointer">
                            <Button variant="outline" asChild>

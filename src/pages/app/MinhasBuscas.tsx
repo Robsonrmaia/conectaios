@@ -180,14 +180,41 @@ export default function MinhasBuscas() {
       const { data: matchResults, error } = await supabase
         .rpc('find_intelligent_property_matches', { search_id: search.id });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Search error:', error);
+        // Fallback to broader search if intelligent matching fails
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('properties')
+          .select('*')
+          .eq('listing_type', search.listing_type)
+          .lte('valor', search.max_price * 1.5) // 50% tolerance
+          .eq('is_public', true)
+          .limit(20);
+        
+        if (fallbackError) throw fallbackError;
+        
+        const transformedFallback: Property[] = (fallbackData || []).map((prop: any) => ({
+          ...prop,
+          match_score: 50,
+          match_reasons: ['Busca ampliada - critérios flexíveis']
+        }));
+        
+        setMatches(transformedFallback);
+        toast.success(`Encontrados ${transformedFallback.length} imóveis com critérios ampliados`);
+        return;
+      }
 
       // Transform match results to Property format
       const transformedMatches: Property[] = (matchResults || []).map((match: any) => ({
         ...match.property_data,
         match_score: match.match_score,
-        match_reasons: match.match_reasons
+        match_reasons: match.match_reasons?.filter(Boolean) || []
       }));
+      
+      // If no matches found, suggest alternatives
+      if (transformedMatches.length === 0) {
+        toast.info('Nenhum match encontrado. Sugestão: amplie o orçamento ou revise os critérios.');
+      }
       
       // Update match count in the search record
       await supabase

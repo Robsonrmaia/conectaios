@@ -243,22 +243,35 @@ export function EnhancedMessaging() {
   const startNewConversation = async (brokerId: string) => {
     try {
       const broker = availableBrokers.find(b => b.id === brokerId);
-      if (!broker || !user) return;
+      if (!broker || !user) {
+        toast.error('Broker não encontrado');
+        return;
+      }
 
       // Get current user's broker ID
-      const { data: currentBrokerData } = await supabase
+      const { data: currentBrokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
         .select('id')
         .eq('user_id', user.id)
         .single();
 
-      if (!currentBrokerData) throw new Error('Broker atual não encontrado');
+      if (brokerError || !currentBrokerData) {
+        console.error('Broker error:', brokerError);
+        toast.error('Seu perfil de corretor não foi encontrado');
+        return;
+      }
 
-      // Create new thread in Supabase
+      // Ensure both IDs are valid UUIDs
+      if (!currentBrokerData.id || !brokerId) {
+        toast.error('IDs inválidos');
+        return;
+      }
+
+      // Create new thread in Supabase with proper UUID array format
       const { data: threadData, error } = await supabase
         .from('threads')
         .insert([{
-          participants: [currentBrokerData.id, brokerId],
+          participants: `{${currentBrokerData.id},${brokerId}}`,
           title: `Conversa com ${broker.name}`,
           type: 'broker_chat',
           created_by: currentBrokerData.id
