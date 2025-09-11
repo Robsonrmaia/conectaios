@@ -186,22 +186,28 @@ export default function UnderConstruction() {
             </div>
           </motion.div>
 
-          {/* Progress Indicator */}
+          {/* Enhanced Progress Indicator */}
           <motion.div
             className="mt-12 max-w-xs mx-auto"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 1.1, duration: 0.8 }}
           >
-            <div className="w-full bg-muted/30 rounded-full h-2 mb-4">
+            <div className="w-full bg-muted/30 rounded-full h-3 mb-4 overflow-hidden">
               <motion.div
-                className="bg-gradient-to-r from-primary to-green-500 h-2 rounded-full"
-                initial={{ width: "0%" }}
-                animate={{ width: "75%" }}
-                transition={{ delay: 1.5, duration: 2, ease: "easeOut" }}
+                className="bg-gradient-to-r from-primary via-green-500 to-primary h-3 rounded-full"
+                initial={{ width: "0%", x: "-100%" }}
+                animate={{ 
+                  width: "85%",
+                  x: "0%"
+                }}
+                transition={{ delay: 1.5, duration: 2.5, ease: "easeOut" }}
               />
             </div>
-            <p className="text-sm text-muted-foreground">75% concluído</p>
+            <div className="flex justify-between items-center">
+              <p className="text-sm text-muted-foreground">Sistema quase pronto</p>
+              <p className="text-sm font-medium text-primary">85%</p>
+            </div>
           </motion.div>
 
           {/* Footer */}

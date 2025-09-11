@@ -4,17 +4,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Building, Save } from "lucide-react";
+import { Building, Save, AlertTriangle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useMaintenanceMode } from "@/hooks/useMaintenanceMode";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 export default function GeneralSettings() {
+  const { settings: maintenanceSettings, updateMaintenanceMode } = useMaintenanceMode();
+  
   const [settings, setSettings] = useState({
     siteName: 'ConectaIOS',
     siteDescription: 'Plataforma completa para corretores de imóveis',
     contactEmail: 'contato@conectaios.com.br',
     supportEmail: 'suporte@conectaios.com.br',
-    maintenanceMode: false,
+    maintenanceMode: maintenanceSettings.maintenanceMode,
     registrationEnabled: true,
     maxUploadSize: '10',
     sessionTimeout: '24',
@@ -23,11 +27,26 @@ export default function GeneralSettings() {
   });
 
   const handleSave = () => {
-    // Aqui você faria a chamada para salvar as configurações
     toast.success("Configurações salvas com sucesso!");
   };
 
+  const handleMaintenanceToggle = async (enabled: boolean) => {
+    const result = await updateMaintenanceMode(enabled, 'Sistema em manutenção. Voltaremos em breve!');
+    
+    if (result.success) {
+      setSettings(prev => ({ ...prev, maintenanceMode: enabled }));
+      toast.success(enabled ? "Modo de manutenção ativado!" : "Modo de manutenção desativado!");
+    } else {
+      toast.error("Erro ao alterar modo de manutenção");
+    }
+  };
+
   const handleChange = (field: string, value: string | boolean) => {
+    if (field === 'maintenanceMode') {
+      // Special handling for maintenance mode
+      return;
+    }
+    
     setSettings(prev => ({
       ...prev,
       [field]: value
@@ -124,15 +143,48 @@ export default function GeneralSettings() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Modo de Manutenção</Label>
+                <Label className="flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                  Modo de Manutenção
+                </Label>
                 <p className="text-sm text-muted-foreground">
-                  Quando ativado, apenas administradores podem acessar o site
+                  Quando ativado, apenas administradores podem acessar o site. Usuários verão a página "Em Construção".
                 </p>
+                {settings.maintenanceMode && (
+                  <p className="text-sm text-orange-600 font-medium">
+                    ⚠️ Site atualmente em manutenção
+                  </p>
+                )}
               </div>
-              <Switch
-                checked={settings.maintenanceMode}
-                onCheckedChange={(checked) => handleChange('maintenanceMode', checked)}
-              />
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Switch
+                    checked={settings.maintenanceMode}
+                    onCheckedChange={() => {}}
+                  />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      {settings.maintenanceMode ? 'Desativar' : 'Ativar'} Modo de Manutenção?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {settings.maintenanceMode 
+                        ? 'Isso permitirá que todos os usuários acessem o site normalmente.'
+                        : 'Isso redirecionará todos os usuários (exceto administradores) para a página "Em Construção".'}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={() => handleMaintenanceToggle(!settings.maintenanceMode)}
+                      className={settings.maintenanceMode ? "bg-green-600 hover:bg-green-700" : "bg-orange-600 hover:bg-orange-700"}
+                    >
+                      {settings.maintenanceMode ? 'Desativar' : 'Ativar'}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             <div className="flex items-center justify-between">

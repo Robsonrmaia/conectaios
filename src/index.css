@@ -24,6 +24,80 @@
   }
 }
 
+@keyframes neural-glow {
+  0%, 100% { 
+    opacity: 0.15; 
+    transform: scale(0.95);
+  }
+  50% { 
+    opacity: 0.4; 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes neural-float {
+  0%, 100% { 
+    opacity: 0.2; 
+    transform: translateY(0px) scale(0.98);
+  }
+  33% { 
+    opacity: 0.35; 
+    transform: translateY(-2px) scale(1.02);
+  }
+  66% { 
+    opacity: 0.25; 
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+@keyframes fade-pulse {
+  0%, 100% { 
+    opacity: 0.3;
+    transform: scale(0.96);
+  }
+  50% { 
+    opacity: 0.6;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes breathe {
+  0%, 100% { 
+    opacity: 0.4;
+    transform: scale(0.94);
+  }
+  50% { 
+    opacity: 0.8;
+    transform: scale(1.06);
+  }
+}
+
+@keyframes network-line {
+  0% { 
+    stroke-dasharray: 0 100;
+    opacity: 0;
+  }
+  50% { 
+    stroke-dasharray: 50 50;
+    opacity: 0.6;
+  }
+  100% { 
+    stroke-dasharray: 100 0;
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { 
+    opacity: 0.4;
+    transform: scale(0.95);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
@@ -145,7 +219,31 @@ All colors MUST be HSL.
   }
 }
 
-/* Parallax effect styles */
+@layer utilities {
+  .animate-neural-glow {
+    animation: neural-glow 8s ease-in-out infinite;
+  }
+  
+  .animate-neural-float {
+    animation: neural-float 10s ease-in-out infinite;
+  }
+  
+  .animate-fade-pulse {
+    animation: fade-pulse 6s ease-in-out infinite;
+  }
+  
+  .animate-breathe {
+    animation: breathe 4s ease-in-out infinite;
+  }
+  
+  .animate-network-line {
+    animation: network-line 4s linear infinite;
+  }
+  
+  .animate-pulse-gentle {
+    animation: pulse-gentle 3s ease-in-out infinite;
+}
+
 @layer components {
   .parallax-element {
     transform: translateY(0);

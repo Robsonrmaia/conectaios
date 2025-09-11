@@ -112,50 +112,64 @@ export default function AnimatedBackground() {
           })}
         </g>
         
-        {/* Neural network nodes - green glowing circles */}
+        {/* Neural network nodes - green glowing circles - larger and more transparent */}
         <g>
           {nodes.map((node, index) => (
             <g key={index}>
-              {/* Main circle with glow effect */}
+              {/* Main circle with glow effect - larger and more transparent */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 2}
+                r={node.size * 4}
                 fill="hsl(142 76% 36%)"
-                opacity="0.7"
+                opacity="0.2"
                 filter="url(#nodeGlow)"
                 className="animate-neural-glow"
                 style={{ 
                   animationDelay: `${node.delay}s`,
-                  animationDuration: '5s'
-                }}
-              />
-              
-              {/* Inner circle - brighter */}
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.size * 0.8}
-                fill="hsl(142 76% 50%)"
-                opacity="0.8"
-                className="animate-neural-float"
-                style={{ 
-                  animationDelay: `${node.delay + 1}s`,
                   animationDuration: '8s'
                 }}
               />
               
-              {/* Inner accent - brightest */}
+              {/* Middle circle - medium transparency */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 0.3}
+                r={node.size * 2.5}
+                fill="hsl(142 76% 50%)"
+                opacity="0.3"
+                className="animate-neural-float"
+                style={{ 
+                  animationDelay: `${node.delay + 1}s`,
+                  animationDuration: '10s'
+                }}
+              />
+              
+              {/* Inner circle - soft glow */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 1.2}
+                fill="hsl(142 76% 60%)"
+                opacity="0.4"
+                className="animate-fade-pulse"
+                style={{ 
+                  animationDelay: `${node.delay + 2}s`,
+                  animationDuration: '6s'
+                }}
+              />
+              
+              {/* Core - brightest but small */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 0.4}
                 fill="hsl(142 76% 70%)"
                 opacity="0.6"
-                className="animate-pulse-gentle"
+                className="animate-breathe"
                 style={{ 
                   animationDelay: `${node.delay + 0.5}s`,
-                  animationDuration: '3s'
+                  animationDuration: '4s'
                 }}
               />
             </g>
