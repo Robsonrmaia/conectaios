@@ -244,7 +244,11 @@ export function EnhancedMessaging() {
     try {
       const broker = availableBrokers.find(b => b.id === brokerId);
       if (!broker || !user) {
-        toast.error('Broker não encontrado');
+        toast({
+          title: "Erro",
+          description: "Broker não encontrado",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -253,17 +257,25 @@ export function EnhancedMessaging() {
         .from('conectaios_brokers')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (brokerError || !currentBrokerData) {
         console.error('Broker error:', brokerError);
-        toast.error('Seu perfil de corretor não foi encontrado');
+        toast({
+          title: "Erro",
+          description: "Seu perfil de corretor não foi encontrado",
+          variant: "destructive"
+        });
         return;
       }
 
       // Ensure both IDs are valid UUIDs
       if (!currentBrokerData.id || !brokerId) {
-        toast.error('IDs inválidos');
+        toast({
+          title: "Erro", 
+          description: "IDs inválidos",
+          variant: "destructive"
+        });
         return;
       }
 
@@ -271,7 +283,7 @@ export function EnhancedMessaging() {
       const { data: threadData, error } = await supabase
         .from('threads')
         .insert([{
-          participants: `{${currentBrokerData.id},${brokerId}}`,
+          participants: [currentBrokerData.id, brokerId],
           title: `Conversa com ${broker.name}`,
           type: 'broker_chat',
           created_by: currentBrokerData.id

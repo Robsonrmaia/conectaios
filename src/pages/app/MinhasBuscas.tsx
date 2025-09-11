@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { Search, Plus, Eye, Trash2, Users, Building2, MapPin, DollarSign } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -200,7 +200,10 @@ export default function MinhasBuscas() {
         }));
         
         setMatches(transformedFallback);
-        toast.success(`Encontrados ${transformedFallback.length} imóveis com critérios ampliados`);
+        toast({
+          title: "Busca",
+          description: `Encontrados ${transformedFallback.length} imóveis com critérios ampliados`
+        });
         return;
       }
 
@@ -213,7 +216,10 @@ export default function MinhasBuscas() {
       
       // If no matches found, suggest alternatives
       if (transformedMatches.length === 0) {
-        toast.info('Nenhum match encontrado. Sugestão: amplie o orçamento ou revise os critérios.');
+        toast({
+          title: "Nenhum resultado",
+          description: "Nenhum match encontrado. Sugestão: amplie o orçamento ou revise os critérios."
+        });
       }
       
       // Update match count in the search record

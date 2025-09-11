@@ -23,13 +23,15 @@ import {
   Smartphone,
   Laptop,
   Monitor,
-  Sparkles
+  Sparkles,
+  Wand2
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
 import { useMinisite } from '@/hooks/useMinisite';
+import { ImageGeneratorModal } from '@/components/ImageGeneratorModal';
 
 const TEMPLATES = [
   { 
@@ -74,6 +76,8 @@ export function MinisiteEditorIntegrated() {
   const [activeTab, setActiveTab] = useState('design');
   const [isSaving, setIsSaving] = useState(false);
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
+  const [showImageGenerator, setShowImageGenerator] = useState(false);
+  const [imageGeneratorType, setImageGeneratorType] = useState<'logo' | 'banner' | 'cover'>('logo');
 
   const handleSave = async () => {
     if (!config) return;
@@ -282,6 +286,25 @@ export function MinisiteEditorIntegrated() {
       });
     } finally {
       setIsGeneratingLogo(false);
+    }
+  };
+
+  const handleImageGenerated = async (imageUrl: string) => {
+    try {
+      if (imageGeneratorType === 'logo') {
+        // Convert data URL to blob and upload
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const file = new File([blob], `logo-${Date.now()}.png`, { type: 'image/png' });
+        await handleImageUpload(file, 'logo');
+      }
+    } catch (error) {
+      console.error('Error applying generated image:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao aplicar imagem gerada",
+        variant: "destructive"
+      });
     }
   };
 
@@ -607,17 +630,17 @@ export function MinisiteEditorIntegrated() {
                              </span>
                            </Button>
                          </Label>
-                         <Button
-                           variant="outline"
-                           onClick={() => {
-                             const prompt = window.prompt("Descreva o logo que você quer (ex: 'imobiliária moderna', 'casa azul', etc.):");
-                             if (prompt) generateLogoWithAI(prompt);
-                           }}
-                           disabled={isGeneratingLogo}
-                         >
-                           <Sparkles className="h-4 w-4 mr-2" />
-                           {isGeneratingLogo ? 'Gerando...' : 'Criar Logo com IA'}
-                         </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setImageGeneratorType('logo');
+                              setShowImageGenerator(true);
+                            }}
+                            disabled={isGeneratingLogo}
+                          >
+                            <Wand2 className="h-4 w-4 mr-2" />
+                            Gerar Logo com IA
+                          </Button>
                        </div>
                       </div>
                     </div>
@@ -785,6 +808,13 @@ export function MinisiteEditorIntegrated() {
           </Card>
         </div>
       </div>
+      
+      <ImageGeneratorModal
+        isOpen={showImageGenerator}
+        onClose={() => setShowImageGenerator(false)}
+        onImageGenerated={handleImageGenerated}
+        type={imageGeneratorType}
+      />
     </div>
   );
 }
