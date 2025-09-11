@@ -74,9 +74,9 @@ export default function AnimatedBackground() {
         <defs>
           {/* Gradient for connections */}
           <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(330 81% 60%)" stopOpacity="0.1" />
-            <stop offset="50%" stopColor="hsl(330 81% 60%)" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="hsl(330 81% 60%)" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
+            <stop offset="50%" stopColor="hsl(142 76% 36%)" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
           </linearGradient>
           
           {/* Glow filter for nodes */}
@@ -112,53 +112,45 @@ export default function AnimatedBackground() {
           })}
         </g>
         
-        {/* Neural network nodes - now as house icons */}
+        {/* Neural network nodes - green glowing circles */}
         <g>
           {nodes.map((node, index) => (
             <g key={index}>
-              {/* House icon glow effect */}
-              <g 
-                transform={`translate(${node.x - node.size * 3}, ${node.y - node.size * 3}) scale(${node.size * 0.6})`}
-                opacity="0.15"
+              {/* Main circle with glow effect */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 2}
+                fill="hsl(142 76% 36%)"
+                opacity="0.7"
                 filter="url(#nodeGlow)"
                 className="animate-neural-glow"
                 style={{ 
                   animationDelay: `${node.delay}s`,
                   animationDuration: '5s'
                 }}
-              >
-                {/* House SVG path in pink */}
-                <path
-                  d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
-                  fill="hsl(330 81% 60%)"
-                />
-                <polyline points="9,22 9,12 15,12 15,22" fill="hsl(330 81% 60%)" />
-              </g>
+              />
               
-              {/* Main house icon */}
-              <g 
-                transform={`translate(${node.x - node.size * 3}, ${node.y - node.size * 3}) scale(${node.size * 0.6})`}
+              {/* Inner circle - brighter */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 0.8}
+                fill="hsl(142 76% 50%)"
+                opacity="0.8"
                 className="animate-neural-float"
                 style={{ 
                   animationDelay: `${node.delay + 1}s`,
                   animationDuration: '8s'
                 }}
-              >
-                {/* House SVG path in pink */}
-                <path
-                  d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
-                  fill="hsl(330 81% 60%)"
-                  opacity="0.8"
-                />
-                <polyline points="9,22 9,12 15,12 15,22" fill="hsl(330 81% 70%)" opacity="0.6" />
-              </g>
+              />
               
-              {/* Inner accent */}
+              {/* Inner accent - brightest */}
               <circle
                 cx={node.x}
                 cy={node.y}
                 r={node.size * 0.3}
-                fill="hsl(330 81% 70%)"
+                fill="hsl(142 76% 70%)"
                 opacity="0.6"
                 className="animate-pulse-gentle"
                 style={{ 
@@ -171,7 +163,7 @@ export default function AnimatedBackground() {
         </g>
         
         {/* Data flow particles */}
-        <g fill="hsl(330 81% 60%)" opacity="0.6">
+        <g fill="hsl(142 76% 50%)" opacity="0.6">
           {connections.slice(0, 8).map((connection, index) => {
             const fromNode = nodes[connection.from];
             const toNode = nodes[connection.to];

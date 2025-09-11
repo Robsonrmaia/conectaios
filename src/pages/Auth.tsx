@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 
 import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
 import { toast } from 'sonner';
-import CreateAdminButton from '@/components/CreateAdminButton';
+
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -241,12 +241,6 @@ const Auth = () => {
                 </form>
               </TabsContent>
             </Tabs>
-            
-            <div className="mt-6 pt-4 border-t border-border">
-              <div className="flex justify-center">
-                <CreateAdminButton />
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
