@@ -1493,6 +1493,13 @@ export type Database = {
             referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_minisite_configs_broker"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "public_broker_profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       notes: {
@@ -1529,6 +1536,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      partners: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string
+          name: string
+          sort_order: number | null
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url: string
+          name: string
+          sort_order?: number | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string
+          name?: string
+          sort_order?: number | null
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
       }
       partnerships: {
         Row: {
@@ -2426,6 +2472,48 @@ export type Database = {
           },
         ]
       }
+      testimonials: {
+        Row: {
+          company: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          photo_url: string | null
+          rating: number | null
+          role: string | null
+          sort_order: number | null
+          testimonial: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          photo_url?: string | null
+          rating?: number | null
+          role?: string | null
+          sort_order?: number | null
+          testimonial: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          photo_url?: string | null
+          rating?: number | null
+          role?: string | null
+          sort_order?: number | null
+          testimonial?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       threads: {
         Row: {
           created_at: string
@@ -2588,7 +2676,39 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_broker_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          status: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          status?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          status?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_change_user_role: {
@@ -2630,19 +2750,6 @@ export type Database = {
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
-      }
-      get_public_broker_profiles: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          avatar_url: string
-          bio: string
-          cover_url: string
-          created_at: string
-          id: string
-          name: string
-          status: string
-          username: string
-        }[]
       }
       has_role: {
         Args: {

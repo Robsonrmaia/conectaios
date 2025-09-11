@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
+import AdminTestimonialManager from '@/components/AdminTestimonialManager';
+import AdminPartnerManager from '@/components/AdminPartnerManager';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -203,6 +205,8 @@ export default function Admin() {
         <TabsList>
           <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           <TabsTrigger value="usuarios">Usuários</TabsTrigger>
+          <TabsTrigger value="testemunhos">Testemunhos</TabsTrigger>
+          <TabsTrigger value="parceiros">Parceiros</TabsTrigger>
           <TabsTrigger value="sistema">Sistema</TabsTrigger>
           <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
         </TabsList>
@@ -287,6 +291,14 @@ export default function Admin() {
 
         <TabsContent value="usuarios" className="space-y-6">
           <SecureAdminUserManagement />
+        </TabsContent>
+
+        <TabsContent value="testemunhos" className="space-y-6">
+          <AdminTestimonialManager />
+        </TabsContent>
+
+        <TabsContent value="parceiros" className="space-y-6">
+          <AdminPartnerManager />
         </TabsContent>
 
         <TabsContent value="sistema" className="space-y-6">

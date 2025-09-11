@@ -74,14 +74,14 @@ export default function AnimatedBackground() {
         <defs>
           {/* Gradient for connections */}
           <linearGradient id="connectionGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
-            <stop offset="50%" stopColor="hsl(142 76% 36%)" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="hsl(142 76% 36%)" stopOpacity="0.1" />
+            <stop offset="0%" stopColor="hsl(330 81% 60%)" stopOpacity="0.1" />
+            <stop offset="50%" stopColor="hsl(330 81% 60%)" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="hsl(330 81% 60%)" stopOpacity="0.1" />
           </linearGradient>
           
           {/* Glow filter for nodes */}
           <filter id="nodeGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
             <feMerge> 
               <feMergeNode in="coloredBlur"/>
               <feMergeNode in="SourceGraphic"/>
@@ -112,45 +112,54 @@ export default function AnimatedBackground() {
           })}
         </g>
         
-        {/* Neural network nodes */}
+        {/* Neural network nodes - now as house icons */}
         <g>
           {nodes.map((node, index) => (
             <g key={index}>
-              {/* Node glow effect */}
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.size * 2}
-                fill="hsl(142 76% 36%)"
-                opacity="0.1"
+              {/* House icon glow effect */}
+              <g 
+                transform={`translate(${node.x - node.size * 3}, ${node.y - node.size * 3}) scale(${node.size * 0.6})`}
+                opacity="0.15"
                 filter="url(#nodeGlow)"
                 className="animate-neural-glow"
                 style={{ 
                   animationDelay: `${node.delay}s`,
                   animationDuration: '5s'
                 }}
-              />
+              >
+                {/* House SVG path in pink */}
+                <path
+                  d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                  fill="hsl(330 81% 60%)"
+                />
+                <polyline points="9,22 9,12 15,12 15,22" fill="hsl(330 81% 60%)" />
+              </g>
               
-              {/* Main node */}
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.size}
-                fill="hsl(142 76% 36%)"
+              {/* Main house icon */}
+              <g 
+                transform={`translate(${node.x - node.size * 3}, ${node.y - node.size * 3}) scale(${node.size * 0.6})`}
                 className="animate-neural-float"
                 style={{ 
                   animationDelay: `${node.delay + 1}s`,
                   animationDuration: '8s'
                 }}
-              />
+              >
+                {/* House SVG path in pink */}
+                <path
+                  d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+                  fill="hsl(330 81% 60%)"
+                  opacity="0.8"
+                />
+                <polyline points="9,22 9,12 15,12 15,22" fill="hsl(330 81% 70%)" opacity="0.6" />
+              </g>
               
-              {/* Inner core */}
+              {/* Inner accent */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 0.4}
-                fill="hsl(142 86% 46%)"
-                opacity="0.8"
+                r={node.size * 0.3}
+                fill="hsl(330 81% 70%)"
+                opacity="0.6"
                 className="animate-pulse-gentle"
                 style={{ 
                   animationDelay: `${node.delay + 0.5}s`,
@@ -162,7 +171,7 @@ export default function AnimatedBackground() {
         </g>
         
         {/* Data flow particles */}
-        <g fill="hsl(142 76% 36%)" opacity="0.6">
+        <g fill="hsl(330 81% 60%)" opacity="0.6">
           {connections.slice(0, 8).map((connection, index) => {
             const fromNode = nodes[connection.from];
             const toNode = nodes[connection.to];
