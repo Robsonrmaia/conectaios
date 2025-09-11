@@ -190,12 +190,33 @@ export const useElevenLabsVoice = () => {
       await audio.play();
 
     } catch (error) {
-      console.error('ElevenLabs failed, using native speech synthesis');
+      console.error('❌ ElevenLabs failed, fallback para síntese nativa:', error);
+      
+      // Stop any ongoing speech before starting native
+      if (window.speechSynthesis.speaking) {
+        window.speechSynthesis.cancel();
+      }
       
       const utterance = new SpeechSynthesisUtterance(cleanedText);
       utterance.lang = 'pt-BR';
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
+      utterance.rate = 0.85; // Velocidade mais natural
+      utterance.pitch = 1.1; // Tom ligeiramente mais alto para melhor clareza
+      utterance.volume = 0.9; // Volume otimizado
+      
+      // Tentar usar voz feminina portuguesa se disponível
+      const voices = window.speechSynthesis.getVoices();
+      const brazilianVoice = voices.find(voice => 
+        voice.lang.includes('pt-BR') && voice.name.includes('fem') || 
+        voice.lang.includes('pt-BR') && voice.name.toLowerCase().includes('female') ||
+        voice.lang.includes('pt-BR')
+      );
+      
+      if (brazilianVoice) {
+        console.log('🎤 Usando voz brasileira:', brazilianVoice.name);
+        utterance.voice = brazilianVoice;
+      } else {
+        console.log('⚠️ Voz brasileira não encontrada, usando padrão');
+      }
       
       utterance.onend = () => {
         if (audioId) {

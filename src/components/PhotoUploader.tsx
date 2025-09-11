@@ -40,7 +40,10 @@ export function PhotoUploader({
   const MAX_PHOTOS = 20;
 
   const addPhotoUrl = () => {
+    console.log(`🔗 [ADD] Iniciando adição - Input: "${newPhotoUrl.slice(-50)}", Total atual: ${photos.length}/${MAX_PHOTOS}`);
+    
     if (photos.length >= MAX_PHOTOS) {
+      console.log(`❌ [ADD] Limite atingido: ${photos.length}/${MAX_PHOTOS}`);
       toast({
         title: "Limite atingido",
         description: `Máximo de ${MAX_PHOTOS} fotos permitido`,
@@ -49,45 +52,98 @@ export function PhotoUploader({
       return;
     }
     
-    if (newPhotoUrl.trim()) {
-      console.log(`🔗 Adicionando URL de foto: ${newPhotoUrl.slice(-50)}`);
-      console.log(`📊 Total atual: ${photos.length}/${MAX_PHOTOS}`);
+    const trimmedUrl = newPhotoUrl.trim();
+    if (trimmedUrl) {
+      console.log(`🔗 [ADD] URL válida, processando: ${trimmedUrl.slice(-50)}`);
       
-      const updatedPhotos = [...photos, newPhotoUrl.trim()];
-      console.log(`✅ Nova lista: ${updatedPhotos.length} fotos`);
+      // Validação básica de URL
+      try {
+        new URL(trimmedUrl);
+      } catch {
+        console.error(`❌ [ADD] URL inválida: ${trimmedUrl}`);
+        toast({
+          title: "URL inválida",
+          description: "Por favor, insira uma URL válida",
+          variant: "destructive",
+        });
+        return;
+      }
       
-      onPhotosChange(updatedPhotos);
-      setNewPhotoUrl('');
+      // Criar nova array MANUALMENTE
+      const updatedPhotos = [...photos, trimmedUrl];
+      console.log(`✅ [ADD] Nova array criada: ${updatedPhotos.length} fotos`);
+      console.log('📋 [ADD] Array completo:', updatedPhotos.map((p, i) => `[${i}]: ${p.slice(-30)}`));
+      
+      try {
+        onPhotosChange(updatedPhotos);
+        setNewPhotoUrl('');
+        console.log('✅ [ADD] Estado atualizado com sucesso');
+        
+        toast({
+          title: "Foto adicionada",
+          description: `URL adicionada! Total: ${updatedPhotos.length}/${MAX_PHOTOS}`,
+        });
+      } catch (error) {
+        console.error('❌ [ADD] Erro ao atualizar estado:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao adicionar foto. Tente novamente.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      console.log('⚠️ [ADD] URL vazia ou inválida');
       toast({
-        title: "Foto adicionada",
-        description: `URL da foto adicionada com sucesso! Total: ${updatedPhotos.length}/${MAX_PHOTOS}`,
+        title: "URL vazia",
+        description: "Por favor, insira uma URL de foto",
+        variant: "destructive",
       });
     }
   };
 
   const removePhoto = (index: number) => {
-    console.log(`🗑️ Removendo foto no índice: ${index} de ${photos.length} fotos`);
-    console.log('📋 Fotos antes da remoção:', photos.map((p, i) => `${i}: ${p.slice(-30)}`));
+    console.log(`🗑️ [REMOVE] Iniciando remoção - Índice: ${index}, Total atual: ${photos.length}`);
+    console.log('📋 [REMOVE] Array atual:', photos.map((p, i) => `[${i}]: ${p.slice(-30)}`));
     
-    if (index < 0 || index >= photos.length) {
-      console.error(`❌ Índice inválido: ${index} (total: ${photos.length})`);
+    // Validação robusta do índice
+    if (!Number.isInteger(index) || index < 0 || index >= photos.length) {
+      console.error(`❌ [REMOVE] ERRO: Índice inválido ${index} para array de tamanho ${photos.length}`);
       toast({
         title: "Erro ao remover",
-        description: "Índice da foto inválido.",
+        description: `Índice da foto inválido (${index}). Array tem ${photos.length} fotos.`,
         variant: "destructive",
       });
       return;
     }
     
-    const updatedPhotos = photos.filter((_, i) => i !== index);
-    console.log(`✅ Fotos após remoção: ${updatedPhotos.length} restantes`);
-    console.log('📋 Lista atualizada:', updatedPhotos.map((p, i) => `${i}: ${p.slice(-30)}`));
+    // Criar nova array MANUALMENTE para evitar problemas de referência
+    const updatedPhotos = [];
+    for (let i = 0; i < photos.length; i++) {
+      if (i !== index) {
+        updatedPhotos.push(photos[i]);
+      }
+    }
     
-    onPhotosChange(updatedPhotos);
-    toast({
-      title: "Foto removida",
-      description: `Foto ${index + 1} removida com sucesso! Restam ${updatedPhotos.length} foto(s).`,
-    });
+    console.log(`✅ [REMOVE] Nova array criada: ${updatedPhotos.length} fotos restantes`);
+    console.log('📋 [REMOVE] Array final:', updatedPhotos.map((p, i) => `[${i}]: ${p.slice(-30)}`));
+    
+    // Atualizar estado
+    try {
+      onPhotosChange(updatedPhotos);
+      console.log('✅ [REMOVE] Estado atualizado com sucesso');
+      
+      toast({
+        title: "Foto removida",
+        description: `Foto ${index + 1} removida! Restam ${updatedPhotos.length} foto(s).`,
+      });
+    } catch (error) {
+      console.error('❌ [REMOVE] Erro ao atualizar estado:', error);
+      toast({
+        title: "Erro",
+        description: "Erro interno ao remover foto. Recarregue a página.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
