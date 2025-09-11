@@ -116,11 +116,11 @@ export default function AnimatedBackground() {
         <g>
           {nodes.map((node, index) => (
             <g key={index}>
-              {/* Main circle with glow effect - much larger and very transparent */}
+              {/* Main circle with glow effect - smaller and very transparent */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 8}
+                r={node.size * 3}
                 fill="hsl(142 76% 36%)"
                 opacity="0.05"
                 filter="url(#nodeGlow)"
@@ -135,7 +135,7 @@ export default function AnimatedBackground() {
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 5}
+                r={node.size * 2}
                 fill="hsl(142 76% 50%)"
                 opacity="0.08"
                 className="animate-neural-float"
@@ -149,7 +149,7 @@ export default function AnimatedBackground() {
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 2.5}
+                r={node.size * 1.2}
                 fill="hsl(142 76% 60%)"
                 opacity="0.12"
                 className="animate-fade-pulse"
@@ -163,7 +163,7 @@ export default function AnimatedBackground() {
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 1}
+                r={node.size * 0.6}
                 fill="hsl(142 76% 70%)"
                 opacity="0.15"
                 className="animate-breathe"

@@ -90,11 +90,11 @@ const Index = () => {
 
       {/* Hero Section - Layout com Imagem do Rapaz */}
       <main className="bg-background pt-20 relative overflow-hidden">
-        {/* Elementos decorativos de fundo */}
+        {/* Elementos decorativos de fundo com parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl"></div>
-          <div className="absolute top-60 -left-20 w-60 h-60 bg-blue-500/3 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-green-500/4 rounded-full blur-2xl"></div>
+          <div className="absolute top-20 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl parallax-element" data-speed="0.2"></div>
+          <div className="absolute top-60 -left-20 w-60 h-60 bg-blue-500/3 rounded-full blur-3xl parallax-element" data-speed="0.3"></div>
+          <div className="absolute bottom-40 right-1/3 w-32 h-32 bg-green-500/4 rounded-full blur-2xl parallax-element" data-speed="0.1"></div>
         </div>
 
         {/* Animated connecting lines background */}
@@ -105,9 +105,9 @@ const Index = () => {
           <div className="container mx-auto px-6 py-8">
             <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 items-center pt-8 relative">
               {/* Coluna Esquerda - Conteúdo */}
-              <div className="space-y-8 pt-8 relative z-10 lg:pr-8">
+              <div className="space-y-8 pt-8 relative z-10 lg:pr-8 parallax-element" data-speed="0.1">
                 {/* Badge decorativo */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium border border-primary/20 parallax-element" data-speed="0.05">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                   Plataforma #1 em Inovação Imobiliária
                 </div>
@@ -175,9 +175,9 @@ const Index = () => {
                   <div className="w-72 h-72 bg-gradient-to-br from-primary/10 to-blue-500/10 rounded-full blur-2xl"></div>
                 </div>
                 
-                {/* Cards flutuantes decorativos */}
+                {/* Cards flutuantes decorativos com parallax */}
                 {/* Card Apartamento Vendido - Superior Esquerdo */}
-                <div className="absolute top-12 -left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-green-200 animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '3s' }}>
+                <div className="absolute top-12 -left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-green-200 animate-bounce parallax-element" data-speed="0.15" style={{ animationDelay: '0.5s', animationDuration: '3s' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
                     <span className="text-xs font-medium text-green-700">Apartamento Vendido!</span>
@@ -185,7 +185,7 @@ const Index = () => {
                 </div>
 
                 {/* Card Cliente Procura - Esquerdo Médio */}
-                <div className="absolute top-1/3 -left-8 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-blue-200 animate-bounce" style={{ animationDelay: '1.5s', animationDuration: '4s' }}>
+                <div className="absolute top-1/3 -left-8 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-blue-200 animate-bounce parallax-element" data-speed="0.25" style={{ animationDelay: '1.5s', animationDuration: '4s' }}>
                   <div className="flex items-center gap-2">
                     <Search className="w-4 h-4 text-blue-600" />
                     <span className="text-xs font-medium text-blue-700">Cliente Procura Imóvel</span>
@@ -193,7 +193,7 @@ const Index = () => {
                 </div>
 
                 {/* Card Match encontrado - Superior Direito */}
-                <div className="absolute top-16 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-purple-200 animate-bounce" style={{ animationDelay: '1s', animationDuration: '3s' }}>
+                <div className="absolute top-16 right-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-purple-200 animate-bounce parallax-element" data-speed="0.2" style={{ animationDelay: '1s', animationDuration: '3s' }}>
                   <div className="flex items-center gap-2">
                     <Heart className="w-4 h-4 text-purple-600" />
                     <span className="text-xs font-medium text-purple-700">Match encontrado!</span>
@@ -201,7 +201,7 @@ const Index = () => {
                 </div>
 
                 {/* Card Lançamento à Vista - Direito Inferior */}
-                <div className="absolute bottom-32 right-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-yellow-200 animate-bounce" style={{ animationDelay: '2.5s', animationDuration: '3.5s' }}>
+                <div className="absolute bottom-32 right-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-yellow-200 animate-bounce parallax-element" data-speed="0.1" style={{ animationDelay: '2.5s', animationDuration: '3.5s' }}>
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-yellow-600" />
                     <span className="text-xs font-medium text-yellow-700">Lançamento à Vista</span>
@@ -209,7 +209,7 @@ const Index = () => {
                 </div>
 
                 {/* Card Negociação Fechada - Inferior */}
-                <div className="absolute bottom-16 -right-6 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-emerald-200 animate-bounce" style={{ animationDelay: '3s', animationDuration: '4s' }}>
+                <div className="absolute bottom-16 -right-6 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-emerald-200 animate-bounce parallax-element" data-speed="0.18" style={{ animationDelay: '3s', animationDuration: '4s' }}>
                   <div className="flex items-center gap-2">
                     <Handshake className="w-4 h-4 text-emerald-600" />
                     <span className="text-xs font-medium text-emerald-700">Negociação Fechada</span>
@@ -217,7 +217,7 @@ const Index = () => {
                 </div>
 
                 {/* Card +3 Imóveis - Esquerdo Inferior */}
-                <div className="absolute bottom-20 -left-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-indigo-200 animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
+                <div className="absolute bottom-20 -left-2 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 border border-indigo-200 animate-bounce parallax-element" data-speed="0.12" style={{ animationDelay: '2s', animationDuration: '4s' }}>
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-indigo-600" />
                     <span className="text-xs font-medium text-indigo-700">+3 Imóveis Cadastrados</span>

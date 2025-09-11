@@ -71,7 +71,17 @@ export default function MinisiteView() {
 
   const fetchMinisiteData = async () => {
     try {
+      console.log('Fetching minisite for username:', username);
       const urlToFind = username?.startsWith('@') ? username : `@${username}`;
+      console.log('Looking for URL:', urlToFind);
+      
+      // First, let's check what minisites exist in the database
+      const { data: allMinisites, error: allError } = await supabase
+        .from('minisite_configs')
+        .select('generated_url, is_active, broker_id');
+      
+      console.log('All minisites in database:', allMinisites);
+      console.log('All minisites error:', allError);
       
       // Fetch minisite config with broker data
       const { data: configData, error: configError } = await supabase
@@ -84,13 +94,36 @@ export default function MinisiteView() {
         .eq('is_active', true)
         .maybeSingle();
 
+      console.log('Config data:', configData);
+      console.log('Config error:', configError);
+
       if (configError) throw configError;
       
       if (!configData) {
-        throw new Error('Minisite não encontrado');
+        // Try alternative search without @ prefix
+        const altUrlToFind = username?.startsWith('@') ? username.substring(1) : username;
+        console.log('Trying alternative URL:', altUrlToFind);
+        
+        const { data: altConfigData, error: altConfigError } = await supabase
+          .from('minisite_configs')
+          .select(`
+            *,
+            broker:conectaios_brokers(name, bio, avatar_url, creci)
+          `)
+          .eq('generated_url', altUrlToFind)
+          .eq('is_active', true)
+          .maybeSingle();
+        
+        console.log('Alternative config data:', altConfigData);
+        
+        if (altConfigData) {
+          setConfig(altConfigData);
+        } else {
+          throw new Error('Minisite não encontrado');
+        }
+      } else {
+        setConfig(configData);
       }
-
-      setConfig(configData);
 
       // Fetch broker's properties if show_properties is enabled
       if (configData.show_properties) {
