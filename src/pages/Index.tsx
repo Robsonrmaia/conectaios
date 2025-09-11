@@ -18,7 +18,6 @@ import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
-import { StatsEmbedDashboard } from '@/components/StatsEmbedDashboard';
 
 import garotonectaImg from '@/assets/garoto-conecta.png';
 
@@ -235,11 +234,10 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Seção Vídeo e Dashboard - Grid 2 Colunas */}
+            {/* Seção Vídeo - Centralizado */}
             <div className="mt-20">
-              <div className="grid lg:grid-cols-2 gap-8 items-start">
-                {/* Coluna Esquerda - Vídeo */}
-                <div className="w-full max-w-2xl mx-auto lg:mx-0">
+              <div className="flex justify-center">
+                <div className="w-full max-w-4xl mx-auto">
                   {/* Badge acima do vídeo */}
                   <div className="text-center mb-6">
                     <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
@@ -262,14 +260,6 @@ const Index = () => {
                       allow="autoplay; fullscreen"
                       allowFullScreen
                     ></iframe>
-                  </div>
-                </div>
-
-                {/* Coluna Direita - Dashboard de Estatísticas */}
-                <div className="w-full flex justify-center lg:justify-start">
-                  <div className="w-full max-w-2xl mx-auto lg:mx-0">
-                    {/* Badge acima do dashboard */}
-                    <StatsEmbedDashboard />
                   </div>
                 </div>
               </div>
@@ -410,11 +400,6 @@ const Index = () => {
                   allowFullScreen
                 ></iframe>
               </div>
-            </div>
-
-            {/* Dashboard Mobile */}
-            <div className="mt-8">
-              <StatsEmbedDashboard />
             </div>
           </div>
         </div>
