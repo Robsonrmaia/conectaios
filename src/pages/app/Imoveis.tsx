@@ -1415,14 +1415,50 @@ export default function Imoveis() {
         onImageProcessed={async (imageUrl) => {
           if (selectedProperty) {
             try {
-              const updatedPhotos = [...(selectedProperty.fotos || []), imageUrl];
+              console.log('Processing image URL:', imageUrl);
+              
+              let finalImageUrl = imageUrl;
+              
+              // Se a URL é um blob ou URL local, fazer upload para Supabase
+              if (imageUrl.startsWith('blob:') || imageUrl.includes('conectaios') || imageUrl.startsWith('data:')) {
+                console.log('Converting external URL to Supabase upload...');
+                
+                const response = await fetch(imageUrl);
+                if (!response.ok) {
+                  throw new Error('Failed to fetch processed image');
+                }
+                
+                const blob = await response.blob();
+                const fileName = `processed-${processorType}-${Date.now()}.${blob.type.split('/')[1] || 'jpg'}`;
+                
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                  .from('property-images')
+                  .upload(fileName, blob);
+                
+                if (uploadError) {
+                  console.error('Upload error:', uploadError);
+                  throw uploadError;
+                }
+                
+                const { data: { publicUrl } } = supabase.storage
+                  .from('property-images')
+                  .getPublicUrl(uploadData.path);
+                
+                finalImageUrl = publicUrl;
+                console.log('Image uploaded successfully:', finalImageUrl);
+              }
+              
+              const updatedPhotos = [...(selectedProperty.fotos || []), finalImageUrl];
               
               const { error } = await supabase
                 .from('conectaios_properties')
                 .update({ fotos: updatedPhotos })
                 .eq('id', selectedProperty.id);
 
-              if (error) throw error;
+              if (error) {
+                console.error('Database update error:', error);
+                throw error;
+              }
 
               toast({
                 title: "Sucesso!",
@@ -1432,16 +1468,23 @@ export default function Imoveis() {
               });
 
               fetchProperties();
+              setIsProcessorOpen(false);
             } catch (error) {
               console.error('Error updating property photos:', error);
               toast({
                 title: "Erro",
-                description: "Erro ao adicionar imagem processada",
+                description: `Erro ao adicionar imagem processada: ${error.message}`,
                 variant: "destructive",
               });
             }
+          } else {
+            console.error('No property selected');
+            toast({
+              title: "Erro",
+              description: "Nenhuma propriedade selecionada",
+              variant: "destructive",
+            });
           }
-          setIsProcessorOpen(false);
         }}
         type={processorType}
         initialImage={selectedProperty?.fotos?.[0]}
