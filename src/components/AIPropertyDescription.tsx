@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, Copy, Check, Loader2 } from 'lucide-react';
+import { Wand2, Copy, Check, Loader2, Volume2 } from 'lucide-react';
 import { useAI } from '@/hooks/useAI';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { toast } from '@/hooks/use-toast';
 
 interface Property {
@@ -34,6 +35,7 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
   const [generatedDescription, setGeneratedDescription] = useState('');
   const [copied, setCopied] = useState(false);
   const { sendMessage, loading } = useAI();
+  const { speak, isSpeaking, stop } = useElevenLabsVoice();
 
   const generateDescription = async () => {
     const prompt = `
@@ -180,6 +182,15 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
                       Copiar
                     </>
                   )}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => isSpeaking ? stop() : speak(generatedDescription)}
+                  className="flex items-center gap-2"
+                >
+                  <Volume2 className="h-4 w-4" />
+                  {isSpeaking ? 'Parar' : 'Ouvir'}
                 </Button>
                 
                 <Button

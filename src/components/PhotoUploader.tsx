@@ -50,22 +50,43 @@ export function PhotoUploader({
     }
     
     if (newPhotoUrl.trim()) {
+      console.log(`🔗 Adicionando URL de foto: ${newPhotoUrl.slice(-50)}`);
+      console.log(`📊 Total atual: ${photos.length}/${MAX_PHOTOS}`);
+      
       const updatedPhotos = [...photos, newPhotoUrl.trim()];
+      console.log(`✅ Nova lista: ${updatedPhotos.length} fotos`);
+      
       onPhotosChange(updatedPhotos);
       setNewPhotoUrl('');
       toast({
         title: "Foto adicionada",
-        description: "A URL da foto foi adicionada com sucesso!",
+        description: `URL da foto adicionada com sucesso! Total: ${updatedPhotos.length}/${MAX_PHOTOS}`,
       });
     }
   };
 
   const removePhoto = (index: number) => {
+    console.log(`🗑️ Removendo foto no índice: ${index} de ${photos.length} fotos`);
+    console.log('📋 Fotos antes da remoção:', photos.map((p, i) => `${i}: ${p.slice(-30)}`));
+    
+    if (index < 0 || index >= photos.length) {
+      console.error(`❌ Índice inválido: ${index} (total: ${photos.length})`);
+      toast({
+        title: "Erro ao remover",
+        description: "Índice da foto inválido.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const updatedPhotos = photos.filter((_, i) => i !== index);
+    console.log(`✅ Fotos após remoção: ${updatedPhotos.length} restantes`);
+    console.log('📋 Lista atualizada:', updatedPhotos.map((p, i) => `${i}: ${p.slice(-30)}`));
+    
     onPhotosChange(updatedPhotos);
     toast({
       title: "Foto removida",
-      description: "A foto foi removida com sucesso!",
+      description: `Foto ${index + 1} removida com sucesso! Restam ${updatedPhotos.length} foto(s).`,
     });
   };
 
