@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Wand2, Sparkles, Palette } from 'lucide-react';
@@ -43,24 +43,40 @@ export function ConectaIOSImageProcessor({
   };
 
   const handleMessage = (event: MessageEvent) => {
+    console.log('ConectAIOS Message received:', event);
+    
     if (event.origin !== 'https://imagens-conectaios-420832656535.us-west1.run.app') {
+      console.log('Invalid origin:', event.origin);
       return;
     }
 
-    if (event.data.type === 'imageGenerated' && event.data.imageUrl) {
+    console.log('Message data:', event.data);
+
+    // Support both 'imageGenerated' and 'imageProcessed' for compatibility
+    if ((event.data.type === 'imageGenerated' || event.data.type === 'imageProcessed') && event.data.imageUrl) {
+      console.log('Image processed successfully:', event.data.imageUrl);
       onImageProcessed(event.data.imageUrl);
       onClose();
+    } else if (event.data.originalUrl && event.data.processedUrl) {
+      // Alternative format support
+      console.log('Image processed (alternative format):', event.data.processedUrl);
+      onImageProcessed(event.data.processedUrl);
+      onClose();
+    } else {
+      console.log('Unknown message format:', event.data);
     }
   };
 
-  useState(() => {
+  useEffect(() => {
     if (isOpen) {
+      console.log('Adding message listener for ConectAIOS');
       window.addEventListener('message', handleMessage);
       return () => {
+        console.log('Removing message listener for ConectAIOS');
         window.removeEventListener('message', handleMessage);
       };
     }
-  });
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

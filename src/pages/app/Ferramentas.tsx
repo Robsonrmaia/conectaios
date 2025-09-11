@@ -131,8 +131,8 @@ export default function Ferramentas() {
       description: 'Checklists e relatórios de vistoria digital',
       icon: Search,
       category: 'Documentos',
-      planRequired: 'professional',
-      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium',
+      planRequired: 'starter',
+      isAvailable: true,
       url: 'https://vistoria.gicarneiroimoveis.com.br',
       external: true
     },
@@ -151,8 +151,8 @@ export default function Ferramentas() {
       description: 'Gestão completa de locações temporárias',
       icon: Calendar,
       category: 'Gestão',
-      planRequired: 'premium',
-      isAvailable: false,
+      planRequired: 'starter',
+      isAvailable: true,
       url: 'https://orcamentotemporada.gicarneiroimoveis.com.br',
       external: true
     },
