@@ -25,6 +25,7 @@ import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";
 import CRM from "./pages/app/CRM";
+import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
 import Videos from "./pages/app/Videos";
 import Indicacoes from "./pages/app/Indicacoes";
@@ -136,6 +137,7 @@ const App = () => (
                       <Routes>
                         <Route index element={<Dashboard />} />
                         <Route path="imoveis" element={<Imoveis />} />
+                        <Route path="minhas-buscas" element={<MinhasBuscas />} />
                         <Route path="marketplace" element={<Marketplace />} />
                         <Route path="minisite" element={<Minisite />} />
                         <Route path="match" element={<Match />} />

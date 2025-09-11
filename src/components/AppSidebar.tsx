@@ -44,6 +44,11 @@ const navigationItems = [
     icon: Building2,
   },
   {
+    title: 'Minhas Buscas',
+    url: '/app/minhas-buscas',
+    icon: Search,
+  },
+  {
     title: 'Marketplace',
     url: '/app/marketplace',
     icon: Search,

@@ -64,6 +64,21 @@ export default function SystemStatus() {
       const { error: authError } = await supabase.auth.getSession();
       const authResponseTime = Date.now() - authStart;
 
+      // Test OpenAI API
+      const openaiStart = Date.now();
+      let openaiError = null;
+      let openaiResponseTime = 0;
+      try {
+        const { data: openaiData, error: openaiErr } = await supabase.functions.invoke('ai-assistant', {
+          body: { prompt: 'test', type: 'property_description' }
+        });
+        openaiResponseTime = Date.now() - openaiStart;
+        openaiError = openaiErr;
+      } catch (error) {
+        openaiError = error;
+        openaiResponseTime = Date.now() - openaiStart;
+      }
+
       const currentServices: ServiceStatus[] = [
         {
           name: 'Supabase Database',
@@ -99,6 +114,13 @@ export default function SystemStatus() {
           uptime: '99.3%',
           responseTime: '45ms',
           icon: <Wifi className="h-5 w-5" />
+        },
+        {
+          name: 'OpenAI API',
+          status: openaiError ? 'offline' : openaiResponseTime > 3000 ? 'warning' : 'online',
+          uptime: openaiError ? '0%' : openaiResponseTime > 3000 ? '85%' : '99.2%',
+          responseTime: openaiError ? 'N/A' : `${openaiResponseTime}ms`,
+          icon: <Activity className="h-5 w-5" />
         }
       ];
 

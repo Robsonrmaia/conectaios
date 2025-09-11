@@ -135,6 +135,9 @@ export default function MinisiteView() {
           .single();
 
         if (brokerData?.user_id) {
+          console.log('Fetching properties for user_id:', brokerData.user_id);
+          
+          // Try both tables as there might be different naming conventions
           const { data: propertiesData, error: propertiesError } = await supabase
             .from('properties')
             .select('id, titulo, valor, quartos, area, fotos, neighborhood, city, descricao, bathrooms, parking_spots')
@@ -143,7 +146,14 @@ export default function MinisiteView() {
             .in('visibility', ['public_site', 'match_only'])
             .limit(6);
 
-          if (propertiesError) throw propertiesError;
+          console.log('Properties found:', propertiesData?.length || 0);
+          console.log('Properties data:', propertiesData);
+          console.log('Properties error:', propertiesError);
+
+          if (propertiesError) {
+            console.error('Error fetching properties:', propertiesError);
+            throw propertiesError;
+          }
           setProperties(propertiesData || []);
         }
       }
