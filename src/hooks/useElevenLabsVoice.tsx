@@ -131,9 +131,9 @@ export const useElevenLabsVoice = () => {
       // Notify all listeners of state change
       stateListeners.forEach(listener => listener());
 
-      // Create timeout promise for fast fallback (5 seconds)
+      // Timeout de 10 segundos para dar mais tempo ao ElevenLabs
       const timeoutPromise = new Promise<never>((_, reject) => 
-        setTimeout(() => reject(new Error('ElevenLabs timeout')), 5000)
+        setTimeout(() => reject(new Error('Timeout na geração de áudio - Tente novamente')), 10000)
       );
       
       const fetchPromise = fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/text-to-speech', {
@@ -198,56 +198,22 @@ export const useElevenLabsVoice = () => {
       await audio.play();
 
     } catch (error) {
-      console.error('❌ ElevenLabs failed, fallback para síntese nativa:', error);
+      // Se ElevenLabs falhar, mostra erro sem usar voz nativa ruim
+      console.error('❌ ElevenLabs falhou completamente:', error);
       
-      // Stop any ongoing speech before starting native
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
+      // Reset global state
+      if (audioId) {
+        globalSpeakingStates.set(audioId, false);
       }
+      globalCurrentSpeakingId = null;
       
-      const utterance = new SpeechSynthesisUtterance(cleanedText);
-      utterance.lang = 'pt-BR';
-      utterance.rate = 0.85; // Velocidade mais natural
-      utterance.pitch = 1.1; // Tom ligeiramente mais alto para melhor clareza
-      utterance.volume = 0.9; // Volume otimizado
+      // Notify all listeners
+      stateListeners.forEach(listener => listener());
       
-      // Tentar usar voz feminina portuguesa se disponível
-      const voices = window.speechSynthesis.getVoices();
-      const brazilianVoice = voices.find(voice => 
-        voice.lang.includes('pt-BR') && voice.name.includes('fem') || 
-        voice.lang.includes('pt-BR') && voice.name.toLowerCase().includes('female') ||
-        voice.lang.includes('pt-BR')
-      );
+      // Show user-friendly error
+      toast.error('Serviço de voz temporariamente indisponível. Tente novamente em alguns segundos.');
       
-      if (brazilianVoice) {
-        console.log('🎤 Usando voz brasileira:', brazilianVoice.name);
-        utterance.voice = brazilianVoice;
-      } else {
-        console.log('⚠️ Voz brasileira não encontrada, usando padrão');
-      }
-      
-      utterance.onend = () => {
-        if (audioId) {
-          globalSpeakingStates.set(audioId, false);
-        }
-        globalCurrentSpeakingId = null;
-        
-        // Notify all listeners
-        stateListeners.forEach(listener => listener());
-      };
-      
-      utterance.onerror = (error) => {
-        console.error('Speech synthesis error:', error);
-        if (audioId) {
-          globalSpeakingStates.set(audioId, false);
-        }
-        globalCurrentSpeakingId = null;
-        
-        // Notify all listeners
-        stateListeners.forEach(listener => listener());
-      };
-      
-      window.speechSynthesis.speak(utterance);
+      throw new Error('Serviço de voz temporariamente indisponível');
     }
   }, []);
 

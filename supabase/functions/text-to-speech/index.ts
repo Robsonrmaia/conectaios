@@ -49,7 +49,7 @@ serve(async (req) => {
         voice_settings: {
           stability: 0.4,
           similarity_boost: 0.8,
-          speed: 1.25
+          speed: 1.2
         }
       }),
     })
