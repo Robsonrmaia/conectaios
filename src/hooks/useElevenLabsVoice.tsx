@@ -26,55 +26,34 @@ export const useElevenLabsVoice = () => {
     };
   }, []);
 
-  // Optimized text cleaning preserving Portuguese accents
-  const cleanTextForSpeech = (text: string): string => {
-    console.log('🎤 Texto original para limpeza:', text.substring(0, 100) + '...');
-    
-    const cleaned = text
-      // Remove emojis completos e símbolos especiais
-      .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-      // Remove símbolos específicos comuns em textos imobiliários  
-      .replace(/🏠|🏡|🏢|🏘️|🏗️|🏙️/g, '')
-      .replace(/💰|💵|💲|🤑/g, '')
-      .replace(/🎯|📍|📌|🗺️/g, '')
-      .replace(/•/g, '') // Remove bullet points
-      // Remove markdown e formatação
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove **bold**
-      .replace(/\*(.*?)\*/g, '$1')     // Remove *italic*
-      .replace(/__(.*?)__/g, '$1')     // Remove __underline**
-      .replace(/~~(.*?)~~/g, '$1')     // Remove ~~strikethrough~~
-      .replace(/#{1,6}\s/g, '')        // Remove headers markdown
-      // Limpa caracteres problemáticos
-      .replace(/[""'']/g, '"')
-      .replace(/[–—]/g, '-')
-      // Trata valores monetários brasileiros de forma mais natural
-      .replace(/R\$\s*(\d+)\.(\d+)\.(\d+),(\d+)/g, '$1 milhões $2 mil $3 reais e $4 centavos')
-      .replace(/R\$\s*(\d+)\.(\d+),(\d+)/g, '$1 mil $2 reais e $3 centavos')
-      .replace(/R\$\s*(\d+),(\d+)/g, '$1 reais e $2 centavos')
-      .replace(/R\$\s*(\d+)/g, '$1 reais')
-      // Corrige números sem símbolo monetário - NOVO
-      .replace(/(\d+)\.(\d+)\.(\d+)(?!\d)/g, '$1 milhões $2 mil $3')
-      .replace(/(\d+)\.(\d+)(?!\d|,)/g, '$1 mil $2') // Evita capturar decimais
-      .replace(/(\d+)\s*%/g, '$1 por cento')
-      // Trata medidas específicas imobiliárias
-      .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
-      .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
-      .replace(/(\d+)\s*km/g, '$1 quilômetros')
-      // ❌ REMOVIDO: Não modificar pronúncia portuguesa - preservar acentos originais
-      // Remove apenas caracteres especiais problemáticos, mantendo acentos e pontuação
-      .replace(/[^\w\sàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ\.\,\!\?\:\;\-\(\)\%\$]/g, ' ')
-      // Adiciona pausas em pontuações para melhor prosódia
-      .replace(/\./g, '. ')
-      .replace(/\,/g, ', ')
-      .replace(/\:/g, ': ')
-      .replace(/\;/g, '; ')
-      // Remove espaços duplos e triplos
+  const cleanTextForSpeech = useCallback((text: string): string => {
+    return text
+      // Remove emojis
+      .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu, '')
+      // Remove markdown formatting
+      .replace(/\*\*(.*?)\*\*/g, '$1')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/~~(.*?)~~/g, '$1')
+      .replace(/`(.*?)`/g, '$1')
+      // Replace common abbreviations with full words (Portuguese)
+      .replace(/\bR\$\s*/g, 'reais ')
+      // Melhor tratamento de números monetários
+      .replace(/(\d+)\.(\d{3})\.(\d{3})\b/g, (match, milhoes, milhares, centenas) => {
+        return `${milhoes} milhões ${milhares} mil e ${centenas}`;
+      })
+      .replace(/(\d+)\.(\d{3})\b/g, (match, dezenas, milhares) => {
+        return `${dezenas === '0' ? '' : dezenas + ' '}${milhares === '000' ? 'mil' : milhares.replace(/^0+/, '') + ' mil'}`;
+      })
+      .replace(/235\.000/g, 'duzentos e trinta e cinco mil')
+      .replace(/(\d+)\.000/g, (match, num) => `${num} mil`)
+      // Format currency properly for Portuguese
+      .replace(/(\d+),(\d+)/g, '$1 vírgula $2')
+      // Remove special characters that might cause issues
+      .replace(/[^\w\s\u00C0-\u024F\u1E00-\u1EFF.,!?;:()\-]/g, ' ')
+      // Clean up extra whitespace
       .replace(/\s+/g, ' ')
       .trim();
-    
-    console.log('🎤 Texto limpo para síntese (preservando acentos):', cleaned.substring(0, 100) + '...');
-    return cleaned;
-  };
+  }, []);
 
   // Stop all global audios
   const stopAllGlobalAudios = () => {

@@ -1,7 +1,9 @@
-import { motion } from "framer-motion";
-import { Building2, Wrench, Cpu, Network } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Building2, Wrench, Cpu, Network, Clock } from 'lucide-react';
+import { useMaintenanceMode } from '@/hooks/useMaintenanceMode';
 
 export default function UnderConstruction() {
+  const { settings } = useMaintenanceMode();
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 flex items-center justify-center p-4">
       <div className="max-w-2xl mx-auto text-center">
@@ -114,60 +116,8 @@ export default function UnderConstruction() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Estamos construindo algo incrível
+            {settings.constructionMode ? "Em Construção" : "Em Manutenção"}
           </motion.p>
-
-          {/* Construction Animation */}
-          <motion.div
-            className="flex justify-center items-center gap-4 mb-8"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-          >
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-            >
-              <Wrench className="w-8 h-8 text-primary" />
-            </motion.div>
-            
-            <motion.div
-              className="flex gap-2"
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 1, duration: 0.5 }}
-            >
-              {[...Array(3)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="w-3 h-3 bg-primary rounded-full"
-                  animate={{
-                    y: [0, -20, 0],
-                    opacity: [0.5, 1, 0.5]
-                  }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: i * 0.2
-                  }}
-                />
-              ))}
-            </motion.div>
-
-            <motion.div
-              animate={{ 
-                scale: [1, 1.1, 1],
-                rotate: [0, 5, -5, 0]
-              }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-            >
-              <Cpu className="w-8 h-8 text-primary" />
-            </motion.div>
-          </motion.div>
 
           {/* Description */}
           <motion.div
@@ -177,8 +127,18 @@ export default function UnderConstruction() {
             transition={{ delay: 0.9, duration: 0.8 }}
           >
             <p className="text-muted-foreground">
-              Nossa plataforma está sendo aprimorada para oferecer a melhor experiência para corretores de imóveis.
+              {settings.constructionMode 
+                ? (settings.constructionMessage || "Nossa plataforma está sendo aprimorada para oferecer a melhor experiência para corretores de imóveis.")
+                : (settings.maintenanceMessage || "Sistema em manutenção. Voltaremos em breve!")
+              }
             </p>
+            
+            {settings.estimatedTime && (
+              <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                <Clock className="w-4 h-4" />
+                <span>Previsão de retorno: {settings.estimatedTime}</span>
+              </div>
+            )}
             
             <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
               <Network className="w-4 h-4" />

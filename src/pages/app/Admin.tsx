@@ -21,13 +21,14 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 import AdminTestimonialManager from '@/components/AdminTestimonialManager';
 import AdminPartnerManager from '@/components/AdminPartnerManager';
-import SystemLogs from '@/components/admin/SystemLogs';
-import SystemStatus from '@/components/admin/SystemStatus';
-import SystemAlerts from '@/components/admin/SystemAlerts';
 import GeneralSettings from '@/components/admin/GeneralSettings';
+import MaintenanceSettings from '@/components/admin/MaintenanceSettings';
 import EmailTemplates from '@/components/admin/EmailTemplates';
 import Integrations from '@/components/admin/Integrations';
 import SecuritySettings from '@/components/admin/SecuritySettings';
+import SystemLogs from '@/components/admin/SystemLogs';
+import SystemStatus from '@/components/admin/SystemStatus';
+import SystemAlerts from '@/components/admin/SystemAlerts';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -340,39 +341,43 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">
-          <Tabs defaultValue="gerais" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="gerais" className="flex items-center gap-2">
+          <Tabs defaultValue="general" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="general" className="flex items-center gap-2">
                 <Building className="h-4 w-4" />
-                Gerais
+                Geral
+              </TabsTrigger>
+              <TabsTrigger value="maintenance" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Manutenção
               </TabsTrigger>
               <TabsTrigger value="emails" className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4" />
                 Emails
               </TabsTrigger>
-              <TabsTrigger value="integracoes" className="flex items-center gap-2">
+              <TabsTrigger value="integrations" className="flex items-center gap-2">
                 <Settings className="h-4 w-4" />
                 Integrações
               </TabsTrigger>
-              <TabsTrigger value="seguranca" className="flex items-center gap-2">
+              <TabsTrigger value="security" className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
                 Segurança
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="gerais">
+            <TabsContent value="general" className="space-y-4">
               <GeneralSettings />
             </TabsContent>
-            
-            <TabsContent value="emails">
+            <TabsContent value="maintenance" className="space-y-4">
+              <MaintenanceSettings />
+            </TabsContent>
+            <TabsContent value="emails" className="space-y-4">
               <EmailTemplates />
             </TabsContent>
-            
-            <TabsContent value="integracoes">
+            <TabsContent value="integrations" className="space-y-4">
               <Integrations />
             </TabsContent>
-            
-            <TabsContent value="seguranca">
+            <TabsContent value="security" className="space-y-4">
               <SecuritySettings />
             </TabsContent>
           </Tabs>
