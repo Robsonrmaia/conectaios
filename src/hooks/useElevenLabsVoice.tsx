@@ -52,6 +52,10 @@ export const useElevenLabsVoice = () => {
       .replace(/R\$\s*(\d+)\.(\d+),(\d+)/g, '$1 mil $2 reais e $3 centavos')
       .replace(/R\$\s*(\d+),(\d+)/g, '$1 reais e $2 centavos')
       .replace(/R\$\s*(\d+)/g, '$1 reais')
+      // Corrige números sem símbolo monetário - NOVO
+      .replace(/(\d+)\.(\d+)\.(\d+)(?!\d)/g, '$1 milhões $2 mil $3')
+      .replace(/(\d+)\.(\d+)(?!\d|,)/g, '$1 mil $2') // Evita capturar decimais
+      .replace(/(\d+)\s*%/g, '$1 por cento')
       // Trata medidas específicas imobiliárias
       .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
       .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
@@ -140,7 +144,7 @@ export const useElevenLabsVoice = () => {
         },
         body: JSON.stringify({
           text: cleanedText,
-          voice_id: '9BWtsMINqrJLrRacOk9x', // Aria - natural female voice  
+          voice_id: 'EXAVITQu4vr4xnSDxMaL', // Sarah - Brazilian Portuguese female voice
           model_id: 'eleven_turbo_v2_5' // Faster model
         })
       });
