@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { VirtualStaging } from './VirtualStaging';
 import { EnhancedWatermarkManager } from './EnhancedWatermarkManager';
 import { Switch } from '@/components/ui/switch';
+import { ConectaIOSImageProcessor } from './ConectaIOSImageProcessor';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Droplet } from 'lucide-react';
 
@@ -32,6 +33,9 @@ export function PhotoUploader({
   const [uploading, setUploading] = useState(false);
   const [enhancing, setEnhancing] = useState<string | null>(null);
   const [showVirtualStaging, setShowVirtualStaging] = useState<string | null>(null);
+  const [isProcessorOpen, setIsProcessorOpen] = useState(false);
+  const [processorType, setProcessorType] = useState<'enhance' | 'staging'>('enhance');
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>('');
 
   const MAX_PHOTOS = 20;
 
@@ -278,7 +282,11 @@ export function PhotoUploader({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => setShowVirtualStaging(photo)}
+                      onClick={() => {
+                        setSelectedImageUrl(photo);
+                        setProcessorType('staging');
+                        setIsProcessorOpen(true);
+                      }}
                       className="bg-white/20 hover:bg-white/30 text-white"
                     >
                       <Wand2 className="h-3 w-3" />
@@ -287,7 +295,11 @@ export function PhotoUploader({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleEnhancePhoto(photo, index)}
+                      onClick={() => {
+                        setSelectedImageUrl(photo);
+                        setProcessorType('enhance');
+                        setIsProcessorOpen(true);
+                      }}
                       disabled={enhancing === photo}
                       className="bg-white/20 hover:bg-white/30 text-white"
                     >
@@ -391,6 +403,25 @@ export function PhotoUploader({
           </div>
         </div>
       )}
+
+      {/* ConectAIOS Image Processor */}
+      <ConectaIOSImageProcessor
+        isOpen={isProcessorOpen}
+        onClose={() => setIsProcessorOpen(false)}
+        onImageProcessed={(processedUrl) => {
+          onPhotosChange([...photos, processedUrl]);
+          setIsProcessorOpen(false);
+          
+          toast({
+            title: "Imagem processada!",
+            description: processorType === 'enhance' 
+              ? "Imagem com qualidade melhorada adicionada!"
+              : "Imagem com móveis adicionada!",
+          });
+        }}
+        type={processorType}
+        initialImage={selectedImageUrl}
+      />
     </div>
   );
 }

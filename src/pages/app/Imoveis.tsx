@@ -28,6 +28,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
+import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 
@@ -74,6 +75,8 @@ export default function Imoveis() {
   const [showWatermark, setShowWatermark] = useState(false);
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
   const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
+  const [isProcessorOpen, setIsProcessorOpen] = useState(false);
+  const [processorType, setProcessorType] = useState<'enhance' | 'staging'>('enhance');
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -877,22 +880,50 @@ export default function Imoveis() {
                        <Wand2 className="h-3 w-3 mr-1" />
                        IA Desc
                      </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         // Implementar melhoria de qualidade
-                         toast({
-                           title: "Melhorar Qualidade",
-                           description: "Funcionalidade em desenvolvimento",
-                         });
-                       }}
-                       title="Melhorar Qualidade"
-                       className="h-8 text-xs"
-                     >
-                       <Sparkles className="h-3 w-3 mr-1" />
-                       Qualidade
-                     </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          if (property.fotos && property.fotos.length > 0) {
+                            setSelectedProperty(property);
+                            setProcessorType('staging');
+                            setIsProcessorOpen(true);
+                          } else {
+                            toast({
+                              title: "Sem Fotos",
+                              description: "Adicione fotos ao imóvel primeiro",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        title="Colocar Móveis"
+                        className="h-8 text-xs"
+                      >
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        Móveis
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          if (property.fotos && property.fotos.length > 0) {
+                            setSelectedProperty(property);
+                            setProcessorType('enhance');
+                            setIsProcessorOpen(true);
+                          } else {
+                            toast({
+                              title: "Sem Fotos",
+                              description: "Adicione fotos ao imóvel primeiro",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        title="Melhorar Qualidade"
+                        className="h-8 text-xs"
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Qualidade
+                      </Button>
                    </div>
                    
                    <div className="grid grid-cols-2 gap-2">
@@ -1361,6 +1392,44 @@ export default function Imoveis() {
           </DialogContent>
         </Dialog>
       )}
+
+      <ConectaIOSImageProcessor
+        isOpen={isProcessorOpen}
+        onClose={() => setIsProcessorOpen(false)}
+        onImageProcessed={async (imageUrl) => {
+          if (selectedProperty) {
+            try {
+              const updatedPhotos = [...(selectedProperty.fotos || []), imageUrl];
+              
+              const { error } = await supabase
+                .from('conectaios_properties')
+                .update({ fotos: updatedPhotos })
+                .eq('id', selectedProperty.id);
+
+              if (error) throw error;
+
+              toast({
+                title: "Sucesso!",
+                description: processorType === 'enhance' 
+                  ? "Imagem com qualidade melhorada adicionada!" 
+                  : "Imagem com móveis adicionada!",
+              });
+
+              fetchProperties();
+            } catch (error) {
+              console.error('Error updating property photos:', error);
+              toast({
+                title: "Erro",
+                description: "Erro ao adicionar imagem processada",
+                variant: "destructive",
+              });
+            }
+          }
+          setIsProcessorOpen(false);
+        }}
+        type={processorType}
+        initialImage={selectedProperty?.fotos?.[0]}
+      />
     </div>
   );
 }

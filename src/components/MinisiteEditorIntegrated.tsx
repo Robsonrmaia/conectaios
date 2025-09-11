@@ -33,6 +33,7 @@ import { useBroker } from '@/hooks/useBroker';
 import { useMinisite } from '@/hooks/useMinisite';
 import { ImageGeneratorModal } from '@/components/ImageGeneratorModal';
 import { ConectaIOSImageModal } from '@/components/ConectaIOSImageModal';
+import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 const TEMPLATES = [
   { 
@@ -79,6 +80,8 @@ export function MinisiteEditorIntegrated() {
   const [isGeneratingLogo, setIsGeneratingLogo] = useState(false);
   const [showImageGenerator, setShowImageGenerator] = useState(false);
   const [imageGeneratorType, setImageGeneratorType] = useState<'logo' | 'banner' | 'cover'>('logo');
+  const [isLogoProcessorOpen, setIsLogoProcessorOpen] = useState(false);
+  const [isCoverProcessorOpen, setIsCoverProcessorOpen] = useState(false);
 
   const handleSave = async () => {
     if (!config) return;
@@ -633,10 +636,7 @@ export function MinisiteEditorIntegrated() {
                          </Label>
                           <Button
                             variant="outline"
-                            onClick={() => {
-                              setImageGeneratorType('logo');
-                              setShowImageGenerator(true);
-                            }}
+                            onClick={() => setIsLogoProcessorOpen(true)}
                             disabled={isGeneratingLogo}
                           >
                             <Wand2 className="h-4 w-4 mr-2" />
@@ -721,10 +721,7 @@ export function MinisiteEditorIntegrated() {
                           </Label>
                           <Button
                             variant="outline"
-                            onClick={() => {
-                              const prompt = window.prompt("Descreva a imagem de capa (ex: 'casa moderna com jardim', 'prédio elegante'):");
-                              if (prompt) generateCoverWithAI(prompt);
-                            }}
+                            onClick={() => setIsCoverProcessorOpen(true)}
                             disabled={isGeneratingLogo}
                           >
                             <Sparkles className="h-4 w-4 mr-2" />
@@ -815,6 +812,52 @@ export function MinisiteEditorIntegrated() {
         onClose={() => setShowImageGenerator(false)}
         onImageGenerated={handleImageGenerated}
         type={imageGeneratorType}
+      />
+      
+      <ConectaIOSImageProcessor
+        isOpen={isLogoProcessorOpen}
+        onClose={() => setIsLogoProcessorOpen(false)}
+        onImageProcessed={async (url) => {
+          try {
+            // Convert URL to blob and upload
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const file = new File([blob], `logo-${Date.now()}.png`, { type: 'image/png' });
+            await handleImageUpload(file, 'logo');
+            setIsLogoProcessorOpen(false);
+          } catch (error) {
+            console.error('Error processing logo:', error);
+            toast({
+              title: "Erro",
+              description: "Erro ao processar logo gerado",
+              variant: "destructive",
+            });
+          }
+        }}
+        type="logo"
+      />
+      
+      <ConectaIOSImageProcessor
+        isOpen={isCoverProcessorOpen}
+        onClose={() => setIsCoverProcessorOpen(false)}
+        onImageProcessed={async (url) => {
+          try {
+            // Convert URL to blob and upload
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const file = new File([blob], `cover-${Date.now()}.png`, { type: 'image/png' });
+            await handleImageUpload(file, 'cover');
+            setIsCoverProcessorOpen(false);
+          } catch (error) {
+            console.error('Error processing cover:', error);
+            toast({
+              title: "Erro",
+              description: "Erro ao processar capa gerada",
+              variant: "destructive",
+            });
+          }
+        }}
+        type="cover"
       />
     </div>
   );
