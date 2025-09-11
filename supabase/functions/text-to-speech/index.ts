@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, voice_id = '9BWtsMINqrJLrRacOk9x', model_id = 'eleven_multilingual_v2' } = await req.json()
+    const { text, voice_id = '9BWtsMINqrJLrRacOk9x', model_id = 'eleven_turbo_v2_5' } = await req.json()
     
     console.log('🎤 Iniciando síntese de voz:', {
       textLength: text?.length || 0,
@@ -47,10 +47,8 @@ serve(async (req) => {
         text: text,
         model_id: model_id,
         voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75,
-          style: 0.3,
-          use_speaker_boost: true
+          stability: 0.4,
+          similarity_boost: 0.8
         }
       }),
     })

@@ -26,7 +26,7 @@ export const useElevenLabsVoice = () => {
     };
   }, []);
 
-  // Enhanced text cleaning for better Portuguese speech
+  // Optimized text cleaning preserving Portuguese accents
   const cleanTextForSpeech = (text: string): string => {
     console.log('🎤 Texto original para limpeza:', text.substring(0, 100) + '...');
     
@@ -41,7 +41,7 @@ export const useElevenLabsVoice = () => {
       // Remove markdown e formatação
       .replace(/\*\*(.*?)\*\*/g, '$1') // Remove **bold**
       .replace(/\*(.*?)\*/g, '$1')     // Remove *italic*
-      .replace(/__(.*?)__/g, '$1')     // Remove __underline__
+      .replace(/__(.*?)__/g, '$1')     // Remove __underline**
       .replace(/~~(.*?)~~/g, '$1')     // Remove ~~strikethrough~~
       .replace(/#{1,6}\s/g, '')        // Remove headers markdown
       // Limpa caracteres problemáticos
@@ -56,12 +56,9 @@ export const useElevenLabsVoice = () => {
       .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
       .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
       .replace(/(\d+)\s*km/g, '$1 quilômetros')
-      // Melhora pronúncia de palavras portuguesas específicas
-      .replace(/ção/g, 'ssão')
-      .replace(/ções/g, 'ssões')
-      .replace(/nh/g, 'ni')
-      // Remove caracteres especiais excessivos, mantendo pontuação básica
-      .replace(/[^\w\s\.\,\!\?\:\;\-\(\)\%\$]/g, ' ')
+      // ❌ REMOVIDO: Não modificar pronúncia portuguesa - preservar acentos originais
+      // Remove apenas caracteres especiais problemáticos, mantendo acentos e pontuação
+      .replace(/[^\w\sàáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ\.\,\!\?\:\;\-\(\)\%\$]/g, ' ')
       // Adiciona pausas em pontuações para melhor prosódia
       .replace(/\./g, '. ')
       .replace(/\,/g, ', ')
@@ -71,7 +68,7 @@ export const useElevenLabsVoice = () => {
       .replace(/\s+/g, ' ')
       .trim();
     
-    console.log('🎤 Texto limpo para síntese:', cleaned.substring(0, 100) + '...');
+    console.log('🎤 Texto limpo para síntese (preservando acentos):', cleaned.substring(0, 100) + '...');
     return cleaned;
   };
 
@@ -130,7 +127,12 @@ export const useElevenLabsVoice = () => {
       // Notify all listeners of state change
       stateListeners.forEach(listener => listener());
 
-      const response = await fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/text-to-speech', {
+      // Create timeout promise for fast fallback (5 seconds)
+      const timeoutPromise = new Promise<never>((_, reject) => 
+        setTimeout(() => reject(new Error('ElevenLabs timeout')), 5000)
+      );
+      
+      const fetchPromise = fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/text-to-speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -138,10 +140,12 @@ export const useElevenLabsVoice = () => {
         },
         body: JSON.stringify({
           text: cleanedText,
-          voice_id: '9BWtsMINqrJLrRacOk9x', // Aria - natural female voice
-          model_id: 'eleven_multilingual_v2'
+          voice_id: '9BWtsMINqrJLrRacOk9x', // Aria - natural female voice  
+          model_id: 'eleven_turbo_v2_5' // Faster model
         })
       });
+
+      const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
       if (!response.ok) {
         const errorText = await response.text();
