@@ -234,31 +234,61 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Vídeo Menor Centralizado */}
-            <div className="flex justify-center mt-20">
-              <div className="w-full max-w-2xl relative">
-                {/* Badge acima do vídeo */}
-                <div className="text-center mb-6">
-                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
-                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                    Veja a plataforma em ação
+            {/* Seção Vídeo e Dashboard - Grid 2 Colunas */}
+            <div className="mt-20">
+              <div className="grid lg:grid-cols-2 gap-8 items-start">
+                {/* Coluna Esquerda - Vídeo */}
+                <div className="w-full max-w-2xl mx-auto lg:mx-0">
+                  {/* Badge acima do vídeo */}
+                  <div className="text-center mb-6">
+                    <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      Veja a plataforma em ação
+                    </div>
+                  </div>
+
+                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    <iframe
+                      src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
+                      title="ConectaIOS Hero Video Desktop"
+                      className="w-full h-full"
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        border: 'none'
+                      }}
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                    ></iframe>
                   </div>
                 </div>
 
-                <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group">
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                  <iframe
-                    src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-                    title="ConectaIOS Hero Video Desktop"
-                    className="w-full h-full"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      border: 'none'
-                    }}
-                    allow="autoplay; fullscreen"
-                    allowFullScreen
-                  ></iframe>
+                {/* Coluna Direita - Dashboard de Estatísticas */}
+                <div className="w-full flex justify-center lg:justify-start">
+                  <div className="w-full max-w-2xl mx-auto lg:mx-0">
+                    {/* Badge acima do dashboard */}
+                    <div className="text-center mb-6">
+                      <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        Estatísticas em Tempo Real
+                      </div>
+                    </div>
+
+                    <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group border-0">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                      <iframe
+                        src="https://estatisticas.gicarneiroimoveis.com.br/"
+                        title="Dashboard de Estatísticas do Mercado Imobiliário"
+                        className="w-full h-full border-0"
+                        style={{
+                          border: 'none',
+                          outline: 'none'
+                        }}
+                        sandbox="allow-same-origin allow-scripts allow-forms"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

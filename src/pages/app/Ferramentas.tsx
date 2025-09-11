@@ -28,13 +28,15 @@ import {
   BookOpen,
   MessageSquare,
   Search,
-  Calendar
+  Calendar,
+  ExternalLink
 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { useBroker } from '@/hooks/useBroker';
 import { HelpCenter } from '@/components/HelpCenter';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
 import XMLImportExport from '@/components/XMLImportExport';
+import { ExternalToolModal } from '@/components/ExternalToolModal';
 
 interface Tool {
   id: string;
@@ -44,11 +46,14 @@ interface Tool {
   category: string;
   planRequired: string;
   isAvailable: boolean;
+  url?: string;
+  external?: boolean;
 }
 
 export default function Ferramentas() {
   const navigate = useNavigate();
   const { broker, plan } = useBroker();
+  const [externalTool, setExternalTool] = useState<{ url: string; name: string; icon?: any } | null>(null);
   
   const tools: Tool[] = [
     {
@@ -76,7 +81,20 @@ export default function Ferramentas() {
       icon: MapPin,
       category: 'Análise',
       planRequired: 'starter',
-      isAvailable: true
+      isAvailable: true,
+      url: 'https://guiadebairros.gicarneiroimoveis.com.br',
+      external: true
+    },
+    {
+      id: 'development-simulator',
+      name: 'Simulador Orquidário',
+      description: 'Simulador especializado para empreendimentos',
+      icon: Building2,
+      category: 'Análise',
+      planRequired: 'starter',
+      isAvailable: true,
+      url: 'https://simuladororquidario.gicarneiroimoveis.com.br',
+      external: true
     },
     {
       id: 'development-calc',
@@ -94,7 +112,9 @@ export default function Ferramentas() {
       icon: BookOpen,
       category: 'Documentos',
       planRequired: 'starter',
-      isAvailable: true
+      isAvailable: true,
+      url: 'https://guiadocomprador.gicarneiroimoveis.com.br',
+      external: true
     },
     {
       id: 'whatsapp-sender',
@@ -112,7 +132,9 @@ export default function Ferramentas() {
       icon: Search,
       category: 'Documentos',
       planRequired: 'professional',
-      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium'
+      isAvailable: plan?.slug === 'professional' || plan?.slug === 'premium',
+      url: 'https://vistoria.gicarneiroimoveis.com.br',
+      external: true
     },
     {
       id: 'property-valuation',
@@ -130,7 +152,9 @@ export default function Ferramentas() {
       icon: Calendar,
       category: 'Gestão',
       planRequired: 'premium',
-      isAvailable: plan?.slug === 'premium'
+      isAvailable: false,
+      url: 'https://orcamentotemporada.gicarneiroimoveis.com.br',
+      external: true
     },
     {
       id: 'contracts',
@@ -181,14 +205,32 @@ export default function Ferramentas() {
 
   const handleToolAccess = (tool: Tool) => {
     if (!tool.isAvailable) {
-      toast({
-        title: "Upgrade Necessário",
-        description: `Esta ferramenta requer o plano ${tool.planRequired}. Faça upgrade para acessar.`,
-        variant: "destructive",
+      if (tool.id === 'seasonal-budget') {
+        toast({
+          title: "Em Breve",
+          description: "Esta ferramenta estará disponível em breve!",
+        });
+      } else {
+        toast({
+          title: "Upgrade Necessário",
+          description: `Esta ferramenta requer o plano ${tool.planRequired}. Faça upgrade para acessar.`,
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+
+    // Ferramentas externas
+    if (tool.external && tool.url) {
+      setExternalTool({
+        url: tool.url,
+        name: tool.name,
+        icon: tool.icon
       });
       return;
     }
 
+    // Ferramentas internas
     switch (tool.id) {
       case 'crm-advanced':
         navigate('/app/crm');
@@ -270,9 +312,21 @@ export default function Ferramentas() {
                     
                     <div className="flex justify-between items-center">
                       {tool.isAvailable ? (
-                        <Badge variant="outline" className="text-green-600">
-                          <Zap className="h-3 w-3 mr-1" />
-                          Disponível
+                        tool.external ? (
+                          <Badge variant="outline" className="text-blue-600">
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Área Logada
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-green-600">
+                            <Zap className="h-3 w-3 mr-1" />
+                            Disponível
+                          </Badge>
+                        )
+                      ) : tool.id === 'seasonal-budget' ? (
+                        <Badge variant="outline" className="text-gray-600">
+                          <Calendar className="h-3 w-3 mr-1" />
+                          Em Breve
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-orange-600">
@@ -281,8 +335,12 @@ export default function Ferramentas() {
                         </Badge>
                       )}
                       
-                      <Button size="sm" variant={tool.isAvailable ? "default" : "outline"}>
-                        {tool.isAvailable ? 'Abrir' : 'Upgrade'}
+                      <Button 
+                        size="sm" 
+                        variant={tool.isAvailable ? "default" : "outline"}
+                        disabled={tool.id === 'seasonal-budget' && !tool.isAvailable}
+                      >
+                        {tool.isAvailable ? 'Abrir' : tool.id === 'seasonal-budget' ? 'Em Breve' : 'Upgrade'}
                       </Button>
                     </div>
                   </CardContent>
@@ -336,6 +394,17 @@ export default function Ferramentas() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Modal para Ferramentas Externas */}
+      {externalTool && (
+        <ExternalToolModal
+          isOpen={!!externalTool}
+          onClose={() => setExternalTool(null)}
+          toolUrl={externalTool.url}
+          toolName={externalTool.name}
+          toolIcon={externalTool.icon}
+        />
+      )}
     </div>
   );
 }
