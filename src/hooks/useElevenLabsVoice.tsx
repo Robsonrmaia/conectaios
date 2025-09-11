@@ -28,27 +28,60 @@ export const useElevenLabsVoice = () => {
 
   // Enhanced text cleaning for better Portuguese speech
   const cleanTextForSpeech = (text: string): string => {
-    return text
-      // Remove emojis and special characters
+    console.log('🎤 Texto original para limpeza:', text.substring(0, 100) + '...');
+    
+    const cleaned = text
+      // Remove emojis completos e símbolos especiais
       .replace(/[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/gu, '')
-      // Clean up common problematic characters
+      // Remove símbolos específicos comuns em textos imobiliários  
+      .replace(/🏠|🏡|🏢|🏘️|🏗️|🏙️/g, '')
+      .replace(/💰|💵|💲|🤑/g, '')
+      .replace(/🎯|📍|📌|🗺️/g, '')
+      .replace(/•/g, '') // Remove bullet points
+      // Remove markdown e formatação
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove **bold**
+      .replace(/\*(.*?)\*/g, '$1')     // Remove *italic*
+      .replace(/__(.*?)__/g, '$1')     // Remove __underline__
+      .replace(/~~(.*?)~~/g, '$1')     // Remove ~~strikethrough~~
+      .replace(/#{1,6}\s/g, '')        // Remove headers markdown
+      // Limpa caracteres problemáticos
       .replace(/[""'']/g, '"')
       .replace(/[–—]/g, '-')
-      // Handle currency better
+      // Trata valores monetários brasileiros de forma mais natural
+      .replace(/R\$\s*(\d+)\.(\d+)\.(\d+),(\d+)/g, '$1 milhões $2 mil $3 reais e $4 centavos')
+      .replace(/R\$\s*(\d+)\.(\d+),(\d+)/g, '$1 mil $2 reais e $3 centavos')
+      .replace(/R\$\s*(\d+),(\d+)/g, '$1 reais e $2 centavos')
       .replace(/R\$\s*(\d+)/g, '$1 reais')
+      // Trata medidas específicas imobiliárias
       .replace(/(\d+)\s*m²/g, '$1 metros quadrados')
-      // Handle Portuguese accents and special chars better
+      .replace(/(\d+)\s*m2/g, '$1 metros quadrados')
+      .replace(/(\d+)\s*km/g, '$1 quilômetros')
+      // Melhora pronúncia de palavras portuguesas específicas
       .replace(/ção/g, 'ssão')
       .replace(/ções/g, 'ssões')
-      // Clean up multiple spaces
+      .replace(/nh/g, 'ni')
+      // Remove caracteres especiais excessivos, mantendo pontuação básica
+      .replace(/[^\w\s\.\,\!\?\:\;\-\(\)\%\$]/g, ' ')
+      // Adiciona pausas em pontuações para melhor prosódia
+      .replace(/\./g, '. ')
+      .replace(/\,/g, ', ')
+      .replace(/\:/g, ': ')
+      .replace(/\;/g, '; ')
+      // Remove espaços duplos e triplos
       .replace(/\s+/g, ' ')
       .trim();
+    
+    console.log('🎤 Texto limpo para síntese:', cleaned.substring(0, 100) + '...');
+    return cleaned;
   };
 
   // Stop all global audios
   const stopAllGlobalAudios = () => {
+    console.log('🔇 Parando todos os áudios globalmente');
+    
     globalAudioInstances.forEach((audio, id) => {
       if (!audio.paused) {
+        console.log(`🔇 Pausando áudio: ${id}`);
         audio.pause();
         audio.currentTime = 0;
       }
@@ -56,11 +89,13 @@ export const useElevenLabsVoice = () => {
     });
     
     // Stop native speech synthesis
-    if (window.speechSynthesis) {
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      console.log('🔇 Cancelando síntese de voz nativa');
       window.speechSynthesis.cancel();
     }
     
     globalCurrentSpeakingId = null;
+    console.log('🔇 Estado global atualizado para não falando');
     
     // Notify all listeners
     stateListeners.forEach(listener => listener());

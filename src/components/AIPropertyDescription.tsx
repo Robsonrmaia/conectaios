@@ -36,33 +36,42 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
   const { sendMessage, loading } = useAI();
 
   const generateDescription = async () => {
-    const prompt = `Gere uma descrição atrativa e profissional para este imóvel em Ilhéus/BA:
-
-INFORMAÇÕES DO IMÓVEL:
-- Título: ${property.titulo}
-- Tipo: ${property.property_type}
-- Finalidade: ${property.listing_type}
-- Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
-- Área: ${property.area}m²
-- Quartos: ${property.quartos}
-- Banheiros: ${property.bathrooms}
-- Vagas: ${property.parking_spots}
-${property.neighborhood ? `- Bairro: ${property.neighborhood}` : ''}
-${property.address ? `- Endereço: ${property.address}` : ''}
-${property.condominium_fee ? `- Condomínio: R$ ${property.condominium_fee.toLocaleString('pt-BR')}` : ''}
-${property.iptu ? `- IPTU: R$ ${property.iptu.toLocaleString('pt-BR')}` : ''}
-
-INSTRUÇÕES:
-1. Crie uma descrição envolvente que destaque os benefícios
-2. Use linguagem persuasiva mas profissional
-3. Mencione características da região de Ilhéus quando relevante
-4. Inclua call-to-action ao final
-5. Máximo 200 palavras
-6. Destaque pontos únicos do imóvel
-7. NÃO use emojis, asteriscos (*) ou caracteres especiais
-8. Use apenas texto limpo e profissional
-
-Gere apenas a descrição, sem explicações adicionais.`;
+    const prompt = `
+      Como especialista imobiliário, crie uma descrição técnica e comercial para este imóvel direcionada a OUTROS CORRETORES:
+      
+      🏠 DADOS DO IMÓVEL:
+      • Título: ${property.titulo}
+      • Tipo: ${property.property_type}
+      • Finalidade: ${property.listing_type} 
+      • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
+      • Área: ${property.area}m²
+      • Quartos: ${property.quartos}
+      • Banheiros: ${property.bathrooms}
+      • Vagas: ${property.parking_spots}
+      ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
+      ${property.address ? `• Endereço: ${property.address}` : ''}
+      ${property.condominium_fee ? `• Condomínio: R$ ${property.condominium_fee.toLocaleString('pt-BR')}` : ''}
+      ${property.iptu ? `• IPTU: R$ ${property.iptu.toLocaleString('pt-BR')}` : ''}
+      
+      🎯 FOQUE EM ASPECTOS RELEVANTES PARA CORRETORES:
+      • Potencial de ROI e valorização da região
+      • Facilidades para fechamento (financiamento, documentação)
+      • Diferenciais competitivos frente à concorrência
+      • Características únicas que facilitam a venda
+      • Perfil ideal do comprador/investidor
+      • Argumentos de venda mais eficazes
+      • Aspectos técnicos e comerciais importantes
+      
+      INSTRUÇÕES:
+      1. Use linguagem profissional B2B, seja direto e objetivo
+      2. Esta descrição será lida por outros profissionais imobiliários
+      3. Destaque o potencial comercial do imóvel
+      4. Mencione características da região de Ilhéus quando relevante
+      5. Máximo 200 palavras
+      6. NÃO use emojis, asteriscos (*) ou caracteres especiais
+      7. Use apenas texto limpo e profissional
+      
+      Gere apenas a descrição, sem explicações adicionais.`;
 
     try {
       const response = await sendMessage(prompt);

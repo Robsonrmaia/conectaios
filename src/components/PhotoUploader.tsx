@@ -74,7 +74,14 @@ export function PhotoUploader({
     
     const files = Array.from(e.target.files);
     
+    console.log('📸 Iniciando upload de arquivos:', files.map(f => ({
+      name: f.name,
+      size: f.size,
+      type: f.type
+    })));
+    
     if (photos.length + files.length > MAX_PHOTOS) {
+      console.error(`❌ Limite de fotos excedido: ${photos.length + files.length} > ${MAX_PHOTOS}`);
       toast({
         title: "Limite atingido",
         description: `Máximo de ${MAX_PHOTOS} fotos permitido. Você pode adicionar ${MAX_PHOTOS - photos.length} foto(s).`,
@@ -88,45 +95,108 @@ export function PhotoUploader({
 
     try {
       const uploadedUrls: string[] = [];
+      let successCount = 0;
+      let errorCount = 0;
       
       for (const file of files) {
+        console.log(`📸 Processando arquivo: ${file.name}`);
+        
+        // Validação de tamanho (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          console.error(`❌ Arquivo ${file.name} muito grande:`, file.size);
+          toast({
+            title: "Arquivo muito grande",
+            description: `${file.name} excede 5MB. Arquivo ignorado.`,
+            variant: "destructive",
+          });
+          errorCount++;
+          continue;
+        }
+
+        // Validação de tipo
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+          console.error(`❌ Tipo de arquivo não suportado: ${file.type}`);
+          toast({
+            title: "Tipo não suportado",
+            description: `${file.name} não é um tipo de imagem válido.`,
+            variant: "destructive",
+          });
+          errorCount++;
+          continue;
+        }
+        
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         
+        console.log(`📸 Fazendo upload para: property-images/${fileName}`);
+        
         const { data, error } = await supabase.storage
           .from('property-images')
-          .upload(fileName, file);
+          .upload(fileName, file, {
+            cacheControl: '3600',
+            upsert: false
+          });
 
         if (error) {
-          console.error('PhotoUploader - Upload error:', error);
-          throw error;
+          console.error('❌ Erro no upload:', error);
+          toast({
+            title: "Erro no upload",
+            description: `Falha ao enviar ${file.name}: ${error.message}`,
+            variant: "destructive",
+          });
+          errorCount++;
+          continue;
         }
+
+        console.log('✅ Upload realizado com sucesso:', data);
 
         const { data: urlData } = supabase.storage
           .from('property-images')
           .getPublicUrl(fileName);
         
+        console.log('📸 URL pública gerada:', urlData.publicUrl);
         uploadedUrls.push(urlData.publicUrl);
+        successCount++;
       }
       
-      const updatedPhotos = [...photos, ...uploadedUrls];
-      onPhotosChange(updatedPhotos);
+      if (uploadedUrls.length > 0) {
+        const updatedPhotos = [...photos, ...uploadedUrls];
+        onPhotosChange(updatedPhotos);
+        console.log('✅ Fotos atualizadas no estado:', updatedPhotos);
+      }
       
-      toast({
-        title: "Fotos enviadas!",
-        description: `${uploadedUrls.length} foto(s) enviada(s) com sucesso!`,
-      });
+      // Mensagens de resultado
+      if (successCount > 0 && errorCount === 0) {
+        toast({
+          title: "Fotos enviadas!",
+          description: `${successCount} foto(s) enviada(s) com sucesso!`,
+        });
+      } else if (successCount > 0 && errorCount > 0) {
+        toast({
+          title: "Upload parcial",
+          description: `${successCount} enviadas, ${errorCount} falharam`,
+          variant: "destructive",
+        });
+      } else if (errorCount > 0) {
+        toast({
+          title: "Falha no upload",
+          description: `Todas as ${errorCount} foto(s) falharam`,
+          variant: "destructive",
+        });
+      }
       
       setUploadedFiles([]);
     } catch (error) {
-      console.error('PhotoUploader - Upload failed:', error);
+      console.error('❌ Erro inesperado no upload:', error);
       toast({
         title: "Erro no upload",
-        description: "Erro ao enviar fotos. Tente novamente.",
+        description: "Erro inesperado ao enviar fotos. Tente novamente.",
         variant: "destructive",
       });
     } finally {
       setUploading(false);
+      console.log('📸 Upload finalizado');
     }
   };
 
