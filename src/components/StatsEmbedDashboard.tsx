@@ -46,7 +46,7 @@ export function StatsEmbedDashboard() {
           
           <CardContent className="p-0">
             <div 
-              className="h-[300px] md:h-[400px] lg:aspect-video rounded-b-lg overflow-hidden relative group cursor-pointer"
+              className="h-[400px] md:h-[500px] lg:aspect-video rounded-b-lg overflow-hidden relative group cursor-pointer"
               onClick={() => setShowModal(true)}
             >
               {isLoading && (
@@ -67,14 +67,14 @@ export function StatsEmbedDashboard() {
               <iframe
                 src="https://estatisticas.gicarneiroimoveis.com.br/"
                 title="Dashboard de Estatísticas do Mercado Imobiliário"
-                className="w-full h-full border-0 pointer-events-none"
+                className="w-full h-full border-0"
                 style={{
                   width: '100%',
                   height: '100%',
                   border: 'none'
                 }}
                 onLoad={() => setIsLoading(false)}
-                sandbox="allow-same-origin allow-scripts allow-forms"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
               />
             </div>
           </CardContent>
@@ -95,35 +95,26 @@ export function StatsEmbedDashboard() {
 
       {/* Modal para visualização completa */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-background rounded-lg w-full h-full max-w-7xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b">
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">Dashboard de Estatísticas</h2>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowModal(false)}
-              >
-                Fechar
-              </Button>
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <iframe
-                src="https://estatisticas.gicarneiroimoveis.com.br/"
-                title="Dashboard de Estatísticas do Mercado Imobiliário - Visualização Completa"
-                className="w-full h-full border-0"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none'
-                }}
-                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
-              />
-            </div>
-          </div>
+        <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center">
+          <iframe
+            src="https://estatisticas.gicarneiroimoveis.com.br/"
+            title="Dashboard de Estatísticas - Tela Cheia"
+            className="w-full h-full border-0"
+            style={{
+              width: '100vw',
+              height: '100vh',
+              border: 'none'
+            }}
+            sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-popups"
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowModal(false)}
+            className="absolute top-4 right-4 bg-background/90 backdrop-blur-sm"
+          >
+            Fechar
+          </Button>
         </div>
       )}
     </>
