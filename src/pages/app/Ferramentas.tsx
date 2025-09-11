@@ -197,11 +197,7 @@ export default function Ferramentas() {
         navigate('/app/deals');
         break;
       case 'image-creator-pro':
-        window.open('https://imagens-conectaios-420832656535.us-west1.run.app', '_blank');
-        toast({
-          title: "Ferramenta Externa",
-          description: "Abrindo Criador de Imagens Corretor Pró em nova aba...",
-        });
+        navigate('/app/ferramentas/image-creator');
         break;
       default:
         toast({

@@ -32,6 +32,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
 import { useMinisite } from '@/hooks/useMinisite';
 import { ImageGeneratorModal } from '@/components/ImageGeneratorModal';
+import { ConectaIOSImageModal } from '@/components/ConectaIOSImageModal';
 
 const TEMPLATES = [
   { 
@@ -809,7 +810,7 @@ export function MinisiteEditorIntegrated() {
         </div>
       </div>
       
-      <ImageGeneratorModal
+      <ConectaIOSImageModal
         isOpen={showImageGenerator}
         onClose={() => setShowImageGenerator(false)}
         onImageGenerated={handleImageGenerated}

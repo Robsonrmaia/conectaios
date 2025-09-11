@@ -27,6 +27,7 @@ import Inbox from "./pages/app/Inbox";
 import CRM from "./pages/app/CRM";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
+import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
 import Videos from "./pages/app/Videos";
 import Indicacoes from "./pages/app/Indicacoes";
 import Patrocinios from "./pages/app/Patrocinios";
@@ -145,6 +146,7 @@ const App = () => (
                         <Route path="inbox" element={<Inbox />} />
                         <Route path="crm" element={<CRM />} />
                         <Route path="ferramentas" element={<Ferramentas />} />
+                        <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />
                         <Route path="videos" element={<Videos />} />
                         <Route path="indicacoes" element={<Indicacoes />} />
                         <Route path="patrocinios" element={<Patrocinios />} />

@@ -118,74 +118,21 @@ export function ImageGeneratorModal({ isOpen, onClose, onImageGenerated, type }:
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               rows={3}
+              disabled
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Sugestões rápidas:</Label>
-            <div className="flex flex-wrap gap-2">
-              {predefinedPrompts[type].map((suggestion, index) => (
-                <Badge
-                  key={index}
-                  variant="outline"
-                  className="cursor-pointer hover:bg-primary/10"
-                  onClick={() => setPrompt(suggestion)}
-                >
-                  {suggestion}
-                </Badge>
-              ))}
-            </div>
+            <p className="text-sm text-muted-foreground">
+              💡 Esta funcionalidade foi migrada para uma ferramenta mais avançada. 
+              Use o botão abaixo para acessar o ConectAIOS Image Generator.
+            </p>
           </div>
 
           <Button
-            onClick={generateImage}
-            disabled={isGenerating || !prompt.trim()}
+            onClick={() => window.open('/app/ferramentas/image-creator', '_blank')}
             className="w-full"
           >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
-                Gerando imagem...
-              </>
-            ) : (
-              <>
-                <Image className="h-4 w-4 mr-2" />
-                Gerar Imagem
-              </>
-            )}
+            <Image className="h-4 w-4 mr-2" />
+            Abrir ConectAIOS Image Generator
           </Button>
-
-          {generatedImages.length > 0 && (
-            <div className="space-y-3">
-              <Label>Imagens geradas:</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {generatedImages.map((imageUrl, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="relative group">
-                      <img
-                        src={imageUrl}
-                        alt={`${type} gerada ${index + 1}`}
-                        className="w-full h-32 object-cover rounded-lg border"
-                        onError={(e) => {
-                          console.error('Erro ao carregar imagem:', e);
-                          e.currentTarget.src = '/placeholder.svg';
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleUseImage(imageUrl)}
-                          className="bg-primary/80 hover:bg-primary"
-                        >
-                          Usar esta
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>
