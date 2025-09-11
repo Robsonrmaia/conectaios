@@ -429,6 +429,29 @@ const Index = () => {
                 ></iframe>
               </div>
             </div>
+
+            {/* Dashboard Mobile */}
+            <div className="mt-8">
+              <div className="text-center mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-xs font-medium border border-primary/20">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+                  Estatísticas em Tempo Real
+                </div>
+              </div>
+              
+              <div className="aspect-video rounded-xl overflow-hidden shadow-lg border-0">
+                <iframe
+                  src="https://estatisticas.gicarneiroimoveis.com.br/"
+                  title="Dashboard de Estatísticas Mobile"
+                  className="w-full h-full border-0"
+                  style={{
+                    border: 'none',
+                    outline: 'none'
+                  }}
+                  sandbox="allow-same-origin allow-scripts allow-forms"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </main>

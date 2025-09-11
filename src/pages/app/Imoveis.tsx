@@ -866,65 +866,81 @@ export default function Imoveis() {
                      </Button>
                    </div>
                    
-                   <div className="grid grid-cols-2 gap-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setAiDescriptionProperty(property);
-                         setShowAiDescription(true);
-                       }}
-                       title="Gerar Descrição com IA"
-                       className="h-8 text-xs"
-                     >
-                       <Wand2 className="h-3 w-3 mr-1" />
-                       IA Desc
-                     </Button>
+                    <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          if (property.fotos && property.fotos.length > 0) {
-                            setSelectedProperty(property);
-                            setProcessorType('staging');
-                            setIsProcessorOpen(true);
-                          } else {
-                            toast({
-                              title: "Sem Fotos",
-                              description: "Adicione fotos ao imóvel primeiro",
-                              variant: "destructive",
-                            });
-                          }
+                          setAiDescriptionProperty(property);
+                          setShowAiDescription(true);
                         }}
-                        title="Colocar Móveis"
+                        title="Gerar Descrição com IA"
                         className="h-8 text-xs"
                       >
                         <Wand2 className="h-3 w-3 mr-1" />
-                        Móveis
+                        IA Desc
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          if (property.fotos && property.fotos.length > 0) {
-                            setSelectedProperty(property);
-                            setProcessorType('enhance');
-                            setIsProcessorOpen(true);
-                          } else {
-                            toast({
-                              title: "Sem Fotos",
-                              description: "Adicione fotos ao imóvel primeiro",
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                        title="Melhorar Qualidade"
-                        className="h-8 text-xs"
-                      >
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        Qualidade
-                      </Button>
-                   </div>
+                       <Button 
+                         variant="outline" 
+                         size="sm"
+                         onClick={() => {
+                           if (property.fotos && property.fotos.length > 0) {
+                             setSelectedProperty(property);
+                             setProcessorType('staging');
+                             setIsProcessorOpen(true);
+                           } else {
+                             toast({
+                               title: "Sem Fotos",
+                               description: "Adicione fotos ao imóvel primeiro",
+                               variant: "destructive",
+                             });
+                           }
+                         }}
+                         title="Colocar Móveis"
+                         className="h-8 text-xs"
+                       >
+                         <Wand2 className="h-3 w-3 mr-1" />
+                         Móveis
+                       </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                       <Button 
+                         variant="outline" 
+                         size="sm"
+                         onClick={() => {
+                           if (property.fotos && property.fotos.length > 0) {
+                             setSelectedProperty(property);
+                             setProcessorType('enhance');
+                             setIsProcessorOpen(true);
+                           } else {
+                             toast({
+                               title: "Sem Fotos",
+                               description: "Adicione fotos ao imóvel primeiro",
+                               variant: "destructive",
+                             });
+                           }
+                         }}
+                         title="Melhorar Qualidade"
+                         className="h-8 text-xs"
+                       >
+                         <Sparkles className="h-3 w-3 mr-1" />
+                         Qualidade
+                       </Button>
+                       <Button 
+                         variant="outline" 
+                         size="sm"
+                         onClick={() => {
+                           // Open evaluation tool for the property
+                           window.open(`https://simuladororquidario.gicarneiroimoveis.com.br/?area=${property.area}&quartos=${property.quartos}&tipo=${property.property_type}`, '_blank', 'noopener,noreferrer');
+                         }}
+                         title="Avaliar Imóvel"
+                         className="h-8 text-xs"
+                       >
+                         <Target className="h-3 w-3 mr-1" />
+                         Avaliar
+                       </Button>
+                    </div>
                    
                    <div className="grid grid-cols-2 gap-2">
                      <Button 

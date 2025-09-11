@@ -74,10 +74,10 @@ export function ConectaIOSImageProcessor({
         
         <div className="w-full h-full min-h-[90vh]">
           <iframe
-            src={`https://imagens-conectaios-420832656535.us-west1.run.app${initialImage ? `?image=${encodeURIComponent(initialImage)}` : ''}`}
+            src={`https://imagens-conectaios-420832656535.us-west1.run.app${initialImage ? `?imageUrl=${encodeURIComponent(initialImage)}&action=${type}` : ''}`}
             className="w-full h-full border-0 rounded-lg"
             title="ConectAIOS Image Processor"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-top-navigation"
             style={{ 
               border: 'none',
               outline: 'none',
