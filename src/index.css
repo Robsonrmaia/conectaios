@@ -242,6 +242,7 @@ All colors MUST be HSL.
   
   .animate-pulse-gentle {
     animation: pulse-gentle 3s ease-in-out infinite;
+  }
 }
 
 @layer components {

@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, User } from "lucide-react";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import MaintenanceCheck from "@/components/MaintenanceCheck";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
@@ -118,7 +119,8 @@ const App = () => (
       <AuthProvider>
         <BrokerProvider>
           <MinisiteProvider>
-            <BrowserRouter>
+            <MaintenanceCheck>
+              <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
@@ -157,6 +159,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            </MaintenanceCheck>
           </MinisiteProvider>
         </BrokerProvider>
       </AuthProvider>

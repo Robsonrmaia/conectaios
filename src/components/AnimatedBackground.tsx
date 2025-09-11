@@ -116,60 +116,60 @@ export default function AnimatedBackground() {
         <g>
           {nodes.map((node, index) => (
             <g key={index}>
-              {/* Main circle with glow effect - larger and more transparent */}
+              {/* Main circle with glow effect - much larger and very transparent */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 4}
+                r={node.size * 8}
                 fill="hsl(142 76% 36%)"
-                opacity="0.2"
+                opacity="0.05"
                 filter="url(#nodeGlow)"
                 className="animate-neural-glow"
                 style={{ 
                   animationDelay: `${node.delay}s`,
-                  animationDuration: '8s'
+                  animationDuration: '20s'
                 }}
               />
               
-              {/* Middle circle - medium transparency */}
+              {/* Middle circle - very transparent */}
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={node.size * 5}
+                fill="hsl(142 76% 50%)"
+                opacity="0.08"
+                className="animate-neural-float"
+                style={{ 
+                  animationDelay: `${node.delay + 1}s`,
+                  animationDuration: '16s'
+                }}
+              />
+              
+              {/* Inner circle - subtle glow */}
               <circle
                 cx={node.x}
                 cy={node.y}
                 r={node.size * 2.5}
-                fill="hsl(142 76% 50%)"
-                opacity="0.3"
-                className="animate-neural-float"
-                style={{ 
-                  animationDelay: `${node.delay + 1}s`,
-                  animationDuration: '10s'
-                }}
-              />
-              
-              {/* Inner circle - soft glow */}
-              <circle
-                cx={node.x}
-                cy={node.y}
-                r={node.size * 1.2}
                 fill="hsl(142 76% 60%)"
-                opacity="0.4"
+                opacity="0.12"
                 className="animate-fade-pulse"
                 style={{ 
                   animationDelay: `${node.delay + 2}s`,
-                  animationDuration: '6s'
+                  animationDuration: '14s'
                 }}
               />
               
-              {/* Core - brightest but small */}
+              {/* Core - barely visible */}
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.size * 0.4}
+                r={node.size * 1}
                 fill="hsl(142 76% 70%)"
-                opacity="0.6"
+                opacity="0.15"
                 className="animate-breathe"
                 style={{ 
                   animationDelay: `${node.delay + 0.5}s`,
-                  animationDuration: '4s'
+                  animationDuration: '12s'
                 }}
               />
             </g>
