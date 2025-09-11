@@ -15,15 +15,43 @@ import { formatCurrency } from '@/lib/utils';
 interface ClientSearch {
   id: string;
   title: string;
+  client_name?: string;
+  client_phone?: string;
+  client_email?: string;
   property_type: string;
   listing_type: string;
   max_price: number;
-  min_bedrooms: number;
-  neighborhood: string;
-  city: string;
-  min_area: number;
+  min_price?: number;
+  min_bedrooms?: number;
+  max_bedrooms?: number;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  min_area?: number;
+  max_area?: number;
+  is_active: boolean;
+  last_match_at?: string;
+  match_count: number;
   created_at: string;
-  matches_count: number;
+  updated_at: string;
+}
+
+interface PropertyMatch {
+  property_id: string;
+  match_score: number;
+  match_reasons: string[];
+  property_data: {
+    id: string;
+    titulo: string;
+    valor: number;
+    quartos: number;
+    area: number;
+    neighborhood: string;
+    city: string;
+    property_type: string;
+    listing_type: string;
+    fotos?: string[];
+  };
 }
 
 interface Property {
@@ -36,6 +64,8 @@ interface Property {
   city: string;
   property_type: string;
   listing_type: string;
+  match_score?: number;
+  match_reasons?: string[];
 }
 
 export default function MinhasBuscas() {
@@ -62,37 +92,16 @@ export default function MinhasBuscas() {
 
   const fetchSearches = async () => {
     try {
-      // For now, we'll create mock data since we don't have the client_searches table yet
-      const mockSearches: ClientSearch[] = [
-        {
-          id: '1',
-          title: 'Casa para cliente João - até R$ 300k',
-          property_type: 'casa',
-          listing_type: 'venda',
-          max_price: 300000,
-          min_bedrooms: 3,
-          neighborhood: 'Centro',
-          city: 'Ilhéus',
-          min_area: 80,
-          created_at: new Date().toISOString(),
-          matches_count: 2
-        },
-        {
-          id: '2',
-          title: 'Apartamento para aluguel - Casal jovem',
-          property_type: 'apartamento',
-          listing_type: 'aluguel',
-          max_price: 2500,
-          min_bedrooms: 2,
-          neighborhood: 'Pontal',
-          city: 'Ilhéus',
-          min_area: 60,
-          created_at: new Date().toISOString(),
-          matches_count: 1
-        }
-      ];
-      
-      setSearches(mockSearches);
+      const { data: searchData, error } = await supabase
+        .from('client_searches')
+        .select('*')
+        .eq('user_id', user?.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      setSearches(searchData || []);
     } catch (error) {
       console.error('Error fetching searches:', error);
       toast({
@@ -116,17 +125,27 @@ export default function MinhasBuscas() {
     }
 
     try {
-      const searchData = {
-        id: Date.now().toString(),
-        ...newSearch,
-        max_price: parseInt(newSearch.max_price),
-        min_bedrooms: parseInt(newSearch.min_bedrooms) || 1,
-        min_area: parseInt(newSearch.min_area) || 0,
-        created_at: new Date().toISOString(),
-        matches_count: 0
-      };
+      const { data: searchData, error } = await supabase
+        .from('client_searches')
+        .insert({
+          user_id: user?.id,
+          title: newSearch.title,
+          property_type: newSearch.property_type,
+          listing_type: newSearch.listing_type,
+          max_price: parseFloat(newSearch.max_price),
+          min_bedrooms: parseInt(newSearch.min_bedrooms) || null,
+          neighborhood: newSearch.neighborhood || null,
+          city: newSearch.city || null,
+          min_area: parseFloat(newSearch.min_area) || null,
+          is_active: true,
+          match_count: 0
+        })
+        .select()
+        .single();
 
-      setSearches([...searches, searchData]);
+      if (error) throw error;
+
+      setSearches([searchData, ...searches]);
       setNewSearch({
         title: '',
         property_type: 'apartamento',
@@ -157,25 +176,40 @@ export default function MinhasBuscas() {
     try {
       setSelectedSearch(search);
       
-      // Search for matching properties
-      const { data: properties, error } = await supabase
-        .from('properties')
-        .select('id, titulo, valor, quartos, area, neighborhood, city, property_type, listing_type')
-        .eq('is_public', true)
-        .eq('listing_type', search.listing_type)
-        .eq('property_type', search.property_type)
-        .lte('valor', search.max_price)
-        .gte('quartos', search.min_bedrooms)
-        .gte('area', search.min_area || 0)
-        .limit(10);
+      // Use intelligent property matching function
+      const { data: matchResults, error } = await supabase
+        .rpc('find_intelligent_property_matches', { search_id: search.id });
 
       if (error) throw error;
+
+      // Transform match results to Property format
+      const transformedMatches: Property[] = (matchResults || []).map((match: any) => ({
+        ...match.property_data,
+        match_score: match.match_score,
+        match_reasons: match.match_reasons
+      }));
       
-      setMatches(properties || []);
+      // Update match count in the search record
+      await supabase
+        .from('client_searches')
+        .update({ 
+          match_count: transformedMatches.length,
+          last_match_at: new Date().toISOString()
+        })
+        .eq('id', search.id);
+
+      // Update local state
+      setSearches(prev => prev.map(s => 
+        s.id === search.id 
+          ? { ...s, match_count: transformedMatches.length, last_match_at: new Date().toISOString() }
+          : s
+      ));
+      
+      setMatches(transformedMatches);
       
       toast({
         title: 'Busca realizada',
-        description: `Encontrados ${properties?.length || 0} imóveis compatíveis`
+        description: `Encontrados ${transformedMatches.length} imóveis compatíveis com pontuação inteligente`
       });
     } catch (error) {
       console.error('Error searching matches:', error);
@@ -187,12 +221,29 @@ export default function MinhasBuscas() {
     }
   };
 
-  const deleteSearch = (searchId: string) => {
-    setSearches(searches.filter(s => s.id !== searchId));
-    toast({
-      title: 'Sucesso',
-      description: 'Busca removida com sucesso'
-    });
+  const deleteSearch = async (searchId: string) => {
+    try {
+      const { error } = await supabase
+        .from('client_searches')
+        .delete()
+        .eq('id', searchId)
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+
+      setSearches(searches.filter(s => s.id !== searchId));
+      toast({
+        title: 'Sucesso',
+        description: 'Busca removida com sucesso'
+      });
+    } catch (error) {
+      console.error('Error deleting search:', error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao remover busca',
+        variant: 'destructive'
+      });
+    }
   };
 
   if (loading) {
@@ -390,7 +441,7 @@ export default function MinhasBuscas() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">
-                      {search.matches_count} matches
+                      {search.match_count} matches
                     </Badge>
                   </div>
                 </div>
@@ -431,23 +482,48 @@ export default function MinhasBuscas() {
           <CardContent>
             <div className="grid gap-4">
               {matches.map((property) => (
-                <div key={property.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div>
-                    <h4 className="font-semibold">{property.titulo}</h4>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{property.quartos} quartos</span>
-                      <span>{property.area}m²</span>
-                      <span>{property.neighborhood}, {property.city}</span>
+                <div key={property.id} className="p-4 border rounded-lg">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <h4 className="font-semibold">{property.titulo}</h4>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                        <span>{property.quartos} quartos</span>
+                        <span>{property.area}m²</span>
+                        <span>{property.neighborhood}, {property.city}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-semibold text-lg text-primary">
+                        {formatCurrency(property.valor)}
+                      </div>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline">
+                          {property.property_type}
+                        </Badge>
+                        {property.match_score && (
+                          <Badge 
+                            variant={property.match_score >= 80 ? "default" : property.match_score >= 60 ? "secondary" : "outline"}
+                            className="text-xs"
+                          >
+                            {property.match_score}% compatível
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-semibold text-lg text-primary">
-                      {formatCurrency(property.valor)}
+                  
+                  {property.match_reasons && property.match_reasons.length > 0 && (
+                    <div className="mt-3 pt-3 border-t">
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Motivos da compatibilidade:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {property.match_reasons.filter(reason => reason).map((reason, index) => (
+                          <Badge key={index} variant="outline" className="text-xs">
+                            {reason}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <Badge variant="outline" className="mt-1">
-                      {property.property_type}
-                    </Badge>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

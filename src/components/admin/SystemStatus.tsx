@@ -70,13 +70,28 @@ export default function SystemStatus() {
       let openaiResponseTime = 0;
       try {
         const { data: openaiData, error: openaiErr } = await supabase.functions.invoke('ai-assistant', {
-          body: { prompt: 'test', type: 'property_description' }
+          body: { message: 'teste de conexão', userId: 'test' }
         });
         openaiResponseTime = Date.now() - openaiStart;
         openaiError = openaiErr;
       } catch (error) {
         openaiError = error;
         openaiResponseTime = Date.now() - openaiStart;
+      }
+
+      // Test Public API
+      const publicApiStart = Date.now();
+      let publicApiError = null;
+      let publicApiResponseTime = 0;
+      try {
+        const { data: publicApiData, error: publicApiErr } = await supabase.functions.invoke('public-api', {
+          body: { test: true }
+        });
+        publicApiResponseTime = Date.now() - publicApiStart;
+        publicApiError = publicApiErr;
+      } catch (error) {
+        publicApiError = error;
+        publicApiResponseTime = Date.now() - publicApiStart;
       }
 
       const currentServices: ServiceStatus[] = [
@@ -121,6 +136,13 @@ export default function SystemStatus() {
           uptime: openaiError ? '0%' : openaiResponseTime > 3000 ? '85%' : '99.2%',
           responseTime: openaiError ? 'N/A' : `${openaiResponseTime}ms`,
           icon: <Activity className="h-5 w-5" />
+        },
+        {
+          name: 'API Pública',
+          status: publicApiError ? 'offline' : publicApiResponseTime > 2000 ? 'warning' : 'online',
+          uptime: publicApiError ? '0%' : publicApiResponseTime > 2000 ? '95%' : '99.5%',
+          responseTime: publicApiError ? 'N/A' : `${publicApiResponseTime}ms`,
+          icon: <Cloud className="h-5 w-5" />
         }
       ];
 

@@ -491,6 +491,87 @@ export type Database = {
           },
         ]
       }
+      client_searches: {
+        Row: {
+          city: string | null
+          client_email: string | null
+          client_name: string | null
+          client_phone: string | null
+          created_at: string
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          last_match_at: string | null
+          listing_type: string
+          match_count: number | null
+          max_area: number | null
+          max_bedrooms: number | null
+          max_price: number | null
+          min_area: number | null
+          min_bathrooms: number | null
+          min_bedrooms: number | null
+          min_price: number | null
+          neighborhood: string | null
+          property_type: string
+          state: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_match_at?: string | null
+          listing_type?: string
+          match_count?: number | null
+          max_area?: number | null
+          max_bedrooms?: number | null
+          max_price?: number | null
+          min_area?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_price?: number | null
+          neighborhood?: string | null
+          property_type?: string
+          state?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_match_at?: string | null
+          listing_type?: string
+          match_count?: number | null
+          max_area?: number | null
+          max_bedrooms?: number | null
+          max_price?: number | null
+          min_area?: number | null
+          min_bathrooms?: number | null
+          min_bedrooms?: number | null
+          min_price?: number | null
+          neighborhood?: string | null
+          property_type?: string
+          state?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           classificacao: string | null
@@ -2730,6 +2811,15 @@ export type Database = {
       ensure_admin_profile: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      find_intelligent_property_matches: {
+        Args: { search_id: string }
+        Returns: {
+          match_reasons: string[]
+          match_score: number
+          property_data: Json
+          property_id: string
+        }[]
       }
       find_property_matches: {
         Args: { client_preferences: Json }
