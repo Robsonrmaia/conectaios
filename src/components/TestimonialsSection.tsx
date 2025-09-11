@@ -19,53 +19,75 @@ const testimonials = [
     role: "Corretora - Itabuna/BA",  
     photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     text: "Sistema perfeito para quem quer profissionalizar o negócio. Interface linda, funcionalidades completas e suporte excelente!"
+  },
+  {
+    id: 4,
+    name: "Carlos Mendes",
+    role: "Corretor - Salvador/BA",
+    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    text: "Desde que comecei a usar o ConectaIOS, minha produtividade aumentou 80%. A plataforma é intuitiva e as ferramentas são incríveis!"
   }
 ];
 
 export function TestimonialsSection() {
-
   return (
-    <section className="py-12 bg-background">
+    <section className="py-16 bg-background">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-semibold mb-3">
-            O que nossos <span className="text-primary">corretores</span> dizem
+        {/* Cabeçalho */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Junte-se a milhares de <span className="text-primary">corretores satisfeitos!</span> ❤️
           </h2>
-          <p className="text-muted-foreground">
-            Mais de <strong>500+ corretores</strong> já transformaram seus negócios
+          <p className="text-lg text-muted-foreground">
+            Veja o que andam dizendo sobre nós
           </p>
         </div>
 
-        <div className="flex overflow-x-auto gap-8 max-w-6xl mx-auto pb-2">
+        {/* Grid de Depoimentos */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
           {testimonials.map((testimonial) => (
             <div 
               key={testimonial.id}
-              className="flex-shrink-0 min-w-[320px] text-center"
+              className="text-center space-y-4 p-6 rounded-lg bg-card border hover:shadow-lg transition-shadow duration-300"
             >
-              <img 
-                src={testimonial.photo} 
-                alt={testimonial.name}
-                className="w-12 h-12 rounded-full object-cover mx-auto mb-3"
-              />
-              <div className="flex justify-center mb-2">
-                <div className="flex text-yellow-500 text-lg">
-                  ⭐⭐⭐⭐⭐
-                </div>
+              {/* Foto */}
+              <div className="flex justify-center">
+                <img 
+                  src={testimonial.photo} 
+                  alt={testimonial.name}
+                  className="w-20 h-20 rounded-full object-cover border-4 border-primary/20"
+                />
               </div>
-              <h4 className="font-medium text-base mb-1">{testimonial.name}</h4>
-              <p className="text-sm text-muted-foreground mb-3">{testimonial.role}</p>
-              <p className="text-sm leading-relaxed text-foreground italic">
+              
+              {/* Nome */}
+              <div>
+                <h3 className="font-semibold text-lg text-foreground">{testimonial.name}</h3>
+                <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+              </div>
+              
+              {/* Depoimento */}
+              <blockquote className="text-sm leading-relaxed text-foreground italic">
                 "{testimonial.text}"
-              </p>
+              </blockquote>
             </div>
           ))}
         </div>
 
-        <div className="text-center mt-8">
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
-            <span><strong>4.9/5</strong> avaliação média</span>
-            <span><strong>500+</strong> corretores ativos</span>
-            <span><strong>95%</strong> recomendam</span>
+        {/* Estatísticas */}
+        <div className="text-center mt-12">
+          <div className="flex flex-wrap justify-center gap-8 text-sm">
+            <div className="flex flex-col items-center">
+              <span className="text-2xl font-bold text-primary">500+</span>
+              <span className="text-muted-foreground">Corretores Ativos</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-2xl font-bold text-primary">4.9/5</span>
+              <span className="text-muted-foreground">Avaliação Média</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <span className="text-2xl font-bold text-primary">95%</span>
+              <span className="text-muted-foreground">Recomendam</span>
+            </div>
           </div>
         </div>
       </div>
