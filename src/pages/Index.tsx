@@ -16,7 +16,7 @@ import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
-import { FooterBankLinks } from '@/components/FooterBankLinks';
+
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
 import garotonectaImg from '@/assets/garoto-conecta.png';
@@ -756,15 +756,45 @@ const Index = () => {
 
 
         {/* Footer */}
-      <FooterBankLinks />
-      <footer className="border-t bg-card/30 backdrop-blur-sm">
+      <footer className="border-t bg-slate-800 text-white">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center space-x-2">
-            <Building2 className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold">ConectaIOS</span>
-            <span className="text-sm text-muted-foreground">• Ilhéus</span>
+          {/* Simuladores */}
+          <div className="text-center mb-6">
+            <p className="text-sm text-slate-300 mb-3">Simuladores Oficiais:</p>
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
+              <a href="https://www.caixa.gov.br/voce/habitacao/simulador/Paginas/default.aspx" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Caixa Econômica
+              </a>
+              <span className="text-slate-500">•</span>
+              <a href="https://www42.bb.com.br/portalbb/imobiliario/creditoimobiliario/simular,802,2250,2250.bbx" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Banco do Brasil
+              </a>
+              <span className="text-slate-500">•</span>
+              <a href="https://banco.bradesco/html/classic/produtos-servicos/emprestimo-e-financiamento/encontre-seu-credito/simuladores-imoveis.shtm" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Bradesco
+              </a>
+              <span className="text-slate-500">•</span>
+              <a href="https://www.itau.com.br/credito-financiamento/financiamentos/imoveis" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Itaú
+              </a>
+              <span className="text-slate-500">•</span>
+              <a href="https://www.santander.com.br/credito-financiamento/financiamento-de-imoveis" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Santander
+              </a>
+              <span className="text-slate-500">•</span>
+              <a href="https://www.bancointer.com.br/credito-imobiliario/" target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-white transition-colors">
+                Inter
+              </a>
+            </div>
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-2">
+          
+          {/* Info Principal */}
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <Building2 className="h-6 w-6 text-white" />
+            <span className="text-lg font-semibold">ConectaIOS</span>
+            <span className="text-sm text-slate-300">• Ilhéus</span>
+          </div>
+          <p className="text-center text-sm text-slate-300">
             Plataforma exclusiva para corretores independentes
           </p>
         </div>
