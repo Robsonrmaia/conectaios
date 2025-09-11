@@ -21,6 +21,13 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 import AdminTestimonialManager from '@/components/AdminTestimonialManager';
 import AdminPartnerManager from '@/components/AdminPartnerManager';
+import SystemLogs from '@/components/admin/SystemLogs';
+import SystemStatus from '@/components/admin/SystemStatus';
+import SystemAlerts from '@/components/admin/SystemAlerts';
+import GeneralSettings from '@/components/admin/GeneralSettings';
+import EmailTemplates from '@/components/admin/EmailTemplates';
+import Integrations from '@/components/admin/Integrations';
+import SecuritySettings from '@/components/admin/SecuritySettings';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -302,64 +309,73 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="sistema" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Monitoramento do Sistema</CardTitle>
-              <CardDescription>
-                Monitore performance, logs e integrações
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Activity className="h-6 w-6" />
-                  Logs do Sistema
-                </Button>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <Database className="h-6 w-6" />
-                  Status dos Serviços
-                </Button>
-                <Button variant="outline" className="h-20 flex flex-col gap-2">
-                  <AlertTriangle className="h-6 w-6" />
-                  Alertas
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="logs" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="logs" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                Logs
+              </TabsTrigger>
+              <TabsTrigger value="status" className="flex items-center gap-2">
+                <Database className="h-4 w-4" />
+                Status
+              </TabsTrigger>
+              <TabsTrigger value="alertas" className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4" />
+                Alertas
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="logs">
+              <SystemLogs />
+            </TabsContent>
+            
+            <TabsContent value="status">
+              <SystemStatus />
+            </TabsContent>
+            
+            <TabsContent value="alertas">
+              <SystemAlerts />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Configurações do Sistema
-              </CardTitle>
-              <CardDescription>
-                Configure parâmetros globais da plataforma
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline" className="h-16 justify-start">
-                  <Building className="h-5 w-5 mr-3" />
-                  Configurações Gerais
-                </Button>
-                <Button variant="outline" className="h-16 justify-start">
-                  <MessageSquare className="h-5 w-5 mr-3" />
-                  Templates de Email
-                </Button>
-                <Button variant="outline" className="h-16 justify-start">
-                  <Settings className="h-5 w-5 mr-3" />
-                  Integrações
-                </Button>
-                <Button variant="outline" className="h-16 justify-start">
-                  <Shield className="h-5 w-5 mr-3" />
-                  Segurança
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="gerais" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="gerais" className="flex items-center gap-2">
+                <Building className="h-4 w-4" />
+                Gerais
+              </TabsTrigger>
+              <TabsTrigger value="emails" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Emails
+              </TabsTrigger>
+              <TabsTrigger value="integracoes" className="flex items-center gap-2">
+                <Settings className="h-4 w-4" />
+                Integrações
+              </TabsTrigger>
+              <TabsTrigger value="seguranca" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Segurança
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="gerais">
+              <GeneralSettings />
+            </TabsContent>
+            
+            <TabsContent value="emails">
+              <EmailTemplates />
+            </TabsContent>
+            
+            <TabsContent value="integracoes">
+              <Integrations />
+            </TabsContent>
+            
+            <TabsContent value="seguranca">
+              <SecuritySettings />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
       </Tabs>
     </div>
