@@ -676,7 +676,10 @@ export default function Imoveis() {
               }}>
                 Cancelar
               </Button>
-              <Button onClick={handleAddProperty}>
+              <Button 
+                onClick={handleAddProperty}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-lg hover:scale-105 transition-all duration-300 hover:ring-2 hover:ring-primary/20 hover:ring-offset-2"
+              >
                 {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
               </Button>
              </div>

@@ -26,21 +26,10 @@ export function StatsEmbedDashboard() {
                 <BarChart3 className="h-5 w-5 text-primary" />
                 Dashboard de Mercado
               </CardTitle>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowModal(true)}
-                  className="text-xs"
-                >
-                  <ExternalLink className="w-3 h-3 mr-1" />
-                  Abrir
-                </Button>
-                <Badge variant="outline" className="text-green-600 border-green-200">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-                  Ao Vivo
-                </Badge>
-              </div>
+              <Badge variant="outline" className="text-green-600 border-green-200">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                Ao Vivo
+              </Badge>
             </div>
           </CardHeader>
           
@@ -74,7 +63,7 @@ export function StatsEmbedDashboard() {
                   border: 'none'
                 }}
                 onLoad={() => setIsLoading(false)}
-                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-top-navigation allow-pointer-lock"
               />
             </div>
           </CardContent>
