@@ -144,8 +144,9 @@ const App = () => (
                         <Route path="videos" element={<Videos />} />
                         <Route path="indicacoes" element={<Indicacoes />} />
                         <Route path="patrocinios" element={<Patrocinios />} />
-                        <Route path="ai-assistant" element={<AIAssistant />} />
+                         <Route path="ai-assistant" element={<AIAssistant />} />
                          <Route path="audit-logs" element={<AuditLogs />} />
+                         <Route path="admin" element={<Admin />} />
                          <Route path="perfil" element={<Perfil />} />
                          <Route path="suporte" element={<Suporte />} />
                          <Route path="*" element={<NotFound />} />

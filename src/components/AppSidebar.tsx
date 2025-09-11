@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import {
   Sidebar,
   SidebarContent,
@@ -114,6 +115,7 @@ export function AppSidebar() {
   const { state, toggleSidebar } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
+  const { isAdmin } = useAdminAuth();
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -206,6 +208,19 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              {isAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to="/app/admin" 
+                      className={getNavClassName('/app/admin')}
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Administração</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
