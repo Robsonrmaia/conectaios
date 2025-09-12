@@ -52,6 +52,8 @@ interface Property {
   is_furnished?: boolean;
   has_sea_view?: boolean;
   watermark_enabled?: boolean;
+  furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
+  sea_distance?: number;
 }
 
 export default function Imoveis() {
@@ -96,7 +98,7 @@ export default function Imoveis() {
     city: '',
     condominium_fee: '',
     iptu: '',
-    commission_percentage: 6,
+    commission_percentage: 5,
     commission_value: 0,
     commission_split_type: '50/50',
     commission_buyer_split: 50,
@@ -105,6 +107,8 @@ export default function Imoveis() {
     is_furnished: false,
     has_sea_view: false,
     watermark_enabled: true,
+    furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
+    sea_distance: '',
   });
 
   useEffect(() => {
@@ -116,7 +120,7 @@ export default function Imoveis() {
       console.log('🔍 Buscando imóveis para user_id:', user.id);
       
       const { data, error } = await supabase
-        .from('conectaios_properties')
+        .from('properties')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -145,10 +149,12 @@ export default function Imoveis() {
         videos: prop.videos || [],
         created_at: prop.created_at,
         reference_code: prop.reference_code,
-        banner_type: prop.banner_type || null,
-        is_furnished: prop.is_furnished || false,
-        has_sea_view: prop.has_sea_view || false,
-        watermark_enabled: prop.watermark_enabled !== undefined ? prop.watermark_enabled : true,
+        banner_type: prop.sale_status === 'sold' ? 'vendido' : prop.sale_status === 'rented' ? 'alugado' : null,
+        is_furnished: prop.furnishing_type === 'furnished',
+        has_sea_view: prop.sea_distance && prop.sea_distance <= 500,
+        watermark_enabled: true,
+        furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+        sea_distance: prop.sea_distance || null,
       }));
       
       console.log('✅ Imóveis mapeados:', mappedData.length, mappedData);
@@ -223,9 +229,8 @@ export default function Imoveis() {
         condominium_fee: formData.condominium_fee ? parseValue(formData.condominium_fee) : null,
         iptu: formData.iptu ? parseValue(formData.iptu) : null,
         banner_type: (formData.banner_type === "none" || formData.banner_type === "" || !formData.banner_type) ? null : formData.banner_type,
-        is_furnished: formData.is_furnished || false,
-        has_sea_view: formData.has_sea_view || false,
-        watermark_enabled: formData.watermark_enabled !== undefined ? formData.watermark_enabled : true,
+        furnishing_type: formData.furnishing_type,
+        sea_distance: formData.sea_distance ? parseInt(formData.sea_distance) : null,
       };
 
       console.log('Final property data to save:', propertyData);
@@ -293,6 +298,8 @@ export default function Imoveis() {
         is_furnished: false,
         has_sea_view: false,
         watermark_enabled: true,
+        furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
+        sea_distance: '',
       });
       fetchProperties();
     } catch (error) {
@@ -533,42 +540,64 @@ export default function Imoveis() {
                  </div>
                </div>
 
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <Label htmlFor="banner_type">Banner</Label>
-                   <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue placeholder="Selecione um banner" />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="none">Nenhum</SelectItem>
-                       <SelectItem value="vendido">Vendido</SelectItem>
-                       <SelectItem value="alugado">Alugado</SelectItem>
-                       <SelectItem value="oportunidade">Oportunidade</SelectItem>
-                       <SelectItem value="exclusivo">Exclusivo</SelectItem>
-                       <SelectItem value="abaixo_mercado">Abaixo do Mercado</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-                 <div className="space-y-4">
-                   <div className="flex items-center space-x-2">
-                     <Switch
-                       id="is_furnished"
-                       checked={formData.is_furnished}
-                       onCheckedChange={(checked) => setFormData({...formData, is_furnished: checked})}
-                     />
-                     <Label htmlFor="is_furnished">Mobiliado</Label>
-                   </div>
-                   <div className="flex items-center space-x-2">
-                     <Switch
-                       id="has_sea_view"
-                       checked={formData.has_sea_view}
-                       onCheckedChange={(checked) => setFormData({...formData, has_sea_view: checked})}
-                     />
-                     <Label htmlFor="has_sea_view">Vista Mar</Label>
-                   </div>
-                 </div>
-               </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="banner_type">Banner</Label>
+                    <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione um banner" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Nenhum</SelectItem>
+                        <SelectItem value="vendido">Vendido</SelectItem>
+                        <SelectItem value="alugado">Alugado</SelectItem>
+                        <SelectItem value="oportunidade">Oportunidade</SelectItem>
+                        <SelectItem value="exclusivo">Exclusivo</SelectItem>
+                        <SelectItem value="abaixo_mercado">Abaixo do Mercado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="furnishing_type">Mobília</Label>
+                    <Select value={formData.furnishing_type} onValueChange={(value: 'none' | 'furnished' | 'semi_furnished') => setFormData({...formData, furnishing_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">Não Mobiliado</SelectItem>
+                        <SelectItem value="furnished">Mobiliado</SelectItem>
+                        <SelectItem value="semi_furnished">Semi-mobiliado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="sea_distance">Distância do Mar (metros)</Label>
+                    <Input
+                      id="sea_distance"
+                      type="number"
+                      value={formData.sea_distance}
+                      onChange={(e) => setFormData({...formData, sea_distance: e.target.value})}
+                      placeholder="500"
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Deixe vazio se não aplicável
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="has_sea_view"
+                        checked={formData.has_sea_view}
+                        onCheckedChange={(checked) => setFormData({...formData, has_sea_view: checked})}
+                      />
+                      <Label htmlFor="has_sea_view">Vista Mar</Label>
+                    </div>
+                  </div>
+                </div>
 
               <div>
                 <div className="flex items-center justify-between mb-2">
@@ -998,7 +1027,9 @@ export default function Imoveis() {
                            banner_type: property.banner_type || null,
                            is_furnished: property.is_furnished || false,
                            has_sea_view: property.has_sea_view || false,
-                           watermark_enabled: property.watermark_enabled !== undefined ? property.watermark_enabled : true,
+                            watermark_enabled: true,
+                            furnishing_type: (property.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+                            sea_distance: property.sea_distance ? String(property.sea_distance) : '',
                          });
                          setSelectedProperty(property);
                          setIsAddDialogOpen(true); // Reutiliza o dialog de adicionar para edição
@@ -1277,6 +1308,8 @@ export default function Imoveis() {
                             is_furnished: selectedProperty.is_furnished || false,
                             has_sea_view: selectedProperty.has_sea_view || false,
                             watermark_enabled: selectedProperty.watermark_enabled || false,
+                            furnishing_type: (selectedProperty.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+                            sea_distance: selectedProperty.sea_distance ? String(selectedProperty.sea_distance) : '',
                           });
                          setIsDetailDialogOpen(false);
                          setIsAddDialogOpen(true);
