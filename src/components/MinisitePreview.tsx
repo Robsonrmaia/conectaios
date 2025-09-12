@@ -1,16 +1,18 @@
-import { Building2, Phone, Mail, MapPin, Bed, Bath, Square } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Building2, Bed, Bath, Square, Phone, Mail, MapPin } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect } from "react";
 
 interface MinisitePreviewProps {
   config: any;
   broker: any;
   properties?: any[];
-  preview: string;
+  preview?: 'mobile' | 'tablet' | 'desktop';
 }
 
-export function MinisitePreview({ config, broker, properties = [], preview }: MinisitePreviewProps) {
+export default function MinisitePreview({ config, broker, properties = [], preview = 'desktop' }: MinisitePreviewProps) {
   const primaryColor = config?.primary_color || '#1CA9C9';
   const secondaryColor = config?.secondary_color || '#64748B';
   const templateId = config?.template_id || 'modern';
@@ -63,39 +65,72 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
     }
   };
 
-  // Mock properties if none provided
-  const displayProperties = properties.length > 0 ? properties.slice(0, 3) : [
-    {
-      id: '1',
-      titulo: 'Apartamento Moderno no Centro',
-      valor: 450000,
-      quartos: 2,
-      bathrooms: 2,
-      area: 75,
-      fotos: [],
-      neighborhood: 'Centro'
-    },
-    {
-      id: '2', 
-      titulo: 'Casa com Quintal',
-      valor: 320000,
-      quartos: 3,
-      bathrooms: 2,
-      area: 120,
-      fotos: [],
-      neighborhood: 'Jardim Europa'
-    }
-  ];
+  // Use real properties from user's property list or fetch them
+  const [realProperties, setRealProperties] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      if (!broker?.user_id) return;
+      
+      setLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type')
+          .eq('user_id', broker.user_id)
+          .eq('is_public', true)
+          .eq('visibility', 'public_site')
+          .order('updated_at', { ascending: false })
+          .limit(6);
+
+        if (error) throw error;
+        setRealProperties(data || []);
+      } catch (error) {
+        console.error('Error fetching properties:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, [broker?.user_id]);
+
+  // Use real properties or fallback to provided properties or mock
+  const displayProperties = realProperties.length > 0 
+    ? realProperties.slice(0, 3) 
+    : properties.length > 0 
+    ? properties.slice(0, 3) 
+    : [{
+        id: '1',
+        titulo: 'Apartamento Moderno no Centro',
+        valor: 450000,
+        quartos: 2,
+        bathrooms: 2,
+        area: 75,
+        fotos: [],
+        neighborhood: 'Centro'
+      },
+      {
+        id: '2',
+        titulo: 'Casa com Quintal',
+        valor: 320000,
+        quartos: 3,
+        bathrooms: 2,
+        area: 120,
+        fotos: [],
+        neighborhood: 'Jardim Europa'
+      }];
 
   return (
-    <div className={`${getPreviewClasses()} border rounded-lg bg-white overflow-hidden shadow-lg`}>
-      <div className="h-full overflow-y-auto">
+    <div className={`${getPreviewClasses()} overflow-auto border rounded-lg bg-white shadow-xl`}>
+      <div className="min-h-full bg-gradient-to-br from-blue-50 to-white">
         {/* Header */}
-        <header className={`sticky top-0 z-10 ${templateStyles.headerBg}`}>
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        <header className={`sticky top-0 z-50 ${templateStyles.headerBg}`}>
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center gap-2">
               <div 
-                className="w-10 h-10 rounded-xl text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-white"
                 style={{ backgroundColor: primaryColor }}
               >
                 {broker?.avatar_url ? (
@@ -168,7 +203,12 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
           <section className="p-6">
             <h2 className="text-xl font-bold mb-4">Imóveis em Destaque</h2>
             <div className="grid gap-4">
-              {displayProperties.map((property) => (
+              {loading ? (
+                <div className="text-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                  <p className="text-sm text-muted-foreground mt-2">Carregando imóveis...</p>
+                </div>
+              ) : displayProperties.map((property) => (
                 <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
                   <div className="flex">
                     {property.fotos && property.fotos.length > 0 ? (
@@ -207,15 +247,27 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
                         )}
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-bold text-sm" style={{ color: primaryColor }}>
-                          {property.valor ? 
-                            property.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 
-                            'Consulte'
-                          }
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {property.neighborhood || 'Centro'}
-                        </Badge>
+                        <div>
+                          <p className="text-lg font-bold" style={{ color: primaryColor }}>
+                            {property.valor ? 
+                              property.valor.toLocaleString('pt-BR', { 
+                                style: 'currency', 
+                                currency: 'BRL',
+                                minimumFractionDigits: 0,
+                                maximumFractionDigits: 0
+                              }) : 'Consulte'
+                            }
+                          </p>
+                          {property.neighborhood && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <MapPin className="h-3 w-3" />
+                              {property.neighborhood}
+                            </p>
+                          )}
+                        </div>
+                        <Button size="sm" variant="outline" className="text-xs">
+                          Ver Detalhes
+                        </Button>
                       </div>
                     </CardContent>
                   </div>
@@ -230,32 +282,36 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
           <section className="p-6 bg-gray-50">
             <h2 className="text-xl font-bold mb-4">Sobre o Corretor</h2>
             <div className="flex items-start gap-4">
-              {broker?.avatar_url ? (
-                <img 
-                  src={broker.avatar_url} 
-                  alt="Corretor" 
-                  className="w-16 h-16 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
-                  <Building2 className="h-8 w-8 text-muted-foreground" />
-                </div>
-              )}
-              <div>
-                <h3 className="font-semibold">{broker?.name || 'Corretor Especialista'}</h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {broker?.bio || config?.custom_message || 'Profissional experiente no mercado imobiliário, pronto para ajudar você a encontrar o imóvel ideal.'}
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-muted">
+                {broker?.avatar_url ? (
+                  <img 
+                    src={broker.avatar_url} 
+                    alt={broker.name} 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Building2 className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1">
+                <h3 className={`font-semibold text-lg mb-1 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
+                  {broker?.name || 'Corretor Especialista'}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  {broker?.bio || config?.description || 'Profissional especializado em imóveis com anos de experiência no mercado.'}
                 </p>
-                <div className="flex gap-2 mt-3">
-                  {(config?.phone || broker?.phone) && (
-                    <Button variant="outline" size="sm">
-                      <Phone className="h-4 w-4 mr-2" />
+                <div className="flex gap-2">
+                  {config?.phone && (
+                    <Button size="sm" style={{ backgroundColor: primaryColor }} className="text-white">
+                      <Phone className="h-3 w-3 mr-1" />
                       Ligar
                     </Button>
                   )}
-                  {(config?.email || broker?.email) && (
-                    <Button variant="outline" size="sm">
-                      <Mail className="h-4 w-4 mr-2" />
+                  {config?.email && (
+                    <Button size="sm" variant="outline">
+                      <Mail className="h-3 w-3 mr-1" />
                       Email
                     </Button>
                   )}
@@ -269,39 +325,58 @@ export function MinisitePreview({ config, broker, properties = [], preview }: Mi
         {config?.show_contact_form !== false && (
           <section className="p-6">
             <h2 className="text-xl font-bold mb-4">Entre em Contato</h2>
-            <div className="space-y-3">
-              <input 
-                type="text" 
-                placeholder="Seu nome" 
-                className="w-full p-2 border rounded text-sm"
-                disabled
-              />
-              <input 
-                type="email" 
-                placeholder="Seu e-mail" 
-                className="w-full p-2 border rounded text-sm"
-                disabled
-              />
-              <input 
-                type="tel" 
-                placeholder="Seu telefone" 
-                className="w-full p-2 border rounded text-sm"
-                disabled
-              />
-              <textarea 
-                placeholder="Sua mensagem" 
-                rows={3}
-                className="w-full p-2 border rounded text-sm resize-none"
-                disabled
-              />
+            <form className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name" className="text-sm">Nome</Label>
+                  <input 
+                    id="name"
+                    type="text" 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    placeholder="Seu nome"
+                    disabled
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-sm">Email</Label>
+                  <input 
+                    id="email"
+                    type="email" 
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    placeholder="seu@email.com"
+                    disabled
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="phone" className="text-sm">Telefone</Label>
+                <input 
+                  id="phone"
+                  type="tel" 
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  placeholder="(11) 99999-9999"
+                  disabled
+                />
+              </div>
+              <div>
+                <Label htmlFor="message" className="text-sm">Mensagem</Label>
+                <textarea 
+                  id="message"
+                  rows={3}
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                  placeholder="Como posso ajudá-lo?"
+                  disabled
+                />
+              </div>
               <Button 
+                type="button" 
                 className="w-full text-white"
                 style={{ backgroundColor: primaryColor }}
                 disabled
               >
-                Enviar Mensagem
+                Enviar Mensagem (Preview)
               </Button>
-            </div>
+            </form>
           </section>
         )}
       </div>

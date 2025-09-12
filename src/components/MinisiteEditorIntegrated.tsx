@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ColorPicker } from '@/components/ui/color-picker';
 import { DomainConfiguration } from '@/components/DomainConfiguration';
-import { MinisitePreview } from '@/components/MinisitePreview';
+import MinisitePreview from '@/components/MinisitePreview';
 import { 
   Palette, 
   Layout, 
@@ -793,7 +793,7 @@ export function MinisiteEditorIntegrated() {
               <MinisitePreview 
                 config={config}
                 broker={broker}
-                preview={preview}
+                preview={preview as 'mobile' | 'tablet' | 'desktop'}
               />
               
               {config.generated_url && (

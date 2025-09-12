@@ -28,6 +28,7 @@ import {
   Target
 } from 'lucide-react';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
@@ -179,35 +180,61 @@ export default function Perfil() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex flex-col items-center space-y-3">
-                    <Avatar className="w-20 h-20 aspect-square">
+                  <Avatar className="w-24 h-24 mx-auto mb-4 aspect-square">
                       <AvatarImage 
-                        src={profile.avatar} 
+                        src={broker?.avatar_url || profile.avatar} 
                         className="object-cover w-full h-full aspect-square" 
                       />
                       <AvatarFallback className="text-xl aspect-square">
-                        {profile.name.charAt(0)}
+                        {broker?.name?.charAt(0)?.toUpperCase() || profile.name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                     <Button variant="outline" size="sm" onClick={() => {
+                     <Button variant="outline" size="sm" onClick={async () => {
                        const input = document.createElement('input');
                        input.type = 'file';
                        input.accept = 'image/*';
                        input.onchange = async (e: any) => {
                          const file = e.target.files[0];
-                         if (file) {
-                           // Simulação de upload - em produção usar Supabase Storage
-                           const reader = new FileReader();
-                           reader.onload = (e) => {
-                             if (e.target?.result) {
-                               setProfile({...profile, avatar: e.target.result as string});
-                               toast({
-                                 title: "Foto alterada",
-                                 description: "Foto de perfil atualizada com sucesso!",
-                               });
-                             }
-                           };
-                           reader.readAsDataURL(file);
+                         if (file && broker) {
+                           try {
+                             // Upload real para Supabase Storage
+                             const fileExt = file.name.split('.').pop();
+                             const fileName = `${broker.id}-${Date.now()}.${fileExt}`;
+                             
+                             const { data: uploadData, error: uploadError } = await supabase.storage
+                               .from('property-images')
+                               .upload(`avatars/${fileName}`, file);
+
+                             if (uploadError) throw uploadError;
+
+                             const { data: { publicUrl } } = supabase.storage
+                               .from('property-images')  
+                               .getPublicUrl(`avatars/${fileName}`);
+
+                             // Atualizar perfil do broker
+                             const { error: updateError } = await supabase
+                               .from('conectaios_brokers')
+                               .update({ avatar_url: publicUrl })
+                               .eq('id', broker.id);
+
+                             if (updateError) throw updateError;
+
+                             toast({
+                               title: "Foto alterada",
+                               description: "Foto de perfil atualizada com sucesso!",
+                             });
+
+                             // Recarregar página para mostrar nova foto
+                             window.location.reload();
+                           } catch (error) {
+                             console.error('Error uploading avatar:', error);
+                             toast({
+                               title: "Erro",
+                               description: "Erro ao fazer upload da foto. Tente novamente.",
+                               variant: "destructive",
+                             });
+                           }
                          }
                        };
                        input.click();
@@ -215,13 +242,13 @@ export default function Perfil() {
                         <Camera className="h-4 w-4 mr-2" />
                         Alterar Foto
                       </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        PNG, JPG até 5MB
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                       <p className="text-xs text-muted-foreground mt-2">
+                         PNG, JPG até 5MB
+                       </p>
+                     </div>
+                   </div>
+                 </CardContent>
+               </Card>
 
             {/* Basic Info */}
             <Card className="lg:col-span-2">

@@ -297,6 +297,22 @@ All colors MUST be HSL.
   }
 }
 
+/* Desktop layout restoration */
+@media (min-width: 1024px) {
+  .max-w-7xl {
+    max-width: 80rem !important;
+  }
+  
+  .lg\:max-w-7xl {
+    max-width: 80rem !important;
+  }
+  
+  /* Restore container width for desktop */
+  .container {
+    max-width: 1280px !important;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
