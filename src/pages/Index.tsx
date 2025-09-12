@@ -246,20 +246,49 @@ const Index = () => {
                     </div>
                   </div>
 
-                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    <iframe
-                      src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-                      title="ConectaIOS Hero Video Desktop"
-                      className="w-full h-full"
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        border: 'none'
-                      }}
-                      allow="autoplay; fullscreen"
-                      allowFullScreen
-                    ></iframe>
+                  {/* Animações apontando para o vídeo */}
+                  <div className="relative">
+                    {/* Setas animadas apontando para o vídeo */}
+                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-20">
+                      <div className="flex items-center gap-2 animate-bounce">
+                        <span className="text-primary text-sm font-medium">Assista!</span>
+                        <svg className="w-4 h-4 text-primary animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {/* Setas laterais */}
+                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 animate-pulse">
+                      <svg className="w-6 h-6 text-primary opacity-70" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    
+                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 animate-pulse">
+                      <svg className="w-6 h-6 text-primary opacity-70" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+
+                    <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group ring-2 ring-primary/20 animate-pulse">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                      
+                      {/* Novo embed do Wistia */}
+                      <script src="https://fast.wistia.com/player.js" async></script>
+                      <script src="https://fast.wistia.com/embed/57t2gkpop2.js" async type="module"></script>
+                      <style dangerouslySetInnerHTML={{
+                        __html: `wistia-player[media-id='57t2gkpop2']:not(:defined) { 
+                          background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/57t2gkpop2/swatch'); 
+                          display: block; 
+                          filter: blur(5px); 
+                          padding-top:56.25%; 
+                        }`
+                      }} />
+                      <div className="w-full h-full bg-black/5 flex items-center justify-center">
+                        <div id="wistia_57t2gkpop2" className="w-full h-full"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -386,19 +415,33 @@ const Index = () => {
                 </div>
               </div>
               
-              <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
-                <iframe
-                  src="https://fast.wistia.net/embed/iframe/wbmvp2di52?playerColor=ffffff&videoFoam=true&autoPlay=true&muted=true&loop=true"
-                  title="ConectaIOS Hero Video Mobile"
-                  className="w-full h-full"
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none'
-                  }}
-                  allow="autoplay; fullscreen"
-                  allowFullScreen
-                ></iframe>
+              {/* Container com animações para mobile */}
+              <div className="relative">
+                <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-20">
+                  <div className="flex items-center gap-1 animate-bounce">
+                    <span className="text-primary text-xs font-medium">Veja!</span>
+                    <svg className="w-3 h-3 text-primary animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+
+                <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20 animate-pulse">
+                  {/* Novo embed do Wistia para mobile */}
+                  <script src="https://fast.wistia.com/player.js" async></script>
+                  <script src="https://fast.wistia.com/embed/57t2gkpop2.js" async type="module"></script>
+                  <style dangerouslySetInnerHTML={{
+                    __html: `wistia-player[media-id='57t2gkpop2']:not(:defined) { 
+                      background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/57t2gkpop2/swatch'); 
+                      display: block; 
+                      filter: blur(5px); 
+                      padding-top:56.25%; 
+                    }`
+                  }} />
+                  <div className="w-full h-full bg-black/5 flex items-center justify-center">
+                    <div id="wistia_57t2gkpop2_mobile" className="w-full h-full"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

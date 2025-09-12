@@ -384,32 +384,33 @@ export default function Marketplace() {
                     R$ {property.valor?.toLocaleString('pt-BR')}
                   </div>
                   
-                   <div className="flex justify-between text-sm text-muted-foreground">
-                     <div className="flex items-center gap-1">
-                       <Building2 className="h-3 w-3" />
-                       {property.area}m²
-                     </div>
-                     <div className="flex items-center gap-1">
-                       <Bed className="h-3 w-3" />
-                       {property.quartos}
-                     </div>
-                     <div className="flex items-center gap-1">
-                       <Bath className="h-3 w-3" />
-                       {property.bathrooms || 0}
-                     </div>
-                     <div className="flex items-center gap-1">
-                       <Car className="h-3 w-3" />
-                       {property.parking_spots || 0}
-                     </div>
-                   </div>
-
-                   {/* Property Icons for additional features */}
-                    <PropertyIcons 
-                      furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
-                      sea_distance={property.sea_distance}
-                      has_sea_view={property.has_sea_view}
-                      className="justify-center"
-                    />
+                    {/* All property icons in one line */}
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap justify-center">
+                      <div className="flex items-center gap-1">
+                        <Building2 className="h-3 w-3" />
+                        {property.area}m²
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Bed className="h-3 w-3" />
+                        {property.quartos}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Bath className="h-3 w-3" />
+                        {property.bathrooms || 0}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Car className="h-3 w-3" />
+                        {property.parking_spots || 0}
+                      </div>
+                      
+                      {/* Additional property features inline */}
+                      <PropertyIcons 
+                        furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
+                        sea_distance={property.sea_distance}
+                        has_sea_view={property.has_sea_view}
+                        className=""
+                      />
+                    </div>
 
                   {property.descricao && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
