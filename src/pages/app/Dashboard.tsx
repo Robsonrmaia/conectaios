@@ -8,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { MarketStatsWidget } from '@/components/MarketStatsWidget';
+import { NotificationCenter } from '@/components/NotificationCenter';
 import { useAuth } from '@/hooks/useAuth';
 import { generateMinisiteUrl } from '@/lib/urls';
 
@@ -201,7 +203,11 @@ const Dashboard = () => {
             <span className="hidden sm:inline">Ver Meu Minisite</span>
             <span className="sm:hidden">Minisite</span>
           </Button>
+        {/* Market Stats Widget */}
+        <div className="lg:col-span-2">
+          <MarketStatsWidget />
         </div>
+      </div>
       </div>
 
       {/* KPIs */}

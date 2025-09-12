@@ -1373,6 +1373,54 @@ export type Database = {
         }
         Relationships: []
       }
+      market_stats: {
+        Row: {
+          avg_days_to_sell: number | null
+          avg_price: number | null
+          city: string | null
+          created_at: string
+          id: string
+          listing_type: string | null
+          neighborhood: string | null
+          period_end: string
+          period_start: string
+          property_type: string | null
+          rented_count: number | null
+          sold_count: number | null
+          total_count: number | null
+        }
+        Insert: {
+          avg_days_to_sell?: number | null
+          avg_price?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          listing_type?: string | null
+          neighborhood?: string | null
+          period_end: string
+          period_start: string
+          property_type?: string | null
+          rented_count?: number | null
+          sold_count?: number | null
+          total_count?: number | null
+        }
+        Update: {
+          avg_days_to_sell?: number | null
+          avg_price?: number | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          listing_type?: string | null
+          neighborhood?: string | null
+          period_end?: string
+          period_start?: string
+          property_type?: string | null
+          rented_count?: number | null
+          sold_count?: number | null
+          total_count?: number | null
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           created_at: string
@@ -1617,6 +1665,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean | null
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       partners: {
         Row: {
@@ -2056,6 +2140,7 @@ export type Database = {
         Row: {
           address: string | null
           area: number | null
+          auto_delete_at: string | null
           bathrooms: number | null
           broker_minisite_enabled: boolean | null
           city: string | null
@@ -2072,12 +2157,15 @@ export type Database = {
           is_public: boolean | null
           last_viewed_at: string | null
           listing_type: string | null
+          marked_as_rented_at: string | null
+          marked_as_sold_at: string | null
           neighborhood: string | null
           parking_spots: number | null
           price_per_m2: number | null
           property_type: string | null
           quartos: number | null
           reference_code: string | null
+          sale_status: string | null
           state: string | null
           titulo: string
           updated_at: string
@@ -2091,6 +2179,7 @@ export type Database = {
         Insert: {
           address?: string | null
           area?: number | null
+          auto_delete_at?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
@@ -2107,12 +2196,15 @@ export type Database = {
           is_public?: boolean | null
           last_viewed_at?: string | null
           listing_type?: string | null
+          marked_as_rented_at?: string | null
+          marked_as_sold_at?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
           reference_code?: string | null
+          sale_status?: string | null
           state?: string | null
           titulo: string
           updated_at?: string
@@ -2126,6 +2218,7 @@ export type Database = {
         Update: {
           address?: string | null
           area?: number | null
+          auto_delete_at?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
@@ -2142,12 +2235,15 @@ export type Database = {
           is_public?: boolean | null
           last_viewed_at?: string | null
           listing_type?: string | null
+          marked_as_rented_at?: string | null
+          marked_as_sold_at?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
           reference_code?: string | null
+          sale_status?: string | null
           state?: string | null
           titulo?: string
           updated_at?: string
@@ -2157,6 +2253,39 @@ export type Database = {
           views_count?: number | null
           visibility?: string | null
           zipcode?: string | null
+        }
+        Relationships: []
+      }
+      property_analytics: {
+        Row: {
+          contacts_count: number | null
+          created_at: string
+          id: string
+          last_activity: string | null
+          matches_count: number | null
+          property_id: string
+          updated_at: string
+          views_count: number | null
+        }
+        Insert: {
+          contacts_count?: number | null
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          matches_count?: number | null
+          property_id: string
+          updated_at?: string
+          views_count?: number | null
+        }
+        Update: {
+          contacts_count?: number | null
+          created_at?: string
+          id?: string
+          last_activity?: string | null
+          matches_count?: number | null
+          property_id?: string
+          updated_at?: string
+          views_count?: number | null
         }
         Relationships: []
       }
@@ -2892,6 +3021,20 @@ export type Database = {
       promote_user_to_admin: {
         Args: { target_user_id: string }
         Returns: boolean
+      }
+      send_notification: {
+        Args: {
+          _data?: Json
+          _message: string
+          _title: string
+          _type: string
+          _user_id: string
+        }
+        Returns: string
+      }
+      update_property_analytics: {
+        Args: { _activity_type?: string; _property_id: string }
+        Returns: undefined
       }
     }
     Enums: {
