@@ -20,6 +20,7 @@ import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
+import { PropertyIcons } from '@/components/PropertyIcons';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
@@ -34,6 +35,8 @@ interface Property {
   quartos: number;
   bathrooms?: number;
   parking_spots?: number;
+  furnishing_type?: string; // More flexible type to handle DB values
+  sea_distance?: number;
   finalidade: string;
   descricao: string;
   fotos: string[];
@@ -399,6 +402,13 @@ export default function Marketplace() {
                      </div>
                    </div>
 
+                   {/* Property Icons for additional features */}
+                   <PropertyIcons 
+                     furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
+                     sea_distance={property.sea_distance}
+                     className="justify-center"
+                   />
+
                   {property.descricao && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {property.descricao}
@@ -663,6 +673,34 @@ export default function Marketplace() {
                         <span>{selectedProperty.quartos}</span>
                       </div>
                       <div className="flex justify-between">
+                        <span className="text-muted-foreground">Banheiros:</span>
+                        <span>{selectedProperty.bathrooms || 0}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Vagas:</span>
+                        <span>{selectedProperty.parking_spots || 0}</span>
+                      </div>
+                      {selectedProperty.furnishing_type && selectedProperty.furnishing_type !== 'none' && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Mobília:</span>
+                          <span>
+                            {selectedProperty.furnishing_type === 'furnished' ? 'Mobiliado' : 
+                             selectedProperty.furnishing_type === 'semi_furnished' ? 'Semi-mobiliado' : 'Não mobiliado'}
+                          </span>
+                        </div>
+                      )}
+                      {selectedProperty.sea_distance && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Distância do mar:</span>
+                          <span>
+                            {selectedProperty.sea_distance >= 1000 
+                              ? `${(selectedProperty.sea_distance / 1000).toFixed(1)}km` 
+                              : `${selectedProperty.sea_distance}m`
+                            }
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between">
                         <span className="text-muted-foreground">Tipo:</span>
                         <span>{selectedProperty.listing_type === 'venda' ? 'Venda' : selectedProperty.listing_type === 'locacao' ? 'Locação' : 'Temporada'}</span>
                       </div>
@@ -693,10 +731,12 @@ export default function Marketplace() {
                         <Target className="h-4 w-4 mr-2" />
                         Marcar Match
                       </Button>
-                      <Button className="w-full" variant="outline">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Compartilhar
-                      </Button>
+                      <ShareButton
+                        propertyId={selectedProperty.id}
+                        propertyTitle={selectedProperty.titulo}
+                        ownerUserId={selectedProperty.user_id}
+                        isOwner={user?.id === selectedProperty.user_id}
+                      />
                     </div>
                   </div>
                 </div>

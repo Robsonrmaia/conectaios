@@ -7,6 +7,7 @@ interface PropertyIconsProps {
   furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
   sea_distance?: number;
   className?: string;
+  showBasicIcons?: boolean; // New prop to control if basic icons should be shown
 }
 
 export function PropertyIcons({ 
@@ -14,12 +15,14 @@ export function PropertyIcons({
   parking_spots, 
   furnishing_type, 
   sea_distance,
-  className = ""
+  className = "",
+  showBasicIcons = false // Default false to avoid duplicates
 }: PropertyIconsProps) {
   return (
     <TooltipProvider>
       <div className={`flex items-center gap-2 ${className}`}>
-        {bathrooms && bathrooms > 0 && (
+        {/* Only show basic icons if explicitly requested */}
+        {showBasicIcons && bathrooms && bathrooms > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center gap-1 text-muted-foreground">
@@ -33,7 +36,7 @@ export function PropertyIcons({
           </Tooltip>
         )}
 
-        {parking_spots && parking_spots > 0 && (
+        {showBasicIcons && parking_spots && parking_spots > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center gap-1 text-muted-foreground">
@@ -51,7 +54,7 @@ export function PropertyIcons({
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="text-muted-foreground">
-                <Home className="h-3 w-3" />
+                <Sofa className="h-3 w-3" />
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -64,7 +67,7 @@ export function PropertyIcons({
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="text-muted-foreground">
-                <Sofa className="h-3 w-3" />
+                <Sofa className="h-3 w-3 opacity-60" />
               </div>
             </TooltipTrigger>
             <TooltipContent>

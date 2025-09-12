@@ -853,11 +853,9 @@ export default function Imoveis() {
                 </div>
                </div>
 
-               {/* Property Icons for furnishing, sea distance, etc. */}
+               {/* Property Icons for additional features */}
                <PropertyIcons 
-                 bathrooms={property.bathrooms}
-                 parking_spots={property.parking_spots}
-                 furnishing_type={property.furnishing_type}
+                 furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
                  sea_distance={property.sea_distance}
                  className="mt-2"
                />
