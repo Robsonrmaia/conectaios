@@ -237,7 +237,7 @@ const Index = () => {
             {/* Seção Vídeo - Centralizado */}
             <div className="mt-20">
               <div className="flex justify-center">
-                <div className="w-full max-w-4xl mx-auto">
+                <div className="w-full max-w-2xl mx-auto">
                   {/* Badge acima do vídeo */}
                   <div className="text-center mb-6">
                     <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
@@ -246,34 +246,11 @@ const Index = () => {
                     </div>
                   </div>
 
-                  {/* Animações apontando para o vídeo */}
-                  <div className="relative">
-                    {/* Seta animada apontando para o vídeo */}
-                    <div className="absolute -top-6 -right-6 z-20">
-                      <div className="animate-bounce">
-                        <svg className="w-6 h-6 text-primary animate-pulse drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-
-                    <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group ring-2 ring-primary/20">
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                      
-                      {/* Embed direto do Wistia */}
-                      <iframe
-                        src="https://fast.wistia.net/embed/iframe/57t2gkpop2?controls=1&playButton=1&volumeControl=1&fullscreenButton=1&settingsControl=1"
-                        title="ConectaIOS Demo Desktop"
-                        className="w-full h-full"
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          border: 'none'
-                        }}
-                        allow="autoplay; fullscreen"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
+                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group ring-2 ring-primary/20">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
+                    
+                    {/* Embed nativo do Wistia */}
+                    <wistia-player media-id="57t2gkpop2" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
                 </div>
               </div>
@@ -400,31 +377,9 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Container com animações para mobile */}
-              <div className="relative">
-                <div className="absolute -top-4 -right-4 z-20">
-                  <div className="animate-bounce">
-                    <svg className="w-5 h-5 text-primary animate-pulse drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-
-                <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20">
-                  {/* Embed direto do Wistia para mobile */}
-                  <iframe
-                    src="https://fast.wistia.net/embed/iframe/57t2gkpop2?controls=1&playButton=1&volumeControl=1&fullscreenButton=1&settingsControl=1"
-                    title="ConectaIOS Demo Mobile"
-                    className="w-full h-full"
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      border: 'none'
-                    }}
-                    allow="autoplay; fullscreen"
-                    allowFullScreen
-                  ></iframe>
-                </div>
+              <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20">
+                {/* Embed nativo do Wistia para mobile */}
+                <wistia-player media-id="57t2gkpop2" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
               </div>
             </div>
           </div>
