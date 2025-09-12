@@ -563,7 +563,19 @@ export default function Imoveis() {
                </div>
 
               <div>
-                <Label htmlFor="descricao">Descrição</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="descricao">Descrição</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAiDescription(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Gerar com IA
+                  </Button>
+                </div>
                 <Textarea
                   id="descricao"
                   value={formData.descricao}
@@ -1492,6 +1504,28 @@ export default function Imoveis() {
         type={processorType}
         initialImage={selectedProperty?.fotos?.[0]}
       />
+
+      {/* AI Property Description Modal */}
+      {showAiDescription && (
+        <AIPropertyDescription
+          property={{
+            id: selectedProperty?.id || '',
+            titulo: formData.titulo,
+            valor: parseValueInput(formData.valor),
+            area: parseFloat(formData.area) || 0,
+            quartos: parseInt(formData.quartos) || 0,
+            bathrooms: parseInt(formData.bathrooms) || 0,
+            parking_spots: parseInt(formData.parking_spots) || 0,
+            listing_type: formData.listing_type,
+            property_type: formData.property_type,
+            descricao: formData.descricao
+          }}
+          onDescriptionGenerated={(description) => {
+            setFormData({...formData, descricao: description});
+          }}
+          onClose={() => setShowAiDescription(false)}
+        />
+      )}
     </div>
   );
 }

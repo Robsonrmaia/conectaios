@@ -76,10 +76,10 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       setLoading(true);
       try {
         const { data, error } = await supabase
-          .from('properties')
+          .from('conectaios_properties')
           .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type')
           .eq('user_id', broker.user_id)
-          .eq('is_public', true)
+          .eq('broker_minisite_enabled', true)
           .eq('visibility', 'public_site')
           .order('updated_at', { ascending: false })
           .limit(6);
