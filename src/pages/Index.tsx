@@ -228,7 +228,7 @@ const Index = () => {
                   <img 
                     src={garotonectaImg} 
                     alt="Profissional ConectaIOS" 
-                    className="max-w-full h-auto max-h-[500px] object-contain drop-shadow-2xl"
+                    className="max-w-full h-auto max-h-[600px] object-contain drop-shadow-2xl"
                   />
                 </div>
               </div>

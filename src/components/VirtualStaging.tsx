@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader, Wand2, Download, Eye, RotateCcw, AlertCircle } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { VirtualStagingRoomSelector } from './VirtualStagingRoomSelector';
 
 interface VirtualStagingProps {
   imageUrl: string;
@@ -33,6 +34,7 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
   const [showOriginal, setShowOriginal] = useState(false);
   const [isDemo, setIsDemo] = useState(false);
   const [processingTime, setProcessingTime] = useState<number>(0);
+  const [showRoomSelector, setShowRoomSelector] = useState(true);
 
   const processVirtualStaging = async () => {
     console.log('=== Starting Virtual Staging Process ===');
@@ -128,7 +130,27 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
     setShowOriginal(false);
     setIsDemo(false);
     setProcessingTime(0);
+    setShowRoomSelector(true);
   };
+
+  const handleRoomSelected = (selectedRoom: string, selectedStyle: string) => {
+    setRoomType(selectedRoom);
+    setStyle(selectedStyle);
+    setShowRoomSelector(false);
+    // Automatically start processing after selection
+    setTimeout(() => {
+      processVirtualStaging();
+    }, 500);
+  };
+
+  // Show room selector first
+  if (showRoomSelector && !stagedImage) {
+    return (
+      <VirtualStagingRoomSelector 
+        onRoomSelected={handleRoomSelected}
+      />
+    );
+  }
 
   return (
     <Card className="w-full">
@@ -141,60 +163,27 @@ export function VirtualStaging({ imageUrl, onStagedImage }: VirtualStagingProps)
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Controles */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tipo de Ambiente</label>
-            <Select value={roomType} onValueChange={setRoomType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(ROOM_TYPES).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Show selected room and style */}
+        {!showRoomSelector && (
+          <div className="p-3 bg-muted/50 rounded-lg">
+            <p className="text-sm">
+              <span className="font-medium">Ambiente:</span> {ROOM_TYPES[roomType as keyof typeof ROOM_TYPES]} - {STYLES[style as keyof typeof STYLES]}
+            </p>
           </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Estilo</label>
-            <Select value={style} onValueChange={setStyle}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(STYLES).map(([value, label]) => (
-                  <SelectItem key={value} value={value}>
-                    {label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        )}
 
-        {/* Botão de Processar */}
-        <Button
-          onClick={processVirtualStaging}
-          disabled={processing}
-          className="w-full"
-          size="lg"
-        >
-          {processing ? (
-            <>
-              <Loader className="h-4 w-4 animate-spin mr-2" />
-              Criando Ambiente... {(processingTime / 1000).toFixed(1)}s
-            </>
-          ) : (
-            <>
-              <Wand2 className="h-4 w-4 mr-2" />
-              Criar Virtual Staging
-            </>
-          )}
-        </Button>
+        {/* Processing State */}
+        {processing && (
+          <div className="text-center space-y-3">
+            <Loader className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <div>
+              <p className="font-medium">Criando ambiente com IA...</p>
+              <p className="text-sm text-muted-foreground">
+                {(processingTime / 1000).toFixed(1)}s
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Preview das Imagens */}
         {(stagedImage || processing) && (

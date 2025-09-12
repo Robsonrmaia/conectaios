@@ -296,12 +296,19 @@ All colors MUST be HSL.
     box-sizing: border-box;
   }
 
-  html,
+html,
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
     width: 100%;
     max-width: 100%;
+  }
+
+  /* Apply overflow-x: hidden only on mobile */
+  @media (max-width: 640px) {
+    html,
+    body {
+      overflow-x: hidden;
+    }
   }
 }
 

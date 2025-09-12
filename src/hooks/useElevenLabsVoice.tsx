@@ -35,17 +35,19 @@ export const useElevenLabsVoice = () => {
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/~~(.*?)~~/g, '$1')
       .replace(/`(.*?)`/g, '$1')
-      // Replace common abbreviations with full words (Portuguese)
-      .replace(/\bR\$\s*/g, 'reais ')
+      // Fix currency - remove R$ symbol entirely
+      .replace(/R\$\s*/g, '')
+      // Fix square meters pronunciation
+      .replace(/m²/g, 'metros quadrados')
+      .replace(/m2/g, 'metros quadrados')
       // Melhor tratamento de números monetários
       .replace(/(\d+)\.(\d{3})\.(\d{3})\b/g, (match, milhoes, milhares, centenas) => {
-        return `${milhoes} milhões ${milhares} mil e ${centenas}`;
+        return `${milhoes} milhões ${milhares} mil e ${centenas} reais`;
       })
       .replace(/(\d+)\.(\d{3})\b/g, (match, dezenas, milhares) => {
-        return `${dezenas === '0' ? '' : dezenas + ' '}${milhares === '000' ? 'mil' : milhares.replace(/^0+/, '') + ' mil'}`;
+        return `${dezenas === '0' ? '' : dezenas + ' '}${milhares === '000' ? 'mil' : milhares.replace(/^0+/, '') + ' mil'} reais`;
       })
-      .replace(/235\.000/g, 'duzentos e trinta e cinco mil')
-      .replace(/(\d+)\.000/g, (match, num) => `${num} mil`)
+      .replace(/(\d+)\.000/g, (match, num) => `${num} mil reais`)
       // Format currency properly for Portuguese
       .replace(/(\d+),(\d+)/g, '$1 vírgula $2')
       // Remove special characters that might cause issues
