@@ -262,7 +262,7 @@ const Index = () => {
                       
                       {/* Embed direto do Wistia */}
                       <iframe
-                        src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff"
+                        src="https://fast.wistia.net/embed/iframe/57t2gkpop2?controls=1&playButton=1&volumeControl=1&fullscreenButton=1&settingsControl=1"
                         title="ConectaIOS Demo Desktop"
                         className="w-full h-full"
                         style={{
@@ -413,7 +413,7 @@ const Index = () => {
                 <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20">
                   {/* Embed direto do Wistia para mobile */}
                   <iframe
-                    src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff"
+                    src="https://fast.wistia.net/embed/iframe/57t2gkpop2?controls=1&playButton=1&volumeControl=1&fullscreenButton=1&settingsControl=1"
                     title="ConectaIOS Demo Mobile"
                     className="w-full h-full"
                     style={{
