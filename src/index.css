@@ -293,9 +293,36 @@ All colors MUST be HSL.
 @layer base {
   * {
     @apply border-border;
+    box-sizing: border-box;
   }
 
+  html,
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
   }
+}
+
+/* Mobile layout fixes */
+.container,
+.max-w-7xl,
+.max-w-6xl,
+.max-w-5xl,
+.max-w-4xl {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 640px) {
+  .container { max-width: 640px; }
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 768px; }
+  .max-w-7xl { max-width: 1280px; }
+  .max-w-6xl { max-width: 1152px; }
+  .max-w-5xl { max-width: 1024px; }
+  .max-w-4xl { max-width: 896px; }
 }

@@ -121,49 +121,49 @@ const App = () => (
       <AuthProvider>
         <BrokerProvider>
           <MinisiteProvider>
-            <MaintenanceCheck>
-              <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/admin-master" element={<AdminMaster />} />
-                <Route path="/@:username" element={<AtRedirect />} />
-                <Route path="/broker" element={<BrokerRedirect />} />
-                <Route path="/broker/:username" element={<BrokerMinisite />} />
-                <Route path="/imovel/:id" element={<PropertyDetail />} />
-                <Route path="/public-test" element={<PublicProbe />} />
-                <Route path="/app/*" element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Routes>
-                        <Route index element={<Dashboard />} />
-                        <Route path="imoveis" element={<Imoveis />} />
-                        <Route path="minhas-buscas" element={<MinhasBuscas />} />
-                        <Route path="marketplace" element={<Marketplace />} />
-                        <Route path="minisite" element={<Minisite />} />
-                        <Route path="match" element={<Match />} />
-                        <Route path="deals" element={<Deals />} />
-                        <Route path="inbox" element={<Inbox />} />
-                        <Route path="crm" element={<CRM />} />
-                        <Route path="ferramentas" element={<Ferramentas />} />
-                        <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />
-                        <Route path="videos" element={<Videos />} />
-                        <Route path="indicacoes" element={<Indicacoes />} />
-                        <Route path="patrocinios" element={<Patrocinios />} />
-                         <Route path="ai-assistant" element={<AIAssistant />} />
-                         <Route path="audit-logs" element={<AuditLogs />} />
-                         <Route path="admin" element={<Admin />} />
-                         <Route path="perfil" element={<Perfil />} />
-                         <Route path="suporte" element={<Suporte />} />
-                         <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </AppLayout>
-                  </ProtectedRoute>
-                } />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+            <BrowserRouter>
+              <MaintenanceCheck>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/admin-master" element={<AdminMaster />} />
+                  <Route path="/@:username" element={<AtRedirect />} />
+                  <Route path="/broker" element={<BrokerRedirect />} />
+                  <Route path="/broker/:username" element={<BrokerMinisite />} />
+                  <Route path="/imovel/:id" element={<PropertyDetail />} />
+                  <Route path="/public-test" element={<PublicProbe />} />
+                  <Route path="/app/*" element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <Routes>
+                          <Route index element={<Dashboard />} />
+                          <Route path="imoveis" element={<Imoveis />} />
+                          <Route path="minhas-buscas" element={<MinhasBuscas />} />
+                          <Route path="marketplace" element={<Marketplace />} />
+                          <Route path="minisite" element={<Minisite />} />
+                          <Route path="match" element={<Match />} />
+                          <Route path="deals" element={<Deals />} />
+                          <Route path="inbox" element={<Inbox />} />
+                          <Route path="crm" element={<CRM />} />
+                          <Route path="ferramentas" element={<Ferramentas />} />
+                          <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />
+                          <Route path="videos" element={<Videos />} />
+                          <Route path="indicacoes" element={<Indicacoes />} />
+                          <Route path="patrocinios" element={<Patrocinios />} />
+                           <Route path="ai-assistant" element={<AIAssistant />} />
+                           <Route path="audit-logs" element={<AuditLogs />} />
+                           <Route path="admin" element={<Admin />} />
+                           <Route path="perfil" element={<Perfil />} />
+                           <Route path="suporte" element={<Suporte />} />
+                           <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </AppLayout>
+                    </ProtectedRoute>
+                  } />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </MaintenanceCheck>
             </BrowserRouter>
-            </MaintenanceCheck>
           </MinisiteProvider>
         </BrokerProvider>
       </AuthProvider>
