@@ -925,6 +925,7 @@ export type Database = {
           features: Json | null
           finalidade: string | null
           fotos: string[] | null
+          furnishing_type: string | null
           has_sea_view: boolean | null
           id: string
           iptu: number | null
@@ -939,6 +940,7 @@ export type Database = {
           property_type: string | null
           quartos: number | null
           reference_code: string | null
+          sea_distance: number | null
           state: string | null
           titulo: string
           updated_at: string
@@ -964,6 +966,7 @@ export type Database = {
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
+          furnishing_type?: string | null
           has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
@@ -978,6 +981,7 @@ export type Database = {
           property_type?: string | null
           quartos?: number | null
           reference_code?: string | null
+          sea_distance?: number | null
           state?: string | null
           titulo: string
           updated_at?: string
@@ -1003,6 +1007,7 @@ export type Database = {
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
+          furnishing_type?: string | null
           has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
@@ -1017,6 +1022,7 @@ export type Database = {
           property_type?: string | null
           quartos?: number | null
           reference_code?: string | null
+          sea_distance?: number | null
           state?: string | null
           titulo?: string
           updated_at?: string

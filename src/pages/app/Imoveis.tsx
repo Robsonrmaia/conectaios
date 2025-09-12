@@ -120,7 +120,7 @@ export default function Imoveis() {
       console.log('🔍 Buscando imóveis para user_id:', user.id);
       
       const { data, error } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -149,7 +149,7 @@ export default function Imoveis() {
         videos: prop.videos || [],
         created_at: prop.created_at,
         reference_code: prop.reference_code,
-        banner_type: prop.sale_status === 'sold' ? 'vendido' : prop.sale_status === 'rented' ? 'alugado' : null,
+        banner_type: prop.banner_type || null,
         is_furnished: prop.furnishing_type === 'furnished',
         has_sea_view: prop.sea_distance && prop.sea_distance <= 500,
         watermark_enabled: true,
