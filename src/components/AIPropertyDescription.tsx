@@ -35,7 +35,7 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
   const [generatedDescription, setGeneratedDescription] = useState('');
   const [copied, setCopied] = useState(false);
   const { sendMessage, loading } = useAI();
-  const { speak, isSpeaking, stop } = useElevenLabsVoice();
+  const { speak, isSpeaking, stop, isCurrentlySpeaking } = useElevenLabsVoice();
 
   const generateDescription = async () => {
     const prompt = `
@@ -186,11 +186,19 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
                 
                 <Button
                   variant="outline"
-                  onClick={() => isSpeaking ? stop() : speak(generatedDescription)}
+                  onClick={() => {
+                    const audioId = `ai-description-${property.id}`;
+                    if (isCurrentlySpeaking(audioId)) {
+                      stop();
+                    } else {
+                      speak(generatedDescription, audioId);
+                    }
+                  }}
                   className="flex items-center gap-2"
+                  disabled={!generatedDescription.trim()}
                 >
                   <Volume2 className="h-4 w-4" />
-                  {isSpeaking ? 'Parar' : 'Ouvir'}
+                  {isCurrentlySpeaking(`ai-description-${property.id}`) ? 'Parar' : 'Ouvir'}
                 </Button>
                 
                 <Button

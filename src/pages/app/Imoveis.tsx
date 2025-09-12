@@ -113,13 +113,20 @@ export default function Imoveis() {
 
   const fetchProperties = async () => {
     try {
+      console.log('🔍 Buscando imóveis para user_id:', user.id);
+      
       const { data, error } = await supabase
         .from('conectaios_properties')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro na query:', error);
+        throw error;
+      }
+      
+      console.log('✅ Dados brutos encontrados:', data?.length || 0, data);
       
       // Map the data to match our interface
       const mappedData = (data || []).map(prop => ({
@@ -144,9 +151,10 @@ export default function Imoveis() {
         watermark_enabled: prop.watermark_enabled !== undefined ? prop.watermark_enabled : true,
       }));
       
+      console.log('✅ Imóveis mapeados:', mappedData.length, mappedData);
       setProperties(mappedData);
     } catch (error) {
-      console.error('Error fetching properties:', error);
+      console.error('❌ Erro ao buscar imóveis:', error);
       toast({
         title: "Erro",
         description: "Erro ao carregar imóveis",
@@ -1382,38 +1390,59 @@ export default function Imoveis() {
       )}
 
       {/* AI Description Dialog */}
-      {showAiDescription && aiDescriptionProperty && (
+      {showAiDescription && (aiDescriptionProperty || formData.titulo) && (
         <Dialog open={showAiDescription} onOpenChange={setShowAiDescription}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <AIPropertyDescription
-              property={aiDescriptionProperty}
+              property={aiDescriptionProperty || {
+                id: selectedProperty?.id || '',
+                titulo: formData.titulo,
+                valor: parseValueInput(formData.valor),
+                area: parseFloat(formData.area) || 0,
+                quartos: parseInt(formData.quartos) || 0,
+                bathrooms: parseInt(formData.bathrooms) || 0,
+                parking_spots: parseInt(formData.parking_spots) || 0,
+                listing_type: formData.listing_type,
+                property_type: formData.property_type,
+                descricao: formData.descricao,
+                address: formData.address,
+                neighborhood: formData.neighborhood,
+                city: formData.city,
+                condominium_fee: parseFloat(formData.condominium_fee) || 0,
+                iptu: parseFloat(formData.iptu) || 0
+              }}
               onDescriptionGenerated={(description) => {
-                // Atualizar a descrição do imóvel
-                const updatedProperty = { ...aiDescriptionProperty, descricao: description };
-                
-                // Atualizar no banco de dados
-                supabase
-                  .from('conectaios_properties')
-                  .update({ descricao: description })
-                  .eq('id', aiDescriptionProperty.id)
-                  .then(({ error }) => {
-                    if (error) {
-                      toast({
-                        title: "Erro",
-                        description: "Não foi possível salvar a descrição.",
-                        variant: "destructive",
-                      });
-                    } else {
-                      // Atualizar estado local
-                      setProperties(prev => prev.map(p => 
-                        p.id === aiDescriptionProperty.id ? updatedProperty : p
-                      ));
-                      toast({
-                        title: "Descrição salva!",
-                        description: "A descrição foi atualizada no imóvel.",
-                      });
-                    }
-                  });
+                if (aiDescriptionProperty) {
+                  // Atualizar a descrição do imóvel existente
+                  const updatedProperty = { ...aiDescriptionProperty, descricao: description };
+                  
+                  // Atualizar no banco de dados
+                  supabase
+                    .from('conectaios_properties')
+                    .update({ descricao: description })
+                    .eq('id', aiDescriptionProperty.id)
+                    .then(({ error }) => {
+                      if (error) {
+                        toast({
+                          title: "Erro",
+                          description: "Não foi possível salvar a descrição.",
+                          variant: "destructive",
+                        });
+                      } else {
+                        // Atualizar estado local
+                        setProperties(prev => prev.map(p => 
+                          p.id === aiDescriptionProperty.id ? updatedProperty : p
+                        ));
+                        toast({
+                          title: "Descrição salva!",
+                          description: "A descrição foi atualizada no imóvel.",
+                        });
+                      }
+                    });
+                } else {
+                  // Atualizar o formulário de criação
+                  setFormData({...formData, descricao: description});
+                }
               }}
               onClose={() => {
                 setShowAiDescription(false);
@@ -1504,28 +1533,6 @@ export default function Imoveis() {
         type={processorType}
         initialImage={selectedProperty?.fotos?.[0]}
       />
-
-      {/* AI Property Description Modal */}
-      {showAiDescription && (
-        <AIPropertyDescription
-          property={{
-            id: selectedProperty?.id || '',
-            titulo: formData.titulo,
-            valor: parseValueInput(formData.valor),
-            area: parseFloat(formData.area) || 0,
-            quartos: parseInt(formData.quartos) || 0,
-            bathrooms: parseInt(formData.bathrooms) || 0,
-            parking_spots: parseInt(formData.parking_spots) || 0,
-            listing_type: formData.listing_type,
-            property_type: formData.property_type,
-            descricao: formData.descricao
-          }}
-          onDescriptionGenerated={(description) => {
-            setFormData({...formData, descricao: description});
-          }}
-          onClose={() => setShowAiDescription(false)}
-        />
-      )}
     </div>
   );
 }
