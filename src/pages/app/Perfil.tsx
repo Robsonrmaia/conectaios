@@ -180,8 +180,13 @@ export default function Perfil() {
                 <CardContent className="space-y-3">
                   <div className="flex flex-col items-center space-y-3">
                     <Avatar className="w-20 h-20 aspect-square">
-                      <AvatarImage src={profile.avatar} className="object-cover w-full h-full" />
-                      <AvatarFallback className="text-xl">{profile.name.charAt(0)}</AvatarFallback>
+                      <AvatarImage 
+                        src={profile.avatar} 
+                        className="object-cover w-full h-full aspect-square" 
+                      />
+                      <AvatarFallback className="text-xl aspect-square">
+                        {profile.name.charAt(0)}
+                      </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
                      <Button variant="outline" size="sm" onClick={() => {

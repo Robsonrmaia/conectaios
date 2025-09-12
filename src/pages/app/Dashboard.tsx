@@ -175,17 +175,19 @@ const Dashboard = () => {
           </p>
         </div>
         
-        {/* Actions - Mobile Responsive */}
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Button 
-            variant="outline"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 w-full sm:w-auto"
-          >
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">Voltar ao Site</span>
-            <span className="sm:hidden">Site</span>
-          </Button>
+        {/* Actions and Notifications */}
+        <div className="flex items-center gap-3">
+          <NotificationCenter />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 w-full sm:w-auto"
+            >
+              <Home className="h-4 w-4" />
+              <span className="hidden sm:inline">Voltar ao Site</span>
+              <span className="sm:hidden">Site</span>
+            </Button>
           <Button 
             variant="outline"
             onClick={copyMinisiteUrl}
@@ -203,11 +205,8 @@ const Dashboard = () => {
             <span className="hidden sm:inline">Ver Meu Minisite</span>
             <span className="sm:hidden">Minisite</span>
           </Button>
-        {/* Market Stats Widget */}
-        <div className="lg:col-span-2">
-          <MarketStatsWidget />
+          </div>
         </div>
-      </div>
       </div>
 
       {/* KPIs */}

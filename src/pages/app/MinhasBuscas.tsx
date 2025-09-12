@@ -132,7 +132,7 @@ export default function MinhasBuscas() {
           title: newSearch.title,
           property_type: newSearch.property_type,
           listing_type: newSearch.listing_type,
-          max_price: parseFloat(newSearch.max_price),
+          max_price: parseFloat(newSearch.max_price.replace(/\./g, '').replace(',', '.')),
           min_bedrooms: parseInt(newSearch.min_bedrooms) || null,
           neighborhood: newSearch.neighborhood || null,
           city: newSearch.city || null,

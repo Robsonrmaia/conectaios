@@ -102,7 +102,7 @@ const Index = () => {
 
         {/* Desktop Layout - Duas Colunas (incluindo tablets) */}
         <div className="hidden sm:block relative">
-          <div className="container mx-auto px-6 py-8">
+          <div className="container mx-auto px-6 py-8 max-w-7xl">
             <div className="grid lg:grid-cols-2 gap-4 lg:gap-6 items-center pt-8 relative">
               {/* Coluna Esquerda - Conteúdo */}
               <div className="space-y-8 pt-8 relative z-10 lg:pr-8 parallax-element" data-speed="0.4">
@@ -113,7 +113,7 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-[1.1] tracking-tight">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
                     Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
                     <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                     e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
@@ -228,7 +228,7 @@ const Index = () => {
                   <img 
                     src={garotonectaImg} 
                     alt="Profissional ConectaIOS" 
-                    className="max-w-full h-auto max-h-[600px] object-contain drop-shadow-2xl"
+                    className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain drop-shadow-2xl"
                   />
                 </div>
               </div>

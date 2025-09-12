@@ -35,6 +35,9 @@ export const useElevenLabsVoice = () => {
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/~~(.*?)~~/g, '$1')
       .replace(/`(.*?)`/g, '$1')
+      // Fix gender agreement for "vaga"
+      .replace(/\b1 vaga\b/g, 'uma vaga')
+      .replace(/\bum vaga\b/gi, 'uma vaga')
       // Fix currency - remove R$ symbol entirely
       .replace(/R\$\s*/g, '')
       // Fix square meters pronunciation
