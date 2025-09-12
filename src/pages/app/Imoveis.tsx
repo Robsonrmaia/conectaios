@@ -28,6 +28,7 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
+import { PropertyIcons } from '@/components/PropertyIcons';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
@@ -850,7 +851,16 @@ export default function Imoveis() {
                   <Car className="h-3 w-3" />
                   {property.parking_spots}
                 </div>
-              </div>
+               </div>
+
+               {/* Property Icons for furnishing, sea distance, etc. */}
+               <PropertyIcons 
+                 bathrooms={property.bathrooms}
+                 parking_spots={property.parking_spots}
+                 furnishing_type={property.furnishing_type}
+                 sea_distance={property.sea_distance}
+                 className="mt-2"
+               />
 
                <div className="flex justify-between items-start">
                  <div className="space-y-2">
