@@ -248,12 +248,11 @@ const Index = () => {
 
                   {/* Animações apontando para o vídeo */}
                   <div className="relative">
-                    {/* Seta animada posicionada à direita para não sobrepor */}
-                    <div className="absolute -top-8 right-8 z-20">
-                      <div className="flex flex-col items-center gap-1 animate-bounce">
-                        <span className="text-primary text-sm font-medium bg-white/90 px-3 py-1 rounded-full shadow-lg">Assista!</span>
-                        <svg className="w-4 h-4 text-primary animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                    {/* Seta animada apontando para o vídeo */}
+                    <div className="absolute -top-6 -right-6 z-20">
+                      <div className="animate-bounce">
+                        <svg className="w-6 h-6 text-primary animate-pulse drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                         </svg>
                       </div>
                     </div>
@@ -263,7 +262,7 @@ const Index = () => {
                       
                       {/* Embed direto do Wistia */}
                       <iframe
-                        src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff&videoFoam=true"
+                        src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff"
                         title="ConectaIOS Demo Desktop"
                         className="w-full h-full"
                         style={{
@@ -403,11 +402,10 @@ const Index = () => {
               
               {/* Container com animações para mobile */}
               <div className="relative">
-                <div className="absolute -top-8 right-4 z-20">
-                  <div className="flex flex-col items-center gap-1 animate-bounce">
-                    <span className="text-primary text-xs font-medium bg-white/90 px-2 py-1 rounded-full shadow-md">Veja!</span>
-                    <svg className="w-3 h-3 text-primary animate-pulse" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                <div className="absolute -top-4 -right-4 z-20">
+                  <div className="animate-bounce">
+                    <svg className="w-5 h-5 text-primary animate-pulse drop-shadow-lg" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
                     </svg>
                   </div>
                 </div>
@@ -415,7 +413,7 @@ const Index = () => {
                 <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20">
                   {/* Embed direto do Wistia para mobile */}
                   <iframe
-                    src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff&videoFoam=true"
+                    src="https://fast.wistia.net/embed/iframe/57t2gkpop2?playerColor=ffffff"
                     title="ConectaIOS Demo Mobile"
                     className="w-full h-full"
                     style={{
