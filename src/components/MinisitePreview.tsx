@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Building2, Bed, Bath, Square, Phone, Mail, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
+import { PropertyIcons } from "./PropertyIcons";
 
 interface MinisitePreviewProps {
   config: any;
@@ -77,10 +78,10 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       try {
         const { data, error } = await supabase
           .from('conectaios_properties')
-          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type')
+          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type, furnishing_type, sea_distance, parking_spots')
           .eq('user_id', broker.user_id)
           .eq('broker_minisite_enabled', true)
-          .eq('visibility', 'public_site')
+          .in('visibility', ['public_site', 'both'])
           .order('updated_at', { ascending: false })
           .limit(6);
 
@@ -233,12 +234,6 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                             {property.quartos}
                           </span>
                         )}
-                        {property.bathrooms && (
-                          <span className="flex items-center gap-1">
-                            <Bath className="h-3 w-3" />
-                            {property.bathrooms}
-                          </span>
-                        )}
                         {property.area && (
                           <span className="flex items-center gap-1">
                             <Square className="h-3 w-3" />
@@ -246,6 +241,13 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                           </span>
                         )}
                       </div>
+                      <PropertyIcons
+                        bathrooms={property.bathrooms}
+                        parking_spots={property.parking_spots}
+                        furnishing_type={property.furnishing_type}
+                        sea_distance={property.sea_distance}
+                        className="mb-2"
+                      />
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="text-lg font-bold" style={{ color: primaryColor }}>
