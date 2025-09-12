@@ -854,11 +854,12 @@ export default function Imoveis() {
                </div>
 
                {/* Property Icons for additional features */}
-               <PropertyIcons 
-                 furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
-                 sea_distance={property.sea_distance}
-                 className="mt-2"
-               />
+                <PropertyIcons 
+                  furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
+                  sea_distance={property.sea_distance}
+                  has_sea_view={property.has_sea_view}
+                  className="mt-2"
+                />
 
                <div className="flex justify-between items-start">
                  <div className="space-y-2">

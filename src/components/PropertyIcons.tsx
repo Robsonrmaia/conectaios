@@ -1,4 +1,4 @@
-import { Bath, Car, Home, Sofa, Waves, MapPin } from 'lucide-react';
+import { Bath, Car, Home, Sofa, Waves, MapPin, Eye } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface PropertyIconsProps {
@@ -6,6 +6,7 @@ interface PropertyIconsProps {
   parking_spots?: number;
   furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
   sea_distance?: number;
+  has_sea_view?: boolean;
   className?: string;
   showBasicIcons?: boolean; // New prop to control if basic icons should be shown
 }
@@ -15,6 +16,7 @@ export function PropertyIcons({
   parking_spots, 
   furnishing_type, 
   sea_distance,
+  has_sea_view,
   className = "",
   showBasicIcons = false // Default false to avoid duplicates
 }: PropertyIconsProps) {
@@ -72,6 +74,19 @@ export function PropertyIcons({
             </TooltipTrigger>
             <TooltipContent>
               <p>Semi-mobiliado</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+
+        {has_sea_view && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-blue-600">
+                <Eye className="h-3 w-3" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Vista para o mar</p>
             </TooltipContent>
           </Tooltip>
         )}

@@ -37,6 +37,7 @@ interface Property {
   parking_spots?: number;
   furnishing_type?: string; // More flexible type to handle DB values
   sea_distance?: number;
+  has_sea_view?: boolean;
   finalidade: string;
   descricao: string;
   fotos: string[];
@@ -403,11 +404,12 @@ export default function Marketplace() {
                    </div>
 
                    {/* Property Icons for additional features */}
-                   <PropertyIcons 
-                     furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
-                     sea_distance={property.sea_distance}
-                     className="justify-center"
-                   />
+                    <PropertyIcons 
+                      furnishing_type={property.furnishing_type as 'none' | 'furnished' | 'semi_furnished'}
+                      sea_distance={property.sea_distance}
+                      has_sea_view={property.has_sea_view}
+                      className="justify-center"
+                    />
 
                   {property.descricao && (
                     <p className="text-sm text-muted-foreground line-clamp-2">

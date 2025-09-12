@@ -78,12 +78,14 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       try {
         const { data, error } = await supabase
           .from('conectaios_properties')
-          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type, furnishing_type, sea_distance, parking_spots')
+          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type, furnishing_type, sea_distance, has_sea_view, parking_spots')
           .eq('user_id', broker.user_id)
           .eq('broker_minisite_enabled', true)
           .in('visibility', ['public_site', 'both'])
           .order('updated_at', { ascending: false })
           .limit(6);
+
+        console.log('Minisite properties query result:', data, 'User ID:', broker.user_id);
 
         if (error) throw error;
         setRealProperties(data || []);
