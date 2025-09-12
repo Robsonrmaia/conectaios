@@ -246,9 +246,7 @@ const Index = () => {
                     </div>
                   </div>
 
-                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl relative group ring-2 ring-primary/20">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10"></div>
-                    
+                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl ring-2 ring-primary/20">
                     {/* Embed nativo do Wistia */}
                     <wistia-player media-id="57t2gkpop2" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
