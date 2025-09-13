@@ -50,7 +50,10 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
           setIsPlaying(false);
         }
       },
-      { threshold: 0.3 }
+      { 
+        threshold: 0.1,
+        rootMargin: '50px'
+      }
     );
 
     if (carouselRef.current) {
@@ -111,10 +114,13 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
               <img
                 src={currentProperty.fotos?.[0] || "/placeholder.svg"}
                 alt={currentProperty.titulo}
-                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
+                  console.log('Erro ao carregar imagem:', currentProperty.fotos?.[0]);
                   e.currentTarget.src = "/placeholder.svg";
+                }}
+                onLoad={() => {
+                  console.log('Imagem carregada com sucesso:', currentProperty.fotos?.[0]);
                 }}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent" />

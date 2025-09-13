@@ -12,17 +12,17 @@ interface LazyAutoCarouselProps {
 function AutoCarouselSkeleton() {
   return (
     <div className="relative w-full h-full">
-      <div className="h-full bg-gradient-to-br from-white/90 to-blue-50/90 border border-blue-200/50 rounded-lg shadow-lg">
-        <Skeleton className="h-48 w-full rounded-t-lg" />
+      <div className="h-full bg-gradient-to-br from-white/90 to-blue-50/90 border border-blue-200/50 rounded-lg shadow-lg animate-pulse">
+        <div className="h-48 w-full rounded-t-lg bg-muted" />
         <div className="p-4 space-y-3">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-6 w-1/2" />
+          <div className="h-4 w-3/4 bg-muted rounded" />
+          <div className="h-6 w-1/2 bg-muted rounded" />
           <div className="flex gap-3">
-            <Skeleton className="h-4 w-8" />
-            <Skeleton className="h-4 w-8" />
-            <Skeleton className="h-4 w-12" />
+            <div className="h-4 w-8 bg-muted rounded" />
+            <div className="h-4 w-8 bg-muted rounded" />
+            <div className="h-4 w-12 bg-muted rounded" />
           </div>
-          <Skeleton className="h-3 w-full" />
+          <div className="h-3 w-full bg-muted rounded" />
         </div>
       </div>
     </div>
