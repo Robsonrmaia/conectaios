@@ -175,13 +175,17 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
               
               <div className="flex items-center gap-2 text-xs text-muted-foreground border-t pt-2">
                 {currentProperty.conectaios_brokers?.avatar_url ? (
-                  <img 
-                    src={currentProperty.conectaios_brokers.avatar_url} 
-                    alt={currentProperty.conectaios_brokers.name}
-                    className="w-5 h-5 rounded-full object-cover border border-slate-200"
-                  />
+                <img 
+                  src={currentProperty.conectaios_brokers.avatar_url} 
+                  alt={currentProperty.conectaios_brokers.name}
+                  className="w-5 h-5 rounded-full object-cover border border-slate-200"
+                  onError={(e) => {
+                    // Hide image if it fails to load and show fallback
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
                 ) : (
-                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-medium text-blue-600">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-medium text-primary">
                     {currentProperty.conectaios_brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'C'}
                   </div>
                 )}

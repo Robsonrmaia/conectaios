@@ -57,6 +57,7 @@ interface Property {
     avatar_url?: string;
     creci?: string;
     bio?: string;
+    status?: string;
   } | null;
 }
 
@@ -89,57 +90,45 @@ export default function Marketplace() {
     try {
       setLoading(true);
       
-      // Fetch properties first
-      const { data: propertiesData, error } = await supabase
+      // Single optimized query with JOIN to avoid race conditions
+      const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select('*')
+        .select(`
+          *,
+          profiles!properties_user_id_fkey(nome),
+          conectaios_brokers!conectaios_brokers_user_id_fkey(
+            id, name, email, avatar_url, creci, bio, status
+          )
+        `)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
+        .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
         .limit(50);
 
-      if (error) throw error;
-
-      if (propertiesData && propertiesData.length > 0) {
-        // Get unique user IDs
-        const userIds = [...new Set(propertiesData.map(p => p.user_id))];
-        
-        // Fetch all profiles in one query
-        const { data: profilesData } = await supabase
-          .from('profiles')
-          .select('user_id, nome')
-          .in('user_id', userIds);
-
-        // Fetch all brokers in one query
-        const { data: brokersData } = await supabase
-          .from('conectaios_brokers')
-          .select('user_id, id, name, avatar_url, creci, bio')
-          .in('user_id', userIds);
-
-        // Create maps for quick lookup
-        const profilesMap = new Map();
-        profilesData?.forEach(profile => {
-          profilesMap.set(profile.user_id, profile);
+      if (propertiesError) {
+        console.error('Error fetching properties:', propertiesError);
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar imóveis do marketplace",
+          variant: "destructive",
         });
-
-        const brokersMap = new Map();
-        brokersData?.forEach(broker => {
-          brokersMap.set(broker.user_id, broker);
-        });
-
-        // Combine properties with profiles and brokers
-        const propertiesWithData = propertiesData.map(property => ({
-          ...property,
-          profiles: profilesMap.get(property.user_id) || { nome: 'Corretor' },
-          conectaios_brokers: brokersMap.get(property.user_id) || null
-        }));
-
-        setProperties(propertiesWithData as Property[]);
-        setRecentProperties(propertiesWithData.slice(0, 10) as Property[]);
-      } else {
-        setProperties([]);
-        setRecentProperties([]);
+        return;
       }
+
+      // Filter out properties without valid broker data and transform data structure
+      const validProperties = (propertiesData || []).map(property => ({
+        ...property,
+        profiles: Array.isArray(property.profiles) ? property.profiles[0] : property.profiles,
+        conectaios_brokers: Array.isArray(property.conectaios_brokers) 
+          ? property.conectaios_brokers[0] 
+          : property.conectaios_brokers
+      })).filter(property => 
+        property.conectaios_brokers || property.profiles
+      );
+
+      setProperties(validProperties as Property[]);
+      setRecentProperties(validProperties.slice(0, 10) as Property[]);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -448,9 +437,13 @@ export default function Marketplace() {
                          src={property.conectaios_brokers.avatar_url} 
                          alt={property.conectaios_brokers.name}
                          className="w-6 h-6 rounded-full object-cover border border-slate-200"
+                         onError={(e) => {
+                           // Hide image if it fails to load and show fallback
+                           e.currentTarget.style.display = 'none';
+                         }}
                        />
                      ) : (
-                       <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600">
+                       <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
                          {property.conectaios_brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
                        </div>
                      )}
