@@ -46,10 +46,18 @@ interface Property {
   user_id: string;
   created_at: string;
   listing_type: string;
+  property_type?: string;
   neighborhood?: string;
   profiles?: {
     nome: string;
-  };
+  } | null;
+  conectaios_brokers?: {
+    id: string;
+    name: string;
+    avatar_url?: string;
+    creci?: string;
+    bio?: string;
+  } | null;
 }
 
 export default function Marketplace() {
@@ -102,20 +110,32 @@ export default function Marketplace() {
           .select('user_id, nome')
           .in('user_id', userIds);
 
-        // Create profiles map for quick lookup
+        // Fetch all brokers in one query
+        const { data: brokersData } = await supabase
+          .from('conectaios_brokers')
+          .select('user_id, id, name, avatar_url, creci, bio')
+          .in('user_id', userIds);
+
+        // Create maps for quick lookup
         const profilesMap = new Map();
         profilesData?.forEach(profile => {
           profilesMap.set(profile.user_id, profile);
         });
 
-        // Combine properties with profiles
-        const propertiesWithProfiles = propertiesData.map(property => ({
+        const brokersMap = new Map();
+        brokersData?.forEach(broker => {
+          brokersMap.set(broker.user_id, broker);
+        });
+
+        // Combine properties with profiles and brokers
+        const propertiesWithData = propertiesData.map(property => ({
           ...property,
-          profiles: profilesMap.get(property.user_id) || { nome: 'Corretor' }
+          profiles: profilesMap.get(property.user_id) || { nome: 'Corretor' },
+          conectaios_brokers: brokersMap.get(property.user_id) || null
         }));
 
-        setProperties(propertiesWithProfiles);
-        setRecentProperties(propertiesWithProfiles.slice(0, 10));
+        setProperties(propertiesWithData as Property[]);
+        setRecentProperties(propertiesWithData.slice(0, 10) as Property[]);
       } else {
         setProperties([]);
         setRecentProperties([]);
@@ -420,9 +440,29 @@ export default function Marketplace() {
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {property.descricao}
                     </p>
-                  )}
+                   )}
 
-                   <div className="flex flex-col gap-2 mt-4">
+                   <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">
+                     {property.conectaios_brokers?.avatar_url ? (
+                       <img 
+                         src={property.conectaios_brokers.avatar_url} 
+                         alt={property.conectaios_brokers.name}
+                         className="w-6 h-6 rounded-full object-cover border border-slate-200"
+                       />
+                     ) : (
+                       <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-xs font-medium text-blue-600">
+                         {property.conectaios_brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
+                       </div>
+                     )}
+                     <div className="flex-1 min-w-0">
+                       <span>Corretor: {property.conectaios_brokers?.name || property.profiles?.nome || 'Não informado'}</span>
+                       {property.conectaios_brokers?.creci && (
+                         <span className="block text-xs text-muted-foreground/70">CRECI: {property.conectaios_brokers.creci}</span>
+                       )}
+                     </div>
+                   </div>
+
+                    <div className="flex flex-col gap-2 mt-4">
                      <Button 
                        size="sm" 
                        onClick={(e) => {

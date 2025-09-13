@@ -24,7 +24,14 @@ interface Property {
   neighborhood?: string;
   profiles?: {
     nome: string;
-  };
+  } | null;
+  conectaios_brokers?: {
+    id: string;
+    name: string;
+    avatar_url?: string;
+    creci?: string;
+    bio?: string;
+  } | null;
   banner_type?: string;
 }
 
@@ -163,6 +170,27 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
                 <div className="flex items-center gap-1">
                   <span className="h-3 w-3 flex items-center justify-center text-xs">📐</span>
                   <span>{currentProperty.area || 0}m²</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 text-xs text-muted-foreground border-t pt-2">
+                {currentProperty.conectaios_brokers?.avatar_url ? (
+                  <img 
+                    src={currentProperty.conectaios_brokers.avatar_url} 
+                    alt={currentProperty.conectaios_brokers.name}
+                    className="w-5 h-5 rounded-full object-cover border border-slate-200"
+                  />
+                ) : (
+                  <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-medium text-blue-600">
+                    {currentProperty.conectaios_brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'C'}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium">Corretor:</span> 
+                  <span className="ml-1">{currentProperty.conectaios_brokers?.name || currentProperty.profiles?.nome || 'Não informado'}</span>
+                  {currentProperty.conectaios_brokers?.creci && (
+                    <span className="block text-[10px] text-muted-foreground/70">CRECI: {currentProperty.conectaios_brokers.creci}</span>
+                  )}
                 </div>
               </div>
               
