@@ -174,7 +174,7 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
+    <div className="min-h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Sidebar */}
       <div className="w-full lg:w-80 xl:w-96 space-y-4 order-2 lg:order-1 max-w-full overflow-hidden">
         {/* Quick Actions */}
@@ -242,7 +242,7 @@ export default function AIAssistant() {
       </div>
 
       {/* Chat */}
-      <Card className="flex-1 flex flex-col order-1 lg:order-2 min-h-0 overflow-hidden">
+      <Card className="flex-1 flex flex-col order-1 lg:order-2 min-h-[400px] lg:min-h-0 overflow-hidden">
         <CardHeader className="pb-3 flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 bg-gradient-to-r from-primary to-brand-secondary rounded-full flex items-center justify-center flex-shrink-0">

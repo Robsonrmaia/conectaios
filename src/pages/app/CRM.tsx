@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Home } from 'lucide-react';
 import PipelineCRM from '@/components/PipelineCRM';
+import SmartCalendar from '@/components/SmartCalendar';
 
 export default function CRM() {
   const navigate = useNavigate();
@@ -32,10 +33,15 @@ export default function CRM() {
       <Tabs defaultValue="pipeline" className="space-y-4">
         <TabsList>
           <TabsTrigger value="pipeline">Pipeline CRM</TabsTrigger>
+          <TabsTrigger value="agenda">Agenda Inteligente</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pipeline" className="space-y-4">
           <PipelineCRM />
+        </TabsContent>
+
+        <TabsContent value="agenda" className="space-y-4">
+          <SmartCalendar />
         </TabsContent>
       </Tabs>
     </div>
