@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
@@ -22,6 +22,7 @@ import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
+import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 import { formatCurrency } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { AutoCarousel } from '@/components/AutoCarousel';
@@ -84,7 +85,8 @@ export default function Marketplace() {
         .select('*')
         .eq('is_public', true)
         .in('visibility', ['public_site', 'both'])
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (error) throw error;
 
@@ -170,19 +172,9 @@ export default function Marketplace() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="animate-pulse space-y-4 w-full max-w-4xl">
-          <div className="h-8 bg-gray-300 rounded w-3/4"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-2">
-                <div className="h-48 bg-gray-300 rounded"></div>
-                <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="space-y-6">
+        <div className="h-8 bg-muted rounded w-1/2 animate-pulse"></div>
+        <PropertyListSkeleton count={6} />
       </div>
     );
   }

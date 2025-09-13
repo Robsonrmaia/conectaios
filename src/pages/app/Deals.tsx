@@ -280,7 +280,7 @@ export default function Deals() {
         </TabsList>
 
         <TabsContent value="todos" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {deals.map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -288,7 +288,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="proposta" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filterDeals('proposta').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -296,7 +296,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="negociacao" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filterDeals('negociacao').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -304,7 +304,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="finalizado" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {filterDeals('finalizado').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -314,7 +314,7 @@ export default function Deals() {
 
       {/* Proposal Dialog */}
       <Dialog open={isProposalDialogOpen} onOpenChange={setIsProposalDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Nova Proposta</DialogTitle>
             <DialogDescription>

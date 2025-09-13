@@ -29,6 +29,7 @@ import SecuritySettings from '@/components/admin/SecuritySettings';
 import SystemLogs from '@/components/admin/SystemLogs';
 import SystemStatus from '@/components/admin/SystemStatus';
 import SystemAlerts from '@/components/admin/SystemAlerts';
+import SupportTicketManager from '@/components/admin/SupportTicketManager';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -156,7 +157,7 @@ export default function Admin() {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
@@ -210,13 +211,14 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-          <TabsTrigger value="usuarios">Usuários</TabsTrigger>
-          <TabsTrigger value="testemunhos">Testemunhos</TabsTrigger>
-          <TabsTrigger value="parceiros">Parceiros</TabsTrigger>
-          <TabsTrigger value="sistema">Sistema</TabsTrigger>
-          <TabsTrigger value="configuracoes">Configurações</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 gap-1">
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm">Dashboard</TabsTrigger>
+          <TabsTrigger value="usuarios" className="text-xs sm:text-sm">Usuários</TabsTrigger>
+          <TabsTrigger value="suporte" className="text-xs sm:text-sm">Suporte</TabsTrigger>
+          <TabsTrigger value="testemunhos" className="text-xs sm:text-sm">Testemunhos</TabsTrigger>
+          <TabsTrigger value="parceiros" className="text-xs sm:text-sm">Parceiros</TabsTrigger>
+          <TabsTrigger value="sistema" className="text-xs sm:text-sm">Sistema</TabsTrigger>
+          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm">Config</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
@@ -299,6 +301,10 @@ export default function Admin() {
 
         <TabsContent value="usuarios" className="space-y-6">
           <SecureAdminUserManagement />
+        </TabsContent>
+
+        <TabsContent value="suporte" className="space-y-6">
+          <SupportTicketManager />
         </TabsContent>
 
         <TabsContent value="testemunhos" className="space-y-6">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -32,6 +32,7 @@ import { PropertyIcons } from '@/components/PropertyIcons';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
+import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 
 interface Property {
   id: string;
@@ -124,7 +125,8 @@ export default function Imoveis() {
         .from('conectaios_properties')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(100);
 
       if (error) {
         console.error('❌ Erro na query:', error);
@@ -394,8 +396,9 @@ export default function Imoveis() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-96">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="space-y-6">
+        <div className="h-8 bg-muted rounded w-1/2 animate-pulse"></div>
+        <PropertyListSkeleton count={8} />
       </div>
     );
   }

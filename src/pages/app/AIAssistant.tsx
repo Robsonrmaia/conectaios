@@ -176,7 +176,7 @@ export default function AIAssistant() {
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Sidebar */}
-      <div className="lg:w-80 xl:w-96 space-y-4 order-2 lg:order-1">
+      <div className="w-full lg:w-80 xl:w-96 space-y-4 order-2 lg:order-1 max-w-full overflow-hidden">
         {/* Quick Actions */}
         <Card className="overflow-hidden">
           <CardHeader className="pb-3">

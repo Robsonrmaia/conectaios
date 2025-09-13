@@ -310,7 +310,7 @@ export default function MinhasBuscas() {
               Nova Busca
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-[95vw] sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Nova Busca de Cliente</DialogTitle>
               <DialogDescription>
@@ -451,7 +451,7 @@ export default function MinhasBuscas() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle className="text-lg">{search.title}</CardTitle>
-                    <CardDescription className="flex items-center gap-4 mt-2">
+                    <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
                       <span className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
                         {search.property_type} - {search.listing_type}
