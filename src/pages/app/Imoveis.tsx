@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -62,6 +62,13 @@ export default function Imoveis() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 20,
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -113,27 +120,26 @@ export default function Imoveis() {
     sea_distance: '',
   });
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
-  const fetchProperties = async () => {
+  const fetchProperties = useCallback(async (page = 1, pageSize = 20) => {
     try {
-      console.log('🔍 Buscando imóveis para user_id:', user.id);
+      setIsLoading(true);
+      console.log('🔍 Buscando imóveis para user_id:', user?.id, 'página:', page);
       
-      const { data, error } = await supabase
-        .from('conectaios_properties')
-        .select('*')
-        .eq('user_id', user.id)
+      const startIndex = (page - 1) * pageSize;
+      
+      const { data, error, count } = await supabase
+        .from('properties')
+        .select('*', { count: 'exact' })
+        .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
-        .limit(100);
+        .range(startIndex, startIndex + pageSize - 1);
 
       if (error) {
         console.error('❌ Erro na query:', error);
         throw error;
       }
       
-      console.log('✅ Dados brutos encontrados:', data?.length || 0, data);
+      console.log('✅ Dados brutos encontrados:', data?.length || 0, 'total:', count);
       
       // Map the data to match our interface
       const mappedData = (data || []).map(prop => ({
@@ -152,7 +158,7 @@ export default function Imoveis() {
         videos: prop.videos || [],
         created_at: prop.created_at,
         reference_code: prop.reference_code,
-        banner_type: prop.banner_type || null,
+        banner_type: null,
         is_furnished: prop.furnishing_type === 'furnished',
         has_sea_view: prop.sea_distance && prop.sea_distance <= 500,
         watermark_enabled: true,
@@ -162,6 +168,15 @@ export default function Imoveis() {
       
       console.log('✅ Imóveis mapeados:', mappedData.length, mappedData);
       setProperties(mappedData);
+      
+      if (count !== null) {
+        setPagination(prev => ({
+          ...prev,
+          totalItems: count,
+          totalPages: Math.ceil(count / pageSize),
+          currentPage: page
+        }));
+      }
     } catch (error) {
       console.error('❌ Erro ao buscar imóveis:', error);
       toast({
@@ -170,9 +185,16 @@ export default function Imoveis() {
         variant: "destructive",
       });
     } finally {
+      setIsLoading(false);
       setLoading(false);
     }
-  };
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (user?.id) {
+      fetchProperties(1); // Start with page 1
+    }
+  }, [user?.id, fetchProperties]);
 
   const handleAddProperty = async () => {
     if (!user) {
@@ -304,7 +326,7 @@ export default function Imoveis() {
         furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
         sea_distance: '',
       });
-      fetchProperties();
+      fetchProperties(1);
     } catch (error) {
       console.error('Error adding/updating property:', error);
       toast({
@@ -328,7 +350,7 @@ export default function Imoveis() {
         title: "Sucesso",
         description: "Imóvel excluído com sucesso!",
       });
-      fetchProperties();
+      fetchProperties(1);
     } catch (error) {
       console.error('Error deleting property:', error);
       toast({
@@ -377,21 +399,21 @@ export default function Imoveis() {
     setGalleryOpen(true);
   };
 
-  const filteredProperties = properties.filter(property =>
-    property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    property.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProperties = useMemo(() => {
+    return properties.filter(property =>
+      property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      property.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [properties, searchTerm]);
 
-  // Pagination logic
-  const totalItems = filteredProperties.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
+  // Display all properties as pagination is handled on server-side
+  const paginatedProperties = filteredProperties;
 
   // Reset to first page when search changes
   useEffect(() => {
-    setCurrentPage(1);
+    if (searchTerm) {
+      setPagination(prev => ({ ...prev, currentPage: 1 }));
+    }
   }, [searchTerm]);
 
   if (loading) {
@@ -1136,15 +1158,15 @@ export default function Imoveis() {
       </div>
 
       {/* Pagination Controls */}
-      {totalPages > 1 && (
+      {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between mt-8">
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
-              Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} imóveis
+              Mostrando {((pagination.currentPage - 1) * pagination.itemsPerPage) + 1}-{Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems)} de {pagination.totalItems} imóveis
             </span>
-            <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-              setItemsPerPage(parseInt(value));
-              setCurrentPage(1);
+            <Select value={pagination.itemsPerPage.toString()} onValueChange={(value) => {
+              setPagination(prev => ({ ...prev, itemsPerPage: parseInt(value), currentPage: 1 }));
+              fetchProperties(1, parseInt(value));
             }}>
               <SelectTrigger className="w-32">
                 <SelectValue />
@@ -1165,22 +1187,26 @@ export default function Imoveis() {
                   href="#" 
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage > 1) setCurrentPage(currentPage - 1);
+                    if (pagination.currentPage > 1) {
+                      const newPage = pagination.currentPage - 1;
+                      setPagination(prev => ({ ...prev, currentPage: newPage }));
+                      fetchProperties(newPage);
+                    }
                   }}
-                  className={`text-xs px-2 py-1 h-8 ${currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
+                  className={`text-xs px-2 py-1 h-8 ${pagination.currentPage === 1 ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
               
-              {[...Array(Math.min(3, totalPages))].map((_, i) => {
+              {[...Array(Math.min(3, pagination.totalPages))].map((_, i) => {
                 let pageNum;
-                if (totalPages <= 3) {
+                if (pagination.totalPages <= 3) {
                   pageNum = i + 1;
-                } else if (currentPage <= 2) {
+                } else if (pagination.currentPage <= 2) {
                   pageNum = i + 1;
-                } else if (currentPage >= totalPages - 1) {
-                  pageNum = totalPages - 2 + i;
+                } else if (pagination.currentPage >= pagination.totalPages - 1) {
+                  pageNum = pagination.totalPages - 2 + i;
                 } else {
-                  pageNum = currentPage - 1 + i;
+                  pageNum = pagination.currentPage - 1 + i;
                 }
                 
                 return (
@@ -1189,9 +1215,10 @@ export default function Imoveis() {
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        setCurrentPage(pageNum);
+                        setPagination(prev => ({ ...prev, currentPage: pageNum }));
+                        fetchProperties(pageNum);
                       }}
-                      isActive={currentPage === pageNum}
+                      isActive={pagination.currentPage === pageNum}
                       className="text-xs px-2 py-1 min-w-[32px] h-8"
                     >
                       {pageNum}
@@ -1205,9 +1232,13 @@ export default function Imoveis() {
                   href="#"
                   onClick={(e) => {
                     e.preventDefault();
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+                    if (pagination.currentPage < pagination.totalPages) {
+                      const newPage = pagination.currentPage + 1;
+                      setPagination(prev => ({ ...prev, currentPage: newPage }));
+                      fetchProperties(newPage);
+                    }
                   }}
-                  className={`text-xs px-2 py-1 h-8 ${currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}`}
+                  className={`text-xs px-2 py-1 h-8 ${pagination.currentPage === pagination.totalPages ? 'pointer-events-none opacity-50' : ''}`}
                 />
               </PaginationItem>
             </PaginationContent>

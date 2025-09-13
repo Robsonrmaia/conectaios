@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
@@ -80,36 +80,46 @@ export default function Marketplace() {
   const fetchPublicProperties = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('conectaios_properties')
+      
+      // Fetch properties first
+      const { data: propertiesData, error } = await supabase
+        .from('properties')
         .select('*')
         .eq('is_public', true)
-        .in('visibility', ['public_site', 'both'])
+        .eq('visibility', 'public_site')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      // Fetch profiles for each property
-      const propertiesWithProfiles = await Promise.all(
-        (data || []).map(async (property) => {
-          const { data: profileData } = await supabase
-            .from('conectaios_profiles')
-            .select('nome')
-            .eq('user_id', property.user_id)
-            .single();
-          
-          return {
-            ...property,
-            profiles: profileData
-          };
-        })
-      );
+      if (propertiesData && propertiesData.length > 0) {
+        // Get unique user IDs
+        const userIds = [...new Set(propertiesData.map(p => p.user_id))];
+        
+        // Fetch all profiles in one query
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('user_id, nome')
+          .in('user_id', userIds);
 
-      setProperties(propertiesWithProfiles);
-      
-      // Set recent properties (last 10 added)
-      setRecentProperties(propertiesWithProfiles.slice(0, 10));
+        // Create profiles map for quick lookup
+        const profilesMap = new Map();
+        profilesData?.forEach(profile => {
+          profilesMap.set(profile.user_id, profile);
+        });
+
+        // Combine properties with profiles
+        const propertiesWithProfiles = propertiesData.map(property => ({
+          ...property,
+          profiles: profilesMap.get(property.user_id) || { nome: 'Corretor' }
+        }));
+
+        setProperties(propertiesWithProfiles);
+        setRecentProperties(propertiesWithProfiles.slice(0, 10));
+      } else {
+        setProperties([]);
+        setRecentProperties([]);
+      }
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -122,18 +132,20 @@ export default function Marketplace() {
     }
   };
 
-  const filteredProperties = properties.filter(property => {
-    const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.finalidade === finalidadeFilter;
-    const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
-    const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
-    const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
-    const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
+  const filteredProperties = useMemo(() => {
+    return properties.filter(property => {
+      const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.finalidade === finalidadeFilter;
+      const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
+      const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
+      const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
+      const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
 
-    return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
-  });
+      return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
+    });
+  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
 
   // Pagination logic
   const totalItems = filteredProperties.length;
@@ -147,12 +159,12 @@ export default function Marketplace() {
     setCurrentPage(1);
   }, [searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
 
-  const handleContactBroker = (brokerName: string) => {
+  const handleContactBroker = useCallback((brokerName: string) => {
     toast({
       title: "Contatar Corretor",
       description: `Entrando em contato com ${brokerName}`,
     });
-  };
+  }, []);
 
   const handleMatch = async (propertyId: string) => {
     if (!user) {
