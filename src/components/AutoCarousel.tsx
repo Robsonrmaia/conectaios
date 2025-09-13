@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { PropertyBanner } from '@/components/PropertyBanner';
@@ -35,17 +35,40 @@ interface AutoCarouselProps {
 
 export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000 }: AutoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for visibility-based autoplay
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+        if (entry.isIntersecting && properties.length > 1) {
+          setIsPlaying(true);
+        } else {
+          setIsPlaying(false);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (carouselRef.current) {
+      observer.observe(carouselRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [properties.length]);
 
   useEffect(() => {
-    if (!isPlaying || properties.length <= 1) return;
+    if (!isPlaying || !isVisible || properties.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % properties.length);
     }, autoplayDelay);
 
     return () => clearInterval(interval);
-  }, [isPlaying, properties.length, autoplayDelay]);
+  }, [isPlaying, isVisible, properties.length, autoplayDelay]);
 
   const handleMouseEnter = () => setIsPlaying(false);
   const handleMouseLeave = () => setIsPlaying(true);
@@ -63,6 +86,7 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
 
   return (
     <div 
+      ref={carouselRef}
       className="relative w-full h-full"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -87,6 +111,7 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
               <img
                 src={currentProperty.fotos?.[0] || "/placeholder.svg"}
                 alt={currentProperty.titulo}
+                loading="lazy"
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 onError={(e) => {
                   e.currentTarget.src = "/placeholder.svg";

@@ -25,8 +25,8 @@ import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 import { formatCurrency } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { AutoCarousel } from '@/components/AutoCarousel';
-import { DevelopmentCarousel } from '@/components/DevelopmentCarousel';
+import { LazyAutoCarousel } from '@/components/LazyAutoCarousel';
+import { LazyDevelopmentCarousel } from '@/components/LazyDevelopmentCarousel';
 
 interface Property {
   id: string;
@@ -249,7 +249,7 @@ export default function Marketplace() {
                 </div>
 
                 {recentProperties.length > 0 && (
-                  <AutoCarousel 
+                  <LazyAutoCarousel 
                     properties={recentProperties.slice(0, 10)}
                     onPropertyClick={(property) => {
                       setSelectedProperty(property);
@@ -272,7 +272,7 @@ export default function Marketplace() {
                   </p>
                 </div>
 
-                <DevelopmentCarousel />
+                <LazyDevelopmentCarousel />
               </div>
             </div>
           </div>
