@@ -220,7 +220,7 @@ export default function Suporte() {
                 Novo Chamado
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="max-w-[95vw] sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>Criar Novo Chamado</DialogTitle>
                 <DialogDescription>
@@ -239,7 +239,7 @@ export default function Suporte() {
                   />
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="category">Categoria</Label>
                     <Select value={newTicket.category} onValueChange={(value) => setNewTicket({ ...newTicket, category: value })}>
@@ -400,7 +400,7 @@ export default function Suporte() {
 
         {/* Dialog para visualizar ticket */}
         <Dialog open={isTicketDialogOpen} onOpenChange={setIsTicketDialogOpen}>
-          <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-[95vw] sm:max-w-2xl max-h-[80vh] overflow-y-auto">
             {selectedTicket && (
               <>
                 <DialogHeader>
