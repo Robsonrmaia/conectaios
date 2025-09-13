@@ -90,13 +90,12 @@ export default function Marketplace() {
     try {
       setLoading(true);
       
-      // Single optimized query with JOIN to avoid race conditions
+      // Single optimized query with proper JOIN to avoid race conditions
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
         .select(`
           *,
-          profiles!properties_user_id_fkey(nome),
-          conectaios_brokers!conectaios_brokers_user_id_fkey(
+          conectaios_brokers!inner(
             id, name, email, avatar_url, creci, bio, status
           )
         `)
@@ -119,12 +118,11 @@ export default function Marketplace() {
       // Filter out properties without valid broker data and transform data structure
       const validProperties = (propertiesData || []).map(property => ({
         ...property,
-        profiles: Array.isArray(property.profiles) ? property.profiles[0] : property.profiles,
         conectaios_brokers: Array.isArray(property.conectaios_brokers) 
           ? property.conectaios_brokers[0] 
           : property.conectaios_brokers
       })).filter(property => 
-        property.conectaios_brokers || property.profiles
+        property.conectaios_brokers && property.conectaios_brokers.status === 'active'
       );
 
       setProperties(validProperties as Property[]);
