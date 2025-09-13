@@ -20,6 +20,7 @@ interface Property {
   user_id: string;
   created_at: string;
   listing_type: string;
+  property_type?: string;
   neighborhood?: string;
   profiles?: {
     nome: string;
@@ -107,22 +108,37 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
             className="h-full bg-gradient-to-br from-white/90 to-blue-50/90 hover:from-white hover:to-blue-50 border border-blue-200/50 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer"
             onClick={() => onPropertyClick(currentProperty)}
           >
-            <div className="relative h-48 overflow-hidden rounded-t-lg">
+            <div className="relative h-48 overflow-hidden rounded-t-lg bg-gradient-to-br from-blue-100 to-blue-200">
               {currentProperty.banner_type && (
                 <PropertyBanner bannerType={currentProperty.banner_type} />
               )}
-              <img
-                src={currentProperty.fotos?.[0] || "/placeholder.svg"}
-                alt={currentProperty.titulo}
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                onError={(e) => {
-                  console.log('Erro ao carregar imagem:', currentProperty.fotos?.[0]);
-                  e.currentTarget.src = "/placeholder.svg";
-                }}
-                onLoad={() => {
-                  console.log('Imagem carregada com sucesso:', currentProperty.fotos?.[0]);
-                }}
-              />
+              {currentProperty.fotos && currentProperty.fotos.length > 0 && currentProperty.fotos[0] ? (
+                <img
+                  src={currentProperty.fotos[0]}
+                  alt={currentProperty.titulo}
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  onError={(e) => {
+                    console.log('Erro ao carregar imagem:', currentProperty.fotos[0]);
+                    e.currentTarget.src = `https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&h=600&fit=crop&q=80`;
+                  }}
+                  onLoad={() => {
+                    console.log('Imagem carregada com sucesso:', currentProperty.fotos[0]);
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+                  <div className="text-center text-blue-600">
+                    <div className="text-4xl mb-2">
+                      {currentProperty.property_type === 'casa' ? '🏠' : 
+                       currentProperty.property_type === 'apartamento' ? '🏢' :
+                       currentProperty.property_type === 'comercial' ? '🏪' : '🏡'}
+                    </div>
+                    <div className="text-sm font-medium">
+                      {currentProperty.property_type || 'Imóvel'}
+                    </div>
+                  </div>
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent" />
             </div>
             
