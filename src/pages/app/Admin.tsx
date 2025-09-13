@@ -30,6 +30,9 @@ import SystemLogs from '@/components/admin/SystemLogs';
 import SystemStatus from '@/components/admin/SystemStatus';
 import SystemAlerts from '@/components/admin/SystemAlerts';
 import SupportTicketManager from '@/components/admin/SupportTicketManager';
+import AdminAnalytics from '@/components/admin/AdminAnalytics';
+import AdminDataManager from '@/components/admin/AdminDataManager';
+import AuditLogs from '@/pages/app/AuditLogs';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
@@ -211,14 +214,17 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 gap-1">
-          <TabsTrigger value="dashboard" className="text-xs sm:text-sm">Dashboard</TabsTrigger>
-          <TabsTrigger value="usuarios" className="text-xs sm:text-sm">Usuários</TabsTrigger>
-          <TabsTrigger value="suporte" className="text-xs sm:text-sm">Suporte</TabsTrigger>
-          <TabsTrigger value="testemunhos" className="text-xs sm:text-sm">Testemunhos</TabsTrigger>
-          <TabsTrigger value="parceiros" className="text-xs sm:text-sm">Parceiros</TabsTrigger>
-          <TabsTrigger value="sistema" className="text-xs sm:text-sm">Sistema</TabsTrigger>
-          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm">Config</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto py-2">
+          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2 py-1">Dashboard</TabsTrigger>
+          <TabsTrigger value="usuarios" className="text-xs sm:text-sm px-2 py-1">Usuários</TabsTrigger>
+          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-1">Analytics</TabsTrigger>
+          <TabsTrigger value="auditoria" className="text-xs sm:text-sm px-2 py-1">Auditoria</TabsTrigger>
+          <TabsTrigger value="dados" className="text-xs sm:text-sm px-2 py-1">Dados</TabsTrigger>
+          <TabsTrigger value="suporte" className="text-xs sm:text-sm px-2 py-1">Suporte</TabsTrigger>
+          <TabsTrigger value="testemunhos" className="text-xs sm:text-sm px-2 py-1">Testemunhos</TabsTrigger>
+          <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-2 py-1">Parceiros</TabsTrigger>
+          <TabsTrigger value="sistema" className="text-xs sm:text-sm px-2 py-1">Sistema</TabsTrigger>
+          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-1">Config</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-6">
@@ -301,6 +307,18 @@ export default function Admin() {
 
         <TabsContent value="usuarios" className="space-y-6">
           <SecureAdminUserManagement />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="space-y-6">
+          <AdminAnalytics />
+        </TabsContent>
+
+        <TabsContent value="auditoria" className="space-y-6">
+          <AuditLogs />
+        </TabsContent>
+
+        <TabsContent value="dados" className="space-y-6">
+          <AdminDataManager />
         </TabsContent>
 
         <TabsContent value="suporte" className="space-y-6">
