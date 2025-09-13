@@ -400,21 +400,17 @@ export default function Marketplace() {
                   </div>
                 </div>
                 
-                <CardHeader>
-                  <CardTitle className="text-lg">{property.titulo}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    Por: {property.profiles?.nome || 'Corretor'}
-                  </CardDescription>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg leading-tight">{property.titulo}</CardTitle>
                 </CardHeader>
                 
-                <CardContent className="space-y-4">
-                  <div className="text-2xl font-bold text-primary">
+                <CardContent className="space-y-3 p-4">
+                  <div className="text-xl sm:text-2xl font-bold text-primary">
                     R$ {property.valor?.toLocaleString('pt-BR')}
                   </div>
                   
                     {/* All property icons in one line */}
-                    <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap justify-center">
+                    <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
                       <div className="flex items-center gap-1">
                         <Building2 className="h-3 w-3" />
                         {property.area}m²
