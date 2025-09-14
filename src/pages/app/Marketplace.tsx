@@ -92,7 +92,7 @@ export default function Marketplace() {
       
       // Manual query since there's no foreign key relationship established
       const { data: propertiesData, error: propertiesError } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*')
         .eq('is_public', true)
         .eq('visibility', 'public_site')

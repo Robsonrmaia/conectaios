@@ -12,15 +12,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addDays, isPast, isFuture } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addDays, isPast, isFuture, startOfWeek, endOfWeek, eachHourOfInterval, setHours, startOfDay, endOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { 
   Calendar as CalendarIcon, 
   Clock, 
   Plus, 
-  User, 
-  Phone, 
-  MapPin, 
+  ChevronLeft,
+  ChevronRight,
+  User,
+  Phone,
+  MapPin,
+  Check,
+  X,
+  Target,
+  Lightbulb,
+  Star,
   AlertCircle,
   CheckCircle,
   Bell,
@@ -466,3 +473,241 @@ export default function SmartCalendar() {
     </div>
   );
 }
+
+// Week View Component
+interface WeekViewProps {
+  selectedDate: Date;
+  tasks: Task[];
+  onDateSelect: (date: Date) => void;
+  onCreateTask: (date: Date) => void;
+  onToggleTask: (taskId: string, done: boolean) => void;
+}
+
+const WeekView: React.FC<WeekViewProps> = ({ selectedDate, tasks, onDateSelect, onCreateTask, onToggleTask }) => {
+  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 0 });
+  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
+
+  const getTasksForDate = (date: Date) => {
+    return tasks.filter(task => {
+      if (!task.quando) return false;
+      const taskDate = new Date(task.quando);
+      return isSameDay(taskDate, date);
+    });
+  };
+
+  const goToPrevWeek = () => {
+    const prevWeek = new Date(selectedDate);
+    prevWeek.setDate(prevWeek.getDate() - 7);
+    onDateSelect(prevWeek);
+  };
+
+  const goToNextWeek = () => {
+    const nextWeek = new Date(selectedDate);
+    nextWeek.setDate(nextWeek.getDate() + 7);
+    onDateSelect(nextWeek);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">
+            {format(weekStart, 'dd MMM', { locale: ptBR })} - {format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}
+          </h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={goToPrevWeek}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={goToNextWeek}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-7 gap-2">
+        {weekDays.map((day) => {
+          const dayTasks = getTasksForDate(day);
+          const isToday = isSameDay(day, new Date());
+          const isSelected = isSameDay(day, selectedDate);
+          
+          return (
+            <Card 
+              key={day.toISOString()} 
+              className={`min-h-[200px] cursor-pointer transition-colors ${
+                isSelected ? 'ring-2 ring-primary' : ''
+              } ${isToday ? 'bg-primary/5' : ''}`}
+              onClick={() => onDateSelect(day)}
+            >
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
+                    {format(day, 'EEE', { locale: ptBR })}
+                  </span>
+                  <span className={`text-lg ${isToday ? 'text-primary font-bold' : ''}`}>
+                    {format(day, 'd')}
+                  </span>
+                </div>
+              </CardHeader>
+              
+              <CardContent className="pt-0 space-y-1">
+                {dayTasks.slice(0, 3).map((task) => (
+                  <div 
+                    key={task.id}
+                    className={`text-xs p-1 rounded cursor-pointer transition-opacity ${
+                      task.done ? 'bg-green-100 text-green-800 line-through opacity-60' : 'bg-blue-100 text-blue-800'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleTask(task.id, !task.done);
+                    }}
+                  >
+                    {task.txt.substring(0, 20)}...
+                  </div>
+                ))}
+                
+                {dayTasks.length > 3 && (
+                  <div className="text-xs text-muted-foreground">
+                    +{dayTasks.length - 3} mais
+                  </div>
+                )}
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full mt-2 h-6 text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateTask(day);
+                  }}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Nova
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// Day View Component  
+interface DayViewProps {
+  selectedDate: Date;
+  tasks: Task[];
+  onDateSelect: (date: Date) => void;
+  onCreateTask: (dateTime: Date) => void;
+  onToggleTask: (taskId: string, done: boolean) => void;
+}
+
+const DayView: React.FC<DayViewProps> = ({ selectedDate, tasks, onDateSelect, onCreateTask, onToggleTask }) => {
+  const dayStart = startOfDay(selectedDate);
+  const dayEnd = endOfDay(selectedDate);
+  const hours = eachHourOfInterval({ start: setHours(dayStart, 8), end: setHours(dayEnd, 22) });
+
+  const getTasksForHour = (hour: Date) => {
+    return tasks.filter(task => {
+      if (!task.quando || !task.onde) return false;
+      const taskDate = new Date(task.quando);
+      const taskHour = parseInt(task.onde.split(':')[0] || '0');
+      return isSameDay(taskDate, selectedDate) && hour.getHours() === taskHour;
+    });
+  };
+
+  const goToPrevDay = () => {
+    const prevDay = new Date(selectedDate);
+    prevDay.setDate(prevDay.getDate() - 1);
+    onDateSelect(prevDay);
+  };
+
+  const goToNextDay = () => {
+    const nextDay = new Date(selectedDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    onDateSelect(nextDay);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h3 className="text-lg font-semibold">
+            {format(selectedDate, "EEEE, dd 'de' MMMM yyyy", { locale: ptBR })}
+          </h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={goToPrevDay}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={goToNextDay}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-2 max-h-[600px] overflow-y-auto">
+        {hours.map((hour) => {
+          const hourTasks = getTasksForHour(hour);
+          
+          return (
+            <Card key={hour.toISOString()} className="min-h-[60px]">
+              <CardContent className="p-3">
+                <div className="flex items-start gap-3">
+                  <div className="text-sm font-medium text-muted-foreground min-w-[60px]">
+                    {format(hour, 'HH:mm')}
+                  </div>
+                  
+                  <div className="flex-1 space-y-2">
+                    {hourTasks.map((task) => (
+                      <div 
+                        key={task.id}
+                        className={`p-2 rounded border transition-opacity ${
+                          task.done 
+                            ? 'bg-green-50 text-green-800 line-through opacity-60 border-green-200' 
+                            : 'bg-blue-50 text-blue-800 border-blue-200'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{task.txt}</div>
+                            {task.quem && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                <User className="h-3 w-3 inline mr-1" />
+                                {task.quem}
+                              </div>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => onToggleTask(task.id, !task.done)}
+                            className="h-6 w-6 p-0"
+                          >
+                            {task.done ? <X className="h-3 w-3" /> : <Check className="h-3 w-3" />}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {hourTasks.length === 0 && (
+                      <Button 
+                        variant="ghost" 
+                        className="w-full h-8 text-xs text-muted-foreground border-dashed border"
+                        onClick={() => onCreateTask(hour)}
+                      >
+                        <Plus className="h-3 w-3 mr-2" />
+                        Agendar para {format(hour, 'HH:mm')}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+};

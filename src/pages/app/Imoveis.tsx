@@ -128,7 +128,7 @@ export default function Imoveis() {
       const startIndex = (page - 1) * pageSize;
       
       const { data, error, count } = await supabase
-        .from('properties')
+        .from('conectaios_properties')
         .select('*', { count: 'exact' })
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
