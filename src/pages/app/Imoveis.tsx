@@ -32,6 +32,7 @@ import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
+import { Tour360Modal } from '@/components/Tour360Modal';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -92,6 +93,8 @@ export default function Imoveis() {
   const [processorType, setProcessorType] = useState<'enhance' | 'staging'>('enhance');
   const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('lista');
+  const [tour360Property, setTour360Property] = useState<Property | null>(null);
+  const [isTour360ModalOpen, setIsTour360ModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -1077,19 +1080,19 @@ export default function Imoveis() {
                          <Sparkles className="h-3 w-3 mr-1" />
                          Qualidade
                        </Button>
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           // Open evaluation tool for the property
-                           window.open(`https://simuladororquidario.gicarneiroimoveis.com.br/?area=${property.area}&quartos=${property.quartos}&tipo=${property.property_type}`, '_blank', 'noopener,noreferrer');
-                         }}
-                         title="Avaliar Imóvel"
-                         className="h-8 text-xs"
-                       >
-                         <Target className="h-3 w-3 mr-1" />
-                         Avaliar
-                       </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            setTour360Property(property);
+                            setIsTour360ModalOpen(true);
+                          }}
+                          title="Gerar Tour 360° com ConectAIOS"
+                          className="h-8 text-xs"
+                        >
+                          <Eye className="h-3 w-3 mr-1" />
+                          Tour 360
+                        </Button>
                     </div>
                    
                    <div className="grid grid-cols-2 gap-2">
@@ -1672,6 +1675,44 @@ export default function Imoveis() {
         }}
         type={processorType}
         initialImage={selectedProperty?.fotos?.[0]}
+      />
+
+      {/* Tour 360 Modal */}
+      <Tour360Modal
+        isOpen={isTour360ModalOpen}
+        onClose={() => {
+          setIsTour360ModalOpen(false);
+          setTour360Property(null);
+        }}
+        onTourGenerated={async (tourUrl: string) => {
+          if (tour360Property) {
+            try {
+              const { error } = await supabase
+                .from('conectaios_properties')
+                .update({ tour_360_url: tourUrl })
+                .eq('id', tour360Property.id);
+
+              if (error) throw error;
+
+              toast({
+                title: "Tour 360° Salvo!",
+                description: "O tour virtual foi salvo com sucesso no imóvel.",
+              });
+
+              fetchProperties();
+              setIsTour360ModalOpen(false);
+              setTour360Property(null);
+            } catch (error) {
+              console.error('Error saving tour 360 URL:', error);
+              toast({
+                title: "Erro",
+                description: "Erro ao salvar tour 360°",
+                variant: "destructive",
+              });
+            }
+          }
+        }}
+        property={tour360Property}
       />
       
         </TabsContent>
