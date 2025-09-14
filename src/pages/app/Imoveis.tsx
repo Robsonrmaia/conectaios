@@ -732,6 +732,33 @@ export default function Imoveis() {
                 </div>
               )}
 
+              {/* Tour 360° Generator */}
+              {Array.isArray(formData.fotos) && formData.fotos.length > 0 && (
+                <div className="border-t pt-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-medium">🎯 Tour 360°</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Gere um tour virtual do imóvel com todas as fotos
+                      </p>
+                    </div>
+                    <Button 
+                      variant="outline"
+                      onClick={() => {
+                        if (selectedProperty) {
+                          setTour360Property(selectedProperty);
+                          setIsTour360ModalOpen(true);
+                        }
+                      }}
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-0"
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      Gerar Tour 360°
+                    </Button>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
                 <Textarea
@@ -1090,19 +1117,6 @@ export default function Imoveis() {
                        >
                          <Target className="h-3 w-3 mr-1" />
                          Avaliar
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => {
-                            setTour360Property(property);
-                            setIsTour360ModalOpen(true);
-                          }}
-                          title="Gerar Tour 360°"
-                          className="h-8 text-xs bg-blue-50 hover:bg-blue-100"
-                        >
-                          <Eye className="h-3 w-3 mr-1" />
-                          Tour 360°
                         </Button>
                      </div>
                    

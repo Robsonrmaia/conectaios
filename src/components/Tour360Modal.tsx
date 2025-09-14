@@ -9,15 +9,23 @@ interface Tour360ModalProps {
 }
 
 export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tour360ModalProps) {
-  // Get cover photo (first photo or fallback)
-  const coverPhoto = property?.fotos?.[0] || '';
+  // Get ALL photos (not just first one)
+  const allPhotos = property?.fotos || [];
   
-  // Build URL for the Tour 360 generator with property data and cover photo pre-loaded
+  // Build URL for the Tour 360 generator with ALL property data and ALL photos pre-loaded
   const tour360Url = `https://imagens-conectaios-420832656535.us-west1.run.app?` +
     `action=tour360&` +
     `propertyId=${encodeURIComponent(property?.id || '')}&` +
-    `photo=${encodeURIComponent(coverPhoto)}&` +
     `titulo=${encodeURIComponent(property?.titulo || '')}&` +
+    `valor=${encodeURIComponent(property?.valor?.toString() || '')}&` +
+    `area=${encodeURIComponent(property?.area?.toString() || '')}&` +
+    `quartos=${encodeURIComponent(property?.quartos?.toString() || '')}&` +
+    `bathrooms=${encodeURIComponent(property?.bathrooms?.toString() || '')}&` +
+    `parking_spots=${encodeURIComponent(property?.parking_spots?.toString() || '')}&` +
+    `tipo=${encodeURIComponent(property?.property_type || '')}&` +
+    `finalidade=${encodeURIComponent(property?.listing_type || '')}&` +
+    `descricao=${encodeURIComponent(property?.descricao || '')}&` +
+    `fotos=${encodeURIComponent(JSON.stringify(allPhotos))}&` +
     `autoload=true`;
 
   return (

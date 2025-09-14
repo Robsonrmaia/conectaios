@@ -57,7 +57,7 @@ export function ShareButton({
     setShowGeneratorModal(false);
   };
 
-  // Build URL for the HTML generator with complete property data
+  // Build URL for the HTML generator with complete property data and ALL photos
   const generatorUrl = `https://gerador-de-proposta-de-im-vel-com-ia-420832656535.us-west1.run.app?` +
     `propertyId=${encodeURIComponent(property.id)}&` +
     `title=${encodeURIComponent(property.titulo)}&` +
@@ -70,7 +70,7 @@ export function ShareButton({
     `finalidade=${encodeURIComponent(property.listing_type || '')}&` +
     `bairro=${encodeURIComponent(property.neighborhood || '')}&` +
     `descricao=${encodeURIComponent(property.descricao || '')}&` +
-    `foto=${encodeURIComponent(property.fotos?.[0] || '')}&` +
+    `fotos=${encodeURIComponent(JSON.stringify(property.fotos || []))}&` +
     `ownerUserId=${encodeURIComponent(property.user_id || '')}`;
 
   return (
