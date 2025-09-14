@@ -248,9 +248,7 @@ export default function PropertyDetail() {
 
                   <div className="absolute top-4 right-4 flex gap-2">
                     <ShareButton 
-                      propertyId={property.id}
-                      propertyTitle={property.titulo}
-                      ownerUserId={broker.user_id}
+                      property={property}
                     />
                     <FavoritesManager propertyId={property.id} />
                   </div>

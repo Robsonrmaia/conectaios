@@ -82,14 +82,14 @@ export default function Marketplace() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
 
-  const fetchPublicProperties = useCallback(async () => {
-    const cacheKey = 'marketplace_properties';
-    const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+  const fetchPublicProperties = useCallback(async (page = 0) => {
+    const cacheKey = `marketplace_properties_${page}`;
+    const cacheExpiry = 3 * 60 * 1000; // 3 minutes
     
     try {
-      // Check cache first
+      // Check cache first for this page
       const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData) {
+      if (cachedData && page === 0) {
         const { data, timestamp } = JSON.parse(cachedData);
         if (Date.now() - timestamp < cacheExpiry) {
           setProperties(data);
@@ -101,7 +101,11 @@ export default function Marketplace() {
 
       setLoading(true);
       
-      // Optimized query - minimal fields for faster loading
+      // Real pagination with LIMIT/OFFSET for better performance
+      const pageSize = 12;
+      const offset = page * pageSize;
+      
+      // Minimal fields for faster loading - only what we need for listing
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('conectaios_properties')
         .select(`
@@ -114,10 +118,8 @@ export default function Marketplace() {
           listing_type,
           property_type,
           fotos,
-          videos,
           neighborhood,
           finalidade,
-          descricao,
           created_at,
           user_id
         `)
@@ -125,58 +127,88 @@ export default function Marketplace() {
         .eq('visibility', 'public_site')
         .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(24); // Reduced for faster loading
+        .range(offset, offset + pageSize - 1)
 
       if (propertiesError) throw propertiesError;
 
       if (!propertiesData || propertiesData.length === 0) {
-        setProperties([]);
-        setRecentProperties([]);
+        if (page === 0) {
+          setProperties([]);
+          setRecentProperties([]);
+        }
         return;
       }
 
       // Get unique user IDs and fetch brokers
-      const userIds = [...new Set(propertiesData.map(p => p.user_id))];
-      const { data: brokersData } = await supabase
+      const userIds = [...new Set(propertiesData.map(p => p.user_id).filter(Boolean))];
+      if (userIds.length === 0) {
+        if (page === 0) {
+          setProperties([]);
+          setRecentProperties([]);
+        }
+        return;
+      }
+
+      const { data: brokersData, error: brokersError } = await supabase
         .from('conectaios_brokers')
         .select('user_id, id, name, avatar_url, creci, status')
         .in('user_id', userIds)
         .eq('status', 'active');
 
-      // Create lookup map and combine data
+      if (brokersError) {
+        console.warn('Error fetching brokers:', brokersError);
+      }
+
+      // Create lookup map and combine data with robust validation
       const brokersMap = new Map((brokersData || []).map(broker => [broker.user_id, broker]));
       const validProperties = propertiesData
+        .filter(property => property && property.id && property.titulo) // Basic validation
         .map(property => ({
           ...property,
-          descricao: property.descricao || '',
-          videos: property.videos || [],
+          titulo: property.titulo || 'Imóvel sem título',
+          valor: property.valor || 0,
+          area: property.area || 0,
+          quartos: property.quartos || 0,
+          bathrooms: property.bathrooms || 0,
+          fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
+          videos: [], // Set default empty array since we don't fetch videos for performance
+          neighborhood: property.neighborhood || '',
+          finalidade: property.finalidade || property.listing_type || 'venda',
+          descricao: '', // Set default empty string since we don't fetch description for performance
           conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
-        .filter(property => property.conectaios_brokers);
+        .filter(property => property.conectaios_brokers); // Only show properties with valid brokers
 
-      setProperties(validProperties as Property[]);
-      setRecentProperties(validProperties.slice(0, 8) as Property[]);
-      
-      // Cache the results
-      localStorage.setItem(cacheKey, JSON.stringify({
-        data: validProperties,
-        timestamp: Date.now()
-      }));
+      if (page === 0) {
+        setProperties(validProperties as Property[]);
+        setRecentProperties(validProperties.slice(0, 8) as Property[]);
+        
+        // Cache only first page results
+        localStorage.setItem(cacheKey, JSON.stringify({
+          data: validProperties,
+          timestamp: Date.now()
+        }));
+      } else {
+        // Append to existing properties for pagination
+        setProperties(prev => [...prev, ...(validProperties as Property[])]);
+      }
       
     } catch (error) {
       console.error('Error fetching properties:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar imóveis do marketplace",
-        variant: "destructive",
-      });
+      if (page === 0) {
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar imóveis do marketplace. Tentando novamente...",
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchPublicProperties();
+    fetchPublicProperties(0);
   }, [fetchPublicProperties]);
 
   const filteredProperties = useMemo(() => {
@@ -560,12 +592,10 @@ export default function Marketplace() {
                          </div>
                          
                          <div className="h-8 flex items-center justify-center flex-1">
-                           <ShareButton
-                             propertyId={property.id}
-                             propertyTitle={property.titulo}
-                             ownerUserId={property.user_id}
-                             isOwner={false}
-                           />
+                            <ShareButton
+                              property={property}
+                              isOwner={false}
+                            />
                          </div>
                        </div>
                    </div>
@@ -807,12 +837,10 @@ export default function Marketplace() {
                         <Target className="h-4 w-4 mr-2" />
                         Marcar Match
                       </Button>
-                      <ShareButton
-                        propertyId={selectedProperty.id}
-                        propertyTitle={selectedProperty.titulo}
-                        ownerUserId={selectedProperty.user_id}
-                        isOwner={user?.id === selectedProperty.user_id}
-                      />
+                       <ShareButton
+                         property={selectedProperty}
+                         isOwner={user?.id === selectedProperty.user_id}
+                       />
                     </div>
                   </div>
                 </div>

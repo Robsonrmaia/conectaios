@@ -7,17 +7,29 @@ import { generatePropertyUrl } from '@/lib/urls';
 import { ExternalToolModal } from '@/components/ExternalToolModal';
 
 interface ShareButtonProps {
-  propertyId: string;
-  propertyTitle: string;
-  ownerUserId?: string;
+  property: Property; // Full property object instead of separate fields
   isOwner?: boolean;
   isAuthorized?: boolean;
 }
 
+interface Property {
+  id: string;
+  titulo: string;
+  valor: number;
+  area: number;
+  quartos: number;
+  bathrooms?: number;
+  parking_spots?: number;
+  fotos: string[];
+  user_id?: string;
+  listing_type?: string;
+  property_type?: string;
+  neighborhood?: string;
+  descricao?: string;
+}
+
 export function ShareButton({ 
-  propertyId, 
-  propertyTitle, 
-  ownerUserId, 
+  property,
   isOwner = false, 
   isAuthorized = false 
 }: ShareButtonProps) {
@@ -25,7 +37,7 @@ export function ShareButton({
   const [copied, setCopied] = useState(false);
   const [showGeneratorModal, setShowGeneratorModal] = useState(false);
   
-  const canShare = isOwner || isAuthorized || (user?.id === ownerUserId);
+  const canShare = isOwner || isAuthorized || (user?.id === property.user_id);
 
   const handleShare = async () => {
     if (!canShare) {
@@ -45,8 +57,21 @@ export function ShareButton({
     setShowGeneratorModal(false);
   };
 
-  // Build URL for the HTML generator with property data
-  const generatorUrl = `https://gerador-de-proposta-de-im-vel-com-ia-420832656535.us-west1.run.app?propertyId=${encodeURIComponent(propertyId)}&title=${encodeURIComponent(propertyTitle)}&ownerUserId=${encodeURIComponent(ownerUserId || '')}`;
+  // Build URL for the HTML generator with complete property data
+  const generatorUrl = `https://gerador-de-proposta-de-im-vel-com-ia-420832656535.us-west1.run.app?` +
+    `propertyId=${encodeURIComponent(property.id)}&` +
+    `title=${encodeURIComponent(property.titulo)}&` +
+    `valor=${encodeURIComponent(property.valor.toString())}&` +
+    `area=${encodeURIComponent(property.area.toString())}&` +
+    `quartos=${encodeURIComponent(property.quartos.toString())}&` +
+    `bathrooms=${encodeURIComponent((property.bathrooms || 0).toString())}&` +
+    `parking=${encodeURIComponent((property.parking_spots || 0).toString())}&` +
+    `tipo=${encodeURIComponent(property.property_type || '')}&` +
+    `finalidade=${encodeURIComponent(property.listing_type || '')}&` +
+    `bairro=${encodeURIComponent(property.neighborhood || '')}&` +
+    `descricao=${encodeURIComponent(property.descricao || '')}&` +
+    `foto=${encodeURIComponent(property.fotos?.[0] || '')}&` +
+    `ownerUserId=${encodeURIComponent(property.user_id || '')}`;
 
   return (
     <>
