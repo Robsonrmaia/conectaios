@@ -84,7 +84,7 @@ export default function Marketplace() {
 
   const fetchPublicProperties = useCallback(async (page = 0) => {
     const cacheKey = `marketplace_properties_${page}`;
-    const cacheExpiry = 3 * 60 * 1000; // 3 minutes
+    const cacheExpiry = 10 * 60 * 1000; // 10 minutes - aggressive caching
     
     try {
       // Check cache first for this page
@@ -105,22 +105,19 @@ export default function Marketplace() {
       const pageSize = 12;
       const offset = page * pageSize;
       
-      // Minimal fields for faster loading - only what we need for listing
+      // Ultra-minimal query - only essential fields for cards
       const { data: propertiesData, error: propertiesError } = await supabase
-        .from('conectaios_properties')
+        .from('properties')
         .select(`
           id,
           titulo,
           valor,
           area,
           quartos,
-          bathrooms,
           listing_type,
           property_type,
           fotos,
           neighborhood,
-          finalidade,
-          created_at,
           user_id
         `)
         .eq('is_public', true)
@@ -169,12 +166,13 @@ export default function Marketplace() {
           valor: property.valor || 0,
           area: property.area || 0,
           quartos: property.quartos || 0,
-          bathrooms: property.bathrooms || 0,
+          bathrooms: 0, // Set default since we don't fetch it for performance
           fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
           videos: [], // Set default empty array since we don't fetch videos for performance
           neighborhood: property.neighborhood || '',
-          finalidade: property.finalidade || property.listing_type || 'venda',
+          finalidade: property.listing_type || 'venda', // Use listing_type as finalidade
           descricao: '', // Set default empty string since we don't fetch description for performance
+          created_at: new Date().toISOString(), // Set current time as fallback
           conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
         .filter(property => property.conectaios_brokers); // Only show properties with valid brokers

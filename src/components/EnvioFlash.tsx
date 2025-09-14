@@ -337,13 +337,13 @@ export function EnvioFlash({ onDataExtracted, onClose }: EnvioFlashProps) {
           <CardContent>
             <Tabs value={inputMode} onValueChange={(value: 'image' | 'text') => setInputMode(value)}>
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="image" className="flex items-center gap-2">
+                <TabsTrigger value="image" className="flex items-center gap-2 bg-blue-500 text-white data-[state=active]:bg-blue-600">
                   <Image className="h-4 w-4" />
-                  Upload Imagem
+                  Imagem
                 </TabsTrigger>
-                <TabsTrigger value="text" className="flex items-center gap-2">
+                <TabsTrigger value="text" className="flex items-center gap-2 bg-green-500 text-white data-[state=active]:bg-green-600">
                   <FileText className="h-4 w-4" />
-                  Colar Texto WhatsApp
+                  Texto
                 </TabsTrigger>
               </TabsList>
               
