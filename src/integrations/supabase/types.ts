@@ -943,6 +943,7 @@ export type Database = {
           sea_distance: number | null
           state: string | null
           titulo: string
+          tour_360_url: string | null
           updated_at: string
           user_id: string | null
           valor: number | null
@@ -984,6 +985,7 @@ export type Database = {
           sea_distance?: number | null
           state?: string | null
           titulo: string
+          tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
           valor?: number | null
@@ -1025,6 +1027,7 @@ export type Database = {
           sea_distance?: number | null
           state?: string | null
           titulo?: string
+          tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
           valor?: number | null

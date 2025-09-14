@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Upload, Image, FileText, Sparkles, CheckCircle, AlertCircle, Loader2, Zap } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -54,6 +55,8 @@ export function EnvioFlash({ onDataExtracted, onClose }: EnvioFlashProps) {
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [confidence, setConfidence] = useState(0);
   const [editableData, setEditableData] = useState<ExtractedData | null>(null);
+  const [inputMode, setInputMode] = useState<'image' | 'text'>('image');
+  const [whatsappText, setWhatsappText] = useState('');
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -142,6 +145,44 @@ export function EnvioFlash({ onDataExtracted, onClose }: EnvioFlashProps) {
     setImagePreview(URL.createObjectURL(file));
     setCurrentStep('ocr');
     processOCR(file);
+  };
+
+  const handleTextSubmit = async () => {
+    if (!whatsappText.trim()) {
+      toast({
+        title: "Erro",
+        description: "Por favor, cole o texto da mensagem do WhatsApp.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    setCurrentStep('extract');
+    setProgress(30);
+
+    try {
+      const finalData = await extractWithLLM(whatsappText);
+      setExtractedData(finalData);
+      setEditableData({ ...finalData });
+      setConfidence(90);
+      setProgress(100);
+      setCurrentStep('review');
+
+      toast({
+        title: "Dados extraídos!",
+        description: "Informações do imóvel extraídas com sucesso do texto.",
+      });
+    } catch (error) {
+      console.error('Error extracting from text:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao extrair dados do texto. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const processOCR = async (imageFile: File) => {
@@ -289,38 +330,93 @@ export function EnvioFlash({ onDataExtracted, onClose }: EnvioFlashProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Upload className="h-5 w-5" />
-              Enviar Imagem do Imóvel
+              <Zap className="h-5 w-5" />
+              Escolha o Método de Extração
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div
-              className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Image className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-              <p className="text-lg font-medium mb-2">
-                Arraste uma imagem ou clique para selecionar
-              </p>
-              <p className="text-sm text-muted-foreground mb-4">
-                PNG, JPG, WebP até 10MB • Ou use Ctrl+V para colar
-              </p>
-              <Button variant="outline">
-                Selecionar Arquivo
-              </Button>
-            </div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) handleImageUpload(file);
-              }}
-            />
+            <Tabs value={inputMode} onValueChange={(value: 'image' | 'text') => setInputMode(value)}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="image" className="flex items-center gap-2">
+                  <Image className="h-4 w-4" />
+                  Upload Imagem
+                </TabsTrigger>
+                <TabsTrigger value="text" className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Colar Texto WhatsApp
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="image" className="space-y-4 mt-4">
+                <div
+                  className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Image className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-lg font-medium mb-2">
+                    Arraste uma imagem ou clique para selecionar
+                  </p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    PNG, JPG, WebP até 10MB • Ou use Ctrl+V para colar
+                  </p>
+                  <Button variant="outline">
+                    Selecionar Arquivo
+                  </Button>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload(file);
+                  }}
+                />
+              </TabsContent>
+              
+              <TabsContent value="text" className="space-y-4 mt-4">
+                <div className="space-y-4">
+                  <Textarea
+                    value={whatsappText}
+                    onChange={(e) => setWhatsappText(e.target.value)}
+                    placeholder="Cole aqui o texto completo da mensagem do WhatsApp com os dados do imóvel...
+
+Exemplo:
+🏠 Apartamento para Venda
+💰 R$ 450.000
+📐 80m²
+🛏️ 3 quartos
+🚿 2 banheiros
+🚗 1 vaga
+📍 Copacabana, Rio de Janeiro"
+                    className="min-h-[150px]"
+                  />
+                  <Button 
+                    onClick={handleTextSubmit}
+                    className="w-full"
+                    disabled={!whatsappText.trim() || isProcessing}
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Extraindo Dados...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Extrair Dados do Texto
+                      </>
+                    )}
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground text-center">
+                  Cole o texto completo da mensagem do WhatsApp com as informações do imóvel
+                </p>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}

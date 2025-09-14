@@ -83,10 +83,25 @@ export default function Marketplace() {
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
 
   const fetchPublicProperties = useCallback(async () => {
+    const cacheKey = 'marketplace_properties';
+    const cacheExpiry = 5 * 60 * 1000; // 5 minutes
+    
     try {
+      // Check cache first
+      const cachedData = localStorage.getItem(cacheKey);
+      if (cachedData) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        if (Date.now() - timestamp < cacheExpiry) {
+          setProperties(data);
+          setRecentProperties(data.slice(0, 8));
+          setLoading(false);
+          return;
+        }
+      }
+
       setLoading(true);
       
-      // Optimized query with specific fields and reduced data
+      // Optimized query - minimal fields for faster loading
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('conectaios_properties')
         .select(`
@@ -96,14 +111,13 @@ export default function Marketplace() {
           area,
           quartos,
           bathrooms,
-          parking_spots,
           listing_type,
           property_type,
           fotos,
           videos,
           neighborhood,
-          descricao,
           finalidade,
+          descricao,
           created_at,
           user_id
         `)
@@ -111,17 +125,9 @@ export default function Marketplace() {
         .eq('visibility', 'public_site')
         .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(30); // Reduced from 50 to 30 for faster loading
+        .limit(24); // Reduced for faster loading
 
-      if (propertiesError) {
-        console.error('Error fetching properties:', propertiesError);
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar imóveis do marketplace",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (propertiesError) throw propertiesError;
 
       if (!propertiesData || propertiesData.length === 0) {
         setProperties([]);
@@ -129,31 +135,34 @@ export default function Marketplace() {
         return;
       }
 
-      // Get unique user IDs (optimized)
+      // Get unique user IDs and fetch brokers
       const userIds = [...new Set(propertiesData.map(p => p.user_id))];
-
-      // Fetch only active brokers with essential fields
       const { data: brokersData } = await supabase
         .from('conectaios_brokers')
         .select('user_id, id, name, avatar_url, creci, status')
         .in('user_id', userIds)
         .eq('status', 'active');
 
-      // Create optimized lookup map
-      const brokersMap = new Map(
-        (brokersData || []).map(broker => [broker.user_id, broker])
-      );
-
-      // Combine data efficiently
+      // Create lookup map and combine data
+      const brokersMap = new Map((brokersData || []).map(broker => [broker.user_id, broker]));
       const validProperties = propertiesData
         .map(property => ({
           ...property,
+          descricao: property.descricao || '',
+          videos: property.videos || [],
           conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
         .filter(property => property.conectaios_brokers);
 
       setProperties(validProperties as Property[]);
       setRecentProperties(validProperties.slice(0, 8) as Property[]);
+      
+      // Cache the results
+      localStorage.setItem(cacheKey, JSON.stringify({
+        data: validProperties,
+        timestamp: Date.now()
+      }));
+      
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
