@@ -82,23 +82,36 @@ export default function Marketplace() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
 
-  useEffect(() => {
-    fetchPublicProperties();
-  }, []);
-
-  const fetchPublicProperties = async () => {
+  const fetchPublicProperties = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Two-step query - fetch properties first, then brokers
+      // Optimized query with specific fields and reduced data
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('conectaios_properties')
-        .select('*')
+        .select(`
+          id,
+          titulo,
+          valor,
+          area,
+          quartos,
+          bathrooms,
+          parking_spots,
+          listing_type,
+          property_type,
+          fotos,
+          videos,
+          neighborhood,
+          descricao,
+          finalidade,
+          created_at,
+          user_id
+        `)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
         .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .limit(30); // Reduced from 50 to 30 for faster loading
 
       if (propertiesError) {
         console.error('Error fetching properties:', propertiesError);
@@ -113,29 +126,25 @@ export default function Marketplace() {
       if (!propertiesData || propertiesData.length === 0) {
         setProperties([]);
         setRecentProperties([]);
-        setLoading(false);
         return;
       }
 
-      // Get unique user IDs from properties
+      // Get unique user IDs (optimized)
       const userIds = [...new Set(propertiesData.map(p => p.user_id))];
 
-      // Fetch broker data for these users
+      // Fetch only active brokers with essential fields
       const { data: brokersData } = await supabase
         .from('conectaios_brokers')
-        .select('user_id, id, name, email, avatar_url, creci, bio, status')
+        .select('user_id, id, name, avatar_url, creci, status')
         .in('user_id', userIds)
         .eq('status', 'active');
 
-      // Create a map for quick lookup
-      const brokersMap = new Map();
-      if (brokersData) {
-        brokersData.forEach(broker => {
-          brokersMap.set(broker.user_id, broker);
-        });
-      }
+      // Create optimized lookup map
+      const brokersMap = new Map(
+        (brokersData || []).map(broker => [broker.user_id, broker])
+      );
 
-      // Combine properties with broker data - only keep properties with active brokers
+      // Combine data efficiently
       const validProperties = propertiesData
         .map(property => ({
           ...property,
@@ -144,7 +153,7 @@ export default function Marketplace() {
         .filter(property => property.conectaios_brokers);
 
       setProperties(validProperties as Property[]);
-      setRecentProperties(validProperties.slice(0, 10) as Property[]);
+      setRecentProperties(validProperties.slice(0, 8) as Property[]);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -155,7 +164,11 @@ export default function Marketplace() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchPublicProperties();
+  }, [fetchPublicProperties]);
 
   const filteredProperties = useMemo(() => {
     return properties.filter(property => {
@@ -172,12 +185,14 @@ export default function Marketplace() {
     });
   }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
 
-  // Pagination logic
+  // Pagination logic with performance optimization
   const totalItems = filteredProperties.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedProperties = filteredProperties.slice(startIndex, endIndex);
+  const paginatedProperties = useMemo(() => {
+    return filteredProperties.slice(startIndex, endIndex);
+  }, [filteredProperties, startIndex, endIndex]);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -275,7 +290,7 @@ export default function Marketplace() {
 
                 {recentProperties.length > 0 && (
                   <LazyAutoCarousel 
-                    properties={recentProperties.slice(0, 10)}
+                    properties={recentProperties.slice(0, 8)}
                     onPropertyClick={(property) => {
                       setSelectedProperty(property);
                       setIsDetailDialogOpen(true);

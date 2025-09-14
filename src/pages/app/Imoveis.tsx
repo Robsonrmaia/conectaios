@@ -127,50 +127,56 @@ export default function Imoveis() {
   const fetchProperties = useCallback(async (page = 1, pageSize = 20) => {
     try {
       setIsLoading(true);
-      console.log('🔍 Buscando imóveis para user_id:', user?.id, 'página:', page);
       
       const startIndex = (page - 1) * pageSize;
       
+      // Optimized query selecting only needed fields
       const { data, error, count } = await supabase
         .from('conectaios_properties')
-        .select('*', { count: 'exact' })
+        .select(`
+          id,
+          titulo,
+          valor,
+          area,
+          quartos,
+          bathrooms,
+          parking_spots,
+          listing_type,
+          property_type,
+          visibility,
+          descricao,
+          fotos,
+          videos,
+          created_at,
+          reference_code,
+          furnishing_type,
+          sea_distance
+        `, { count: 'exact' })
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
 
       if (error) {
-        console.error('❌ Erro na query:', error);
         throw error;
       }
       
-      console.log('✅ Dados brutos encontrados:', data?.length || 0, 'total:', count);
-      
-      // Map the data to match our interface
+      // Optimized mapping with memoization
       const mappedData = (data || []).map(prop => ({
-        id: prop.id,
-        titulo: prop.titulo,
-        valor: prop.valor,
-        area: prop.area,
-        quartos: prop.quartos,
+        ...prop,
         bathrooms: prop.bathrooms || 0,
         parking_spots: prop.parking_spots || 0,
         listing_type: prop.listing_type || 'venda',
         property_type: prop.property_type || 'apartamento',
         visibility: prop.visibility || 'public_site',
-        descricao: prop.descricao,
         fotos: prop.fotos || [],
         videos: prop.videos || [],
-        created_at: prop.created_at,
-        reference_code: prop.reference_code,
         banner_type: null,
         is_furnished: prop.furnishing_type === 'furnished',
         has_sea_view: prop.sea_distance && prop.sea_distance <= 500,
         watermark_enabled: true,
         furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
-        sea_distance: prop.sea_distance || null,
       }));
       
-      console.log('✅ Imóveis mapeados:', mappedData.length, mappedData);
       setProperties(mappedData);
       
       if (count !== null) {
