@@ -451,23 +451,35 @@ export default function SmartCalendar() {
         </TabsContent>
 
         <TabsContent value="week" className="space-y-4">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-center text-muted-foreground">
-                Vista semanal em desenvolvimento...
-              </p>
-            </CardContent>
-          </Card>
+          <WeekView
+            selectedDate={selectedDate}
+            tasks={tasks}
+            onDateSelect={setSelectedDate}
+            onCreateTask={(date) => {
+              setNewTask(prev => ({ 
+                ...prev, 
+                quando: format(date, 'yyyy-MM-dd HH:mm')
+              }));
+              setShowNewTask(true);
+            }}
+            onToggleTask={toggleTaskDone}
+          />
         </TabsContent>
 
         <TabsContent value="day" className="space-y-4">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-center text-muted-foreground">
-                Vista diária em desenvolvimento...
-              </p>
-            </CardContent>
-          </Card>
+          <DayView
+            selectedDate={selectedDate}
+            tasks={tasks}
+            onDateSelect={setSelectedDate}
+            onCreateTask={(dateTime) => {
+              setNewTask(prev => ({ 
+                ...prev, 
+                quando: format(dateTime, 'yyyy-MM-dd HH:mm')
+              }));
+              setShowNewTask(true);
+            }}
+            onToggleTask={toggleTaskDone}
+          />
         </TabsContent>
       </Tabs>
     </div>
@@ -610,10 +622,13 @@ const DayView: React.FC<DayViewProps> = ({ selectedDate, tasks, onDateSelect, on
 
   const getTasksForHour = (hour: Date) => {
     return tasks.filter(task => {
-      if (!task.quando || !task.onde) return false;
-      const taskDate = new Date(task.quando);
-      const taskHour = parseInt(task.onde.split(':')[0] || '0');
-      return isSameDay(taskDate, selectedDate) && hour.getHours() === taskHour;
+      if (!task.quando) return false;
+      try {
+        const taskDate = new Date(task.quando);
+        return isSameDay(taskDate, selectedDate) && taskDate.getHours() === hour.getHours();
+      } catch {
+        return false;
+      }
     });
   };
 

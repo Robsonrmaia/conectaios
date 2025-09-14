@@ -90,12 +90,18 @@ export default function Marketplace() {
     try {
       setLoading(true);
       
-      // Manual query since there's no foreign key relationship established
+      // Optimized single query with JOIN
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('conectaios_properties')
-        .select('*')
+        .select(`
+          *,
+          conectaios_brokers!inner(
+            id, name, email, avatar_url, creci, bio, status
+          )
+        `)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
+        .eq('conectaios_brokers.status', 'active')
         .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -110,38 +116,13 @@ export default function Marketplace() {
         return;
       }
 
-      if (!propertiesData || propertiesData.length === 0) {
-        setProperties([]);
-        setRecentProperties([]);
-        setLoading(false);
-        return;
-      }
-
-      // Get unique user IDs from properties
-      const userIds = [...new Set(propertiesData.map(p => p.user_id))];
-
-      // Fetch broker data for these users
-      const { data: brokersData } = await supabase
-        .from('conectaios_brokers')
-        .select('user_id, id, name, email, avatar_url, creci, bio, status')
-        .in('user_id', userIds)
-        .eq('status', 'active');
-
-      // Create a map for quick lookup
-      const brokersMap = new Map();
-      if (brokersData) {
-        brokersData.forEach(broker => {
-          brokersMap.set(broker.user_id, broker);
-        });
-      }
-
-      // Combine properties with broker data - only keep properties with active brokers
-      const validProperties = propertiesData
-        .map(property => ({
-          ...property,
-          conectaios_brokers: brokersMap.get(property.user_id) || null
-        }))
-        .filter(property => property.conectaios_brokers);
+      // Transform the data to match our Property interface
+      const validProperties = (propertiesData || []).map(property => ({
+        ...property,
+        conectaios_brokers: Array.isArray(property.conectaios_brokers) 
+          ? property.conectaios_brokers[0] 
+          : property.conectaios_brokers
+      }));
 
       setProperties(validProperties as Property[]);
       setRecentProperties(validProperties.slice(0, 10) as Property[]);
