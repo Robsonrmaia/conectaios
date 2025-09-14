@@ -12,7 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap } from 'lucide-react';
+import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
@@ -88,6 +90,8 @@ export default function Imoveis() {
   const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
   const [processorType, setProcessorType] = useState<'enhance' | 'staging'>('enhance');
+  const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('lista');
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -416,6 +420,32 @@ export default function Imoveis() {
     }
   }, [searchTerm]);
 
+  // Function to handle extracted data from EnvioFlash
+  const handleExtractedData = (extractedData: any) => {
+    // Map extracted data to form fields
+    const mappedData = {
+      titulo: extractedData.titulo || '',
+      valor: extractedData.preco ? extractedData.preco.toString() : '',
+      area: extractedData.area_m2 ? extractedData.area_m2.toString() : '',
+      quartos: extractedData.quartos ? extractedData.quartos.toString() : '',
+      bathrooms: extractedData.banheiros ? extractedData.banheiros.toString() : '',
+      parking_spots: extractedData.vagas ? extractedData.vagas.toString() : '',
+      listing_type: extractedData.finalidade || 'venda',
+      property_type: extractedData.tipo || 'apartamento',
+      city: extractedData.cidade || '',
+      uf: extractedData.uf || '',
+      descricao: extractedData.descricao || '',
+    };
+
+    // Update form data
+    setFormData(prev => ({ ...prev, ...mappedData }));
+    
+    // Open the add dialog and switch to form tab
+    setIsAddDialogOpen(true);
+    setActiveTab('lista');
+    setIsEnvioFlashModalOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -456,10 +486,23 @@ export default function Imoveis() {
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
-              <DialogDescription>
-                {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
-              </DialogDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
+                  <DialogDescription>
+                    {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
+                  </DialogDescription>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEnvioFlashModalOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Zap className="h-4 w-4" />
+                  Envio Flash
+                </Button>
+              </div>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -763,22 +806,36 @@ export default function Imoveis() {
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar imóveis..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button variant="outline">
-          <Filter className="h-4 w-4 mr-2" />
-          Filtros
-        </Button>
-      </div>
+      {/* Search and Filters wrapped in Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="lista" className="flex items-center gap-2">
+            <Building2 className="h-4 w-4" />
+            Lista de Imóveis
+          </TabsTrigger>
+          <TabsTrigger value="envio-flash" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Envio Flash
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="lista" className="space-y-6">
+          {/* Search and Filters */}
+          <div className="flex gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar imóveis..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button variant="outline">
+              <Filter className="h-4 w-4 mr-2" />
+              Filtros
+            </Button>
+          </div>
 
       {/* Properties Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1610,6 +1667,31 @@ export default function Imoveis() {
         type={processorType}
         initialImage={selectedProperty?.fotos?.[0]}
       />
+      
+        </TabsContent>
+        
+        <TabsContent value="envio-flash" className="space-y-6">
+          <EnvioFlash
+            onDataExtracted={handleExtractedData}
+          />
+        </TabsContent>
+      </Tabs>
+
+      {/* EnvioFlash Modal */}
+      <Dialog open={isEnvioFlashModalOpen} onOpenChange={setIsEnvioFlashModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Envio Flash - Extração Automática</DialogTitle>
+            <DialogDescription>
+              Envie uma imagem do imóvel e deixe a IA extrair os dados automaticamente
+            </DialogDescription>
+          </DialogHeader>
+          <EnvioFlash
+            onDataExtracted={handleExtractedData}
+            onClose={() => setIsEnvioFlashModalOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
