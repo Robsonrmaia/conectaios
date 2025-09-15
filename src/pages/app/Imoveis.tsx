@@ -133,7 +133,7 @@ export default function Imoveis() {
       
       const startIndex = (page - 1) * pageSize;
       
-      // Ultra-minimal query - only fields needed for property cards
+      // Query with all essential fields to ensure fresh data after saves
       const { data, error, count } = await supabase
         .from('properties')
         .select(`
@@ -148,6 +148,11 @@ export default function Imoveis() {
           property_type,
           visibility,
           fotos,
+          videos,
+          descricao,
+          banner_type,
+          furnishing_type,
+          sea_distance,
           created_at,
           reference_code
         `, { count: 'exact' })
@@ -159,7 +164,7 @@ export default function Imoveis() {
         throw error;
       }
       
-      // Optimized mapping - minimal processing
+      // Map data preserving all saved fields
       const mappedData = (data || []).map(prop => ({
         ...prop,
         bathrooms: prop.bathrooms || 0,
@@ -168,14 +173,14 @@ export default function Imoveis() {
         property_type: prop.property_type || 'apartamento',
         visibility: prop.visibility || 'public_site',
         fotos: prop.fotos || [],
-        videos: [], // Default empty for performance
-        banner_type: null,
-        descricao: '', // Default empty for performance
-        is_furnished: false, // Default for performance
-        has_sea_view: false, // Default for performance
-        watermark_enabled: true,
-        furnishing_type: 'none' as const,
-        sea_distance: null, // Default for performance
+        videos: prop.videos || [],
+        descricao: prop.descricao || '',
+        banner_type: prop.banner_type,
+        furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+        sea_distance: prop.sea_distance,
+        is_furnished: false, // Computed field
+        has_sea_view: false, // Computed field
+        watermark_enabled: true, // Default setting
       }));
       
       setProperties(mappedData);
@@ -378,7 +383,11 @@ export default function Imoveis() {
         furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
         sea_distance: '',
       });
-      fetchProperties(1);
+      
+      // Add delay to ensure database has processed the save
+      setTimeout(() => {
+        fetchProperties(1);
+      }, 500);
     } catch (error: any) {
       console.error('=== ERRO GERAL NO SALVAMENTO ===');
       console.error('Error type:', typeof error);
@@ -414,7 +423,10 @@ export default function Imoveis() {
         title: "Sucesso",
         description: "Imóvel excluído com sucesso!",
       });
-      fetchProperties(1);
+      // Add delay to ensure database has processed the delete
+      setTimeout(() => {
+        fetchProperties(1);
+      }, 500);
     } catch (error) {
       console.error('Error deleting property:', error);
       toast({

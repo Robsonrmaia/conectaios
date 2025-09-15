@@ -25,14 +25,36 @@ export function VoiceTaskRecorder({ isOpen, onClose, onTaskData }: VoiceTaskReco
   const handleStopRecording = async () => {
     const result = await stopRecording('task');
     
+    console.log('🎤 Voice recording result:', result);
+    
     if (result && result.structured) {
+      console.log('✅ Structured task data received:', result.structured);
       onTaskData(result.structured);
-      onClose();
-    } else if (result) {
-      // Se não conseguiu extrair dados estruturados, mostrar texto bruto
       toast({
-        title: "Transcrição realizada",
-        description: "Não foi possível extrair dados da tarefa. Texto: " + result.text.substring(0, 100) + "...",
+        title: "Tarefa criada por voz",
+        description: "Dados da tarefa extraídos com sucesso!",
+      });
+      onClose();
+    } else if (result && result.text) {
+      console.log('⚠️ Only text transcription available:', result.text);
+      // Fallback: create basic task with transcribed text
+      const fallbackTask = {
+        titulo: "Tarefa por Voz",
+        descricao: result.text,
+        data: new Date().toISOString().split('T')[0],
+        hora: "09:00",
+        prioridade: "media"
+      };
+      onTaskData(fallbackTask);
+      toast({
+        title: "Tarefa criada",
+        description: "Tarefa criada com transcrição de voz (estruturação manual necessária)",
+      });
+      onClose();
+    } else {
+      toast({
+        title: "Erro na transcrição",
+        description: "Não foi possível processar a gravação de voz",
         variant: "destructive",
       });
     }

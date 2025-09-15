@@ -125,6 +125,11 @@ export const useVoiceRecording = () => {
             return;
           }
 
+          
+          console.log('🎤 Starting transcription process...');
+          console.log('🎤 Audio blob size:', audioBlob.size, 'bytes');
+          console.log('🎤 Audio type:', type);
+
           // Converter para base64
           const reader = new FileReader();
           reader.onloadend = async () => {
@@ -135,26 +140,47 @@ export const useVoiceRecording = () => {
                 throw new Error('Falha ao processar áudio');
               }
 
+              console.log('🎤 Audio converted to base64, length:', base64Audio.length);
+
               // Enviar para transcrição
+              console.log('🎤 Calling transcribe-audio function...');
               const { data, error } = await supabase.functions.invoke('transcribe-audio', {
                 body: { audio: base64Audio, type }
               });
 
+              console.log('🎤 Transcription response:', { data, error });
+
               if (error) {
+                console.error('❌ Transcription error:', error);
                 throw error;
               }
 
-              toast({
-                title: "✅ Transcrição concluída",
-                description: data.text.substring(0, 50) + "...",
-              });
+              if (!data) {
+                console.error('❌ No data returned from transcription');
+                throw new Error('Nenhum dado retornado da transcrição');
+              }
+
+              console.log('✅ Transcription successful:', data);
+
+              // Enhanced feedback based on result
+              if (data.structured) {
+                toast({
+                  title: "✅ Dados estruturados extraídos",
+                  description: "Informações processadas com sucesso!",
+                });
+              } else if (data.text) {
+                toast({
+                  title: "✅ Transcrição concluída", 
+                  description: "Texto: " + data.text.substring(0, 50) + "...",
+                });
+              }
 
               resolve(data);
             } catch (error) {
-              console.error('Erro na transcrição:', error);
+              console.error('❌ Error in transcription process:', error);
               toast({
                 title: "Erro na transcrição",
-                description: "Tente novamente",
+                description: error.message || "Tente novamente",
                 variant: "destructive",
               });
               resolve(null);

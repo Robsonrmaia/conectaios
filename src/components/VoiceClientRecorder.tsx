@@ -25,14 +25,36 @@ export function VoiceClientRecorder({ isOpen, onClose, onClientData }: VoiceClie
   const handleStopRecording = async () => {
     const result = await stopRecording('client');
     
+    console.log('🎤 Voice recording result:', result);
+    
     if (result && result.structured) {
+      console.log('✅ Structured client data received:', result.structured);
       onClientData(result.structured);
-      onClose();
-    } else if (result) {
-      // Se não conseguiu extrair dados estruturados, mostrar texto bruto
       toast({
-        title: "Transcrição realizada",
-        description: "Não foi possível extrair dados estruturados. Texto: " + result.text.substring(0, 100) + "...",
+        title: "Cliente adicionado por voz",
+        description: "Dados do cliente extraídos com sucesso!",
+      });
+      onClose();
+    } else if (result && result.text) {
+      console.log('⚠️ Only text transcription available:', result.text);
+      // Fallback: create basic client with transcribed text
+      const fallbackClient = {
+        nome: "Cliente por Voz",
+        telefone: "",
+        tipo: "cliente",
+        classificacao: "novo_lead",
+        descricao: result.text
+      };
+      onClientData(fallbackClient);
+      toast({
+        title: "Cliente criado",
+        description: "Cliente criado com transcrição de voz (dados manuais necessários)",
+      });
+      onClose();
+    } else {
+      toast({
+        title: "Erro na transcrição",
+        description: "Não foi possível processar a gravação de voz",
         variant: "destructive",
       });
     }
