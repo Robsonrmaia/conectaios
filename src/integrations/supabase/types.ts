@@ -2162,6 +2162,7 @@ export type Database = {
           finalidade: string | null
           fotos: string[] | null
           furnishing_type: string | null
+          has_sea_view: boolean | null
           id: string
           iptu: number | null
           is_featured: boolean | null
@@ -2204,6 +2205,7 @@ export type Database = {
           finalidade?: string | null
           fotos?: string[] | null
           furnishing_type?: string | null
+          has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
           is_featured?: boolean | null
@@ -2246,6 +2248,7 @@ export type Database = {
           finalidade?: string | null
           fotos?: string[] | null
           furnishing_type?: string | null
+          has_sea_view?: boolean | null
           id?: string
           iptu?: number | null
           is_featured?: boolean | null

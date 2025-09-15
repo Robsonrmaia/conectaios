@@ -105,7 +105,7 @@ export default function Marketplace() {
       const pageSize = 12;
       const offset = page * pageSize;
       
-      // Query with necessary fields for property icons
+      // Essential fields for marketplace cards
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
         .select(`
@@ -118,7 +118,6 @@ export default function Marketplace() {
           parking_spots,
           furnishing_type,
           sea_distance,
-          has_sea_view,
           listing_type,
           property_type,
           fotos,
@@ -176,7 +175,7 @@ export default function Marketplace() {
           parking_spots: property.parking_spots || 0,
           furnishing_type: property.furnishing_type || 'none',
           sea_distance: property.sea_distance || null,
-          has_sea_view: property.has_sea_view || false,
+          has_sea_view: false, // Temporarily set to false until types sync
           fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
           videos: [], // Set default empty array since we don't fetch videos for performance
           neighborhood: property.neighborhood || '',
