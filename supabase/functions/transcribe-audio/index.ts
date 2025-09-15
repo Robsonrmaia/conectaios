@@ -115,7 +115,13 @@ serve(async (req) => {
         const extractedData = structuredData.choices[0].message.content
 
         try {
-          const parsedData = JSON.parse(extractedData)
+          // Extract JSON from markdown code blocks if present
+          const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
+          const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
+          
+          console.log('Attempting to parse JSON:', jsonString)
+          const parsedData = JSON.parse(jsonString)
+          
           return new Response(
             JSON.stringify({ 
               text: result.text, 
@@ -125,7 +131,9 @@ serve(async (req) => {
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
           )
         } catch (parseError) {
-          console.error('Failed to parse structured data:', parseError)
+          console.error('Failed to parse client data:', parseError)
+          console.error('Raw response from OpenAI:', extractedData)
+          // Return just the transcription if parsing fails
         }
       }
     }
@@ -166,7 +174,13 @@ serve(async (req) => {
         const extractedData = taskData.choices[0].message.content
 
         try {
-          const parsedData = JSON.parse(extractedData)
+          // Extract JSON from markdown code blocks if present
+          const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
+          const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
+          
+          console.log('Attempting to parse task JSON:', jsonString)
+          const parsedData = JSON.parse(jsonString)
+          
           return new Response(
             JSON.stringify({ 
               text: result.text, 
@@ -177,6 +191,8 @@ serve(async (req) => {
           )
         } catch (parseError) {
           console.error('Failed to parse task data:', parseError)
+          console.error('Raw response from OpenAI:', extractedData)
+          // Return just the transcription if parsing fails
         }
       }
     }

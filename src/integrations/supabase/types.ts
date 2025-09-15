@@ -2150,6 +2150,7 @@ export type Database = {
           address: string | null
           area: number | null
           auto_delete_at: string | null
+          banner_type: string | null
           bathrooms: number | null
           broker_minisite_enabled: boolean | null
           city: string | null
@@ -2191,6 +2192,7 @@ export type Database = {
           address?: string | null
           area?: number | null
           auto_delete_at?: string | null
+          banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
@@ -2232,6 +2234,7 @@ export type Database = {
           address?: string | null
           area?: number | null
           auto_delete_at?: string | null
+          banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
           city?: string | null
