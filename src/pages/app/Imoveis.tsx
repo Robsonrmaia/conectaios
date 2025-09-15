@@ -218,28 +218,54 @@ export default function Imoveis() {
     }
 
     try {
-      console.log('=== DEBUGGING PROPERTY SAVE ===');
-      console.log('FormData.fotos:', formData.fotos);
-      console.log('FormData.fotos type:', typeof formData.fotos);
-      console.log('FormData.fotos length:', Array.isArray(formData.fotos) ? formData.fotos.length : 'not array');
-      console.log('Raw value input:', formData.valor);
-      console.log('Parsed value:', parseValueInput(formData.valor));
+      setIsLoading(true);
       
-      // Use existing parseValueInput from utils
-      const parseValue = parseValueInput;
+      // VALIDAÇÃO PRÉ-SALVAMENTO
+      if (!formData.titulo || formData.titulo.trim() === '') {
+        toast({
+          title: "Erro de Validação",
+          description: "O título do imóvel é obrigatório",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      // Processar fotos - usar apenas as fotos já processadas do formulário
+      // Parse values apenas uma vez
+      const parsedValue = parseValueInput(formData.valor);
+      const parsedArea = parseFloat(formData.area) || 0;
+      const parsedQuartos = parseInt(formData.quartos) || 0;
+      const parsedBathrooms = parseInt(formData.bathrooms) || 0;
+      const parsedParkingSpots = parseInt(formData.parking_spots) || 0;
+      const parsedCondominiumFee = formData.condominium_fee ? parseValueInput(formData.condominium_fee) : null;
+      const parsedIptu = formData.iptu ? parseValueInput(formData.iptu) : null;
+      const parsedSeaDistance = formData.sea_distance ? parseInt(formData.sea_distance) : null;
+      
+      // Validar dados numéricos
+      if (parsedValue <= 0) {
+        toast({
+          title: "Erro de Validação", 
+          description: "O valor do imóvel deve ser maior que zero",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
-      console.log('Fotos para salvamento:', photosArray);
+      
+      console.log('=== SALVANDO IMÓVEL ===');
+      console.log('Título:', formData.titulo);
+      console.log('Valor parseado:', parsedValue);
+      console.log('Fotos validadas:', photosArray.length);
       
       const propertyData = {
         user_id: user.id,
-        titulo: formData.titulo,
-        valor: parseValue(formData.valor),
-        area: parseFloat(formData.area) || 0,
-        quartos: parseInt(formData.quartos) || 0,
-        bathrooms: parseInt(formData.bathrooms) || 0,
-        parking_spots: parseInt(formData.parking_spots) || 0,
+        titulo: formData.titulo.trim(),
+        valor: parsedValue,
+        area: parsedArea,
+        quartos: parsedQuartos,
+        bathrooms: parsedBathrooms,
+        parking_spots: parsedParkingSpots,
         listing_type: formData.listing_type,
         property_type: formData.property_type,
         visibility: formData.visibility,
@@ -250,20 +276,21 @@ export default function Imoveis() {
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
-        condominium_fee: formData.condominium_fee ? parseValue(formData.condominium_fee) : null,
-        iptu: formData.iptu ? parseValue(formData.iptu) : null,
+        condominium_fee: parsedCondominiumFee,
+        iptu: parsedIptu,
         banner_type: (formData.banner_type === "none" || formData.banner_type === "" || !formData.banner_type) ? null : formData.banner_type,
         furnishing_type: formData.furnishing_type,
-        sea_distance: formData.sea_distance ? parseInt(formData.sea_distance) : null,
+        sea_distance: parsedSeaDistance,
       };
 
-      console.log('Final property data to save:', propertyData);
-      console.log('Property data fotos field:', propertyData.fotos);
+      console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
+      console.log('propertyData completo:', JSON.stringify(propertyData, null, 2));
 
       let result;
       
       if (selectedProperty) {
         // Editar imóvel existente
+        console.log('=== EDITANDO IMÓVEL EXISTENTE ===', selectedProperty.id);
         result = await supabase
           .from('properties')
           .update(propertyData)
@@ -272,6 +299,7 @@ export default function Imoveis() {
           .single();
       } else {
         // Adicionar novo imóvel - gera código automaticamente no banco via trigger
+        console.log('=== CRIANDO NOVO IMÓVEL ===');
         result = await supabase
           .from('properties')
           .insert(propertyData)
@@ -279,13 +307,38 @@ export default function Imoveis() {
           .single();
       }
 
+      console.log('=== RESULTADO DO SUPABASE ===');
+      console.log('result.error:', result.error);
+      console.log('result.data:', result.data);
+
       if (result.error) {
-        console.error('Error saving property:', result.error);
+        console.error('=== ERRO DETALHADO DO SUPABASE ===');
+        console.error('Error code:', result.error.code);
+        console.error('Error message:', result.error.message);
+        console.error('Error details:', result.error.details);
+        console.error('Error hint:', result.error.hint);
+        
+        toast({
+          title: "Erro ao salvar imóvel",
+          description: `Erro Supabase: ${result.error.message || 'Erro desconhecido'}`,
+          variant: "destructive",
+        });
+        
         throw result.error;
       }
 
+      if (!result.data) {
+        console.error('=== NENHUM DADO RETORNADO ===');
+        toast({
+          title: "Erro ao salvar imóvel",
+          description: "Nenhum dado foi retornado pelo servidor",
+          variant: "destructive",
+        });
+        throw new Error('No data returned from database');
+      }
+
+      console.log('=== SALVAMENTO BEM-SUCEDIDO ===');
       console.log('Property saved successfully:', result.data);
-      console.log('Saved photos in database:', result.data.fotos);
 
       toast({
         title: "Sucesso",
@@ -326,13 +379,25 @@ export default function Imoveis() {
         sea_distance: '',
       });
       fetchProperties(1);
-    } catch (error) {
-      console.error('Error adding/updating property:', error);
+    } catch (error: any) {
+      console.error('=== ERRO GERAL NO SALVAMENTO ===');
+      console.error('Error type:', typeof error);
+      console.error('Error object:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      
+      // Capturar erro específico do Supabase se disponível
+      const errorMessage = error?.message || error?.details || 'Erro desconhecido ao salvar imóvel';
+      
       toast({
         title: "Erro",
-        description: selectedProperty ? "Erro ao atualizar imóvel" : "Erro ao adicionar imóvel",
+        description: selectedProperty ? 
+          `Erro ao atualizar imóvel: ${errorMessage}` : 
+          `Erro ao adicionar imóvel: ${errorMessage}`,
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 

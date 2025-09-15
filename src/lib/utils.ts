@@ -14,14 +14,20 @@ export function formatCurrency(value: number): string {
   }).format(value || 0);
 }
 
-// Função para permitir entrada de valores com vírgula e ponto
+// Cache para evitar reprocessamento de valores
+const parseValueCache = new Map<string, number>();
+
+// Função otimizada para permitir entrada de valores com vírgula e ponto
 export function parseValueInput(value: string): number {
   if (!value || value.trim() === '') return 0;
   
+  // Verificar cache primeiro
+  if (parseValueCache.has(value)) {
+    return parseValueCache.get(value)!;
+  }
+  
   // Remove espaços em branco e símbolos de moeda
   let cleanValue = value.trim().replace(/[R$\s]/g, '');
-  
-  console.log('Parsing value:', value, 'cleaned:', cleanValue);
   
   // Se tem pontos como separadores de milhares e vírgula como decimal (formato brasileiro)
   // Ex: 500.000,00 -> pontos são separadores, vírgula é decimal
@@ -56,7 +62,10 @@ export function parseValueInput(value: string): number {
   cleanValue = cleanValue.replace(/[^\d.]/g, '');
   
   const result = parseFloat(cleanValue) || 0;
-  console.log('Final parsed value:', result);
+  
+  // Armazenar no cache
+  parseValueCache.set(value, result);
+  
   return result;
 }
 
