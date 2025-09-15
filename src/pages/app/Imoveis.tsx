@@ -745,10 +745,25 @@ export default function Imoveis() {
                     <Button 
                       variant="outline"
                       onClick={() => {
-                        if (selectedProperty) {
-                          setTour360Property(selectedProperty);
-                          setIsTour360ModalOpen(true);
-                        }
+                        // Criar objeto temporário com dados do formData para o Tour 360°
+                        const tempProperty = {
+                          id: selectedProperty?.id || 'temp-id',
+                          titulo: formData.titulo,
+                          valor: parseFloat(formData.valor?.toString() || '0'),
+                          area: parseFloat(formData.area?.toString() || '0'),
+                          quartos: formData.quartos,
+                          bathrooms: formData.bathrooms,
+                          parking_spots: formData.parking_spots,
+                          property_type: formData.property_type,
+                          listing_type: formData.listing_type,
+                          descricao: formData.descricao,
+                          fotos: formData.fotos,
+                          visibility: selectedProperty?.visibility || 'private',
+                          videos: selectedProperty?.videos || [],
+                          created_at: selectedProperty?.created_at || new Date().toISOString()
+                        };
+                        setTour360Property(tempProperty);
+                        setIsTour360ModalOpen(true);
                       }}
                       className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 border-0"
                     >

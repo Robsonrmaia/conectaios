@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon } from 'lucide-react';
+import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic } from 'lucide-react';
 import { GlobalClientSearch } from './GlobalClientSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -19,6 +19,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { VoiceClientRecorder } from '@/components/VoiceClientRecorder';
 
 interface Client {
   id: string;
@@ -89,6 +90,7 @@ export default function PipelineCRM() {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false);
+  const [isVoiceRecorderOpen, setIsVoiceRecorderOpen] = useState(false);
 
   const [clientFormData, setClientFormData] = useState({
     nome: '',
@@ -303,6 +305,60 @@ export default function PipelineCRM() {
     }
   };
 
+  const handleVoiceClientData = async (voiceData: any) => {
+    try {
+      // Preencher dados do cliente com os dados da voz
+      const clientData = {
+        nome: voiceData.nome || '',
+        telefone: voiceData.telefone || '',
+        email: voiceData.email || '',
+        tipo: 'comprador', // default
+        valor: parseFloat(voiceData.orcamento?.replace(/\D/g, '') || '0'),
+        stage: 'novo_lead',
+        classificacao: 'novo_lead',
+        score: 0,
+        user_id: user?.id,
+        last_contact_at: new Date().toISOString()
+      };
+
+      // Inserir no banco
+      const { data, error } = await supabase
+        .from('conectaios_clients')
+        .insert([clientData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Adicionar histórico inicial se houver observações
+      if (voiceData.observacoes) {
+        await supabase
+          .from('client_history')
+          .insert({
+            client_id: data.id,
+            action: 'observacao',
+            description: voiceData.observacoes,
+            user_id: user?.id
+          });
+      }
+
+      // Adicionar ao estado local
+      setClients(prev => [...prev, data as Client]);
+      
+      toast({
+        title: "✅ Cliente criado via voz",
+        description: `${data.nome} foi adicionado automaticamente ao pipeline`,
+      });
+    } catch (error) {
+      console.error('Error adding voice client:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível adicionar o cliente via voz",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddHistory = async () => {
     if (!selectedClient) return;
 
@@ -421,30 +477,23 @@ export default function PipelineCRM() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">Pipeline CRM</h1>
-          <p className="text-muted-foreground">
-            Gerencie clientes com sistema de pipeline drag-and-drop
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 w-full lg:w-auto">
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button onClick={() => setGlobalSearchOpen(true)} variant="outline" className="w-full sm:flex-1">
-              <Search className="h-4 w-4 mr-2" />
-              Buscar Clientes
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold">Pipeline CRM</h2>
+          <div className="flex gap-2">
+            <Button 
+              onClick={() => setIsVoiceRecorderOpen(true)}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              <Mic className="h-4 w-4 mr-2" />
+              Gravar Cliente
             </Button>
-            <Button onClick={() => setIsTaskDialogOpen(true)} variant="outline" className="w-full sm:flex-1">
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Tarefa
-            </Button>
-          </div>
-          <Button onClick={() => setIsClientDialogOpen(true)} className="w-full">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Novo Cliente
-          </Button>
-        </div>
-      </div>
+            <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-primary hover:bg-primary/90">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Novo Cliente
+                </Button>
+              </DialogTrigger>
 
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>

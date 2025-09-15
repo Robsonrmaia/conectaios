@@ -1,226 +1,292 @@
 import { useState, useEffect } from 'react';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { toast } from 'sonner';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addDays, isPast, isFuture, startOfWeek, endOfWeek, eachHourOfInterval, setHours, startOfDay, endOfDay } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import { 
   Calendar as CalendarIcon, 
   Clock, 
   Plus, 
-  ChevronLeft,
-  ChevronRight,
-  User,
-  Phone,
-  MapPin,
-  Check,
-  X,
-  Target,
-  Lightbulb,
-  Star,
-  AlertCircle,
-  CheckCircle,
+  ChevronLeft, 
+  ChevronRight, 
+  Filter,
+  Edit,
+  Trash2,
   Bell,
-  Zap
+  Tag,
+  Mic
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { VoiceTaskRecorder } from '@/components/VoiceTaskRecorder';
+
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 interface Task {
   id: string;
-  txt: string;
-  quando: string;
-  onde: string;
-  quem: string;
-  done: boolean;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  priority: 'baixa' | 'media' | 'alta';
+  category: string;
+  user_id: string;
   created_at: string;
-  responsavel?: string;
+  completed?: boolean;
 }
 
-interface Client {
-  id: string;
-  nome: string;
-  telefone: string;
-  stage: string;
-  last_contact_at: string;
-}
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales: { 'pt-BR': ptBR },
+});
 
 export default function SmartCalendar() {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [currentView, setCurrentView] = useState<'month' | 'week' | 'day'>('month');
+  const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showNewTask, setShowNewTask] = useState(false);
-  const [selectedClient, setSelectedClient] = useState<string>('');
-  
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [view, setView] = useState<'month' | 'week' | 'day'>('month');
+  const [filterPriority, setFilterPriority] = useState<string>('all');
+  const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [isVoiceRecorderOpen, setIsVoiceRecorderOpen] = useState(false);
+
   const [newTask, setNewTask] = useState({
-    txt: '',
-    quando: '',
-    onde: '',
-    quem: '',
-    taskType: 'follow_up'
+    title: '',
+    description: '',
+    date: '',
+    time: '09:00',
+    priority: 'media' as const,
+    category: 'geral'
   });
 
   useEffect(() => {
     if (user) {
-      fetchData();
+      fetchTasks();
     }
   }, [user]);
 
-  const fetchData = async () => {
+  const fetchTasks = async () => {
     try {
-      const [tasksResult, clientsResult] = await Promise.all([
-        supabase
-          .from('tasks')
-          .select('*')
-          .eq('user_id', user?.id)
-          .order('created_at', { ascending: false }),
-        
-        supabase
-          .from('conectaios_clients')
-          .select('id, nome, telefone, stage, last_contact_at')
-          .eq('user_id', user?.id)
-          .order('last_contact_at', { ascending: true })
-      ]);
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
 
-      if (tasksResult.data) setTasks(tasksResult.data);
-      if (clientsResult.data) setClients(clientsResult.data);
+      if (error) throw error;
+      setTasks(data || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Erro ao carregar dados da agenda');
+      console.error('Error fetching tasks:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar tarefas",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => {
-      if (!task.quando) return false;
-      try {
-        const taskDate = new Date(task.quando);
-        return isSameDay(taskDate, date);
-      } catch {
-        return false;
-      }
-    });
-  };
-
-  const getClientSuggestions = () => {
-    const now = new Date();
-    return clients
-      .filter(client => {
-        if (!client.last_contact_at) return true;
-        const lastContact = new Date(client.last_contact_at);
-        const daysSinceContact = Math.floor((now.getTime() - lastContact.getTime()) / (1000 * 60 * 60 * 24));
-        
-        // Suggest follow-up based on client stage
-        switch (client.stage) {
-          case 'novo_lead': return daysSinceContact >= 1;
-          case 'em_negociacao': return daysSinceContact >= 2;  
-          case 'proposta_enviada': return daysSinceContact >= 1;
-          default: return daysSinceContact >= 7;
-        }
-      })
-      .slice(0, 5);
-  };
-
-  const createTask = async () => {
-    if (!newTask.txt.trim()) {
-      toast.error('Título da tarefa é obrigatório');
-      return;
-    }
+  const handleAddTask = async () => {
+    if (!newTask.title.trim() || !user) return;
 
     try {
-      const taskData = {
-        user_id: user?.id,
-        txt: newTask.txt,
-        quando: newTask.quando,
-        onde: newTask.onde || '',
-        quem: newTask.quem || '',
-        done: false
-      };
-
-      const { error } = await supabase
-        .from('tasks')
-        .insert([taskData]);
-
-      if (error) throw error;
-
-      toast.success('Tarefa criada com sucesso!');
-      setShowNewTask(false);
-      setNewTask({ txt: '', quando: '', onde: '', quem: '', taskType: 'follow_up' });
-      fetchData();
-    } catch (error) {
-      console.error('Error creating task:', error);
-      toast.error('Erro ao criar tarefa');
-    }
-  };
-
-  const createSuggestedTask = async (client: Client, type: string) => {
-    const tomorrow = addDays(new Date(), 1);
-    const taskText = type === 'follow_up' 
-      ? `Follow-up com ${client.nome}`
-      : `Visita agendada com ${client.nome}`;
-
-    try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('tasks')
         .insert([{
-          user_id: user?.id,
-          txt: taskText,
-          quando: format(tomorrow, 'yyyy-MM-dd HH:mm'),
-          quem: client.nome,
-          onde: type === 'visit' ? 'A definir' : '',
-          done: false
-        }]);
+          txt: newTask.title,
+          quando: `${newTask.date} ${newTask.time}`,
+          onde: newTask.description,
+          quem: '',
+          done: false,
+          user_id: user.id
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
+
+      setTasks(prev => [...prev, data]);
+      setNewTask({
+        title: '',
+        description: '',
+        date: '',
+        time: '09:00',
+        priority: 'media',
+        category: 'geral'
+      });
+      setIsAddDialogOpen(false);
       
-      toast.success(`${type === 'follow_up' ? 'Follow-up' : 'Visita'} agendado!`);
-      fetchData();
+      toast({
+        title: "Tarefa criada",
+        description: "Nova tarefa adicionada com sucesso!",
+      });
     } catch (error) {
-      console.error('Error creating suggested task:', error);
-      toast.error('Erro ao criar tarefa sugerida');
+      console.error('Error adding task:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao criar tarefa",
+        variant: "destructive",
+      });
     }
   };
 
-  const toggleTaskDone = async (taskId: string, done: boolean) => {
+  const handleVoiceTaskData = async (voiceData: any) => {
+    try {
+      const today = new Date();
+      let taskDate = today;
+      
+      // Se uma data foi especificada na voz, tentar processar
+      if (voiceData.data && voiceData.data !== today.toISOString().split('T')[0]) {
+        taskDate = new Date(voiceData.data);
+      }
+
+      const taskData = {
+        title: voiceData.titulo || 'Nova tarefa',
+        description: voiceData.descricao || '',
+        date: taskDate.toISOString().split('T')[0],
+        time: voiceData.hora || '09:00',
+        priority: voiceData.prioridade || 'media',
+        category: 'geral',
+        user_id: user?.id,
+        created_at: new Date().toISOString()
+      };
+
+      const { data, error } = await supabase
+        .from('calendar_tasks')
+        .insert([taskData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setTasks(prev => [...prev, data]);
+      
+      toast({
+        title: "✅ Tarefa criada via voz",
+        description: `"${data.title}" foi adicionada para ${format(taskDate, 'dd/MM/yyyy', { locale: ptBR })} às ${data.time}`,
+      });
+    } catch (error) {
+      console.error('Error adding voice task:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível criar a tarefa via voz",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('tasks')
-        .update({ done: !done })
+        .from('calendar_tasks')
+        .delete()
         .eq('id', taskId);
 
       if (error) throw error;
+
+      setTasks(prev => prev.filter(task => task.id !== taskId));
+      setSelectedTask(null);
       
-      toast.success(done ? 'Tarefa reaberta' : 'Tarefa concluída!');
-      fetchData();
+      toast({
+        title: "Tarefa excluída",
+        description: "Tarefa removida com sucesso!",
+      });
     } catch (error) {
-      console.error('Error updating task:', error);
-      toast.error('Erro ao atualizar tarefa');
+      console.error('Error deleting task:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao excluir tarefa",
+        variant: "destructive",
+      });
     }
   };
 
-  const getDaysInCurrentMonth = () => {
-    const start = startOfMonth(selectedDate);
-    const end = endOfMonth(selectedDate);
-    return eachDayOfInterval({ start, end });
-  };
+  // Filtrar tarefas baseado nos filtros ativos
+  const filteredTasks = tasks.filter(task => {
+    if (filterPriority !== 'all' && task.priority !== filterPriority) return false;
+    if (filterCategory !== 'all' && task.category !== filterCategory) return false;
+    return true;
+  });
 
-  const getTaskTypeColor = (task: Task) => {
-    if (task.done) return 'bg-success/20 text-success border-success/30';
-    if (task.quando && isPast(new Date(task.quando))) return 'bg-destructive/20 text-destructive border-destructive/30';
-    return 'bg-primary/20 text-primary border-primary/30';
+  // WeekView melhorada
+  const WeekView = () => {
+    const startOfWeek = new Date(currentDate);
+    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+    
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const day = new Date(startOfWeek);
+      day.setDate(startOfWeek.getDate() + i);
+      return day;
+    });
+
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-7 gap-3">
+          {days.map((day, index) => {
+            const dayTasks = tasks.filter(task => 
+              new Date(task.date).toDateString() === day.toDateString()
+            );
+
+            return (
+              <div key={index} className="space-y-3">
+                <div className="text-center pb-2 border-b">
+                  <div className="text-sm font-semibold">
+                    {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {day.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                  </div>
+                </div>
+                
+                <div className="space-y-2 min-h-[200px]">
+                  {dayTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className="p-2 rounded-lg text-xs bg-primary/8 hover:bg-primary/15 border border-primary/10 cursor-pointer transition-all duration-200 shadow-sm"
+                      onClick={() => setSelectedTask(task)}
+                    >
+                      <div className="font-semibold text-primary mb-1">
+                        {task.time}
+                      </div>
+                      <div className="text-foreground font-medium leading-relaxed">
+                        {task.title}
+                      </div>
+                      {task.description && (
+                        <div className="text-muted-foreground mt-1 text-[10px] leading-relaxed">
+                          {task.description.length > 40 ? task.description.substring(0, 40) + '...' : task.description}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {dayTasks.length === 0 && (
+                    <div className="text-center text-muted-foreground text-xs py-4">
+                      Sem tarefas
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -231,21 +297,28 @@ export default function SmartCalendar() {
     );
   }
 
-  const suggestions = getClientSuggestions();
-
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+      <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
           <h2 className="text-2xl font-bold">Agenda Inteligente</h2>
-          <p className="text-muted-foreground">Gerencie seus compromissos e follow-ups</p>
+          <Badge variant="secondary" className="px-2 py-1">
+            {filteredTasks.length} tarefa{filteredTasks.length !== 1 ? 's' : ''}
+          </Badge>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Dialog open={showNewTask} onOpenChange={setShowNewTask}>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsVoiceRecorderOpen(true)}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Gravar Tarefa
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
+              <Button className="bg-primary hover:bg-primary/90">
+                <Plus className="h-4 w-4 mr-2" />
                 Nova Tarefa
               </Button>
             </DialogTrigger>
@@ -255,55 +328,64 @@ export default function SmartCalendar() {
               </DialogHeader>
               <div className="space-y-4">
                 <div>
-                  <Label>Título da Tarefa</Label>
+                  <Label>Título</Label>
                   <Input
-                    value={newTask.txt}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, txt: e.target.value }))}
+                    value={newTask.title}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
                     placeholder="Ex: Ligar para cliente..."
                   />
                 </div>
-                
                 <div>
-                  <Label>Data e Hora</Label>
-                  <Input
-                    type="datetime-local"
-                    value={newTask.quando}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, quando: e.target.value }))}
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Detalhes da tarefa..."
+                    rows={3}
                   />
                 </div>
-                
-                <div>
-                  <Label>Cliente/Pessoa</Label>
-                  <Select value={selectedClient} onValueChange={(value) => {
-                    setSelectedClient(value);
-                    const client = clients.find(c => c.id === value);
-                    if (client) {
-                      setNewTask(prev => ({ ...prev, quem: client.nome }));
-                    }
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione um cliente" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {clients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>
-                          {client.nome}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label>Data</Label>
+                    <Input
+                      type="date"
+                      value={newTask.date}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, date: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label>Hora</Label>
+                    <Input
+                      type="time"
+                      value={newTask.time}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, time: e.target.value }))}
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <Label>Local (opcional)</Label>
-                  <Input
-                    value={newTask.onde}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, onde: e.target.value }))}
-                    placeholder="Ex: Escritório, Imóvel XYZ..."
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label>Prioridade</Label>
+                    <Select value={newTask.priority} onValueChange={(value: any) => setNewTask(prev => ({ ...prev, priority: value }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Categoria</Label>
+                    <Input
+                      value={newTask.category}
+                      onChange={(e) => setNewTask(prev => ({ ...prev, category: e.target.value }))}
+                      placeholder="Ex: vendas, visitas..."
+                    />
+                  </div>
                 </div>
-                
-                <Button onClick={createTask} className="w-full">
+                <Button onClick={handleAddTask} className="w-full">
                   Criar Tarefa
                 </Button>
               </div>
@@ -312,417 +394,129 @@ export default function SmartCalendar() {
         </div>
       </div>
 
-      <Tabs value={currentView} onValueChange={(value) => setCurrentView(value as any)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="month">Mês</TabsTrigger>
-          <TabsTrigger value="week">Semana</TabsTrigger>
-          <TabsTrigger value="day">Dia</TabsTrigger>
-        </TabsList>
+      {/* Filtros */}
+      <div className="flex gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <Filter className="h-4 w-4" />
+          <Select value={filterPriority} onValueChange={setFilterPriority}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Prioridade" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas</SelectItem>
+              <SelectItem value="alta">Alta</SelectItem>
+              <SelectItem value="media">Média</SelectItem>
+              <SelectItem value="baixa">Baixa</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
-        <TabsContent value="month" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Calendar */}
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5" />
-                    {format(selectedDate, 'MMMM yyyy', { locale: ptBR })}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => date && setSelectedDate(date)}
-                    locale={ptBR}
-                    className="w-full pointer-events-auto"
-                  />
-                </CardContent>
-              </Card>
-            </div>
+      {/* Navegação de vista */}
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button variant={view === 'month' ? 'default' : 'outline'} onClick={() => setView('month')}>
+            Mês
+          </Button>
+          <Button variant={view === 'week' ? 'default' : 'outline'} onClick={() => setView('week')}>
+            Semana
+          </Button>
+          <Button variant={view === 'day' ? 'default' : 'outline'} onClick={() => setView('day')}>
+            Dia
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setCurrentDate(subDays(currentDate, view === 'month' ? 30 : view === 'week' ? 7 : 1))}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="font-medium min-w-[200px] text-center">
+            {view === 'month' && format(currentDate, 'MMMM yyyy', { locale: ptBR })}
+            {view === 'week' && `${format(currentDate, 'dd MMM', { locale: ptBR })} - ${format(addDays(currentDate, 6), 'dd MMM yyyy', { locale: ptBR })}`}
+            {view === 'day' && format(currentDate, "EEEE, dd 'de' MMMM yyyy", { locale: ptBR })}
+          </span>
+          <Button variant="outline" size="sm" onClick={() => setCurrentDate(addDays(currentDate, view === 'month' ? 30 : view === 'week' ? 7 : 1))}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
 
-            {/* Task List */}
+      {/* Views */}
+      {view === 'week' && <WeekView />}
+      
+      {view === 'month' && (
+        <div className="grid grid-cols-7 gap-2">
+          {/* Render month view here */}
+          <p className="col-span-7 text-center py-8 text-muted-foreground">
+            Vista mensal em desenvolvimento
+          </p>
+        </div>
+      )}
+      
+      {view === 'day' && (
+        <div className="space-y-2">
+          {/* Render day view here */}
+          <p className="text-center py-8 text-muted-foreground">
+            Vista diária em desenvolvimento
+          </p>
+        </div>
+      )}
+
+      {/* Task Detail Dialog */}
+      <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedTask?.title}</DialogTitle>
+          </DialogHeader>
+          {selectedTask && (
             <div className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    {format(selectedDate, "d 'de' MMMM", { locale: ptBR })}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {getTasksForDate(selectedDate).length === 0 ? (
-                      <p className="text-muted-foreground text-center py-4">
-                        Nenhuma tarefa para este dia
-                      </p>
-                    ) : (
-                      getTasksForDate(selectedDate).map(task => (
-                        <div
-                          key={task.id}
-                          className={`p-3 rounded-lg border ${getTaskTypeColor(task)}`}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm mb-1 line-clamp-2">{task.txt}</h4>
-                              {task.quem && (
-                                <div className="flex items-center gap-1 text-xs mb-1">
-                                  <User className="h-3 w-3" />
-                                  {task.quem}
-                                </div>
-                              )}
-                              {task.onde && (
-                                <div className="flex items-center gap-1 text-xs">
-                                  <MapPin className="h-3 w-3" />
-                                  {task.onde}
-                                </div>
-                              )}
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => toggleTaskDone(task.id, task.done)}
-                            >
-                              {task.done ? (
-                                <CheckCircle className="h-4 w-4" />
-                              ) : (
-                                <AlertCircle className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* AI Suggestions */}
-              {suggestions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5" />
-                      Sugestões IA
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {suggestions.map(client => (
-                        <div key={client.id} className="p-3 border rounded-lg">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h4 className="font-medium text-sm">{client.nome}</h4>
-                              <p className="text-xs text-muted-foreground">
-                                Stage: {client.stage}
-                              </p>
-                            </div>
-                            <Badge variant="outline" className="text-xs">
-                              Follow-up
-                            </Badge>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => createSuggestedTask(client, 'follow_up')}
-                              className="text-xs"
-                            >
-                              Agendar Follow-up
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => createSuggestedTask(client, 'visit')}
-                              className="text-xs"
-                            >
-                              Agendar Visita
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="week" className="space-y-4">
-          <WeekView
-            selectedDate={selectedDate}
-            tasks={tasks}
-            onDateSelect={setSelectedDate}
-            onCreateTask={(date) => {
-              setNewTask(prev => ({ 
-                ...prev, 
-                quando: format(date, 'yyyy-MM-dd HH:mm')
-              }));
-              setShowNewTask(true);
-            }}
-            onToggleTask={toggleTaskDone}
-          />
-        </TabsContent>
-
-        <TabsContent value="day" className="space-y-4">
-          <DayView
-            selectedDate={selectedDate}
-            tasks={tasks}
-            onDateSelect={setSelectedDate}
-            onCreateTask={(dateTime) => {
-              setNewTask(prev => ({ 
-                ...prev, 
-                quando: format(dateTime, 'yyyy-MM-dd HH:mm')
-              }));
-              setShowNewTask(true);
-            }}
-            onToggleTask={toggleTaskDone}
-          />
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
-}
-
-// Week View Component
-interface WeekViewProps {
-  selectedDate: Date;
-  tasks: Task[];
-  onDateSelect: (date: Date) => void;
-  onCreateTask: (date: Date) => void;
-  onToggleTask: (taskId: string, done: boolean) => void;
-}
-
-const WeekView: React.FC<WeekViewProps> = ({ selectedDate, tasks, onDateSelect, onCreateTask, onToggleTask }) => {
-  const weekStart = startOfWeek(selectedDate, { weekStartsOn: 0 });
-  const weekEnd = endOfWeek(selectedDate, { weekStartsOn: 0 });
-  const weekDays = eachDayOfInterval({ start: weekStart, end: weekEnd });
-
-  const getTasksForDate = (date: Date) => {
-    return tasks.filter(task => {
-      if (!task.quando) return false;
-      const taskDate = new Date(task.quando);
-      return isSameDay(taskDate, date);
-    });
-  };
-
-  const goToPrevWeek = () => {
-    const prevWeek = new Date(selectedDate);
-    prevWeek.setDate(prevWeek.getDate() - 7);
-    onDateSelect(prevWeek);
-  };
-
-  const goToNextWeek = () => {
-    const nextWeek = new Date(selectedDate);
-    nextWeek.setDate(nextWeek.getDate() + 7);
-    onDateSelect(nextWeek);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h3 className="text-lg font-semibold">
-            {format(weekStart, 'dd MMM', { locale: ptBR })} - {format(weekEnd, 'dd MMM yyyy', { locale: ptBR })}
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPrevWeek}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={goToNextWeek}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-7 gap-2">
-        {weekDays.map((day) => {
-          const dayTasks = getTasksForDate(day);
-          const isToday = isSameDay(day, new Date());
-          const isSelected = isSameDay(day, selectedDate);
-          
-          return (
-            <Card 
-              key={day.toISOString()} 
-              className={`min-h-[200px] cursor-pointer transition-colors ${
-                isSelected ? 'ring-2 ring-primary' : ''
-              } ${isToday ? 'bg-primary/5' : ''}`}
-              onClick={() => onDateSelect(day)}
-            >
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <span className={`text-sm font-medium ${isToday ? 'text-primary font-bold' : ''}`}>
-                    {format(day, 'EEE', { locale: ptBR })}
-                  </span>
-                  <span className={`text-lg ${isToday ? 'text-primary font-bold' : ''}`}>
-                    {format(day, 'd')}
-                  </span>
+              <div>
+                <Label>Descrição</Label>
+                <p className="text-sm text-muted-foreground">{selectedTask.description || 'Sem descrição'}</p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Data</Label>
+                  <p className="text-sm">{format(new Date(selectedTask.date), 'dd/MM/yyyy', { locale: ptBR })}</p>
                 </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0 space-y-1">
-                {dayTasks.slice(0, 3).map((task) => (
-                  <div 
-                    key={task.id}
-                    className={`text-xs p-1 rounded cursor-pointer transition-opacity ${
-                      task.done ? 'bg-green-100 text-green-800 line-through opacity-60' : 'bg-blue-100 text-blue-800'
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onToggleTask(task.id, !task.done);
-                    }}
-                  >
-                    {task.txt.substring(0, 20)}...
-                  </div>
-                ))}
-                
-                {dayTasks.length > 3 && (
-                  <div className="text-xs text-muted-foreground">
-                    +{dayTasks.length - 3} mais
-                  </div>
-                )}
-                
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full mt-2 h-6 text-xs"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onCreateTask(day);
-                  }}
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Nova
+                <div>
+                  <Label>Hora</Label>
+                  <p className="text-sm">{selectedTask.time}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Prioridade</Label>
+                  <Badge variant={selectedTask.priority === 'alta' ? 'destructive' : selectedTask.priority === 'media' ? 'default' : 'secondary'}>
+                    {selectedTask.priority}
+                  </Badge>
+                </div>
+                <div>
+                  <Label>Categoria</Label>
+                  <p className="text-sm">{selectedTask.category}</p>
+                </div>
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline" onClick={() => setEditingTask(selectedTask)}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar
                 </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                <Button variant="destructive" onClick={() => handleDeleteTask(selectedTask.id)}>
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Excluir
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Voice Task Recorder */}
+      <VoiceTaskRecorder
+        isOpen={isVoiceRecorderOpen}
+        onClose={() => setIsVoiceRecorderOpen(false)}
+        onTaskData={handleVoiceTaskData}
+      />
     </div>
   );
-};
-
-// Day View Component  
-interface DayViewProps {
-  selectedDate: Date;
-  tasks: Task[];
-  onDateSelect: (date: Date) => void;
-  onCreateTask: (dateTime: Date) => void;
-  onToggleTask: (taskId: string, done: boolean) => void;
 }
-
-const DayView: React.FC<DayViewProps> = ({ selectedDate, tasks, onDateSelect, onCreateTask, onToggleTask }) => {
-  const dayStart = startOfDay(selectedDate);
-  const dayEnd = endOfDay(selectedDate);
-  const hours = eachHourOfInterval({ start: setHours(dayStart, 8), end: setHours(dayEnd, 22) });
-
-  const getTasksForHour = (hour: Date) => {
-    return tasks.filter(task => {
-      if (!task.quando) return false;
-      try {
-        const taskDate = new Date(task.quando);
-        return isSameDay(taskDate, selectedDate) && taskDate.getHours() === hour.getHours();
-      } catch {
-        return false;
-      }
-    });
-  };
-
-  const goToPrevDay = () => {
-    const prevDay = new Date(selectedDate);
-    prevDay.setDate(prevDay.getDate() - 1);
-    onDateSelect(prevDay);
-  };
-
-  const goToNextDay = () => {
-    const nextDay = new Date(selectedDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-    onDateSelect(nextDay);
-  };
-
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h3 className="text-lg font-semibold">
-            {format(selectedDate, "EEEE, dd 'de' MMMM yyyy", { locale: ptBR })}
-          </h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={goToPrevDay}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={goToNextDay}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid gap-2 max-h-[600px] overflow-y-auto">
-        {hours.map((hour) => {
-          const hourTasks = getTasksForHour(hour);
-          
-          return (
-            <Card key={hour.toISOString()} className="min-h-[60px]">
-              <CardContent className="p-3">
-                <div className="flex items-start gap-3">
-                  <div className="text-sm font-medium text-muted-foreground min-w-[60px]">
-                    {format(hour, 'HH:mm')}
-                  </div>
-                  
-                  <div className="flex-1 space-y-2">
-                    {hourTasks.map((task) => (
-                      <div 
-                        key={task.id}
-                        className={`p-2 rounded border transition-opacity ${
-                          task.done 
-                            ? 'bg-green-50 text-green-800 line-through opacity-60 border-green-200' 
-                            : 'bg-blue-50 text-blue-800 border-blue-200'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{task.txt}</div>
-                            {task.quem && (
-                              <div className="text-xs text-muted-foreground mt-1">
-                                <User className="h-3 w-3 inline mr-1" />
-                                {task.quem}
-                              </div>
-                            )}
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onToggleTask(task.id, !task.done)}
-                            className="h-6 w-6 p-0"
-                          >
-                            {task.done ? <X className="h-3 w-3" /> : <Check className="h-3 w-3" />}
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    
-                    {hourTasks.length === 0 && (
-                      <Button 
-                        variant="ghost" 
-                        className="w-full h-8 text-xs text-muted-foreground border-dashed border"
-                        onClick={() => onCreateTask(hour)}
-                      >
-                        <Plus className="h-3 w-3 mr-2" />
-                        Agendar para {format(hour, 'HH:mm')}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
-  );
-};
