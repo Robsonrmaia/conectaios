@@ -105,7 +105,7 @@ export default function Marketplace() {
       const pageSize = 12;
       const offset = page * pageSize;
       
-      // Ultra-minimal query - only essential fields for cards
+      // Query with necessary fields for property icons
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
         .select(`
@@ -114,10 +114,16 @@ export default function Marketplace() {
           valor,
           area,
           quartos,
+          bathrooms,
+          parking_spots,
+          furnishing_type,
+          sea_distance,
+          has_sea_view,
           listing_type,
           property_type,
           fotos,
           neighborhood,
+          descricao,
           user_id
         `)
         .eq('is_public', true)
@@ -166,12 +172,16 @@ export default function Marketplace() {
           valor: property.valor || 0,
           area: property.area || 0,
           quartos: property.quartos || 0,
-          bathrooms: 0, // Set default since we don't fetch it for performance
+          bathrooms: property.bathrooms || 0,
+          parking_spots: property.parking_spots || 0,
+          furnishing_type: property.furnishing_type || 'none',
+          sea_distance: property.sea_distance || null,
+          has_sea_view: property.has_sea_view || false,
           fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
           videos: [], // Set default empty array since we don't fetch videos for performance
           neighborhood: property.neighborhood || '',
           finalidade: property.listing_type || 'venda', // Use listing_type as finalidade
-          descricao: '', // Set default empty string since we don't fetch description for performance
+          descricao: property.descricao || '',
           created_at: new Date().toISOString(), // Set current time as fallback
           conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
