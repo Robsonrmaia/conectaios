@@ -228,21 +228,9 @@ export default function Imoveis() {
       // Use existing parseValueInput from utils
       const parseValue = parseValueInput;
 
-      // Handle photos from both upload and URLs
-      let photosArray: string[] = [];
-      
-      // If editing, start with existing photos
-      if (selectedProperty && selectedProperty.fotos) {
-        photosArray = Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [];
-      }
-      
-      // Add new photos from form data
-      if (Array.isArray(formData.fotos)) {
-        photosArray = [...photosArray, ...formData.fotos];
-      }
-      
-      console.log('Final photos array:', photosArray);
-      console.log('Photos array length:', photosArray.length);
+      // Processar fotos - usar apenas as fotos já processadas do formulário
+      const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
+      console.log('Fotos para salvamento:', photosArray);
       
       const propertyData = {
         user_id: user.id,

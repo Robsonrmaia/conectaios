@@ -534,11 +534,11 @@ export default function PipelineCRM() {
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="overflow-x-auto">
-          <div className="flex gap-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
+          <div className="flex gap-2 overflow-x-auto pb-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
           {STAGES.map((stage) => (
             <Droppable key={stage.id} droppableId={stage.id}>
               {(provided, snapshot) => (
-                <Card className={`min-w-[240px] md:min-w-0 w-[240px] md:w-full h-fit flex-shrink-0 ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
+                <Card className={`min-w-[180px] md:min-w-0 w-[180px] md:w-full h-fit flex-shrink-0 ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-sm flex items-center justify-between">
                       <span className="truncate">{stage.name}</span>

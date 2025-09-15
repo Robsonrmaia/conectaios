@@ -342,7 +342,7 @@ export default function SmartCalendar() {
     }
 
     return (
-      <div className="h-[600px]">
+      <div>
         {/* Header com dias da semana */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
@@ -353,7 +353,7 @@ export default function SmartCalendar() {
         </div>
         
         {/* Grid de dias */}
-        <div className="grid grid-cols-7 gap-1 h-[520px]">
+        <div className="grid grid-cols-7 gap-1">
           {days.map((day) => {
             const dayTasks = filteredTasks.filter(task => 
               format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
@@ -364,7 +364,7 @@ export default function SmartCalendar() {
             return (
               <div
                 key={day.toISOString()}
-                className={`p-1 border rounded min-h-[70px] ${
+                className={`p-1 border rounded h-[60px] overflow-hidden ${
                   isCurrentMonth ? 'bg-background' : 'bg-muted/30'
                 } ${isToday ? 'ring-2 ring-primary' : ''}`}
               >
@@ -375,7 +375,7 @@ export default function SmartCalendar() {
                 </div>
                 
                 <div className="space-y-1">
-                  {dayTasks.slice(0, 3).map((task) => (
+                  {dayTasks.slice(0, 1).map((task) => (
                     <div
                       key={task.id}
                       onClick={() => setSelectedTask(task)}
@@ -390,9 +390,9 @@ export default function SmartCalendar() {
                       {task.title}
                     </div>
                   ))}
-                  {dayTasks.length > 3 && (
+                  {dayTasks.length > 1 && (
                     <div className="text-xs text-muted-foreground">
-                      +{dayTasks.length - 3} mais
+                      +{dayTasks.length - 1}
                     </div>
                   )}
                 </div>
