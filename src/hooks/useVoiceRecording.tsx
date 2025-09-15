@@ -125,10 +125,7 @@ export const useVoiceRecording = () => {
             return;
           }
 
-          
-          console.log('🎤 Starting transcription process...');
-          console.log('🎤 Audio blob size:', audioBlob.size, 'bytes');
-          console.log('🎤 Audio type:', type);
+          console.log('🎤 Processando áudio:', audioBlob.size, 'bytes, tipo:', type);
 
           // Converter para base64
           const reader = new FileReader();
@@ -140,27 +137,24 @@ export const useVoiceRecording = () => {
                 throw new Error('Falha ao processar áudio');
               }
 
-              console.log('🎤 Audio converted to base64, length:', base64Audio.length);
-
-              // Enviar para transcrição
-              console.log('🎤 Calling transcribe-audio function...');
+              // Enviar para transcrição com timeout
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+              
               const { data, error } = await supabase.functions.invoke('transcribe-audio', {
                 body: { audio: base64Audio, type }
               });
-
-              console.log('🎤 Transcription response:', { data, error });
+              
+              clearTimeout(timeoutId);
 
               if (error) {
-                console.error('❌ Transcription error:', error);
-                throw error;
+                console.error('Erro transcrição:', error);
+                throw new Error('Falha na transcrição: ' + (error.message || 'Erro desconhecido'));
               }
 
-              if (!data) {
-                console.error('❌ No data returned from transcription');
-                throw new Error('Nenhum dado retornado da transcrição');
+              if (!data || !data.text) {
+                throw new Error('Nenhuma transcrição retornada');
               }
-
-              console.log('✅ Transcription successful:', data);
 
               // Enhanced feedback based on result
               if (data.structured) {

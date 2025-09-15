@@ -101,12 +101,11 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-5-mini-2025-08-07',
           messages: [
             { role: 'user', content: structurePrompt }
           ],
-          max_tokens: 500,
-          temperature: 0.3
+          max_completion_tokens: 500
         }),
       })
 
@@ -160,12 +159,11 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4o-mini',
+          model: 'gpt-5-mini-2025-08-07',
           messages: [
             { role: 'user', content: taskPrompt }
           ],
-          max_tokens: 300,
-          temperature: 0.3
+          max_completion_tokens: 300
         }),
       })
 
