@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { format, parse, startOfWeek, getDay, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, endOfWeek, isSameMonth, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -278,60 +278,186 @@ export default function SmartCalendar() {
 
   // WeekView melhorada
   const WeekView = () => {
-    const startOfWeek = new Date(currentDate);
-    startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-    
-    const days = Array.from({ length: 7 }, (_, i) => {
-      const day = new Date(startOfWeek);
-      day.setDate(startOfWeek.getDate() + i);
-      return day;
-    });
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
+    const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
     return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-7 gap-3">
-          {days.map((day, index) => {
-            const dayTasks = tasks.filter(task => 
-              new Date(task.date).toDateString() === day.toDateString()
-            );
+      <div className="grid grid-cols-7 gap-2 h-[600px]">
+        {/* Header com dias da semana */}
+        {days.map((day) => (
+          <div key={day.toISOString()} className="p-2 border-b font-medium text-center bg-muted/50">
+            <div className="text-sm text-muted-foreground">
+              {format(day, 'EEE', { locale: ptBR })}
+            </div>
+            <div className="text-lg font-semibold">
+              {format(day, 'd', { locale: ptBR })}
+            </div>
+          </div>
+        ))}
+        
+        {/* Tarefas para cada dia */}
+        {days.map((day) => (
+          <div key={`tasks-${day.toISOString()}`} className="p-2 space-y-1 overflow-y-auto">
+            {filteredTasks
+              .filter(task => format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
+              .map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => setSelectedTask(task)}
+                  className={`p-2 rounded text-xs cursor-pointer transition-colors ${
+                    task.priority === 'alta' 
+                      ? 'bg-red-100 border-l-2 border-red-500 hover:bg-red-200' 
+                      : task.priority === 'media'
+                      ? 'bg-yellow-100 border-l-2 border-yellow-500 hover:bg-yellow-200'
+                      : 'bg-green-100 border-l-2 border-green-500 hover:bg-green-200'
+                  }`}
+                >
+                  <div className="font-medium truncate">{task.title}</div>
+                  {task.time && (
+                    <div className="text-muted-foreground mt-1">
+                      {task.time}
+                    </div>
+                  )}
+                </div>
+              ))
+            }
+          </div>
+        ))}
+      </div>
+    );
+  };
 
+  const MonthView = () => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+    const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+    
+    const days = [];
+    let currentDay = calendarStart;
+    
+    while (currentDay <= calendarEnd) {
+      days.push(new Date(currentDay));
+      currentDay = addDays(currentDay, 1);
+    }
+
+    return (
+      <div className="h-[600px]">
+        {/* Header com dias da semana */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'].map((day) => (
+            <div key={day} className="p-2 text-center text-sm font-medium text-muted-foreground">
+              {day}
+            </div>
+          ))}
+        </div>
+        
+        {/* Grid de dias */}
+        <div className="grid grid-cols-7 gap-1 h-[520px]">
+          {days.map((day) => {
+            const dayTasks = filteredTasks.filter(task => 
+              format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+            );
+            const isCurrentMonth = isSameMonth(day, currentDate);
+            const isToday = isSameDay(day, new Date());
+            
             return (
-              <div key={index} className="space-y-3">
-                <div className="text-center pb-2 border-b">
-                  <div className="text-sm font-semibold">
-                    {day.toLocaleDateString('pt-BR', { weekday: 'short' })}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {day.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                  </div>
+              <div
+                key={day.toISOString()}
+                className={`p-1 border rounded min-h-[70px] ${
+                  isCurrentMonth ? 'bg-background' : 'bg-muted/30'
+                } ${isToday ? 'ring-2 ring-primary' : ''}`}
+              >
+                <div className={`text-sm mb-1 ${
+                  isCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
+                } ${isToday ? 'font-bold' : ''}`}>
+                  {format(day, 'd')}
                 </div>
                 
-                <div className="space-y-2 min-h-[200px]">
-                  {dayTasks.map((task) => (
+                <div className="space-y-1">
+                  {dayTasks.slice(0, 3).map((task) => (
                     <div
                       key={task.id}
-                      className="p-2 rounded-lg text-xs bg-primary/8 hover:bg-primary/15 border border-primary/10 cursor-pointer transition-all duration-200 shadow-sm"
                       onClick={() => setSelectedTask(task)}
+                      className={`text-xs p-1 rounded cursor-pointer truncate ${
+                        task.priority === 'alta' 
+                          ? 'bg-red-100 text-red-800 border border-red-200' 
+                          : task.priority === 'media'
+                          ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                          : 'bg-green-100 text-green-800 border border-green-200'
+                      }`}
                     >
-                      <div className="font-semibold text-primary mb-1">
-                        {task.time}
-                      </div>
-                      <div className="text-foreground font-medium leading-relaxed">
-                        {task.title}
-                      </div>
+                      {task.title}
+                    </div>
+                  ))}
+                  {dayTasks.length > 3 && (
+                    <div className="text-xs text-muted-foreground">
+                      +{dayTasks.length - 3} mais
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const DayView = () => {
+    const dayTasks = filteredTasks.filter(task => 
+      format(new Date(task.date), 'yyyy-MM-dd') === format(currentDate, 'yyyy-MM-dd')
+    );
+
+    const hours = Array.from({ length: 24 }, (_, i) => i);
+
+    return (
+      <div className="h-[600px] overflow-y-auto">
+        <div className="mb-4 text-center">
+          <h3 className="text-lg font-semibold">
+            {format(currentDate, "EEEE, d 'de' MMMM", { locale: ptBR })}
+          </h3>
+        </div>
+        
+        <div className="space-y-1">
+          {hours.map((hour) => {
+            const hourTasks = dayTasks.filter(task => {
+              if (!task.time) return hour === 9; // Tarefas sem horário aparecem às 9h
+              const taskHour = parseInt(task.time.split(':')[0]);
+              return taskHour === hour;
+            });
+
+            return (
+              <div key={hour} className="flex border-b">
+                <div className="w-16 p-2 text-sm text-muted-foreground text-right">
+                  {hour.toString().padStart(2, '0')}:00
+                </div>
+                <div className="flex-1 p-2 min-h-[60px]">
+                  {hourTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      onClick={() => setSelectedTask(task)}
+                      className={`p-2 rounded mb-1 cursor-pointer ${
+                        task.priority === 'alta' 
+                          ? 'bg-red-100 border-l-4 border-red-500' 
+                          : task.priority === 'media'
+                          ? 'bg-yellow-100 border-l-4 border-yellow-500'
+                          : 'bg-green-100 border-l-4 border-green-500'
+                      }`}
+                    >
+                      <div className="font-medium">{task.title}</div>
                       {task.description && (
-                        <div className="text-muted-foreground mt-1 text-[10px] leading-relaxed">
-                          {task.description.length > 40 ? task.description.substring(0, 40) + '...' : task.description}
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {task.description}
+                        </div>
+                      )}
+                      {task.time && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {task.time}
                         </div>
                       )}
                     </div>
                   ))}
-                  
-                  {dayTasks.length === 0 && (
-                    <div className="text-center text-muted-foreground text-xs py-4">
-                      Sem tarefas
-                    </div>
-                  )}
                 </div>
               </div>
             );
@@ -496,23 +622,9 @@ export default function SmartCalendar() {
       {/* Views */}
       {view === 'week' && <WeekView />}
       
-      {view === 'month' && (
-        <div className="grid grid-cols-7 gap-2">
-          {/* Render month view here */}
-          <p className="col-span-7 text-center py-8 text-muted-foreground">
-            Vista mensal em desenvolvimento
-          </p>
-        </div>
-      )}
+      {view === 'month' && <MonthView />}
       
-      {view === 'day' && (
-        <div className="space-y-2">
-          {/* Render day view here */}
-          <p className="text-center py-8 text-muted-foreground">
-            Vista diária em desenvolvimento
-          </p>
-        </div>
-      )}
+      {view === 'day' && <DayView />}
 
       {/* Task Detail Dialog */}
       <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>

@@ -257,7 +257,7 @@ export default function Imoveis() {
         visibility: formData.visibility,
         broker_minisite_enabled: formData.broker_minisite_enabled,
         descricao: formData.descricao,
-        fotos: Array.isArray(formData.fotos) ? formData.fotos : [],
+        fotos: photosArray,
         videos: formData.videos ? formData.videos.split(',').map(v => v.trim()).filter(v => v) : [],
         address: formData.address,
         neighborhood: formData.neighborhood,

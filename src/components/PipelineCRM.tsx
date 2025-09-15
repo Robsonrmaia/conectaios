@@ -305,58 +305,35 @@ export default function PipelineCRM() {
     }
   };
 
-  const handleVoiceClientData = async (voiceData: any) => {
-    try {
-      // Preencher dados do cliente com os dados da voz
-      const clientData = {
-        nome: voiceData.nome || '',
-        telefone: voiceData.telefone || '',
-        email: voiceData.email || '',
-        tipo: 'comprador', // default
-        valor: parseFloat(voiceData.orcamento?.replace(/\D/g, '') || '0'),
-        stage: 'novo_lead',
-        classificacao: 'novo_lead',
-        score: 0,
-        user_id: user?.id,
-        last_contact_at: new Date().toISOString()
-      };
+  const handleVoiceClientData = (voiceData: any) => {
+    console.log('Dados de voz recebidos:', voiceData);
+    
+    // Mapear dados estruturados para o formato do cliente
+    const mappedData = {
+      nome: voiceData.nome || voiceData.name || '',
+      telefone: voiceData.telefone || voiceData.phone || '',
+      email: voiceData.email || '',
+      data_nascimento: '',
+      tipo: voiceData.tipo || voiceData.interesse || 'comprador',
+      valor: voiceData.valor || voiceData.budget || voiceData.orcamento ? 
+        parseFloat(String(voiceData.valor || voiceData.budget || voiceData.orcamento).replace(/\D/g, '')) || 0 : 0
+    };
 
-      // Inserir no banco
-      const { data, error } = await supabase
-        .from('conectaios_clients')
-        .insert([clientData])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      // Adicionar histórico inicial se houver observações
-      if (voiceData.observacoes) {
-        await supabase
-          .from('client_history')
-          .insert({
-            client_id: data.id,
-            action: 'observacao',
-            description: voiceData.observacoes,
-            user_id: user?.id
-          });
-      }
-
-      // Adicionar ao estado local
-      setClients(prev => [...prev, data as Client]);
-      
-      toast({
-        title: "✅ Cliente criado via voz",
-        description: `${data.nome} foi adicionado automaticamente ao pipeline`,
-      });
-    } catch (error) {
-      console.error('Error adding voice client:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível adicionar o cliente via voz",
-        variant: "destructive",
-      });
-    }
+    // Pre-preencher o formulário e abrir o dialog
+    setClientFormData({
+      ...mappedData,
+      valor: String(mappedData.valor) // Converter para string
+    });
+    setHistoryFormData({
+      action: 'observacao',
+      description: `Dados capturados por voz: ${voiceData.observacoes || voiceData.notes || 'Novo cliente registrado via gravação'}`
+    });
+    setIsClientDialogOpen(true);
+    
+    toast({
+      title: "Dados capturados!",
+      description: "Revise as informações e confirme para salvar o cliente.",
+    });
   };
 
   const handleAddHistory = async () => {
@@ -1115,6 +1092,13 @@ export default function PipelineCRM() {
       <GlobalClientSearch 
         open={globalSearchOpen} 
         onOpenChange={setGlobalSearchOpen} 
+      />
+
+      {/* Voice Client Recorder Modal */}
+      <VoiceClientRecorder
+        isOpen={isVoiceRecorderOpen}
+        onClose={() => setIsVoiceRecorderOpen(false)}
+        onClientData={handleVoiceClientData}
       />
     </div>
   );
