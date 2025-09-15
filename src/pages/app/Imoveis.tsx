@@ -59,6 +59,7 @@ interface Property {
   watermark_enabled?: boolean;
   furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
   sea_distance?: number;
+  neighborhood?: string;
 }
 
 export default function Imoveis() {
@@ -153,6 +154,8 @@ export default function Imoveis() {
           banner_type,
           furnishing_type,
           sea_distance,
+          has_sea_view,
+          neighborhood,
           created_at,
           reference_code
         `, { count: 'exact' })
@@ -178,8 +181,9 @@ export default function Imoveis() {
         banner_type: prop.banner_type,
         furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
         sea_distance: prop.sea_distance,
+        has_sea_view: prop.has_sea_view || false,
+        neighborhood: prop.neighborhood || '',
         is_furnished: false, // Computed field
-        has_sea_view: false, // Computed field
         watermark_enabled: true, // Default setting
       }));
       
@@ -1094,35 +1098,48 @@ export default function Imoveis() {
                 
                  {/* Action Buttons Grid - 2 columns for top buttons */}
                  <div className="space-y-3 mt-4">
-                   <div className="grid grid-cols-2 gap-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setSelectedProperty(property);
-                         setIsDetailDialogOpen(true);
-                       }}
-                       title="Visualizar Imóvel"
-                       className="h-8 text-xs"
-                     >
-                       <Eye className="h-3 w-3 mr-1" />
-                       Ver
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => {
-                         setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
-                         setGalleryInitialIndex(0);
-                         setGalleryOpen(true);
-                       }}
-                       title="Editar Fotos"
-                       className="h-8 text-xs"
-                     >
-                       <FileImage className="h-3 w-3 mr-1" />
-                       Fotos
-                     </Button>
-                   </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProperty(property);
+                          setIsDetailDialogOpen(true);
+                        }}
+                        title="Visualizar Imóvel"
+                        className="h-8 text-xs"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Ver
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
+                          setGalleryInitialIndex(0);
+                          setGalleryOpen(true);
+                        }}
+                        title="Editar Fotos"
+                        className="h-8 text-xs"
+                      >
+                        <FileImage className="h-3 w-3 mr-1" />
+                        Fotos
+                      </Button>
+                      <ShareButton 
+                        property={{
+                          ...property,
+                          has_sea_view: property.has_sea_view || false,
+                          bathrooms: property.bathrooms || 0,
+                          parking_spots: property.parking_spots || 0,
+                          neighborhood: property.neighborhood || '',
+                          descricao: property.descricao || '',
+                          user_id: user?.id || ''
+                        }}
+                        isOwner={true}
+                        isAuthorized={true}
+                      />
+                    </div>
                    
                     <div className="grid grid-cols-2 gap-2">
                       <Button 

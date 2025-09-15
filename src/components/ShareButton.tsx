@@ -26,6 +26,9 @@ interface Property {
   property_type?: string;
   neighborhood?: string;
   descricao?: string;
+  has_sea_view?: boolean;
+  furnishing_type?: string;
+  sea_distance?: number;
 }
 
 export function ShareButton({ 
@@ -71,6 +74,9 @@ export function ShareButton({
     `bairro=${encodeURIComponent(property.neighborhood || '')}&` +
     `descricao=${encodeURIComponent(property.descricao || '')}&` +
     `fotos=${encodeURIComponent(JSON.stringify(property.fotos || []))}&` +
+    `has_sea_view=${encodeURIComponent((property.has_sea_view || false).toString())}&` +
+    `furnishing_type=${encodeURIComponent(property.furnishing_type || 'none')}&` +
+    `sea_distance=${encodeURIComponent((property.sea_distance || '').toString())}&` +
     `ownerUserId=${encodeURIComponent(property.user_id || '')}`;
 
   return (
@@ -80,11 +86,11 @@ export function ShareButton({
         size="sm" 
         onClick={handleShare}
         disabled={!canShare}
-        className={`h-7 w-full p-0 hover:bg-primary hover:text-white ${!canShare ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`h-8 text-xs hover:bg-primary hover:text-white ${!canShare ? 'opacity-50 cursor-not-allowed' : ''}`}
         title="Compartilhar"
       >
-        <Share2 className="h-3 w-3" />
-        <span className="sr-only">Compartilhar</span>
+        <Share2 className="h-3 w-3 mr-1" />
+        Comp.
       </Button>
 
       <ExternalToolModal
