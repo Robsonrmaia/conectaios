@@ -477,23 +477,82 @@ export default function PipelineCRM() {
 
   return (
     <div className="space-y-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Pipeline CRM</h2>
-          <div className="flex gap-2">
-            <Button 
-              onClick={() => setIsVoiceRecorderOpen(true)}
-              className="bg-red-500 hover:bg-red-600 text-white"
-            >
-              <Mic className="h-4 w-4 mr-2" />
-              Gravar Cliente
-            </Button>
-            <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-primary hover:bg-primary/90">
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Novo Cliente
-                </Button>
-              </DialogTrigger>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Pipeline CRM</h2>
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsVoiceRecorderOpen(true)}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Gravar Cliente
+          </Button>
+          <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Novo Cliente
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleAddClient} className="space-y-4">
+                <div>
+                  <Label htmlFor="nome">Nome</Label>
+                  <Input
+                    id="nome"
+                    name="nome"
+                    required
+                    placeholder="Nome completo do cliente"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="telefone">Telefone</Label>
+                  <Input
+                    id="telefone"
+                    name="telefone"
+                    required
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tipo">Tipo de Interesse</Label>
+                  <Select name="tipo" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="comprar">Comprar</SelectItem>
+                      <SelectItem value="vender">Vender</SelectItem>
+                      <SelectItem value="alugar">Alugar</SelectItem>
+                      <SelectItem value="investir">Investir</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button type="button" variant="outline" onClick={() => setIsClientDialogOpen(false)}>
+                    Cancelar
+                  </Button>
+                  <Button type="submit">
+                    Adicionar Cliente
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
 
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>

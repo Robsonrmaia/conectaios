@@ -89,7 +89,21 @@ export default function SmartCalendar() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTasks(data || []);
+      
+      // Map database schema to Task interface
+      const mappedTasks = (data || []).map(dbTask => ({
+        id: dbTask.id,
+        title: dbTask.txt || 'Tarefa sem título',
+        description: dbTask.porque || '',
+        date: dbTask.quando || new Date().toISOString().split('T')[0],
+        time: '09:00', // Default time since database doesn't have separate time field
+        priority: 'media' as const,
+        category: 'Geral',
+        user_id: dbTask.user_id,
+        created_at: dbTask.created_at
+      }));
+      
+      setTasks(mappedTasks);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast({
@@ -121,7 +135,20 @@ export default function SmartCalendar() {
 
       if (error) throw error;
 
-      setTasks(prev => [...prev, data]);
+      // Map database response back to Task interface
+      const mappedTask = {
+        id: data.id,
+        title: data.txt,
+        description: data.onde || '',
+        date: data.quando?.split(' ')[0] || newTask.date,
+        time: data.quando?.split(' ')[1] || newTask.time,
+        priority: newTask.priority,
+        category: newTask.category,
+        user_id: data.user_id,
+        created_at: data.created_at
+      };
+
+      setTasks(prev => [...prev, mappedTask]);
       setNewTask({
         title: '',
         description: '',
@@ -167,19 +194,44 @@ export default function SmartCalendar() {
         created_at: new Date().toISOString()
       };
 
+      // Map Task interface to database schema
+      const dbTaskData = {
+        txt: taskData.title,
+        porque: taskData.description,
+        quando: taskData.date,
+        onde: '',
+        quem: '',
+        responsavel: user?.email || '',
+        done: false,
+        user_id: user?.id
+      };
+
       const { data, error } = await supabase
-        .from('calendar_tasks')
-        .insert([taskData])
+        .from('tasks')
+        .insert([dbTaskData])
         .select()
         .single();
 
       if (error) throw error;
 
-      setTasks(prev => [...prev, data]);
+      // Map back to Task interface for state
+      const newTask = {
+        id: data.id,
+        title: data.txt,
+        description: data.porque || '',
+        date: data.quando || taskData.date,
+        time: taskData.time,
+        priority: taskData.priority,
+        category: taskData.category,
+        user_id: data.user_id,
+        created_at: data.created_at
+      };
+
+      setTasks(prev => [...prev, newTask]);
       
       toast({
         title: "✅ Tarefa criada via voz",
-        description: `"${data.title}" foi adicionada para ${format(taskDate, 'dd/MM/yyyy', { locale: ptBR })} às ${data.time}`,
+        description: `"${newTask.title}" foi adicionada para ${format(taskDate, 'dd/MM/yyyy', { locale: ptBR })} às ${newTask.time}`,
       });
     } catch (error) {
       console.error('Error adding voice task:', error);
@@ -194,7 +246,7 @@ export default function SmartCalendar() {
   const handleDeleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('calendar_tasks')
+        .from('tasks')
         .delete()
         .eq('id', taskId);
 
