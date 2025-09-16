@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Share2, Copy, Check } from 'lucide-react';
+import { Share2, ExternalLink, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { generatePropertyUrl } from '@/lib/urls';
 import { ExternalToolModal } from '@/components/ExternalToolModal';
 
@@ -41,7 +42,7 @@ export function ShareButton({
   
   const canShare = isOwner || isAuthorized || (user?.id === property.user_id);
 
-  const handleShare = async () => {
+  const handleShareModal = async () => {
     if (!canShare) {
       toast({
         title: "Acesso negado",
@@ -52,6 +53,55 @@ export function ShareButton({
     }
 
     setShowExternalTool(true);
+  };
+
+  const handleShareNewTab = async () => {
+    if (!canShare) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas o corretor responsável pode compartilhar este imóvel",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Save data to localStorage for readdy.link to access
+    const dataToSave = JSON.stringify(propertyData);
+    localStorage.setItem('propertyData', dataToSave);
+    localStorage.setItem('currentProperty', dataToSave);
+    localStorage.setItem('selectedProperty', dataToSave);
+    localStorage.setItem('readdy_property_data', dataToSave);
+
+    // Build URL with query parameters
+    const baseUrl = "https://readdy.link/preview/da63f38b-125e-413b-aa01-7e77fb40a0bf/2488182/admin";
+    const params = new URLSearchParams({
+      propertyId: propertyData.propertyId,
+      title: propertyData.title,
+      valor: propertyData.valor.toString(),
+      area: propertyData.area.toString(),
+      quartos: propertyData.quartos.toString(),
+      bathrooms: propertyData.bathrooms.toString(),
+      parking: propertyData.parking.toString(),
+      tipo: propertyData.tipo,
+      finalidade: propertyData.finalidade,
+      bairro: propertyData.bairro,
+      descricao: propertyData.descricao,
+      fotos: propertyData.fotos.join(','),
+      has_sea_view: propertyData.has_sea_view.toString(),
+      furnishing_type: propertyData.furnishing_type,
+      sea_distance: propertyData.sea_distance.toString(),
+      ownerUserId: propertyData.ownerUserId
+    });
+
+    const fullUrl = `${baseUrl}?${params.toString()}`;
+
+    // Open in new tab
+    window.open(fullUrl, '_blank', 'noopener,noreferrer');
+
+    toast({
+      title: "Abrindo gerador de propostas",
+      description: "Dados do imóvel enviados para nova aba",
+    });
   };
 
   const handleToolClose = () => {
@@ -80,17 +130,31 @@ export function ShareButton({
 
   return (
     <>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={handleShare}
-        disabled={!canShare}
-        className={`h-8 text-xs hover:bg-primary hover:text-white ${!canShare ? 'opacity-50 cursor-not-allowed' : ''}`}
-        title="Gerar Proposta"
-      >
-        <Share2 className="h-3 w-3 mr-1" />
-        Proposta
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            disabled={!canShare}
+            className={`h-8 text-xs hover:bg-primary hover:text-white ${!canShare ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Gerar Proposta"
+          >
+            <Share2 className="h-3 w-3 mr-1" />
+            Proposta
+            <ChevronDown className="h-3 w-3 ml-1" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleShareModal}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Abrir no Modal
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleShareNewTab}>
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Abrir em Nova Aba
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <ExternalToolModal
         isOpen={showExternalTool}
