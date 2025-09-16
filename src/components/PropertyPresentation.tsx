@@ -99,7 +99,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   return (
-    <div className="fixed inset-0 bg-black z-[10001] overflow-hidden">
+    <div className="fixed inset-0 bg-black z-[10010] overflow-hidden" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
       {/* Mobile-first design replicating readdy.link exactly */}
       
       {/* Hero Image with overlays */}
@@ -183,7 +183,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-3">
           <Button 
             onClick={handleScheduleVisit}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 text-base font-semibold"
+            className="flex-1 py-4 text-base font-semibold text-white"
+            style={{ backgroundColor: 'hsl(var(--pastel-blue))', color: 'white' }}
             size="lg"
           >
             <Calendar className="mr-2 h-5 w-5" />
@@ -191,7 +192,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           </Button>
           <Button 
             onClick={handleShare}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-4 text-base font-semibold"
+            className="flex-1 py-4 text-base font-semibold text-white"
+            style={{ backgroundColor: 'hsl(var(--pastel-green))', color: 'white' }}
             size="lg"
           >
             <Share2 className="mr-2 h-5 w-5" />

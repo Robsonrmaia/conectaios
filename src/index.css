@@ -155,6 +155,14 @@ All colors MUST be HSL.
     --brand-secondary: 193 95% 68%;
     --brand-accent: 210 100% 56%;
     
+    /* Pastel Colors */
+    --pastel-blue: 210 85% 75%;
+    --pastel-green: 140 60% 70%;
+    --pastel-pink: 330 75% 80%;
+    --pastel-purple: 270 65% 75%;
+    --pastel-orange: 25 85% 75%;
+    --pastel-cyan: 180 70% 75%;
+    
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(197 89% 48%), hsl(193 95% 68%));
     --gradient-secondary: linear-gradient(135deg, hsl(220 14% 96%), hsl(210 40% 96%));

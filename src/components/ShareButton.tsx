@@ -158,7 +158,7 @@ export function ShareButton({
             title="Gerar Proposta"
           >
             <Share2 className="h-3 w-3 mr-1" />
-            Proposta
+            Prop
             <ChevronDown className="h-3 w-3 ml-1" />
           </Button>
         </DropdownMenuTrigger>
