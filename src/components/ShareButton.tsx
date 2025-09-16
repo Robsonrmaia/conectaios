@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { Share2, ExternalLink, ChevronDown } from 'lucide-react';
+import { Share2, ExternalLink, ChevronDown, MessageCircle, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { generatePropertyUrl } from '@/lib/urls';
 import { PropertyPresentation } from '@/components/PropertyPresentation';
+import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
+import { useBroker } from '@/hooks/useBroker';
 
 interface ShareButtonProps {
   property: Property; // Full property object instead of separate fields
@@ -38,6 +40,8 @@ export function ShareButton({
   isAuthorized = false 
 }: ShareButtonProps) {
   const { user } = useAuth();
+  const { broker } = useBroker();
+  const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
   const [showExternalTool, setShowExternalTool] = useState(false);
   
   const canShare = isOwner || isAuthorized || (user?.id === property.user_id);
@@ -104,6 +108,49 @@ export function ShareButton({
     });
   };
 
+  const handleShareWhatsApp = async () => {
+    if (!canShare) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas o corretor responsável pode compartilhar este imóvel",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const currentUrl = window.location.href;
+    const message = generatePropertyMessage(property, currentUrl);
+    shareToWhatsApp(message, broker?.phone);
+  };
+
+  const handleCopyMessage = async () => {
+    if (!canShare) {
+      toast({
+        title: "Acesso negado",
+        description: "Apenas o corretor responsável pode compartilhar este imóvel",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const currentUrl = window.location.href;
+    const message = generatePropertyMessage(property, currentUrl);
+    
+    try {
+      await copyMessageToClipboard(message);
+      toast({
+        title: "Mensagem copiada!",
+        description: "A mensagem formatada foi copiada para a área de transferência",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao copiar",
+        description: "Não foi possível copiar a mensagem",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleToolClose = () => {
     setShowExternalTool(false);
   };
@@ -148,6 +195,14 @@ export function ShareButton({
           <DropdownMenuItem onClick={handleShareModal}>
             <Share2 className="h-4 w-4 mr-2" />
             Visualizar Proposta
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleShareWhatsApp}>
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Compartilhar WhatsApp
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleCopyMessage}>
+            <Copy className="h-4 w-4 mr-2" />
+            Copiar Mensagem
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleShareNewTab}>
             <ExternalLink className="h-4 w-4 mr-2" />
