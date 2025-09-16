@@ -44,7 +44,9 @@ export function ShareButton({
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
   const [showExternalTool, setShowExternalTool] = useState(false);
   
-  const canShare = isOwner || isAuthorized || (user?.id === property.user_id);
+  // Permite visualização para usuários autenticados, mas restringe ações de proprietário
+  const canShare = !!user; // Usuários autenticados podem visualizar
+  const canOwnerActions = isOwner || isAuthorized || (user?.id === property.user_id);
 
   const handleShareModal = async () => {
     if (!canShare) {
@@ -60,7 +62,7 @@ export function ShareButton({
   };
 
   const handleShareNewTab = async () => {
-    if (!canShare) {
+    if (!canOwnerActions) {
       toast({
         title: "Acesso negado",
         description: "Apenas o corretor responsável pode compartilhar este imóvel",
@@ -80,7 +82,7 @@ export function ShareButton({
   };
 
   const handleShareWhatsApp = async () => {
-    if (!canShare) {
+    if (!canOwnerActions) {
       toast({
         title: "Acesso negado",
         description: "Apenas o corretor responsável pode compartilhar este imóvel",
@@ -95,7 +97,7 @@ export function ShareButton({
   };
 
   const handleCopyMessage = async () => {
-    if (!canShare) {
+    if (!canOwnerActions) {
       toast({
         title: "Acesso negado",
         description: "Apenas o corretor responsável pode compartilhar este imóvel",

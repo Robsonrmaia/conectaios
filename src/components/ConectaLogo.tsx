@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { uploadLogoToStorage } from '@/utils/uploadLogo';
 
 interface ConectaLogoProps {
   className?: string;
@@ -15,6 +16,11 @@ export default function ConectaLogo({
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
 
+  useEffect(() => {
+    // Try to upload logo on component mount
+    uploadLogoToStorage();
+  }, []);
+
   if (imageError) {
     // Fallback para texto se a imagem não carregar
     return (
@@ -26,7 +32,7 @@ export default function ConectaLogo({
 
   return (
     <img
-      src="/logoconectaios.png"
+      src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png"
       alt={alt}
       width={width}
       height={height}
