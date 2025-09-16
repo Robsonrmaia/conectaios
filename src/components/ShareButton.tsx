@@ -69,42 +69,13 @@ export function ShareButton({
       return;
     }
 
-    // Save data to localStorage for readdy.link to access
-    const dataToSave = JSON.stringify(propertyData);
-    localStorage.setItem('propertyData', dataToSave);
-    localStorage.setItem('currentProperty', dataToSave);
-    localStorage.setItem('selectedProperty', dataToSave);
-    localStorage.setItem('readdy_property_data', dataToSave);
-
-    // Build URL with query parameters
-    const baseUrl = "https://readdy.link/preview/da63f38b-125e-413b-aa01-7e77fb40a0bf/2488182/admin";
-    const params = new URLSearchParams({
-      propertyId: propertyData.propertyId,
-      title: propertyData.title,
-      valor: propertyData.valor.toString(),
-      area: propertyData.area.toString(),
-      quartos: propertyData.quartos.toString(),
-      bathrooms: propertyData.bathrooms.toString(),
-      parking: propertyData.parking.toString(),
-      tipo: propertyData.tipo,
-      finalidade: propertyData.finalidade,
-      bairro: propertyData.bairro,
-      descricao: propertyData.descricao,
-      fotos: propertyData.fotos.join(','),
-      has_sea_view: propertyData.has_sea_view.toString(),
-      furnishing_type: propertyData.furnishing_type,
-      sea_distance: propertyData.sea_distance.toString(),
-      ownerUserId: propertyData.ownerUserId
-    });
-
-    const fullUrl = `${baseUrl}?${params.toString()}`;
-
-    // Open in new tab
-    window.open(fullUrl, '_blank', 'noopener,noreferrer');
+    // Open property detail page in new tab
+    const propertyUrl = generatePropertyUrl(property.id);
+    window.open(propertyUrl, '_blank', 'noopener,noreferrer');
 
     toast({
-      title: "Abrindo gerador de propostas",
-      description: "Dados do imóvel enviados para nova aba",
+      title: "Abrindo apresentação",
+      description: "Página do imóvel aberta em nova aba",
     });
   };
 
@@ -118,8 +89,8 @@ export function ShareButton({
       return;
     }
 
-    const currentUrl = window.location.href;
-    const message = generatePropertyMessage(property, currentUrl);
+    const propertyUrl = generatePropertyUrl(property.id);
+    const message = generatePropertyMessage(property, propertyUrl);
     shareToWhatsApp(message, broker?.phone);
   };
 
@@ -133,8 +104,8 @@ export function ShareButton({
       return;
     }
 
-    const currentUrl = window.location.href;
-    const message = generatePropertyMessage(property, currentUrl);
+    const propertyUrl = generatePropertyUrl(property.id);
+    const message = generatePropertyMessage(property, propertyUrl);
     
     try {
       await copyMessageToClipboard(message);

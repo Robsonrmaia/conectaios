@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
+import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -80,13 +81,14 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShare = async () => {
-    const message = generatePropertyMessage(property, currentUrl);
+    const propertyUrl = generatePropertyUrl(property.id);
+    const message = generatePropertyMessage(property, propertyUrl);
     
     if (navigator.share) {
       await navigator.share({
         title: property.titulo,
         text: message,
-        url: currentUrl,
+        url: propertyUrl,
       });
     } else {
       await copyMessageToClipboard(message);
@@ -98,7 +100,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShareWhatsApp = () => {
-    const message = generatePropertyMessage(property, currentUrl);
+    const propertyUrl = generatePropertyUrl(property.id);
+    const message = generatePropertyMessage(property, propertyUrl);
     shareToWhatsApp(message, displayBroker?.phone);
   };
 
@@ -115,7 +118,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 overflow-y-auto">
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] overflow-y-auto">
       <div className="min-h-screen">
         {/* Header com botão fechar */}
         <div className="absolute top-4 right-4 z-10">
