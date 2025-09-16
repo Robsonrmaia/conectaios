@@ -28,18 +28,37 @@ export function ExternalToolModal({
       const iframe = iframeRef.current;
       if (!iframe || !iframe.contentWindow) return;
 
-      // Send data via postMessage after a short delay to ensure iframe is ready
+      // Send data via multiple methods after ensuring iframe is ready
       setTimeout(() => {
         try {
-          console.log('Sending property data via postMessage:', propertyData);
+          console.log('🚀 Sending property data to external tool:', propertyData);
+          
+          // Method 1: Try FILL_PROPERTY_FORM (standard)
+          iframe.contentWindow?.postMessage({
+            type: 'FILL_PROPERTY_FORM',
+            data: propertyData
+          }, '*');
+          
+          // Method 2: Try PROPERTY_DATA (fallback)
           iframe.contentWindow?.postMessage({
             type: 'PROPERTY_DATA',
             data: propertyData
           }, '*');
+          
+          // Method 3: Try property-data (lowercase)
+          iframe.contentWindow?.postMessage({
+            type: 'property-data',
+            payload: propertyData
+          }, '*');
+          
+          // Method 4: Try direct data send
+          iframe.contentWindow?.postMessage(propertyData, '*');
+          
+          console.log('✅ All postMessage methods attempted');
         } catch (error) {
-          console.error('Error sending postMessage:', error);
+          console.error('❌ Error sending postMessage:', error);
         }
-      }, 1000);
+      }, 2000); // Increased delay to ensure iframe is fully loaded
     };
 
     const iframe = iframeRef.current;
@@ -50,13 +69,27 @@ export function ExternalToolModal({
   }, [isOpen, propertyData]);
 
   useEffect(() => {
-    // Also try sending data periodically in case iframe loads later
+    // Periodic data sending with multiple localStorage keys
     if (!isOpen || !propertyData) return;
+
+    // Save to multiple localStorage keys
+    localStorage.setItem('propertyFormData', JSON.stringify(propertyData));
+    localStorage.setItem('property-data', JSON.stringify(propertyData));
+    localStorage.setItem('formData', JSON.stringify(propertyData));
+    localStorage.setItem('propertyData', JSON.stringify(propertyData));
+    
+    console.log('💾 Property data saved to localStorage with multiple keys');
 
     const interval = setInterval(() => {
       const iframe = iframeRef.current;
       if (iframe?.contentWindow) {
         try {
+          // Try all communication methods periodically
+          iframe.contentWindow.postMessage({
+            type: 'FILL_PROPERTY_FORM',
+            data: propertyData
+          }, '*');
+          
           iframe.contentWindow.postMessage({
             type: 'PROPERTY_DATA',
             data: propertyData
@@ -65,7 +98,7 @@ export function ExternalToolModal({
           // Ignore errors, iframe might not be ready
         }
       }
-    }, 2000);
+    }, 3000);
 
     return () => clearInterval(interval);
   }, [isOpen, propertyData]);
