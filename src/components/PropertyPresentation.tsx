@@ -98,8 +98,13 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     }
   };
 
+  const handleExternalTool = () => {
+    const propertyUrl = generatePropertyUrl(property.id);
+    window.open(propertyUrl, '_blank');
+  };
+
   return (
-    <div className="fixed inset-0 bg-black z-[10010] overflow-hidden" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%' }}>
+    <div className="fixed inset-0 bg-black z-[10010] overflow-hidden">
       {/* Mobile-first design replicating readdy.link exactly */}
       
       {/* Hero Image with overlays */}
@@ -107,12 +112,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         className="relative h-full w-full bg-cover bg-center"
         style={{
           backgroundImage: `url(${property.fotos[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80'})`,
-          backgroundPosition: 'center',
-          backgroundSize: 'cover'
         }}
       >
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/70" />
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
         
         {/* Header with back button */}
         <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
@@ -137,67 +140,98 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </div>
 
         {/* EXCLUSIVO badge - top left */}
-        <div className="absolute top-16 left-4 z-10">
-          <Badge className="bg-blue-600 text-white px-3 py-1 text-xs font-bold">
+        <div className="absolute top-20 left-4 z-10">
+          <div className="bg-blue-600 text-white px-4 py-2 text-sm font-bold rounded-full">
             EXCLUSIVO
-          </Badge>
+          </div>
         </div>
 
-        {/* Property info overlay - center */}
-        <div className="absolute inset-0 flex flex-col justify-center px-6 text-white">
+        {/* Property info overlay - center positioned */}
+        <div className="absolute inset-x-0 top-1/3 px-6 text-white space-y-6">
           {/* Title */}
-          <h1 className="text-3xl font-bold mb-2 leading-tight">
+          <h1 className="text-4xl font-bold leading-tight">
             {property.titulo}
           </h1>
           
           {/* Location in blue */}
-          <p className="text-blue-400 text-lg font-medium mb-6">
-            {property.neighborhood || 'Vila Madalena'}
+          <p className="text-blue-300 text-xl font-medium">
+            {property.neighborhood || property.city || 'Vila Madalena'}
           </p>
           
-          {/* Property specs with icons */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="flex items-center gap-2 bg-black/40 rounded-full px-3 py-2 backdrop-blur-sm">
-              <Home className="h-4 w-4" />
-              <span className="text-sm font-medium">{property.area}m²</span>
+          {/* Property specs with icons - vertical layout like readdy */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
+                <Home className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-300">Área Construída</div>
+                <div className="text-lg font-semibold">{property.area}m²</div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 bg-black/40 rounded-full px-3 py-2 backdrop-blur-sm">
-              <Bed className="h-4 w-4" />
-              <span className="text-sm font-medium">{property.quartos} dormitórios</span>
+            
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
+                <Bed className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-300">Dormitórios</div>
+                <div className="text-lg font-semibold">
+                  {property.quartos} {property.bathrooms ? 'Suítes' : 'Quartos'}
+                </div>
+              </div>
             </div>
+            
             {property.parking_spots && property.parking_spots > 0 && (
-              <div className="flex items-center gap-2 bg-black/40 rounded-full px-3 py-2 backdrop-blur-sm">
-                <Car className="h-4 w-4" />
-                <span className="text-sm font-medium">{property.parking_spots} garagem</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
+                  <Car className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <div className="text-sm text-gray-300">Garagem</div>
+                  <div className="text-lg font-semibold">{property.parking_spots} Vagas</div>
+                </div>
               </div>
             )}
-          </div>
-          
-          {/* Price */}
-          <div className="text-2xl font-bold mb-8">
-            {formatCurrency(property.valor)}
+            
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
+                <span className="text-sm font-bold text-white">$</span>
+              </div>
+              <div>
+                <div className="text-sm text-gray-300">Valor</div>
+                <div className="text-xl font-bold">{formatCurrency(property.valor)}</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Fixed bottom buttons */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 flex gap-3">
+        {/* Fixed bottom buttons - exactly like readdy */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
           <Button 
             onClick={handleScheduleVisit}
-            className="flex-1 py-4 text-base font-semibold text-white"
-            style={{ backgroundColor: 'hsl(var(--pastel-blue))', color: 'white' }}
+            className="w-full py-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
             size="lg"
           >
-            <Calendar className="mr-2 h-5 w-5" />
             Agendar Visita
           </Button>
+          
           <Button 
             onClick={handleShare}
-            className="flex-1 py-4 text-base font-semibold text-white"
-            style={{ backgroundColor: 'hsl(var(--pastel-green))', color: 'white' }}
+            className="w-full py-4 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2"
             size="lg"
           >
-            <Share2 className="mr-2 h-5 w-5" />
+            <MessageCircle className="h-5 w-5" />
             Compartilhar
+          </Button>
+          
+          <Button 
+            onClick={handleExternalTool}
+            variant="outline"
+            className="w-full py-3 text-base font-medium bg-gray-600/80 hover:bg-gray-700/80 text-white border-gray-500 rounded-xl backdrop-blur-sm"
+            size="lg"
+          >
+            Ferramenta externa integrada - Gerador de Proposta HTML
           </Button>
         </div>
       </div>

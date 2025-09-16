@@ -2,12 +2,20 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Home } from 'lucide-react';
+import { Home, Mic } from 'lucide-react';
 import PipelineCRM from '@/components/PipelineCRM';
 import SmartCalendar from '@/components/SmartCalendar';
+import { VoiceClientRecorder } from '@/components/VoiceClientRecorder';
 
 export default function CRM() {
   const navigate = useNavigate();
+  const [isVoiceRecorderOpen, setIsVoiceRecorderOpen] = useState(false);
+
+  const handleVoiceClientData = (clientData: any) => {
+    console.log('Voice client data received:', clientData);
+    // Here you could automatically create a new client in PipelineCRM
+    // or show a form pre-filled with the voice data
+  };
 
   return (
     <div className="space-y-6">
@@ -28,6 +36,16 @@ export default function CRM() {
             </p>
           </div>
         </div>
+        
+        <div className="flex gap-2">
+          <Button 
+            onClick={() => setIsVoiceRecorderOpen(true)}
+            className="bg-red-500 hover:bg-red-600 text-white"
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Gravar Cliente
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="pipeline" className="space-y-4">
@@ -44,6 +62,12 @@ export default function CRM() {
           <SmartCalendar />
         </TabsContent>
       </Tabs>
+      
+      <VoiceClientRecorder 
+        isOpen={isVoiceRecorderOpen}
+        onClose={() => setIsVoiceRecorderOpen(false)}
+        onClientData={handleVoiceClientData}
+      />
     </div>
   );
 }
