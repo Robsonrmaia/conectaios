@@ -23,12 +23,20 @@ export function useMaintenanceMode() {
   }, []);
 
   const checkMaintenanceMode = async () => {
+    console.log('useMaintenanceMode: Starting maintenance check');
+    
     try {
-      // Buscar configurações do banco de dados
-      const { data, error } = await supabase
+      // Timeout de segurança para a query
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Maintenance check timeout')), 5000)
+      );
+
+      const queryPromise = supabase
         .from('system_settings')
         .select('*')
         .in('key', ['maintenance_mode', 'construction_mode']);
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
       if (error) {
         console.error('Error checking maintenance mode:', error);
@@ -38,6 +46,8 @@ export function useMaintenanceMode() {
       } else {
         const maintenanceData = data?.find(item => item.key === 'maintenance_mode')?.value as any;
         const constructionData = data?.find(item => item.key === 'construction_mode')?.value as any;
+        
+        console.log('useMaintenanceMode: Data retrieved', { maintenanceData, constructionData });
         
         setSettings({
           maintenanceMode: maintenanceData?.enabled || false,
@@ -49,10 +59,11 @@ export function useMaintenanceMode() {
       }
     } catch (error) {
       console.error('Error checking maintenance mode:', error);
-      // Fallback para localStorage
+      // Em caso de erro ou timeout, permite acesso
       const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
       setSettings({ maintenanceMode, constructionMode: false });
     } finally {
+      console.log('useMaintenanceMode: Check completed');
       setLoading(false);
     }
   };
