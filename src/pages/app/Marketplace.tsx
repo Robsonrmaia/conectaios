@@ -13,13 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, MessageCircle, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
-import { ShareButton } from '@/components/ShareButton';
+
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -599,12 +599,20 @@ export default function Marketplace() {
                            />
                          </div>
                          
-                         <div className="h-8 flex items-center justify-center flex-1">
-                            <ShareButton
-                              property={property}
-                              isOwner={false}
-                            />
-                         </div>
+                          <div className="h-8 flex items-center justify-center flex-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedProperty(property);
+                                setIsDetailDialogOpen(true);
+                              }}
+                              className="h-8 text-xs hover:bg-primary hover:text-white"
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              Ver Mais
+                            </Button>
+                          </div>
                        </div>
                    </div>
                 </CardContent>
@@ -845,10 +853,20 @@ export default function Marketplace() {
                         <Target className="h-4 w-4 mr-2" />
                         Marcar Match
                       </Button>
-                       <ShareButton
-                         property={selectedProperty}
-                         isOwner={user?.id === selectedProperty.user_id}
-                       />
+                       <Button 
+                         className="w-full" 
+                         variant="outline"
+                         onClick={() => {
+                           const phone = selectedProperty.conectaios_brokers?.name ? '5511999999999' : '';
+                           const message = `Olá! Vi seu imóvel "${selectedProperty.titulo}" no marketplace e gostaria de mais informações.`;
+                           if (phone) {
+                             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+                           }
+                         }}
+                       >
+                         <MessageCircle className="h-4 w-4 mr-2" />
+                         Entrar em Contato
+                       </Button>
                     </div>
                   </div>
                 </div>

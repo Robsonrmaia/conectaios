@@ -40,7 +40,7 @@ export function useWhatsAppMessage() {
     }
     
     message += `\n${emojis.money} *${formatCurrency(property.valor)}*\n\n`;
-    message += `✨ Imóvel de alto padrão em localização privilegiada!\n\n`;
+    message += `🏠 Imóvel de alto padrão em localização privilegiada!\n\n`;
     
     if (presentationUrl) {
       message += `Veja mais detalhes: ${presentationUrl}`;
