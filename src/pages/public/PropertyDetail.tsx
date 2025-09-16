@@ -89,7 +89,7 @@ export default function PropertyDetail() {
     try {
       // Fetch property
       const { data: propertyData, error: propertyError } = await supabase
-        .from('conectaios_properties')
+        .from('properties')
         .select('*')
         .eq('id', id)
         .eq('visibility', 'public_site')

@@ -118,7 +118,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   return (
-    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-[9999] overflow-y-auto">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] overflow-y-auto">
       <div className="min-h-screen">
         {/* Header com botão fechar */}
         <div className="absolute top-4 right-4 z-10">

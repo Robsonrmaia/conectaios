@@ -7,6 +7,7 @@ interface Property {
   quartos: number;
   parking_spots?: number;
   neighborhood?: string;
+  bathrooms?: number;
 }
 
 export function useWhatsAppMessage() {
@@ -20,15 +21,26 @@ export function useWhatsAppMessage() {
     };
 
     let message = `${emojis.house} *${property.titulo}*\n\n`;
-    message += `${emojis.sparkles} ${property.area}m² de área construída\n`;
-    message += `${emojis.bed} ${property.quartos} ${property.quartos > 1 ? 'Suítes completas' : 'Suíte completa'}\n`;
     
-    if (property.parking_spots && property.parking_spots > 0) {
-      message += `${emojis.car} ${property.parking_spots} ${property.parking_spots > 1 ? 'Vagas de garagem' : 'Vaga de garagem'}\n`;
+    // Adicionar localização se disponível
+    if (property.neighborhood) {
+      message += `📍 *${property.neighborhood}*\n\n`;
     }
     
-    message += `${emojis.money} ${formatCurrency(property.valor)}\n\n`;
-    message += `Imóvel de alto padrão em localização privilegiada!\n\n`;
+    message += `${emojis.sparkles} ${property.area}m² de área construída\n`;
+    message += `${emojis.bed} ${property.quartos} ${property.quartos > 1 ? 'quartos' : 'quarto'}\n`;
+    
+    // Adicionar banheiros se disponível
+    if (property.bathrooms && property.bathrooms > 0) {
+      message += `🚿 ${property.bathrooms} ${property.bathrooms > 1 ? 'banheiros' : 'banheiro'}\n`;
+    }
+    
+    if (property.parking_spots && property.parking_spots > 0) {
+      message += `${emojis.car} ${property.parking_spots} ${property.parking_spots > 1 ? 'vagas de garagem' : 'vaga de garagem'}\n`;
+    }
+    
+    message += `\n${emojis.money} *${formatCurrency(property.valor)}*\n\n`;
+    message += `✨ Imóvel de alto padrão em localização privilegiada!\n\n`;
     
     if (presentationUrl) {
       message += `Veja mais detalhes: ${presentationUrl}`;
