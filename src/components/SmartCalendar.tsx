@@ -125,7 +125,7 @@ export default function SmartCalendar() {
         .insert([{
           txt: newTask.title,
           quando: `${newTask.date} ${newTask.time}`,
-          onde: newTask.description,
+          porque: newTask.description,
           quem: '',
           done: false,
           user_id: user.id
@@ -139,7 +139,7 @@ export default function SmartCalendar() {
       const mappedTask = {
         id: data.id,
         title: data.txt,
-        description: data.onde || '',
+        description: data.porque || '',
         date: data.quando?.split(' ')[0] || newTask.date,
         time: data.quando?.split(' ')[1] || newTask.time,
         priority: newTask.priority,

@@ -475,12 +475,13 @@ export default function PipelineCRM() {
               <DialogHeader>
                 <DialogTitle>Adicionar Novo Cliente</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleAddClient} className="space-y-4">
+              <form onSubmit={(e) => { e.preventDefault(); handleAddClient(); }} className="space-y-4">
                 <div>
                   <Label htmlFor="nome">Nome</Label>
                   <Input
                     id="nome"
-                    name="nome"
+                    value={clientFormData.nome}
+                    onChange={(e) => setClientFormData({...clientFormData, nome: e.target.value})}
                     required
                     placeholder="Nome completo do cliente"
                   />
@@ -489,7 +490,8 @@ export default function PipelineCRM() {
                   <Label htmlFor="telefone">Telefone</Label>
                   <Input
                     id="telefone"
-                    name="telefone"
+                    value={clientFormData.telefone}
+                    onChange={(e) => setClientFormData({...clientFormData, telefone: e.target.value})}
                     required
                     placeholder="(11) 99999-9999"
                   />
@@ -498,24 +500,53 @@ export default function PipelineCRM() {
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
-                    name="email"
+                    value={clientFormData.email}
+                    onChange={(e) => setClientFormData({...clientFormData, email: e.target.value})}
                     type="email"
                     placeholder="email@exemplo.com"
                   />
                 </div>
                 <div>
+                  <Label htmlFor="data_nascimento">Data de Nascimento</Label>
+                  <Input
+                    id="data_nascimento"
+                    value={clientFormData.data_nascimento}
+                    onChange={(e) => setClientFormData({...clientFormData, data_nascimento: e.target.value})}
+                    type="date"
+                  />
+                </div>
+                <div>
                   <Label htmlFor="tipo">Tipo de Interesse</Label>
-                  <Select name="tipo" required>
+                  <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData({...clientFormData, tipo: value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o tipo" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="comprar">Comprar</SelectItem>
-                      <SelectItem value="vender">Vender</SelectItem>
-                      <SelectItem value="alugar">Alugar</SelectItem>
-                      <SelectItem value="investir">Investir</SelectItem>
+                      <SelectItem value="comprador">Comprador</SelectItem>
+                      <SelectItem value="vendedor">Vendedor</SelectItem>
+                      <SelectItem value="locatario">Locatário</SelectItem>
+                      <SelectItem value="investidor">Investidor</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label htmlFor="valor">Valor de Interesse (R$)</Label>
+                  <Input
+                    id="valor"
+                    value={clientFormData.valor}
+                    onChange={(e) => setClientFormData({...clientFormData, valor: e.target.value})}
+                    type="number"
+                    placeholder="0"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="observacoes">Observações Iniciais (opcional)</Label>
+                  <Textarea
+                    id="observacoes"
+                    value={historyFormData.description}
+                    onChange={(e) => setHistoryFormData({...historyFormData, description: e.target.value})}
+                    placeholder="Primeiras impressões, necessidades específicas..."
+                  />
                 </div>
                 <div className="flex justify-end space-x-2">
                   <Button type="button" variant="outline" onClick={() => setIsClientDialogOpen(false)}>

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/components/ui/use-toast';
 import { generatePropertyUrl } from '@/lib/urls';
-import { PropertyProposalGenerator } from '@/components/PropertyProposalGenerator';
+import { ExternalToolModal } from '@/components/ExternalToolModal';
 
 interface ShareButtonProps {
   property: Property; // Full property object instead of separate fields
@@ -37,7 +37,7 @@ export function ShareButton({
   isAuthorized = false 
 }: ShareButtonProps) {
   const { user } = useAuth();
-  const [showProposalGenerator, setShowProposalGenerator] = useState(false);
+  const [showExternalTool, setShowExternalTool] = useState(false);
   
   const canShare = isOwner || isAuthorized || (user?.id === property.user_id);
 
@@ -51,11 +51,11 @@ export function ShareButton({
       return;
     }
 
-    setShowProposalGenerator(true);
+    setShowExternalTool(true);
   };
 
-  const handleGeneratorClose = () => {
-    setShowProposalGenerator(false);
+  const handleToolClose = () => {
+    setShowExternalTool(false);
   };
 
   // Prepare property data for the generator
@@ -92,10 +92,12 @@ export function ShareButton({
         Proposta
       </Button>
 
-      <PropertyProposalGenerator
-        property={propertyData}
-        isOpen={showProposalGenerator}
-        onClose={handleGeneratorClose}
+      <ExternalToolModal
+        isOpen={showExternalTool}
+        onClose={handleToolClose}
+        toolUrl="https://readdy.link/preview/da63f38b-125e-413b-aa01-7e77fb40a0bf/2488182/admin"
+        toolName="Readdy - Gerador de Propostas"
+        propertyData={propertyData}
       />
     </>
   );
