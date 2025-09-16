@@ -52,7 +52,30 @@ export function ShareButton({
       return;
     }
 
-    // Open HTML generator modal
+    // Prepare structured property data for external tool
+    const propertyData = {
+      propertyId: property.id,
+      title: property.titulo,
+      valor: property.valor,
+      area: property.area,
+      quartos: property.quartos,
+      bathrooms: property.bathrooms || 0,
+      parking: property.parking_spots || 0,
+      tipo: property.property_type || '',
+      finalidade: property.listing_type || '',
+      bairro: property.neighborhood || '',
+      descricao: property.descricao || '',
+      fotos: property.fotos || [],
+      has_sea_view: property.has_sea_view || false,
+      furnishing_type: property.furnishing_type || 'none',
+      sea_distance: property.sea_distance || '',
+      ownerUserId: property.user_id || ''
+    };
+
+    // Save to localStorage for external tool access
+    localStorage.setItem('propertyFormData', JSON.stringify(propertyData));
+
+    // Open HTML generator modal with property data
     setShowGeneratorModal(true);
   };
 
@@ -99,6 +122,24 @@ export function ShareButton({
         toolUrl={generatorUrl}
         toolName="Gerador de Proposta HTML"
         toolIcon={Share2}
+        propertyData={{
+          propertyId: property.id,
+          title: property.titulo,
+          valor: property.valor,
+          area: property.area,
+          quartos: property.quartos,
+          bathrooms: property.bathrooms || 0,
+          parking: property.parking_spots || 0,
+          tipo: property.property_type || '',
+          finalidade: property.listing_type || '',
+          bairro: property.neighborhood || '',
+          descricao: property.descricao || '',
+          fotos: property.fotos || [],
+          has_sea_view: property.has_sea_view || false,
+          furnishing_type: property.furnishing_type || 'none',
+          sea_distance: property.sea_distance || '',
+          ownerUserId: property.user_id || ''
+        }}
       />
     </>
   );
