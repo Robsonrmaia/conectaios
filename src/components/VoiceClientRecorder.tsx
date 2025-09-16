@@ -16,14 +16,15 @@ export function VoiceClientRecorder({ isOpen, onClose, onClientData }: VoiceClie
   const { toast } = useToast();
 
   const handleStartRecording = async () => {
-    const success = await startRecording();
-    if (!success) {
+    try {
+      await startRecording();
+    } catch (error) {
       onClose();
     }
   };
 
   const handleStopRecording = async () => {
-    const result = await stopRecording('client');
+    const result = await stopRecording();
     
     console.log('🎤 Voice recording result:', result);
     
