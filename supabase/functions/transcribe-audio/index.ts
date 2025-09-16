@@ -101,38 +101,44 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-5-mini-2025-08-07',
+          model: 'gpt-4o-mini',
           messages: [
             { role: 'user', content: structurePrompt }
           ],
-          max_completion_tokens: 500
+          max_tokens: 500,
+          temperature: 0.3
         }),
       })
 
       if (structureResponse.ok) {
         const structuredData = await structureResponse.json()
-        const extractedData = structuredData.choices[0].message.content
+        const extractedData = structuredData.choices[0]?.message?.content
 
-        try {
-          // Extract JSON from markdown code blocks if present
-          const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
-          const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
-          
-          console.log('Attempting to parse JSON:', jsonString)
-          const parsedData = JSON.parse(jsonString)
-          
-          return new Response(
-            JSON.stringify({ 
-              text: result.text, 
-              structured: parsedData,
-              type: 'client'
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
-        } catch (parseError) {
-          console.error('Failed to parse client data:', parseError)
-          console.error('Raw response from OpenAI:', extractedData)
-          // Return just the transcription if parsing fails
+        if (!extractedData) {
+          console.error('No content from OpenAI for client structuring')
+          // Return just the transcription if no structured data
+        } else {
+          try {
+            // Extract JSON from markdown code blocks if present
+            const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
+            const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
+            
+            console.log('Attempting to parse JSON:', jsonString)
+            const parsedData = JSON.parse(jsonString)
+            
+            return new Response(
+              JSON.stringify({ 
+                text: result.text, 
+                structured: parsedData,
+                type: 'client'
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+          } catch (parseError) {
+            console.error('Failed to parse client data:', parseError)
+            console.error('Raw response from OpenAI:', extractedData)
+            // Return just the transcription if parsing fails
+          }
         }
       }
     }
@@ -159,38 +165,44 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-5-mini-2025-08-07',
+          model: 'gpt-4o-mini',
           messages: [
             { role: 'user', content: taskPrompt }
           ],
-          max_completion_tokens: 300
+          max_tokens: 300,
+          temperature: 0.3
         }),
       })
 
       if (taskResponse.ok) {
         const taskData = await taskResponse.json()
-        const extractedData = taskData.choices[0].message.content
+        const extractedData = taskData.choices[0]?.message?.content
 
-        try {
-          // Extract JSON from markdown code blocks if present
-          const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
-          const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
-          
-          console.log('Attempting to parse task JSON:', jsonString)
-          const parsedData = JSON.parse(jsonString)
-          
-          return new Response(
-            JSON.stringify({ 
-              text: result.text, 
-              structured: parsedData,
-              type: 'task'
-            }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
-        } catch (parseError) {
-          console.error('Failed to parse task data:', parseError)
-          console.error('Raw response from OpenAI:', extractedData)
-          // Return just the transcription if parsing fails
+        if (!extractedData) {
+          console.error('No content from OpenAI for task structuring')
+          // Return just the transcription if no structured data
+        } else {
+          try {
+            // Extract JSON from markdown code blocks if present
+            const jsonMatch = extractedData.match(/```json\n([\s\S]*?)\n```/) || extractedData.match(/```\n([\s\S]*?)\n```/)
+            const jsonString = jsonMatch ? jsonMatch[1] : extractedData.trim()
+            
+            console.log('Attempting to parse task JSON:', jsonString)
+            const parsedData = JSON.parse(jsonString)
+            
+            return new Response(
+              JSON.stringify({ 
+                text: result.text, 
+                structured: parsedData,
+                type: 'task'
+              }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            )
+          } catch (parseError) {
+            console.error('Failed to parse task data:', parseError)
+            console.error('Raw response from OpenAI:', extractedData)
+            // Return just the transcription if parsing fails
+          }
         }
       }
     }

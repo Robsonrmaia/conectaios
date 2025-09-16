@@ -1,6 +1,6 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from '@/components/ui/use-toast';
 
 interface VoiceRecordingResult {
   text: string;
@@ -8,138 +8,113 @@ interface VoiceRecordingResult {
   type: string;
 }
 
-export const useVoiceRecording = () => {
+export function useVoiceRecording() {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
-  
-  const mediaRecorder = useRef<MediaRecorder | null>(null);
-  const audioChunks = useRef<Blob[]>([]);
-  const analyser = useRef<AnalyserNode | null>(null);
-  const dataArray = useRef<Uint8Array | null>(null);
-  const animationFrame = useRef<number | null>(null);
-  
-  const { toast } = useToast();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
-  // Função para monitorar nível de áudio
-  const updateAudioLevel = useCallback(() => {
-    if (!analyser.current || !dataArray.current) return;
-    
-    analyser.current.getByteFrequencyData(dataArray.current);
-    const average = dataArray.current.reduce((sum, value) => sum + value, 0) / dataArray.current.length;
-    setAudioLevel(Math.min(100, (average / 255) * 100));
-    
-    if (isRecording) {
-      animationFrame.current = requestAnimationFrame(updateAudioLevel);
-    }
-  }, [isRecording]);
-
-  // Iniciar gravação
-  const startRecording = useCallback(async (): Promise<boolean> => {
+  const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          sampleRate: 44100,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true
-        }
-      });
-
-      // Configurar análise de áudio para feedback visual
-      const audioContext = new AudioContext();
-      const source = audioContext.createMediaStreamSource(stream);
-      analyser.current = audioContext.createAnalyser();
-      analyser.current.fftSize = 256;
-      source.connect(analyser.current);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      dataArray.current = new Uint8Array(analyser.current.frequencyBinCount);
-
-      // Configurar MediaRecorder
-      mediaRecorder.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-
-      audioChunks.current = [];
-
-      mediaRecorder.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunks.current.push(event.data);
+      // Setup audio analysis for visual feedback
+      audioContextRef.current = new AudioContext();
+      const source = audioContextRef.current.createMediaStreamSource(stream);
+      analyserRef.current = audioContextRef.current.createAnalyser();
+      source.connect(analyserRef.current);
+      
+      const bufferLength = analyserRef.current.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      const updateAudioLevel = () => {
+        if (analyserRef.current && isRecording) {
+          analyserRef.current.getByteFrequencyData(dataArray);
+          const average = dataArray.reduce((sum, value) => sum + value, 0) / bufferLength;
+          setAudioLevel(average);
+          animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
         }
       };
-
-      mediaRecorder.current.start(100); // Captura dados a cada 100ms
-      setIsRecording(true);
       
-      // Iniciar monitoramento de nível
+      mediaRecorderRef.current = new MediaRecorder(stream);
+      audioChunksRef.current = [];
+      
+      mediaRecorderRef.current.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+      
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
       updateAudioLevel();
-
+      
       toast({
-        title: "🎤 Gravação iniciada",
+        title: "Gravação iniciada",
         description: "Fale agora...",
       });
-
-      return true;
     } catch (error) {
       console.error('Erro ao iniciar gravação:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível acessar o microfone",
+        description: "Falha ao acessar microfone",
         variant: "destructive",
       });
-      return false;
     }
-  }, [toast, updateAudioLevel]);
+  };
 
-  // Parar gravação e processar
-  const stopRecording = useCallback(async (type: 'general' | 'client' | 'task' = 'general'): Promise<VoiceRecordingResult | null> => {
-    if (!mediaRecorder.current || !isRecording) return null;
-
-    return new Promise((resolve) => {
-      if (!mediaRecorder.current) {
-        resolve(null);
+  const stopRecording = (): Promise<VoiceRecordingResult> => {
+    return new Promise((resolve, reject) => {
+      if (!mediaRecorderRef.current || !isRecording) {
+        reject(new Error('Gravação não iniciada'));
         return;
       }
 
-      mediaRecorder.current.onstop = async () => {
-        setIsRecording(false);
-        setIsProcessing(true);
-        setAudioLevel(0);
+      setIsRecording(false);
+      setIsProcessing(true);
+      
+      // Stop audio level monitoring
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      setAudioLevel(0);
 
-        if (animationFrame.current) {
-          cancelAnimationFrame(animationFrame.current);
-        }
-
+      mediaRecorderRef.current.onstop = async () => {
         try {
-          // Criar blob do áudio
-          const audioBlob = new Blob(audioChunks.current, { type: 'audio/webm' });
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           
-          if (audioBlob.size < 1000) { // Muito pequeno
-            toast({
-              title: "Áudio muito curto",
-              description: "Tente gravar por mais tempo",
-              variant: "destructive",
-            });
-            resolve(null);
-            return;
+          // Stop all tracks
+          mediaRecorderRef.current?.stream.getTracks().forEach(track => track.stop());
+          
+          if (audioContextRef.current) {
+            audioContextRef.current.close();
           }
 
-          console.log('🎤 Processando áudio:', audioBlob.size, 'bytes, tipo:', type);
+          if (audioBlob.size === 0) {
+            throw new Error('Áudio vazio');
+          }
+
+          console.log('🎤 Processando áudio:', audioBlob.size, 'bytes');
 
           // Converter para base64
           const reader = new FileReader();
           reader.onloadend = async () => {
             try {
-              const base64Audio = (reader.result as string)?.split(',')[1];
-              
+              const base64Audio = (reader.result as string).split(',')[1];
               if (!base64Audio) {
                 throw new Error('Falha ao processar áudio');
               }
 
-              // Enviar para transcrição com timeout
+              // Determine type based on context (default to 'general')
+              const type = 'task'; // You can make this dynamic based on context
+
+              // Enviar para transcrição com timeout maior para agenda
               const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+              const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
               
               const { data, error } = await supabase.functions.invoke('transcribe-audio', {
                 body: { audio: base64Audio, type }
@@ -152,91 +127,92 @@ export const useVoiceRecording = () => {
                 throw new Error('Falha na transcrição: ' + (error.message || 'Erro desconhecido'));
               }
 
-              if (!data || !data.text) {
-                throw new Error('Nenhuma transcrição retornada');
+              if (!data) {
+                throw new Error('Nenhuma resposta da transcrição');
               }
+
+              console.log('✅ Transcrição bem-sucedida:', data.text);
 
               // Enhanced feedback based on result
               if (data.structured) {
                 toast({
-                  title: "✅ Dados estruturados extraídos",
-                  description: "Informações processadas com sucesso!",
+                  title: "Gravação processada!",
+                  description: `Dados estruturados extraídos: ${Object.keys(data.structured).join(', ')}`,
                 });
-              } else if (data.text) {
+                resolve({ text: data.text, structured: data.structured, type: data.type });
+              } else {
                 toast({
-                  title: "✅ Transcrição concluída", 
-                  description: "Texto: " + data.text.substring(0, 50) + "...",
+                  title: "Áudio transcrito!",
+                  description: "Dados processados com sucesso",
                 });
+                resolve({ text: data.text, type: data.type });
               }
-
-              resolve(data);
             } catch (error) {
-              console.error('❌ Error in transcription process:', error);
+              console.error('❌ Erro ao processar:', error);
               toast({
-                title: "Erro na transcrição",
-                description: error.message || "Tente novamente",
+                title: "Erro",
+                description: error instanceof Error ? error.message : "Falha ao processar áudio",
                 variant: "destructive",
               });
-              resolve(null);
+              reject(error);
             } finally {
               setIsProcessing(false);
             }
           };
 
           reader.onerror = () => {
+            const error = new Error('Falha ao converter áudio');
+            console.error('❌ FileReader error:', error);
             toast({
-              title: "Erro ao processar áudio",
-              description: "Tente novamente",
+              title: "Erro",
+              description: "Falha ao converter áudio",
               variant: "destructive",
             });
             setIsProcessing(false);
-            resolve(null);
+            reject(error);
           };
 
           reader.readAsDataURL(audioBlob);
-
         } catch (error) {
-          console.error('Erro ao processar gravação:', error);
+          console.error('❌ Erro no processamento:', error);
           toast({
-            title: "Erro ao processar gravação",
-            description: "Tente novamente",
+            title: "Erro",
+            description: error instanceof Error ? error.message : "Erro desconhecido",
             variant: "destructive",
           });
           setIsProcessing(false);
-          resolve(null);
+          reject(error);
         }
       };
 
-      mediaRecorder.current.stop();
-      
-      // Parar todas as tracks
-      if (mediaRecorder.current.stream) {
-        mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
-      }
+      mediaRecorderRef.current.stop();
     });
-  }, [isRecording, toast]);
+  };
 
-  // Cancelar gravação
-  const cancelRecording = useCallback(() => {
-    if (mediaRecorder.current && isRecording) {
-      mediaRecorder.current.stop();
-      if (mediaRecorder.current.stream) {
-        mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
-      }
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
       setIsRecording(false);
       setIsProcessing(false);
+      
+      // Stop audio level monitoring
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
       setAudioLevel(0);
       
-      if (animationFrame.current) {
-        cancelAnimationFrame(animationFrame.current);
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
+      
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
-
+      
       toast({
         title: "Gravação cancelada",
-        description: "Nenhum áudio foi processado",
+        description: "Gravação interrompida",
       });
     }
-  }, [isRecording, toast]);
+  };
 
   return {
     isRecording,
@@ -246,4 +222,4 @@ export const useVoiceRecording = () => {
     stopRecording,
     cancelRecording,
   };
-};
+}
