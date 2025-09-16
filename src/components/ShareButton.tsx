@@ -49,7 +49,10 @@ export function ShareButton({
   const canOwnerActions = isOwner || isAuthorized || (user?.id === property.user_id);
 
   const handleShareModal = async () => {
+    console.log('handleShareModal chamado - canShare:', canShare, 'user:', !!user);
+    
     if (!canShare) {
+      console.log('Acesso negado no handleShareModal');
       toast({
         title: "Acesso negado",
         description: "Apenas o corretor responsável pode compartilhar este imóvel",
@@ -58,6 +61,7 @@ export function ShareButton({
       return;
     }
 
+    console.log('Abrindo modal PropertyPresentation para propriedade:', property.titulo);
     setShowExternalTool(true);
   };
 
@@ -125,6 +129,7 @@ export function ShareButton({
   };
 
   const handleToolClose = () => {
+    console.log('Fechando PropertyPresentation modal');
     setShowExternalTool(false);
   };
 
@@ -189,6 +194,13 @@ export function ShareButton({
         isOpen={showExternalTool}
         onClose={handleToolClose}
       />
+      
+      {/* Debug info */}
+      {showExternalTool && (
+        <div style={{ position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '5px', fontSize: '12px', zIndex: 99999 }}>
+          DEBUG: Modal aberto - {property.titulo}
+        </div>
+      )}
     </>
   );
 }

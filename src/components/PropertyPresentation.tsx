@@ -43,7 +43,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
 
-  if (!isOpen) return null;
+  console.log('PropertyPresentation renderizando:', { isOpen, property: property?.titulo });
+
+  if (!isOpen) {
+    console.log('Modal não está aberto, retornando null');
+    return null;
+  }
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -103,6 +108,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     window.open(propertyUrl, '_blank');
   };
 
+  console.log('Renderizando modal com imagem:', property.fotos[0]);
+
   return (
     <div className="fixed inset-0 bg-black z-[10010] overflow-hidden">
       {/* Mobile-first design replicating readdy.link exactly */}
@@ -111,7 +118,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       <div 
         className="relative h-full w-full bg-cover bg-center"
         style={{
-          backgroundImage: `url(${property.fotos[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80'})`,
+          backgroundImage: `url(${property.fotos?.[0] || 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1200&q=80'})`,
         }}
       >
         {/* Dark gradient overlay */}
