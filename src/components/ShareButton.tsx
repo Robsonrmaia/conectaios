@@ -61,7 +61,7 @@ export function ShareButton({
   };
 
   // Build URL for the HTML generator with complete property data and ALL photos
-  const generatorUrl = `https://gerador-de-proposta-de-im-vel-com-ia-420832656535.us-west1.run.app?` +
+  const generatorUrl = `https://readdy.link/preview/da63f38b-125e-413b-aa01-7e77fb40a0bf/2488182?` +
     `propertyId=${encodeURIComponent(property.id)}&` +
     `title=${encodeURIComponent(property.titulo)}&` +
     `valor=${encodeURIComponent(property.valor.toString())}&` +
