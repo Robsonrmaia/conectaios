@@ -5,7 +5,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { generatePropertyUrl } from '@/lib/urls';
-import { ExternalToolModal } from '@/components/ExternalToolModal';
+import { PropertyPresentation } from '@/components/PropertyPresentation';
 
 interface ShareButtonProps {
   property: Property; // Full property object instead of separate fields
@@ -147,7 +147,7 @@ export function ShareButton({
         <DropdownMenuContent>
           <DropdownMenuItem onClick={handleShareModal}>
             <Share2 className="h-4 w-4 mr-2" />
-            Abrir no Modal
+            Visualizar Proposta
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleShareNewTab}>
             <ExternalLink className="h-4 w-4 mr-2" />
@@ -156,12 +156,10 @@ export function ShareButton({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ExternalToolModal
+      <PropertyPresentation
+        property={property}
         isOpen={showExternalTool}
         onClose={handleToolClose}
-        toolUrl="https://readdy.link/preview/da63f38b-125e-413b-aa01-7e77fb40a0bf/2488182/admin"
-        toolName="Readdy - Gerador de Propostas"
-        propertyData={propertyData}
       />
     </>
   );
