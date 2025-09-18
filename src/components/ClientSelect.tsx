@@ -59,7 +59,7 @@ export function ClientSelect({ value, onValueChange, placeholder = "Selecione um
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="">Nenhum cliente</SelectItem>
+        <SelectItem value="none">Nenhum cliente</SelectItem>
         {clients.map((client) => (
           <SelectItem key={client.id} value={client.nome}>
             {client.nome} {client.telefone && `- ${client.telefone}`}

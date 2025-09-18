@@ -8,6 +8,7 @@ import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { PhotoGallery } from '@/components/PhotoGallery';
 
 interface Property {
   id: string;
@@ -23,6 +24,7 @@ interface Property {
   property_type?: string;
   neighborhood?: string;
   city?: string;
+  zipcode?: string;
   descricao?: string;
   has_sea_view?: boolean;
   furnishing_type?: string;
@@ -42,6 +44,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
+  const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -101,6 +106,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     window.open(propertyUrl, '_blank');
   };
 
+  const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
+    setGalleryPhotos(photos);
+    setGalleryInitialIndex(initialIndex);
+    setIsGalleryOpen(true);
+  };
+
   
   // Don't render if not open
   if (!isOpen) return null;
@@ -111,10 +122,13 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       <div className="relative h-screen w-full">
         {/* Hero Image with overlays */}
         <div 
-          className="relative h-full w-full bg-cover bg-center"
+          className="relative h-full w-full bg-cover bg-center cursor-pointer"
           style={{
-            backgroundImage: `url(https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagocomsombra.png)`,
+            backgroundImage: property.fotos && property.fotos.length > 0 
+              ? `url(${property.fotos[0]})` 
+              : `url(https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagocomsombra.png)`,
           }}
+          onClick={() => property.fotos && property.fotos.length > 0 && openPhotoGallery(property.fotos, 0)}
         >
           {/* Dark gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
@@ -157,7 +171,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             
             {/* Location in blue */}
             <p className="text-blue-300 text-xl font-medium">
-              {property.neighborhood || property.city || 'Vila Madalena'}
+              {property.neighborhood && property.zipcode 
+                ? `${property.neighborhood} - CEP: ${property.zipcode}`
+                : property.neighborhood || property.city || 'Vila Madalena'
+              }
             </p>
             
             {/* Property specs with icons - vertical layout like readdy */}
@@ -245,6 +262,35 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             {property.descricao || "Esta magnífica residência combina elegância contemporânea com funcionalidade excepcional. Localizada em uma das áreas mais valorizadas de São Paulo, oferece privacidade e sofisticação em cada detalhe."}
           </p>
 
+          {/* Photo Gallery */}
+          {property.fotos && property.fotos.length > 1 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {property.fotos.slice(0, 9).map((foto, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200"
+                    onClick={() => openPhotoGallery(property.fotos, index)}
+                  >
+                    <img
+                      src={foto}
+                      alt={`Foto ${index + 1} do imóvel`}
+                      className="w-full h-full object-cover group-hover:brightness-110 transition-all duration-200"
+                    />
+                    {index === 8 && property.fotos.length > 9 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-semibold">
+                          +{property.fotos.length - 8}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Two column layout for specifications */}
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             {/* Especificações */}
@@ -284,12 +330,28 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Condomínio:</span>
-                  <span className="font-medium">{property.condominium_fee ? formatCurrency(property.condominium_fee) : 'R$ 850'}</span>
+                  <span className="font-medium">
+                    {property.condominium_fee ? formatCurrency(property.condominium_fee) : 'Não informado'}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">IPTU:</span>
-                  <span className="font-medium text-blue-600">{property.iptu ? formatCurrency(property.iptu) : 'R$ 1.200'}</span>
+                  <span className="font-medium text-blue-600">
+                    {property.iptu ? formatCurrency(property.iptu) : 'Não informado'}
+                  </span>
                 </div>
+                {property.zipcode && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">CEP:</span>
+                    <span className="font-medium">{property.zipcode}</span>
+                  </div>
+                )}
+                {property.neighborhood && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Bairro:</span>
+                    <span className="font-medium">{property.neighborhood}</span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
                   <span className="font-medium text-green-600">Disponível</span>
@@ -379,8 +441,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             <div className="flex items-center justify-center h-48 bg-gray-100 rounded-lg">
               <div className="text-center">
                 <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">Vila Madalena</p>
-                <p className="text-sm text-gray-500">São Paulo - SP</p>
+                <p className="text-gray-600 font-medium">
+                  {property.neighborhood || 'Vila Madalena'}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {property.zipcode ? `CEP: ${property.zipcode}` : 'São Paulo - SP'}
+                </p>
               </div>
             </div>
           </div>
@@ -478,6 +544,14 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           </div>
         </section>
       </div>
+
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={galleryPhotos}
+        initialIndex={galleryInitialIndex}
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+      />
     </div>
   );
 }

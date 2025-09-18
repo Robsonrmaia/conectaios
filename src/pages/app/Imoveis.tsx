@@ -60,6 +60,7 @@ interface Property {
   furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
   sea_distance?: number;
   neighborhood?: string;
+  zipcode?: string;
 }
 
 export default function Imoveis() {
@@ -156,6 +157,7 @@ export default function Imoveis() {
           sea_distance,
           has_sea_view,
           neighborhood,
+          zipcode,
           created_at,
           reference_code
         `, { count: 'exact' })
@@ -1063,9 +1065,20 @@ export default function Imoveis() {
                </div>
 
                <div className="flex justify-between items-start">
-                 <div className="space-y-2">
-                   <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
-                    {property.visibility === 'public_site' ? (
+                <div className="space-y-2">
+                  <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{property.neighborhood || 'Bairro não informado'}</span>
+                  </div>
+                  {property.zipcode && (
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">CEP: {property.zipcode}</span>
+                    </div>
+                  )}
+                </div>
+                    <Badge variant="outline" className="text-xs">{property.property_type}</Badge>
                       <Badge variant="default" className="text-xs">
                         <Eye className="h-3 w-3 mr-1" />
                         Site Público
