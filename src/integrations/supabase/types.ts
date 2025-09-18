@@ -3018,6 +3018,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_security_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

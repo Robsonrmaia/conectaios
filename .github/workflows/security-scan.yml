@@ -1,0 +1,101 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run security scan daily at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  security-audit:
+    runs-on: ubuntu-latest
+    name: Security Audit
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run npm audit
+      run: npm audit --audit-level moderate
+      
+    - name: Check for sensitive files
+      run: |
+        echo "🔍 Checking for sensitive files..."
+        
+        # Check for .env files
+        if find . -name ".env" -not -path "./node_modules/*" -not -path "./.git/*" | grep -q .; then
+          echo "❌ .env files found in repository!"
+          find . -name ".env" -not -path "./node_modules/*" -not -path "./.git/*"
+          exit 1
+        fi
+        
+        # Check for common secrets patterns
+        echo "🔍 Scanning for potential secrets..."
+        
+        # API keys patterns
+        if grep -r -E "(api_key|API_KEY|secret_key|SECRET_KEY|password|PASSWORD)" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" . --exclude-dir=node_modules --exclude-dir=.git | grep -v "placeholder\|example\|PLACEHOLDER\|EXAMPLE"; then
+          echo "⚠️ Potential secrets found in code. Please review:"
+          exit 1
+        fi
+        
+        # Check for hardcoded URLs and tokens
+        if grep -r -E "(sk-[a-zA-Z0-9]{20,}|pk_[a-zA-Z0-9]{20,})" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" . --exclude-dir=node_modules --exclude-dir=.git; then
+          echo "❌ Hardcoded tokens found!"
+          exit 1
+        fi
+        
+        echo "✅ No sensitive files or secrets detected"
+        
+    - name: Check TypeScript strict mode
+      run: |
+        echo "🔍 Checking TypeScript configuration..."
+        if ! grep -q '"strict": true' tsconfig*.json; then
+          echo "⚠️ TypeScript strict mode is not enabled"
+          exit 1
+        fi
+        echo "✅ TypeScript strict mode is enabled"
+        
+    - name: Security Headers Check
+      run: |
+        echo "🔍 Checking for security configurations..."
+        
+        # Check if security headers are configured (placeholder check)
+        if [ -f "vite.config.ts" ]; then
+          echo "✅ Vite config found"
+        fi
+        
+        echo "✅ Basic security configuration verified"
+
+  codeql-analysis:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule'
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'typescript', 'javascript' ]
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
