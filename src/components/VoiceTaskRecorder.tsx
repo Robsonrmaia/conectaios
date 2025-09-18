@@ -12,7 +12,7 @@ interface VoiceTaskRecorderProps {
 }
 
 export function VoiceTaskRecorder({ isOpen, onClose, onTaskData }: VoiceTaskRecorderProps) {
-  const { isRecording, isProcessing, audioLevel, startRecording, stopRecording, cancelRecording } = useVoiceRecording();
+  const { isRecording, isProcessing, audioLevel, processingStep, startRecording, stopRecording, cancelRecording } = useVoiceRecording('task');
   const { toast } = useToast();
 
   const handleStartRecording = async () => {
@@ -83,7 +83,8 @@ export function VoiceTaskRecorder({ isOpen, onClose, onTaskData }: VoiceTaskReco
             <p className="text-sm text-muted-foreground">
               {!isRecording && !isProcessing && "Clique para começar a gravar"}
               {isRecording && "Descreva a tarefa, data e horário..."}
-              {isProcessing && "Processando transcrição..."}
+              {isProcessing && processingStep && processingStep}
+              {isProcessing && !processingStep && "Processando transcrição..."}
             </p>
             
             {/* Indicador visual de nível de áudio */}
@@ -132,7 +133,7 @@ export function VoiceTaskRecorder({ isOpen, onClose, onTaskData }: VoiceTaskReco
             {isProcessing && (
               <Button disabled size="lg">
                 <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Processando...
+                {processingStep || "Processando..."}
               </Button>
             )}
           </div>

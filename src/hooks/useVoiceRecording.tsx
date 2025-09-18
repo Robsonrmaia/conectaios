@@ -8,10 +8,11 @@ interface VoiceRecordingResult {
   type: string;
 }
 
-export function useVoiceRecording() {
+export function useVoiceRecording(recordingType: 'client' | 'task' = 'task') {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [audioLevel, setAudioLevel] = useState(0);
+  const [processingStep, setProcessingStep] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -98,79 +99,88 @@ export function useVoiceRecording() {
             throw new Error('Áudio vazio');
           }
 
-          console.log('🎤 Processando áudio:', audioBlob.size, 'bytes');
+              console.log(`🎤 Processando áudio ${recordingType}:`, audioBlob.size, 'bytes');
+              setProcessingStep('Transcrevendo áudio...');
 
-          // Converter para base64
-          const reader = new FileReader();
-          reader.onloadend = async () => {
-            try {
-              const base64Audio = (reader.result as string).split(',')[1];
-              if (!base64Audio) {
-                throw new Error('Falha ao processar áudio');
-              }
+              // Converter para base64
+              const reader = new FileReader();
+              reader.onloadend = async () => {
+                try {
+                  setProcessingStep('Preparando dados...');
+                  const base64Audio = (reader.result as string).split(',')[1];
+                  if (!base64Audio) {
+                    throw new Error('Falha ao processar áudio');
+                  }
 
-              // Determine type based on context (default to 'general')
-              const type = 'task'; // You can make this dynamic based on context
+                  setProcessingStep('Enviando para transcrição...');
+                  console.log(`📡 Enviando para transcrição com type: ${recordingType}`);
+                  
+                  // Enviar para transcrição com tipo correto
+                  const controller = new AbortController();
+                  const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
+                  
+                  const { data, error } = await supabase.functions.invoke('transcribe-audio', {
+                    body: { audio: base64Audio, type: recordingType }
+                  });
+                  
+                  clearTimeout(timeoutId);
 
-              // Enviar para transcrição com timeout maior para agenda
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 45000); // 45s timeout
-              
-              const { data, error } = await supabase.functions.invoke('transcribe-audio', {
-                body: { audio: base64Audio, type }
-              });
-              
-              clearTimeout(timeoutId);
+                  if (error) {
+                    console.error('❌ Erro transcrição:', error);
+                    throw new Error('Falha na transcrição: ' + (error.message || 'Erro desconhecido'));
+                  }
 
-              if (error) {
-                console.error('Erro transcrição:', error);
-                throw new Error('Falha na transcrição: ' + (error.message || 'Erro desconhecido'));
-              }
+                  if (!data) {
+                    throw new Error('Nenhuma resposta da transcrição');
+                  }
 
-              if (!data) {
-                throw new Error('Nenhuma resposta da transcrição');
-              }
+                  console.log('✅ Transcrição bem-sucedida:', data.text);
+                  setProcessingStep('Estruturando dados...');
 
-              console.log('✅ Transcrição bem-sucedida:', data.text);
+                  // Enhanced feedback based on result
+                  if (data.structured) {
+                    const structuredKeys = Object.keys(data.structured).join(', ');
+                    console.log('✅ Dados estruturados extraídos:', data.structured);
+                    toast({
+                      title: recordingType === 'client' ? "Cliente adicionado por voz!" : "Tarefa criada por voz!",
+                      description: `Dados extraídos: ${structuredKeys}`,
+                    });
+                    resolve({ text: data.text, structured: data.structured, type: data.type });
+                  } else {
+                    console.log('⚠️ Apenas transcrição disponível:', data.text);
+                    toast({
+                      title: "Áudio transcrito!",
+                      description: "Transcrição concluída com sucesso",
+                    });
+                    resolve({ text: data.text, type: data.type });
+                  }
+                } catch (error) {
+                  console.error('❌ Erro ao processar:', error);
+                  setProcessingStep('');
+                  toast({
+                    title: "Erro",
+                    description: error instanceof Error ? error.message : "Falha ao processar áudio",
+                    variant: "destructive",
+                  });
+                  reject(error);
+                } finally {
+                  setIsProcessing(false);
+                  setProcessingStep('');
+                }
+              };
 
-              // Enhanced feedback based on result
-              if (data.structured) {
+              reader.onerror = () => {
+                const error = new Error('Falha ao converter áudio');
+                console.error('❌ FileReader error:', error);
+                setProcessingStep('');
                 toast({
-                  title: "Gravação processada!",
-                  description: `Dados estruturados extraídos: ${Object.keys(data.structured).join(', ')}`,
+                  title: "Erro",
+                  description: "Falha ao converter áudio",
+                  variant: "destructive",
                 });
-                resolve({ text: data.text, structured: data.structured, type: data.type });
-              } else {
-                toast({
-                  title: "Áudio transcrito!",
-                  description: "Dados processados com sucesso",
-                });
-                resolve({ text: data.text, type: data.type });
-              }
-            } catch (error) {
-              console.error('❌ Erro ao processar:', error);
-              toast({
-                title: "Erro",
-                description: error instanceof Error ? error.message : "Falha ao processar áudio",
-                variant: "destructive",
-              });
-              reject(error);
-            } finally {
-              setIsProcessing(false);
-            }
-          };
-
-          reader.onerror = () => {
-            const error = new Error('Falha ao converter áudio');
-            console.error('❌ FileReader error:', error);
-            toast({
-              title: "Erro",
-              description: "Falha ao converter áudio",
-              variant: "destructive",
-            });
-            setIsProcessing(false);
-            reject(error);
-          };
+                setIsProcessing(false);
+                reject(error);
+              };
 
           reader.readAsDataURL(audioBlob);
         } catch (error) {
@@ -193,6 +203,7 @@ export function useVoiceRecording() {
     if (mediaRecorderRef.current && isRecording) {
       setIsRecording(false);
       setIsProcessing(false);
+      setProcessingStep('');
       
       // Stop audio level monitoring
       if (animationFrameRef.current) {
@@ -218,6 +229,7 @@ export function useVoiceRecording() {
     isRecording,
     isProcessing,
     audioLevel,
+    processingStep,
     startRecording,
     stopRecording,
     cancelRecording,
