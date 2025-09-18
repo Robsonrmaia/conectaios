@@ -134,16 +134,16 @@ export default function Perfil() {
 
       <Tabs defaultValue="perfil" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1">
-          <TabsTrigger value="perfil" className="text-xs sm:text-sm">Perfil</TabsTrigger>
-          <TabsTrigger value="minisite" className="text-xs sm:text-sm">Minisite</TabsTrigger>
-          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm">Config</TabsTrigger>
-          <TabsTrigger value="conquistas" className="text-xs sm:text-sm">Awards</TabsTrigger>
-          <TabsTrigger value="plano" className="text-xs sm:text-sm">Plano</TabsTrigger>
+          <TabsTrigger value="perfil" className="text-xs sm:text-sm px-2 py-2">Perfil</TabsTrigger>
+          <TabsTrigger value="minisite" className="text-xs sm:text-sm px-2 py-2">Minisite</TabsTrigger>
+          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-2">Config</TabsTrigger>
+          <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-2 py-2">Awards</TabsTrigger>
+          <TabsTrigger value="plano" className="text-xs sm:text-sm px-2 py-2">Plano</TabsTrigger>
         </TabsList>
 
         <TabsContent value="perfil" className="space-y-6">
           {/* Profile Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card>
               <CardContent className="p-4 text-center">
                 <div className="text-2xl font-bold text-primary">{stats.totalVendas}</div>
@@ -152,7 +152,7 @@ export default function Perfil() {
             </Card>
             <Card>
               <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-success">
+              <div className="text-xl sm:text-2xl font-bold text-success break-words">
                 {stats.comissaoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
               </div>
                 <div className="text-sm text-muted-foreground">Comissão Total</div>
@@ -255,115 +255,123 @@ export default function Perfil() {
               <CardHeader>
                 <CardTitle>Informações Básicas</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Nome Completo</Label>
-                    <Input
-                      id="name"
-                      value={profile.name}
-                      onChange={(e) => setProfile({...profile, name: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profile.email}
-                      onChange={(e) => setProfile({...profile, email: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telefone</Label>
-                    <Input
-                      id="phone"
-                      value={profile.phone}
-                      onChange={(e) => setProfile({...profile, phone: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="secondary-phone">Telefone Secundário</Label>
-                    <Input
-                      id="secondary-phone"
-                      value={profile.secondaryPhone || ''}
-                      onChange={(e) => setProfile({...profile, secondaryPhone: e.target.value})}
-                      placeholder="(opcional)"
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="creci">CRECI</Label>
-                    <Input
-                      id="creci"
-                      value={profile.creci}
-                      onChange={(e) => setProfile({...profile, creci: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input
-                      id="username"
-                      value={profile.username}
-                      onChange={(e) => setProfile({...profile, username: e.target.value})}
-                      placeholder="seunome_corretor"
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Localização</Label>
-                    <Input
-                      id="location"
-                      value={profile.location}
-                      onChange={(e) => setProfile({...profile, location: e.target.value})}
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      value={profile.website}
-                      onChange={(e) => setProfile({...profile, website: e.target.value})}
-                      placeholder="https://seusiteimobiliario.com"
-                      className="h-11"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                     <Label htmlFor="instagram">Instagram</Label>
+                <CardContent className="space-y-4">
+                 <div className="grid grid-cols-1 gap-4">
+                   <div className="space-y-2">
+                     <Label htmlFor="name">Nome Completo</Label>
                      <Input
-                       id="instagram"
-                       value={profile.instagram || ''}
-                       onChange={(e) => setProfile({...profile, instagram: e.target.value})}
-                       placeholder="@seuusuario"
+                       id="name"
+                       value={profile.name}
+                       onChange={(e) => setProfile({...profile, name: e.target.value})}
                        className="h-11"
                      />
                    </div>
                    <div className="space-y-2">
-                     <Label htmlFor="linkedin">LinkedIn</Label>
+                     <Label htmlFor="email">Email</Label>
                      <Input
-                       id="linkedin"
-                       value={profile.linkedin || ''}
-                       onChange={(e) => setProfile({...profile, linkedin: e.target.value})}
-                       placeholder="linkedin.com/in/perfil"
+                       id="email"
+                       type="email"
+                       value={profile.email}
+                       onChange={(e) => setProfile({...profile, email: e.target.value})}
                        className="h-11"
                      />
                    </div>
-                   <div className="space-y-2 sm:col-span-2">
-                     <Label htmlFor="specialties">Especialidades</Label>
-                     <Input
-                       id="specialties"
-                       value={profile.specialties || ''}
-                       onChange={(e) => setProfile({...profile, specialties: e.target.value})}
-                       placeholder="Ex: Imóveis de luxo, Comercial, Residencial..."
-                       className="h-11"
-                     />
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label htmlFor="phone">Telefone</Label>
+                       <Input
+                         id="phone"
+                         value={profile.phone}
+                         onChange={(e) => setProfile({...profile, phone: e.target.value})}
+                         className="h-11"
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="secondary-phone">Telefone Secundário</Label>
+                       <Input
+                         id="secondary-phone"
+                         value={profile.secondaryPhone || ''}
+                         onChange={(e) => setProfile({...profile, secondaryPhone: e.target.value})}
+                         placeholder="(opcional)"
+                         className="h-11"
+                       />
+                     </div>
                    </div>
-                </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label htmlFor="creci">CRECI</Label>
+                       <Input
+                         id="creci"
+                         value={profile.creci}
+                         onChange={(e) => setProfile({...profile, creci: e.target.value})}
+                         className="h-11"
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="username">Username</Label>
+                       <Input
+                         id="username"
+                         value={profile.username}
+                         onChange={(e) => setProfile({...profile, username: e.target.value})}
+                         placeholder="seunome_corretor"
+                         className="h-11"
+                       />
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label htmlFor="location">Localização</Label>
+                       <Input
+                         id="location"
+                         value={profile.location}
+                         onChange={(e) => setProfile({...profile, location: e.target.value})}
+                         className="h-11"
+                       />
+                     </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="website">Website</Label>
+                       <Input
+                         id="website"
+                         value={profile.website}
+                         onChange={(e) => setProfile({...profile, website: e.target.value})}
+                         placeholder="https://seusiteimobiliario.com"
+                         className="h-11"
+                       />
+                     </div>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                         <Label htmlFor="instagram">Instagram</Label>
+                         <Input
+                           id="instagram"
+                           value={profile.instagram || ''}
+                           onChange={(e) => setProfile({...profile, instagram: e.target.value})}
+                           placeholder="@seuusuario"
+                           className="h-11"
+                         />
+                       </div>
+                       <div className="space-y-2">
+                         <Label htmlFor="linkedin">LinkedIn</Label>
+                         <Input
+                           id="linkedin"
+                           value={profile.linkedin || ''}
+                           onChange={(e) => setProfile({...profile, linkedin: e.target.value})}
+                           placeholder="linkedin.com/in/perfil"
+                           className="h-11"
+                         />
+                       </div>
+                   </div>
+                   <div className="space-y-2">
+                         <Label htmlFor="specialties">Especialidades</Label>
+                         <Input
+                           id="specialties"
+                           value={profile.specialties || ''}
+                           onChange={(e) => setProfile({...profile, specialties: e.target.value})}
+                           placeholder="Ex: Imóveis de luxo, Comercial, Residencial..."
+                           className="h-11"
+                         />
+                   </div>
+                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="bio">Biografia</Label>
                   <Textarea

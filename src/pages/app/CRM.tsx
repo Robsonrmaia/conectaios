@@ -36,25 +36,24 @@ export default function CRM() {
             </p>
           </div>
         </div>
-        
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setIsVoiceRecorderOpen(true)}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            <Mic className="h-4 w-4 mr-2" />
-            Gravar Cliente
-          </Button>
-        </div>
       </div>
-
+        
       <Tabs defaultValue="pipeline" className="space-y-4">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="pipeline">Pipeline CRM</TabsTrigger>
           <TabsTrigger value="agenda">Agenda Inteligente</TabsTrigger>
         </TabsList>
 
         <TabsContent value="pipeline" className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <Button 
+              onClick={() => setIsVoiceRecorderOpen(true)}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              <Mic className="h-4 w-4 mr-2" />
+              Gravar Cliente
+            </Button>
+          </div>
           <PipelineCRM />
         </TabsContent>
 

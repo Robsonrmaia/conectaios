@@ -282,14 +282,14 @@ export default function SmartCalendar() {
     const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
     return (
-      <div className="grid grid-cols-7 gap-2 h-[600px]">
+      <div className="grid grid-cols-7 gap-2 h-[400px] sm:h-[600px]">
         {/* Header com dias da semana */}
         {days.map((day) => (
-          <div key={day.toISOString()} className="p-2 border-b font-medium text-center bg-muted/50">
-            <div className="text-sm text-muted-foreground">
+          <div key={day.toISOString()} className="p-1 sm:p-2 border-b font-medium text-center bg-muted/50">
+            <div className="text-xs sm:text-sm text-muted-foreground">
               {format(day, 'EEE', { locale: ptBR })}
             </div>
-            <div className="text-lg font-semibold">
+            <div className="text-sm sm:text-lg font-semibold">
               {format(day, 'd', { locale: ptBR })}
             </div>
           </div>
@@ -297,14 +297,14 @@ export default function SmartCalendar() {
         
         {/* Tarefas para cada dia */}
         {days.map((day) => (
-          <div key={`tasks-${day.toISOString()}`} className="p-2 space-y-1 overflow-y-auto">
+          <div key={`tasks-${day.toISOString()}`} className="p-1 sm:p-2 space-y-1 overflow-y-auto">
             {filteredTasks
               .filter(task => format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
               .map((task) => (
                 <div
                   key={task.id}
                   onClick={() => setSelectedTask(task)}
-                  className={`p-2 rounded text-xs cursor-pointer transition-colors ${
+                  className={`p-1 sm:p-2 rounded text-xs cursor-pointer transition-colors ${
                     task.priority === 'alta' 
                       ? 'bg-red-100 border-l-2 border-red-500 hover:bg-red-200' 
                       : task.priority === 'media'
@@ -314,7 +314,7 @@ export default function SmartCalendar() {
                 >
                   <div className="font-medium truncate">{task.title}</div>
                   {task.time && (
-                    <div className="text-muted-foreground mt-1">
+                    <div className="text-muted-foreground mt-1 hidden sm:block">
                       {task.time}
                     </div>
                   )}
@@ -477,29 +477,21 @@ export default function SmartCalendar() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-4 items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold">Agenda Inteligente</h2>
+          <h2 className="text-xl sm:text-2xl font-bold">Agenda Inteligente</h2>
           <Badge variant="secondary" className="px-2 py-1">
             {filteredTasks.length} tarefa{filteredTasks.length !== 1 ? 's' : ''}
           </Badge>
         </div>
         
-        <div className="flex gap-2">
-          <Button 
-            onClick={() => setIsVoiceRecorderOpen(true)}
-            className="bg-red-500 hover:bg-red-600 text-white"
-          >
-            <Mic className="h-4 w-4 mr-2" />
-            Gravar Tarefa
-          </Button>
-          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Tarefa
-              </Button>
-            </DialogTrigger>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Tarefa
+            </Button>
+          </DialogTrigger>
             <DialogContent className="max-w-md">
               <DialogHeader>
                 <DialogTitle>Nova Tarefa</DialogTitle>
@@ -573,11 +565,11 @@ export default function SmartCalendar() {
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row gap-4 mb-4">
         <div className="flex items-center gap-2">
           <Filter className="h-4 w-4" />
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-full sm:w-32">
               <SelectValue placeholder="Prioridade" />
             </SelectTrigger>
             <SelectContent>
@@ -588,18 +580,25 @@ export default function SmartCalendar() {
             </SelectContent>
           </Select>
         </div>
+        <Button 
+          onClick={() => setIsVoiceRecorderOpen(true)}
+          className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto"
+        >
+          <Mic className="h-4 w-4 mr-2" />
+          Gravar Tarefa
+        </Button>
       </div>
 
       {/* Navegação de vista */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <Button variant={view === 'month' ? 'default' : 'outline'} onClick={() => setView('month')}>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div className="flex gap-2 overflow-x-auto">
+          <Button variant={view === 'month' ? 'default' : 'outline'} onClick={() => setView('month')} size="sm">
             Mês
           </Button>
-          <Button variant={view === 'week' ? 'default' : 'outline'} onClick={() => setView('week')}>
+          <Button variant={view === 'week' ? 'default' : 'outline'} onClick={() => setView('week')} size="sm">
             Semana
           </Button>
-          <Button variant={view === 'day' ? 'default' : 'outline'} onClick={() => setView('day')}>
+          <Button variant={view === 'day' ? 'default' : 'outline'} onClick={() => setView('day')} size="sm">
             Dia
           </Button>
         </div>
@@ -608,10 +607,10 @@ export default function SmartCalendar() {
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(subDays(currentDate, view === 'month' ? 30 : view === 'week' ? 7 : 1))}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <span className="font-medium min-w-[200px] text-center">
+          <span className="font-medium text-center text-sm sm:text-base min-w-[150px] sm:min-w-[200px]">
             {view === 'month' && format(currentDate, 'MMMM yyyy', { locale: ptBR })}
             {view === 'week' && `${format(currentDate, 'dd MMM', { locale: ptBR })} - ${format(addDays(currentDate, 6), 'dd MMM yyyy', { locale: ptBR })}`}
-            {view === 'day' && format(currentDate, "EEEE, dd 'de' MMMM yyyy", { locale: ptBR })}
+            {view === 'day' && format(currentDate, "dd 'de' MMMM yyyy", { locale: ptBR })}
           </span>
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(addDays(currentDate, view === 'month' ? 30 : view === 'week' ? 7 : 1))}>
             <ChevronRight className="h-4 w-4" />

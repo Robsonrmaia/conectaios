@@ -644,8 +644,6 @@ export default function Marketplace() {
               </Select>
             </div>
             
-// ============= Lines 432-495 of 628 total lines =============
-
             <div className="flex flex-wrap justify-center gap-2">
               <Pagination>
                 <PaginationContent className="flex-wrap gap-1">

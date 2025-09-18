@@ -215,18 +215,18 @@ export default function Deals() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-fit"
           >
             <Home className="h-4 w-4" />
             Dashboard
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-primary">
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">
               Negociações
             </h1>
             <p className="text-muted-foreground">
@@ -237,7 +237,7 @@ export default function Deals() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold">{deals.length}</div>
@@ -262,7 +262,7 @@ export default function Deals() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">
+            <div className="text-xl sm:text-2xl font-bold text-primary break-words">
               {deals.reduce((sum, deal) => sum + deal.value, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </div>
             <div className="text-sm text-muted-foreground">Comissões Recebidas</div>
@@ -280,7 +280,7 @@ export default function Deals() {
         </TabsList>
 
         <TabsContent value="todos" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {deals.map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -288,7 +288,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="proposta" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {filterDeals('proposta').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -296,7 +296,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="negociacao" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {filterDeals('negociacao').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
@@ -304,7 +304,7 @@ export default function Deals() {
         </TabsContent>
 
         <TabsContent value="finalizado" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             {filterDeals('finalizado').map(deal => (
               <DealCard key={deal.id} deal={deal} />
             ))}
