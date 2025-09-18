@@ -628,6 +628,21 @@ export default function SmartCalendar() {
                   />
                 </div>
               </div>
+              {/* Cliente Selection */}
+              <div>
+                <Label>Cliente (Opcional)</Label>
+                <ClientSelect
+                  value={newTask.client_name}
+                  onValueChange={(clientName) => {
+                    setNewTask(prev => ({ 
+                      ...prev, 
+                      client_name: clientName
+                    }));
+                  }}
+                  placeholder="Buscar cliente..."
+                />
+              </div>
+              
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>Prioridade</Label>
