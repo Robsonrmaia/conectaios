@@ -2,8 +2,31 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://hvbdeyuqcliqrmzvyciq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YmRleXVxY2xpcXJtenZ5Y2lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDAwNDgsImV4cCI6MjA3MDQxNjA0OH0.9-Ewj0EvAuo-z9caO4euMntxxRI-MlqgZDTba6Hw98I";
+// Use Vite environment variables with fallbacks for development
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://hvbdeyuqcliqrmzvyciq.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YmRleXVxY2xpcXJtenZ5Y2lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDAwNDgsImV4cCI6MjA3MDQxNjA0OH0.9-Ewj0EvAuo-z9caO4euMntxxRI-MlqgZDTba6Hw98I";
+
+// Runtime validation
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  console.error('🔴 Configuração do Supabase ausente!');
+  console.error('Verifique as variáveis de ambiente:');
+  console.error('- VITE_SUPABASE_URL:', SUPABASE_URL);
+  console.error('- VITE_SUPABASE_ANON_KEY:', SUPABASE_PUBLISHABLE_KEY ? '✓' : '✗');
+  
+  // Show user-friendly warning in UI
+  if (typeof window !== 'undefined') {
+    setTimeout(() => {
+      const errorDiv = document.createElement('div');
+      errorDiv.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: #ef4444; color: white; padding: 1rem; text-align: center;">
+          <strong>⚠️ Configuração do Supabase ausente</strong><br>
+          Verifique as variáveis VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY
+        </div>
+      `;
+      document.body.appendChild(errorDiv);
+    }, 100);
+  }
+}
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
