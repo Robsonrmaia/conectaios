@@ -43,8 +43,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
 
-  if (!isOpen) return null;
-
   // Fetch broker data for the property owner
   useEffect(() => {
     const fetchPropertyBroker = async () => {
@@ -104,6 +102,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   
+  // Don't render if not open
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-white z-[10010] overflow-y-auto">
