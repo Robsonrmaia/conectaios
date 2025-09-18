@@ -301,7 +301,7 @@ export default function Patrocinios() {
             Patrocine imóveis para aumentar sua visibilidade e gerar mais leads
           </p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg">
+        <Button className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
           <Plus className="h-4 w-4 mr-2" />
           Novo Patrocínio
         </Button>
@@ -358,10 +358,12 @@ export default function Patrocinios() {
 
       {/* Tabs */}
       <Tabs defaultValue="meus" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="meus">Meus Patrocínios ({mySponsored.length})</TabsTrigger>
-          <TabsTrigger value="disponiveis">Disponíveis ({availableSponsors.length})</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 px-4 overflow-x-auto sm:mx-0 sm:px-0">
+          <TabsList className="flex-nowrap w-max sm:flex-wrap sm:w-auto">
+            <TabsTrigger value="meus" className="whitespace-nowrap text-xs sm:text-sm">Meus Patrocínios ({mySponsored.length})</TabsTrigger>
+            <TabsTrigger value="disponiveis" className="whitespace-nowrap text-xs sm:text-sm">Disponíveis ({availableSponsors.length})</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="meus" className="space-y-4">
           {mySponsored.length > 0 ? (

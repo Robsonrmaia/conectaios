@@ -152,7 +152,7 @@ export default function Videos() {
             Aprimore suas habilidades com nossos vídeos educativos
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
           <Upload className="h-4 w-4 mr-2" />
           Sugerir Tópico
         </Button>
@@ -211,13 +211,15 @@ export default function Videos() {
 
       {/* Videos Tabs */}
       <Tabs defaultValue="Todos" className="space-y-4">
-        <TabsList className="flex-wrap h-auto">
-          {categories.map((category) => (
-            <TabsTrigger key={category} value={category}>
-              {category} ({category === 'Todos' ? videos.length : filterVideos(category).length})
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="-mx-4 px-4 overflow-x-auto sm:mx-0 sm:px-0">
+          <TabsList className="flex-nowrap w-max sm:flex-wrap sm:w-auto h-auto gap-1">
+            {categories.map((category) => (
+              <TabsTrigger key={category} value={category} className="whitespace-nowrap text-xs sm:text-sm px-2 sm:px-3">
+                {category} ({category === 'Todos' ? videos.length : filterVideos(category).length})
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         {categories.map((category) => (
           <TabsContent key={category} value={category} className="space-y-4">

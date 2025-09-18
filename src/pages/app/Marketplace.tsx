@@ -291,7 +291,7 @@ export default function Marketplace() {
                 <Button 
                   variant="outline" 
                   onClick={() => navigate('/app')}
-                  className="flex items-center gap-2 w-fit"
+                  className="flex items-center gap-2 px-3 sm:px-4 text-sm sm:text-base w-full sm:w-auto"
                 >
                   <Home className="h-4 w-4" />
                   Dashboard
@@ -837,34 +837,34 @@ export default function Marketplace() {
                     <h3 className="font-semibold mb-2">Ações</h3>
                     <div className="space-y-2">
                       <Button 
-                        className="w-full" 
+                        className="w-full px-3 sm:px-4 text-sm" 
                         onClick={() => handleContactBroker(selectedProperty.profiles?.nome || 'Corretor')}
                       >
                         <Phone className="h-4 w-4 mr-2" />
                         Entrar em Contato
                       </Button>
-                      <Button 
-                        className="w-full" 
-                        variant="outline"
-                        onClick={() => handleMatch(selectedProperty.id)}
-                      >
-                        <Target className="h-4 w-4 mr-2" />
-                        Marcar Match
-                      </Button>
                        <Button 
-                         className="w-full" 
+                         className="w-full px-3 sm:px-4 text-sm" 
                          variant="outline"
-                         onClick={() => {
-                           const phone = selectedProperty.conectaios_brokers?.name ? '5511999999999' : '';
-                           const message = `Olá! Vi seu imóvel "${selectedProperty.titulo}" no marketplace e gostaria de mais informações.`;
-                           if (phone) {
-                             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-                           }
-                         }}
+                         onClick={() => handleMatch(selectedProperty.id)}
                        >
-                         <MessageCircle className="h-4 w-4 mr-2" />
-                         Entrar em Contato
+                         <Target className="h-4 w-4 mr-2" />
+                         Marcar Match
                        </Button>
+                        <Button 
+                          className="w-full px-3 sm:px-4 text-sm" 
+                          variant="outline"
+                          onClick={() => {
+                            const phone = selectedProperty.conectaios_brokers?.name ? '5511999999999' : '';
+                            const message = `Olá! Vi seu imóvel "${selectedProperty.titulo}" no marketplace e gostaria de mais informações.`;
+                            if (phone) {
+                              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+                            }
+                          }}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Entrar em Contato
+                        </Button>
                     </div>
                   </div>
                 </div>

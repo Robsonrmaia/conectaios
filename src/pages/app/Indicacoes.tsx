@@ -99,7 +99,7 @@ export default function Indicacoes() {
               Convide outros corretores e ganhe descontos nas mensalidades
             </p>
         </div>
-        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90">
+        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
           <Share2 className="h-4 w-4 mr-2" />
           Fazer Indicação
         </Button>

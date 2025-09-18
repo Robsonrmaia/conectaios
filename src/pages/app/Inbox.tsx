@@ -13,7 +13,7 @@ export default function Inbox() {
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 px-3 sm:px-4 text-sm sm:text-base w-full sm:w-auto"
           >
             <Home className="h-4 w-4" />
             Dashboard

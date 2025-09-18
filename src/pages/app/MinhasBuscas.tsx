@@ -305,7 +305,7 @@ export default function MinhasBuscas() {
         
         <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Nova Busca
             </Button>
