@@ -171,16 +171,16 @@ export default function SecureAdminUserManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-2">
           <Shield className="h-5 w-5" />
           <h2 className="text-2xl font-bold">Gerenciamento de Usuários</h2>
-          <Badge variant="destructive">Admin Only</Badge>
+          <Badge variant="destructive" className="text-xs sm:text-sm">Admin Only</Badge>
         </div>
         
         <Dialog open={createUserOpen} onOpenChange={setCreateUserOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base">
               <UserPlus className="h-4 w-4 mr-2" />
               Criar Usuário
             </Button>
@@ -279,7 +279,7 @@ export default function SecureAdminUserManagement() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
                     <Dialog open={roleChangeOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
                       setRoleChangeOpen(open);
                       if (!open) setSelectedUser(null);
@@ -289,6 +289,7 @@ export default function SecureAdminUserManagement() {
                           variant="outline" 
                           size="sm"
                           onClick={() => setSelectedUser(user)}
+                          className="w-full sm:w-auto px-3 sm:px-4 text-sm"
                         >
                           <Shield className="h-4 w-4 mr-1" />
                           Alterar Role

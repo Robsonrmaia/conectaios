@@ -146,14 +146,14 @@ ${data.userGrowth.map(item => `${item.month},${item.new},${item.total}`).join('\
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">Analytics da Plataforma</h2>
           <p className="text-muted-foreground">Métricas e estatísticas gerais do sistema</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-full sm:w-[140px] text-sm sm:text-base">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -163,7 +163,7 @@ ${data.userGrowth.map(item => `${item.month},${item.new},${item.total}`).join('\
               <SelectItem value="1y">1 Ano</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={exportData} variant="outline" size="sm">
+          <Button onClick={exportData} variant="outline" size="sm" className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base">
             <Download className="h-4 w-4 mr-2" />
             Exportar
           </Button>

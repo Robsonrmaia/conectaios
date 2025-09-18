@@ -178,7 +178,7 @@ export default function AdminTestimonialManager() {
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={handleNewTestimonial} className="gap-2">
+              <Button onClick={handleNewTestimonial} className="gap-2 w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base">
                 <Plus className="h-4 w-4" />
                 Novo Testemunho
               </Button>
@@ -354,11 +354,12 @@ export default function AdminTestimonialManager() {
                         "{testimonial.testimonial}"
                       </p>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 ml-4">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEdit(testimonial)}
+                        className="w-full sm:w-auto px-2 sm:px-3 text-xs sm:text-sm"
                       >
                         <Edit3 className="h-4 w-4" />
                       </Button>
@@ -366,7 +367,7 @@ export default function AdminTestimonialManager() {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDelete(testimonial.id)}
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-destructive w-full sm:w-auto px-2 sm:px-3 text-xs sm:text-sm"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

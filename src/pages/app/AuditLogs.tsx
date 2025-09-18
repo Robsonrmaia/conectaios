@@ -156,7 +156,7 @@ const AuditLogs = () => {
                 </SelectContent>
               </Select>
 
-              <Button variant="outline" onClick={exportLogs}>
+              <Button variant="outline" onClick={exportLogs} className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base">
                 <Download className="h-4 w-4 mr-2" />
                 Exportar
               </Button>
