@@ -126,36 +126,63 @@ export default function MinisiteView() {
       }
 
       // Fetch broker's properties if show_properties is enabled
-      if (configData.show_properties) {
-        // First get broker info to find the correct user_id
-        const { data: brokerData } = await supabase
-          .from('conectaios_brokers')
-          .select('user_id')
-          .eq('id', configData.broker_id)
-          .single();
+      if (configData?.show_properties && configData.broker_id) {
+        console.log('Fetching properties for broker_id:', configData.broker_id);
+        
+        try {
+          // First get broker info to find the correct user_id
+          const { data: brokerData, error: brokerError } = await supabase
+            .from('conectaios_brokers')
+            .select('user_id')
+            .eq('id', configData.broker_id)
+            .single();
 
-        if (brokerData?.user_id) {
-          console.log('Fetching properties for user_id:', brokerData.user_id);
-          
-          // Try both tables as there might be different naming conventions
-          const { data: propertiesData, error: propertiesError } = await supabase
-            .from('properties')
-            .select('id, titulo, valor, quartos, area, fotos, neighborhood, city, descricao, bathrooms, parking_spots')
-            .eq('user_id', brokerData.user_id)
-            .eq('is_public', true)
-            .in('visibility', ['public_site', 'match_only'])
-            .limit(6);
-
-          console.log('Properties found:', propertiesData?.length || 0);
-          console.log('Properties data:', propertiesData);
-          console.log('Properties error:', propertiesError);
-
-          if (propertiesError) {
-            console.error('Error fetching properties:', propertiesError);
-            throw propertiesError;
+          if (brokerError) {
+            console.error('Error fetching broker data:', brokerError);
+            throw brokerError;
           }
-          setProperties(propertiesData || []);
+
+          if (brokerData?.user_id) {
+            console.log('Fetching properties for user_id:', brokerData.user_id);
+            
+            // Query properties with comprehensive error handling
+            const { data: propertiesData, error: propertiesError } = await supabase
+              .from('properties')
+              .select(`
+                id, titulo, valor, quartos, area, fotos, neighborhood, city, 
+                descricao, bathrooms, parking_spots, listing_type, property_type,
+                address, state, features
+              `)
+              .eq('user_id', brokerData.user_id)
+              .eq('is_public', true)
+              .eq('visibility', 'public_site')
+              .order('updated_at', { ascending: false })
+              .limit(12);
+
+            console.log('Properties query completed:', {
+              found: propertiesData?.length || 0,
+              error: propertiesError,
+              user_id: brokerData.user_id
+            });
+
+            if (propertiesError) {
+              console.error('Error fetching properties:', propertiesError);
+              // Don't throw error, just log it and continue with empty properties
+              setProperties([]);
+            } else {
+              setProperties(propertiesData || []);
+            }
+          } else {
+            console.warn('No user_id found for broker');
+            setProperties([]);
+          }
+        } catch (error) {
+          console.error('Error in properties fetch process:', error);
+          setProperties([]);
         }
+      } else {
+        console.log('Properties disabled or no broker_id');
+        setProperties([]);
       }
     } catch (error) {
       console.error('Error fetching minisite data:', error);
@@ -282,17 +309,31 @@ export default function MinisiteView() {
             )}
 
             {/* Properties Section */}
-            {config.show_properties && properties.length > 0 && (
+            {config.show_properties && (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Home className="h-5 w-5" />
                     Imóveis Disponíveis
+                    {properties.length > 0 && (
+                      <span className="text-sm font-normal text-muted-foreground">
+                        ({properties.length})
+                      </span>
+                    )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    {properties.map((property) => (
+                  {properties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel disponível</h3>
+                      <p className="text-muted-foreground">
+                        Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-2 gap-4">
+                      {properties.map((property) => (
                       <div key={property.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         {property.fotos?.[0] && (
                           <img 
@@ -335,8 +376,9 @@ export default function MinisiteView() {
                           {isSpeaking ? "Parar Áudio" : "Ouvir Descrição"}
                         </Button>
                       </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}

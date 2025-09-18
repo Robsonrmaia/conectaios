@@ -48,20 +48,40 @@ Uma plataforma moderna e segura para corretores de imóveis, com recursos avanç
    ```
    
    Preencha as variáveis no arquivo `.env`:
-   - `VITE_SUPABASE_PROJECT_ID`: ID do seu projeto Supabase
-   - `VITE_SUPABASE_PUBLISHABLE_KEY`: Chave pública do Supabase
-   - `VITE_SUPABASE_URL`: URL do seu projeto Supabase
+   - `VITE_SUPABASE_URL`: URL do seu projeto Supabase (ex: https://xxx.supabase.co)
+   - `VITE_SUPABASE_ANON_KEY` ou `VITE_SUPABASE_PUBLISHABLE_KEY`: Chave pública do Supabase
    - `VITE_PUBLIC_SITE_URL`: URL do seu site em produção
+
+   **⚠️ IMPORTANTE**: As variáveis devem ter o prefixo `VITE_` para serem acessíveis no frontend.
+   O sistema inclui validação automática e mostrará avisos se as variáveis estiverem ausentes.
 
 4. **Configure o Supabase**:
    - Execute as migrações do banco de dados
    - Configure as chaves secretas (OpenAI, ElevenLabs, etc.)
    - Ative RLS em todas as tabelas
+   - Garanta que imóveis têm `is_public=true` e `visibility='public_site'` para aparecer em minisites
 
 5. **Inicie o desenvolvimento**:
    ```bash
    npm run dev
    ```
+
+## 🌐 Minisites - Configuração Especial
+
+Os minisites permitem que corretores tenham páginas públicas sem necessidade de login:
+
+**Políticas RLS Configuradas**:
+- Leitura pública de imóveis com `is_public=true` e `visibility='public_site'`
+- Acesso às configurações de minisite ativas
+- Dados básicos de corretores ativos
+- Imagens de imóveis no bucket `property-images`
+
+**Para imóveis aparecerem em minisites**:
+```sql
+UPDATE properties 
+SET is_public = true, visibility = 'public_site'
+WHERE id = 'seu-imovel-id';
+```
 
 ## 📊 Schema do Banco de Dados
 

@@ -108,16 +108,24 @@ export default function BrokerMinisite() {
         .select(`
           id, titulo, valor, quartos, bathrooms, area, fotos, 
           property_type, listing_type, finalidade, descricao, address,
-          neighborhood, city, state, features
+          neighborhood, city, state, features, parking_spots
         `)
         .eq("user_id", bq.data.user_id)
         .eq("is_public", true)
         .eq("visibility", "public_site")
-        .order("updated_at", { ascending: false });
+        .order("updated_at", { ascending: false })
+        .limit(50);
 
-      console.log('Properties found:', props?.length || 0, 'error:', propsErr);
+      console.log('Properties query result:', {
+        found: props?.length || 0,
+        error: propsErr,
+        user_id: bq.data.user_id
+      });
 
-      if (propsErr) pushErr("properties.query", propsErr);
+      if (propsErr) {
+        pushErr("properties.query", propsErr);
+        // Don't throw, just log and continue with empty array
+      }
 
       // 3) Buscar configuração do minisite
       const { data: config, error: configErr } = await supabase
@@ -405,35 +413,35 @@ export default function BrokerMinisite() {
       {/* Seção de Imóveis */}
       <section id="imoveis" className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900">
-                {filteredProperties.length === 0 && properties.length > 0
-                  ? 'Nenhum imóvel encontrado'
-                  : properties.length === 0 
-                  ? 'Nenhum imóvel disponível' 
-                  : 'Imóveis em destaque'}
-              </h2>
-              <p className="text-gray-600">
-                {filteredProperties.length === 0 && properties.length > 0
-                  ? 'Tente ajustar os filtros de pesquisa para encontrar mais imóveis.'
-                  : properties.length === 0 
-                  ? 'Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.'
-                  : `${filteredProperties.length} imóvel${filteredProperties.length !== 1 ? 'is' : ''} encontrado${filteredProperties.length !== 1 ? 's' : ''}.`
-                }
-              </p>
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">
+                  {filteredProperties.length === 0 && properties.length > 0
+                    ? 'Nenhum imóvel encontrado'
+                    : properties.length === 0 
+                    ? 'Nenhum imóvel disponível' 
+                    : 'Imóveis em destaque'}
+                </h2>
+                <p className="text-gray-600">
+                  {filteredProperties.length === 0 && properties.length > 0
+                    ? 'Tente ajustar os filtros de pesquisa para encontrar mais imóveis.'
+                    : properties.length === 0 
+                    ? 'Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.'
+                    : `${(filteredProperties.length > 0 ? filteredProperties : properties).length} imóvel${(filteredProperties.length > 0 ? filteredProperties : properties).length !== 1 ? 'is' : ''} encontrado${(filteredProperties.length > 0 ? filteredProperties : properties).length !== 1 ? 's' : ''}.`
+                  }
+                </p>
+              </div>
+              {(filteredProperties.length > 0 || properties.length > 0) && (
+                <Button variant="outline" className="hidden sm:inline-flex items-center gap-2 hover:border-blue-400 hover:text-blue-700">
+                  <a href="#contato">Ver todos</a>
+                  <Share2 className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-            {filteredProperties.length > 0 && (
-              <Button variant="outline" className="hidden sm:inline-flex items-center gap-2 hover:border-blue-400 hover:text-blue-700">
-                <a href="#contato">Ver todos</a>
-                <Share2 className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
 
-          {filteredProperties.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map((property) => (
+            {(filteredProperties.length > 0 || (filteredProperties.length === 0 && properties.length > 0)) ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {(filteredProperties.length > 0 ? filteredProperties : properties).map((property) => (
                 <article key={property.id} className="rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300">
                   <div className="relative">
                     {property.fotos && property.fotos.length > 0 ? (
