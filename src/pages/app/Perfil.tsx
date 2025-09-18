@@ -133,13 +133,15 @@ export default function Perfil() {
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1">
-          <TabsTrigger value="perfil" className="text-xs sm:text-sm px-2 py-2">Perfil</TabsTrigger>
-          <TabsTrigger value="minisite" className="text-xs sm:text-sm px-2 py-2">Minisite</TabsTrigger>
-          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-2">Config</TabsTrigger>
-          <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-2 py-2">Awards</TabsTrigger>
-          <TabsTrigger value="plano" className="text-xs sm:text-sm px-2 py-2">Plano</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1 min-w-max">
+            <TabsTrigger value="perfil" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Perfil</TabsTrigger>
+            <TabsTrigger value="minisite" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Minisite</TabsTrigger>
+            <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Config</TabsTrigger>
+            <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Awards</TabsTrigger>
+            <TabsTrigger value="plano" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Plano</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="perfil" className="space-y-6">
           {/* Profile Stats */}

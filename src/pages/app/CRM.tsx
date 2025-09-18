@@ -19,18 +19,18 @@ export default function CRM() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full sm:w-auto"
           >
             <Home className="h-4 w-4" />
             Dashboard
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-primary">CRM Completo</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-primary">CRM Completo</h1>
             <p className="text-muted-foreground">
               Pipeline drag-and-drop, histórico detalhado, tarefas e notas
             </p>
@@ -39,16 +39,18 @@ export default function CRM() {
       </div>
         
       <Tabs defaultValue="pipeline" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="pipeline">Pipeline CRM</TabsTrigger>
-          <TabsTrigger value="agenda">Agenda Inteligente</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4">
+          <TabsList className="grid w-full grid-cols-2 min-w-max">
+            <TabsTrigger value="pipeline">Pipeline CRM</TabsTrigger>
+            <TabsTrigger value="agenda">Agenda Inteligente</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="pipeline" className="space-y-4">
           <div className="flex justify-end mb-4">
             <Button 
               onClick={() => setIsVoiceRecorderOpen(true)}
-              className="bg-red-500 hover:bg-red-600 text-white"
+              className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto"
             >
               <Mic className="h-4 w-4 mr-2" />
               Gravar Cliente

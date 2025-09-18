@@ -395,16 +395,18 @@ export function PhotoUploader({
       {/* Main Content with Tabs */}
       {photos.length > 0 ? (
         <Tabs defaultValue="photos" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="photos">Fotos ({photos.length})</TabsTrigger>
-            <TabsTrigger value="watermark" disabled={!watermarkEnabled}>
-              <Droplet className="h-4 w-4 mr-2" />
-              Marca d'Água
-            </TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4">
+            <TabsList className="grid w-full grid-cols-2 min-w-max">
+              <TabsTrigger value="photos" className="whitespace-nowrap">Fotos ({photos.length})</TabsTrigger>
+              <TabsTrigger value="watermark" disabled={!watermarkEnabled} className="whitespace-nowrap">
+                <Droplet className="h-4 w-4 mr-2" />
+                Marca d'Água
+              </TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="photos" className="space-y-2">
-            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {photos.map((photo, index) => (
                 <div key={index} className="group relative border rounded-lg overflow-hidden">
                   <div className="aspect-video bg-muted">

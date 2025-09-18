@@ -168,9 +168,9 @@ export default function Minisite() {
     <MinisiteProvider>
       <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
             Mini Site do Corretor
           </h1>
           <p className="text-muted-foreground">
@@ -178,15 +178,15 @@ export default function Minisite() {
           </p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <MinisiteHelpGuide />
           
-          <Button variant="outline" onClick={copyMinisiteUrl}>
+          <Button variant="outline" onClick={copyMinisiteUrl} className="w-full sm:w-auto">
             <Copy className="h-4 w-4 mr-2" />
             Copiar Link
           </Button>
           
-          <Button variant="outline" asChild>
+          <Button variant="outline" asChild className="w-full sm:w-auto">
             <a 
               href={generateMinisiteUrl(profile.username || 'seu-usuario')}
               target="_blank"
@@ -300,20 +300,22 @@ export default function Minisite() {
 
       {/* Main Tabs */}
       <Tabs defaultValue="editor" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="editor" className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            Editor Visual
-          </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Analytics
-          </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Configurações
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4">
+          <TabsList className="grid w-full grid-cols-3 min-w-max">
+            <TabsTrigger value="editor" className="flex items-center gap-2 whitespace-nowrap">
+              <Palette className="h-4 w-4" />
+              Editor Visual
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2 whitespace-nowrap">
+              <BarChart3 className="h-4 w-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2 whitespace-nowrap">
+              <Settings className="h-4 w-4" />
+              Configurações
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="editor">
           <MinisiteEditorIntegrated />

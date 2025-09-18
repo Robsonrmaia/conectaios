@@ -454,19 +454,19 @@ export default function PipelineCRM() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Pipeline CRM</h2>
-        <div className="flex gap-2">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center mb-6">
+        <h2 className="text-xl sm:text-2xl font-bold">Pipeline CRM</h2>
+        <div className="flex flex-wrap gap-2">
           <Button 
             onClick={() => setIsVoiceRecorderOpen(true)}
-            className="bg-red-500 hover:bg-red-600 text-white"
+            className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto"
           >
             <Mic className="h-4 w-4 mr-2" />
             Gravar Cliente
           </Button>
           <Dialog open={isClientDialogOpen} onOpenChange={setIsClientDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90">
+              <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
                 <UserPlus className="h-4 w-4 mr-2" />
                 Novo Cliente
               </Button>

@@ -46,7 +46,7 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full h-[90vh] p-0">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-4xl h-[90vh] p-0 mx-auto">
         <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
           {/* Close Button */}
           <Button
@@ -104,22 +104,24 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
 
           {/* Thumbnail Strip */}
           {photos.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-2 rounded">
-              {photos.map((photo, index) => (
-                <button
-                  key={index}
-                  className={`w-12 h-8 rounded overflow-hidden border-2 transition-colors ${
-                    index === currentIndex ? 'border-primary' : 'border-transparent'
-                  }`}
-                  onClick={() => setCurrentIndex(index)}
-                >
-                  <img
-                    src={photo}
-                    alt={`Miniatura ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-[90vw] overflow-x-auto">
+              <div className="flex gap-2 bg-black/50 p-2 rounded min-w-max">
+                {photos.map((photo, index) => (
+                  <button
+                    key={index}
+                    className={`w-12 h-8 rounded overflow-hidden border-2 transition-colors flex-shrink-0 ${
+                      index === currentIndex ? 'border-primary' : 'border-transparent'
+                    }`}
+                    onClick={() => setCurrentIndex(index)}
+                  >
+                    <img
+                      src={photo}
+                      alt={`Miniatura ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
