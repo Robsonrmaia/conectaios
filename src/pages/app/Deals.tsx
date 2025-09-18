@@ -188,11 +188,12 @@ export default function Deals() {
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-2 pt-2">
+          <div className="flex-row-wrap pt-2">
             <Button 
               size="sm" 
               variant="outline"
               onClick={() => handleCreateProposal(deal)}
+              className="btn-fluid"
             >
               <Plus className="h-3 w-3 mr-1" />
               Proposta
@@ -202,6 +203,7 @@ export default function Deals() {
                 size="sm" 
                 variant="outline"
                 onClick={() => handlePrintContract(deal)}
+                className="btn-fluid"
               >
                 <Printer className="h-3 w-3 mr-1" />
                 Contrato
@@ -214,7 +216,7 @@ export default function Deals() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="container-responsive w-full overflow-x-hidden space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <Button 
@@ -272,12 +274,14 @@ export default function Deals() {
 
       {/* Deals Tabs */}
       <Tabs defaultValue="todos" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="todos">Todos ({deals.length})</TabsTrigger>
-          <TabsTrigger value="proposta">Propostas ({filterDeals('proposta').length})</TabsTrigger>
-          <TabsTrigger value="negociacao">Negociação ({filterDeals('negociacao').length})</TabsTrigger>
-          <TabsTrigger value="finalizado">Finalizados ({filterDeals('finalizado').length})</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 px-4 overflow-x-auto">
+          <TabsList className="min-w-max">
+            <TabsTrigger value="todos">Todos ({deals.length})</TabsTrigger>
+            <TabsTrigger value="proposta">Propostas ({filterDeals('proposta').length})</TabsTrigger>
+            <TabsTrigger value="negociacao">Negociação ({filterDeals('negociacao').length})</TabsTrigger>
+            <TabsTrigger value="finalizado">Finalizados ({filterDeals('finalizado').length})</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="todos" className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
@@ -435,17 +439,17 @@ export default function Deals() {
               </div>
             )}
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex-row-wrap pt-4">
               <Button 
                 variant="outline" 
                 onClick={() => setIsProposalDialogOpen(false)}
-                className="flex-1"
+                className="btn-fluid"
               >
                 Cancelar
               </Button>
               <Button 
                 onClick={handleSubmitProposal}
-                className="flex-1"
+                className="btn-fluid"
                 disabled={!proposalData.commissionPercent}
               >
                 <Percent className="h-4 w-4 mr-2" />

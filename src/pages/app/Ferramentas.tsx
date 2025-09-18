@@ -250,13 +250,13 @@ export default function Ferramentas() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className="container-responsive w-full overflow-x-hidden space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex-row-wrap">
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2"
+            className="btn-fluid flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
             Dashboard
@@ -273,12 +273,14 @@ export default function Ferramentas() {
       </div>
 
       <Tabs defaultValue="tools" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="tools">Ferramentas</TabsTrigger>
-          <TabsTrigger value="import-export">Import/Export</TabsTrigger>
-          <TabsTrigger value="help">Central de Ajuda</TabsTrigger>
-          <TabsTrigger value="test">Teste Asaas</TabsTrigger>
-        </TabsList>
+        <div className="-mx-4 px-4 overflow-x-auto">
+          <TabsList className="min-w-max">
+            <TabsTrigger value="tools">Ferramentas</TabsTrigger>
+            <TabsTrigger value="import-export">Import/Export</TabsTrigger>
+            <TabsTrigger value="help">Central de Ajuda</TabsTrigger>
+            <TabsTrigger value="test">Teste Asaas</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="tools" className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -310,7 +312,7 @@ export default function Ferramentas() {
                       {tool.description}
                     </CardDescription>
                     
-                    <div className="flex justify-between items-center">
+                    <div className="flex-row-wrap">
                       {tool.isAvailable ? (
                         tool.external ? (
                           <Badge variant="outline" className="text-blue-600">
@@ -339,6 +341,7 @@ export default function Ferramentas() {
                         size="sm" 
                         variant={tool.isAvailable ? "default" : "outline"}
                         disabled={tool.id === 'seasonal-budget' && !tool.isAvailable}
+                        className="btn-fluid"
                       >
                         {tool.isAvailable ? 'Abrir' : tool.id === 'seasonal-budget' ? 'Em Breve' : 'Upgrade'}
                       </Button>

@@ -1,0 +1,24 @@
+:root { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+
+/* Evita overflow global no mobile (safety net; não deve cortar conteúdo essencial) */
+html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+
+/* Mídias sempre responsivas */
+img, video { max-width: 100%; height: auto; display: block; }
+
+/* Evita inputs/btns "forçarem" largura */
+button, input, select, textarea { min-width: 0; }
+
+/* Quebra palavras longas/URLs */
+.wrap-any { overflow-wrap: anywhere; word-break: break-word; }
+
+/* Container padrão da app */
+.container-responsive { max-width: 1280px; margin-inline: auto; padding-inline: 1rem; }
+@media (min-width: 640px){ .container-responsive{ padding-inline: 1.5rem; } }
+@media (min-width: 1024px){ .container-responsive{ padding-inline: 2rem; } }
+
+/* Utilitários para grupos horizontais */
+.flex-row-wrap { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; }
+.btn-fluid { width:100%; }
+@media (min-width:640px){ .btn-fluid { width:auto; } }

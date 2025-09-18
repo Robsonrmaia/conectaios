@@ -424,7 +424,7 @@ export default function AdminUserManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
+                      <div className="flex-row-wrap">
                         <Button
                           variant="ghost"
                           size="sm"
@@ -432,6 +432,7 @@ export default function AdminUserManagement() {
                             setSelectedUser(user);
                             setIsEditDialogOpen(true);
                           }}
+                          className="btn-fluid"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -443,6 +444,7 @@ export default function AdminUserManagement() {
                               setSelectedUser(user);
                               setIsResetPasswordDialogOpen(true);
                             }}
+                            className="btn-fluid"
                           >
                             <Key className="h-4 w-4" />
                           </Button>
@@ -454,6 +456,7 @@ export default function AdminUserManagement() {
                             setSelectedUser(user);
                             setIsDeleteDialogOpen(true);
                           }}
+                          className="btn-fluid"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -497,7 +500,7 @@ export default function AdminUserManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-2">
+              <div className="flex-row-wrap">
                 <Button onClick={() => setIsEditDialogOpen(false)}>
                   Salvar
                 </Button>

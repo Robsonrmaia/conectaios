@@ -252,11 +252,11 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
               />
             </div>
 
-            <div className="flex gap-2">
-              <Button onClick={() => setShowEditForm(false)} variant="outline" className="flex-1">
+            <div className="flex-row-wrap">
+              <Button onClick={() => setShowEditForm(false)} variant="outline" className="btn-fluid">
                 Voltar
               </Button>
-              <Button onClick={() => { setShowEditForm(false); handleGenerateContract(); }} className="flex-1">
+              <Button onClick={() => { setShowEditForm(false); handleGenerateContract(); }} className="btn-fluid">
                 <FileText className="h-4 w-4 mr-2" />
                 Gerar Contrato
               </Button>
@@ -453,16 +453,16 @@ export function ContractGenerator({ deal, isOpen, onClose }: ContractGeneratorPr
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2">
-            <Button onClick={() => { setShowPreview(false); setShowEditForm(true); }} variant="outline">
+          <div className="flex-row-wrap">
+            <Button onClick={() => { setShowPreview(false); setShowEditForm(true); }} variant="outline" className="btn-fluid">
               <Eye className="h-4 w-4 mr-2" />
               Editar
             </Button>
-            <Button onClick={handleDownloadPDF} variant="outline">
+            <Button onClick={handleDownloadPDF} variant="outline" className="btn-fluid">
               <Download className="h-4 w-4 mr-2" />
               Enviar Contrato
             </Button>
-            <Button onClick={handlePrintContract}>
+            <Button onClick={handlePrintContract} className="btn-fluid">
               <Printer className="h-4 w-4 mr-2" />
               Imprimir
             </Button>
