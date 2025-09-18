@@ -240,10 +240,10 @@ export default function Perfil() {
                          }
                        };
                        input.click();
-                     }}>
-                        <Camera className="h-4 w-4 mr-2" />
-                        Alterar Foto
-                      </Button>
+                      }} className="w-full sm:w-auto">
+                         <Camera className="h-4 w-4 mr-2" />
+                         Alterar Foto
+                       </Button>
                        <p className="text-xs text-muted-foreground mt-2">
                          PNG, JPG até 5MB
                        </p>
