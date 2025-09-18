@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 
 import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
 import { toast } from 'sonner';
+import ConectaLogo from '@/components/ConectaLogo';
 
 
 const Auth = () => {
@@ -84,9 +85,7 @@ const Auth = () => {
         <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
             <div className="flex items-center justify-center space-x-2">
-              <h1 className="text-2xl font-bold text-primary">
-                ConectaIOS
-              </h1>
+              <ConectaLogo className="text-2xl" />
             </div>
             <div>
               <CardTitle>Bem-vindo de volta</CardTitle>

@@ -31,14 +31,16 @@ export default function ConectaLogo({
   }
 
   return (
-    <img
-      src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png"
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-      onError={() => setImageError(true)}
-      loading="lazy"
-    />
+    <div className={`flex items-center gap-2 ${className}`}>
+      <img
+        src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png"
+        alt="Logo ConectaIOS"
+        width={height}
+        height={height}
+        onError={() => setImageError(true)}
+        loading="lazy"
+      />
+      <span className="font-bold text-primary">ConectaIOS</span>
+    </div>
   );
 }
