@@ -492,76 +492,75 @@ export default function SmartCalendar() {
               Nova Tarefa
             </Button>
           </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Nova Tarefa</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Título</Label>
-                  <Input
-                    value={newTask.title}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="Ex: Ligar para cliente..."
-                  />
-                </div>
-                <div>
-                  <Label>Descrição</Label>
-                  <Textarea
-                    value={newTask.description}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Detalhes da tarefa..."
-                    rows={3}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label>Data</Label>
-                    <Input
-                      type="date"
-                      value={newTask.date}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, date: e.target.value }))}
-                    />
-                  </div>
-                  <div>
-                    <Label>Hora</Label>
-                    <Input
-                      type="time"
-                      value={newTask.time}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, time: e.target.value }))}
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <Label>Prioridade</Label>
-                    <Select value={newTask.priority} onValueChange={(value: any) => setNewTask(prev => ({ ...prev, priority: value }))}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="baixa">Baixa</SelectItem>
-                        <SelectItem value="media">Média</SelectItem>
-                        <SelectItem value="alta">Alta</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Categoria</Label>
-                    <Input
-                      value={newTask.category}
-                      onChange={(e) => setNewTask(prev => ({ ...prev, category: e.target.value }))}
-                      placeholder="Ex: vendas, visitas..."
-                    />
-                  </div>
-                </div>
-                <Button onClick={handleAddTask} className="w-full">
-                  Criar Tarefa
-                </Button>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Nova Tarefa</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Título</Label>
+                <Input
+                  value={newTask.title}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="Ex: Ligar para cliente..."
+                />
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <div>
+                <Label>Descrição</Label>
+                <Textarea
+                  value={newTask.description}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Detalhes da tarefa..."
+                  rows={3}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Data</Label>
+                  <Input
+                    type="date"
+                    value={newTask.date}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, date: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <Label>Hora</Label>
+                  <Input
+                    type="time"
+                    value={newTask.time}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, time: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Prioridade</Label>
+                  <Select value={newTask.priority} onValueChange={(value: any) => setNewTask(prev => ({ ...prev, priority: value }))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="baixa">Baixa</SelectItem>
+                      <SelectItem value="media">Média</SelectItem>
+                      <SelectItem value="alta">Alta</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Categoria</Label>
+                  <Input
+                    value={newTask.category}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, category: e.target.value }))}
+                    placeholder="Ex: vendas, visitas..."
+                  />
+                </div>
+              </div>
+              <Button onClick={handleAddTask} className="w-full">
+                Criar Tarefa
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Filtros */}
