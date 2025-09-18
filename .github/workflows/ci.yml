@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run type check
+      run: npx tsc --noEmit
+      
+    - name: Run ESLint
+      run: npm run lint
+      
+    - name: Run tests
+      run: npm run test --if-present
+      
+    - name: Build project
+      run: npm run build
+      
+    - name: Check build output
+      run: ls -la dist/
+      
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run security audit
+      run: npm audit --audit-level moderate
+      
+    - name: Check for sensitive files
+      run: |
+        if [ -f .env ]; then
+          echo "❌ .env file found in repository!"
+          exit 1
+        fi
+        echo "✅ No sensitive files found"
+
+# Branch protection enforcement
+# This workflow must pass before merging to main

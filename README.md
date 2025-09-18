@@ -1,73 +1,146 @@
-# Welcome to your Lovable project
+# ConectaIOS - Plataforma Imobiliária Completa
 
-## Project info
+Uma plataforma moderna e segura para corretores de imóveis, com recursos avançados de CRM, gestão de propriedades, inteligência artificial e automação.
 
-**URL**: https://lovable.dev/projects/1a061622-528a-4152-a7b5-09817795ad8f
+## 🚀 Funcionalidades
 
-## How can I edit this code?
+- **CRM Inteligente**: Gestão completa de clientes e leads
+- **Catálogo de Imóveis**: Sistema robusto de propriedades com fotos, vídeos e tours 360°
+- **IA Integrada**: Assistente virtual, geração de conteúdo e matching inteligente
+- **Marketplace**: Conecte-se com outros corretores e amplie sua rede
+- **Sistema de Deals**: Negociações transparentes e contratos digitais
+- **Minisites**: Páginas personalizadas para cada corretor
+- **Automações**: WhatsApp, e-mail e notificações inteligentes
 
-There are several ways of editing your application.
+## 🛠️ Tecnologias
 
-**Use Lovable**
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
+- **Autenticação**: Supabase Auth com RLS
+- **Integração IA**: OpenAI, Gemini, Hugging Face, ElevenLabs
+- **Pagamentos**: Asaas (PIX, cartão, boleto)
+- **Deploy**: Vercel/Netlify
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1a061622-528a-4152-a7b5-09817795ad8f) and start prompting.
+## 📋 Pré-requisitos
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 18+ 
+- npm/yarn/pnpm
+- Conta Supabase
+- Chaves de API (OpenAI, ElevenLabs, etc.)
 
-**Use your preferred IDE**
+## 🔧 Instalação e Configuração
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone o repositório**:
+   ```bash
+   git clone <repository-url>
+   cd conectaios
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Instale as dependências**:
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Configure as variáveis de ambiente**:
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Preencha as variáveis no arquivo `.env`:
+   - `VITE_SUPABASE_PROJECT_ID`: ID do seu projeto Supabase
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`: Chave pública do Supabase
+   - `VITE_SUPABASE_URL`: URL do seu projeto Supabase
+   - `VITE_PUBLIC_SITE_URL`: URL do seu site em produção
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Configure o Supabase**:
+   - Execute as migrações do banco de dados
+   - Configure as chaves secretas (OpenAI, ElevenLabs, etc.)
+   - Ative RLS em todas as tabelas
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Inicie o desenvolvimento**:
+   ```bash
+   npm run dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 📊 Schema do Banco de Dados
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### Principais Tabelas
 
-**Edit a file directly in GitHub**
+- **`profiles`**: Perfis de usuários com roles (user/admin)
+- **`conectaios_brokers`**: Dados dos corretores (CRECI, planos, etc.)
+- **`properties`**: Imóveis com detalhes, fotos e localização
+- **`conectaios_clients`**: CRM com leads e clientes
+- **`deals`**: Negociações entre corretores
+- **`client_searches`**: Buscas salvas com matching inteligente
+- **`support_tickets`**: Sistema de suporte
+- **`audit_logs`**: Log de auditoria para segurança
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Principais RPCs
 
-**Use GitHub Codespaces**
+- **`find_intelligent_property_matches`**: Matching IA entre buscas e imóveis
+- **`admin_change_user_role`**: Gestão de papéis (admin only)
+- **`log_audit_event`**: Logging de eventos importantes
+- **`update_property_analytics`**: Analytics de propriedades
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🧪 Scripts Disponíveis
 
-## What technologies are used for this project?
+- `npm run dev` - Servidor de desenvolvimento
+- `npm run build` - Build para produção
+- `npm run lint` - Análise de código (ESLint)
+- `npm run preview` - Preview do build
 
-This project is built with:
+## 🔒 Segurança
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- **RLS (Row Level Security)** ativo em todas as tabelas
+- **Autenticação JWT** com Supabase Auth
+- **Auditoria completa** de ações sensíveis
+- **Validação rigorosa** de entrada de dados
+- **Chaves rotacionáveis** para APIs externas
+- **HTTPS obrigatório** em produção
 
-## How can I deploy this project?
+## 🚀 Deploy
 
-Simply open [Lovable](https://lovable.dev/projects/1a061622-528a-4152-a7b5-09817795ad8f) and click on Share -> Publish.
+### Variáveis de Ambiente (Produção)
 
-## Can I connect a custom domain to my Lovable project?
+Certifique-se de configurar:
+- Todas as variáveis do `.env.example`
+- URL de produção no Supabase Auth
+- Chaves de API em produção (diferentes de desenvolvimento)
 
-Yes, you can!
+### Passos para Deploy
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Faça o build: `npm run build`
+2. Configure as variáveis de ambiente na plataforma
+3. Faça o deploy do diretório `dist/`
+4. Configure o domínio no Supabase Auth
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
+3. Commit suas mudanças: `git commit -m 'Adiciona nova funcionalidade'`
+4. Push para a branch: `git push origin feature/nova-funcionalidade`
+5. Abra um Pull Request
+
+### Padrões de Código
+
+- Use TypeScript strict mode
+- Siga as regras do ESLint configuradas
+- Mantenha cobertura de testes acima de 80%
+- Documente funções complexas
+
+## 📝 Licença
+
+Este projeto é proprietário. Todos os direitos reservados.
+
+## 🆘 Suporte
+
+- **Documentação**: [Confluence interno]
+- **Issues**: Use o sistema de issues do GitHub
+- **Suporte**: suporte@conectaios.com.br
+- **Slack**: Canal #dev-conectaios
+
+---
+
+**⚠️ Importante**: Nunca commite chaves de API ou credenciais. Use sempre as variáveis de ambiente e rotacione as chaves regularmente.
