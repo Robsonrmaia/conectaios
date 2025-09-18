@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveTable } from '@/components/layout/ResponsiveTable';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -362,15 +363,15 @@ export default function AdminUserManagement() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <ResponsiveTable>
             <TableHeader>
               <TableRow>
                 <TableHead>Usuário</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Telefone</TableHead>
+                <TableHead className="hidden sm:table-cell">Telefone</TableHead>
                 <TableHead>Perfil</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Cadastro</TableHead>
+                <TableHead className="hidden md:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Cadastro</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
@@ -400,7 +401,7 @@ export default function AdminUserManagement() {
                         {user.email || '-'}
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       <div className="flex items-center gap-2">
                         {user.phone && <Phone className="h-4 w-4 text-muted-foreground" />}
                         {user.phone || '-'}
@@ -411,12 +412,12 @@ export default function AdminUserManagement() {
                         {user.role === 'admin' ? 'Admin' : 'Usuário'}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden md:table-cell">
                       <Badge className={getStatusColor(user.status)}>
                         {user.status === 'active' ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden lg:table-cell">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
                         {format(new Date(user.created_at), 'dd/MM/yyyy')}
@@ -462,7 +463,7 @@ export default function AdminUserManagement() {
                 ))
               )}
             </TableBody>
-          </Table>
+          </ResponsiveTable>
         </CardContent>
       </Card>
 

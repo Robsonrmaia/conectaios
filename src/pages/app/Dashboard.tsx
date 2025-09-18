@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Section, PageWrapper } from '@/components/layout/Section';
+import { ResponsiveButtonGroup } from '@/components/layout/ResponsiveRow';
 import { Button } from '@/components/ui/button';
 import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe, ExternalLink, Home } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
@@ -176,36 +178,36 @@ const Dashboard = () => {
         </div>
         
         {/* Actions and Notifications */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <NotificationCenter />
-          <div className="flex flex-col sm:flex-row gap-2">
+          <ResponsiveButtonGroup className="flex-1">
             <Button 
               variant="outline"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <Home className="h-4 w-4" />
               <span className="hidden sm:inline">Voltar ao Site</span>
               <span className="sm:hidden">Site</span>
             </Button>
-          <Button 
-            variant="outline"
-            onClick={copyMinisiteUrl}
-            className="flex items-center gap-2 w-full sm:w-auto"
-          >
-            <Globe className="h-4 w-4" />
-            <span className="hidden sm:inline">Copiar URL</span>
-            <span className="sm:hidden">URL</span>
-          </Button>
-          <Button 
-            onClick={handleMinisiteAccess}
-            className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 flex items-center gap-2 w-full sm:w-auto"
-          >
-            <ExternalLink className="h-4 w-4" />
-            <span className="hidden sm:inline">Ver Meu Minisite</span>
-            <span className="sm:hidden">Minisite</span>
-          </Button>
-          </div>
+            <Button 
+              variant="outline"
+              onClick={copyMinisiteUrl}
+              className="w-full sm:w-auto"
+            >
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">Copiar URL</span>
+              <span className="sm:hidden">URL</span>
+            </Button>
+            <Button 
+              onClick={handleMinisiteAccess}
+              className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 w-full sm:w-auto"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="hidden sm:inline">Ver Meu Minisite</span>
+              <span className="sm:hidden">Minisite</span>
+            </Button>
+          </ResponsiveButtonGroup>
         </div>
       </div>
 

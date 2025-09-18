@@ -1,4 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Section, PageWrapper } from '@/components/layout/Section';
+import { ScrollableRow, ResponsiveButtonGroup } from '@/components/layout/ResponsiveRow';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -214,18 +216,20 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="dashboard" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-10 gap-1 h-auto py-2">
-          <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-2 py-1">Dashboard</TabsTrigger>
-          <TabsTrigger value="usuarios" className="text-xs sm:text-sm px-2 py-1">Usuários</TabsTrigger>
-          <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-1">Analytics</TabsTrigger>
-          <TabsTrigger value="auditoria" className="text-xs sm:text-sm px-2 py-1">Auditoria</TabsTrigger>
-          <TabsTrigger value="dados" className="text-xs sm:text-sm px-2 py-1">Dados</TabsTrigger>
-          <TabsTrigger value="suporte" className="text-xs sm:text-sm px-2 py-1">Suporte</TabsTrigger>
-          <TabsTrigger value="testemunhos" className="text-xs sm:text-sm px-2 py-1">Testemunhos</TabsTrigger>
-          <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-2 py-1">Parceiros</TabsTrigger>
-          <TabsTrigger value="sistema" className="text-xs sm:text-sm px-2 py-1">Sistema</TabsTrigger>
-          <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-1">Config</TabsTrigger>
-        </TabsList>
+        <ScrollableRow className="pb-2">
+          <TabsList className="flex gap-1 h-auto py-2 bg-muted rounded-md">
+            <TabsTrigger value="dashboard" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Dashboard</TabsTrigger>
+            <TabsTrigger value="usuarios" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Usuários</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Analytics</TabsTrigger>
+            <TabsTrigger value="auditoria" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Auditoria</TabsTrigger>
+            <TabsTrigger value="dados" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Dados</TabsTrigger>
+            <TabsTrigger value="suporte" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Suporte</TabsTrigger>
+            <TabsTrigger value="testemunhos" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Testemunhos</TabsTrigger>
+            <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Parceiros</TabsTrigger>
+            <TabsTrigger value="sistema" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Sistema</TabsTrigger>
+            <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Config</TabsTrigger>
+          </TabsList>
+        </ScrollableRow>
 
         <TabsContent value="dashboard" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

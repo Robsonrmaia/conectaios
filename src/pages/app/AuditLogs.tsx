@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ResponsiveTable } from '@/components/layout/ResponsiveTable';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, Download } from 'lucide-react';
@@ -163,15 +164,15 @@ const AuditLogs = () => {
 
             {/* Logs Table */}
             <div className="rounded-md border">
-              <Table>
+              <ResponsiveTable>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Data/Hora</TableHead>
-                    <TableHead>Usuário</TableHead>
+                    <TableHead className="hidden md:table-cell">Usuário</TableHead>
                     <TableHead>Ação</TableHead>
-                    <TableHead>Recurso</TableHead>
-                    <TableHead>IP</TableHead>
-                    <TableHead>Detalhes</TableHead>
+                    <TableHead className="hidden sm:table-cell">Recurso</TableHead>
+                    <TableHead className="hidden lg:table-cell">IP</TableHead>
+                    <TableHead className="hidden sm:table-cell">Detalhes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -196,13 +197,13 @@ const AuditLogs = () => {
                             locale: ptBR 
                           })}
                         </TableCell>
-                        <TableCell>Sistema</TableCell>
+                        <TableCell className="hidden md:table-cell">Sistema</TableCell>
                         <TableCell>
                           <Badge className={getActionColor(log.action)}>
                             {log.action}
                           </Badge>
                         </TableCell>
-                        <TableCell>{log.resource_type}</TableCell>
+                        <TableCell className="hidden sm:table-cell">{log.resource_type}</TableCell>
                         <TableCell className="font-mono text-xs">
                           {log.ip_address || '-'}
                         </TableCell>
@@ -217,7 +218,7 @@ const AuditLogs = () => {
                     ))
                   )}
                 </TableBody>
-              </Table>
+              </ResponsiveTable>
             </div>
           </CardContent>
         </Card>
