@@ -32,7 +32,7 @@ export default function ConectaLogo({
 
   return (
     <img
-      src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png"
+      src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png"
       alt={alt}
       width={width}
       height={height}

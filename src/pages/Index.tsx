@@ -75,7 +75,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-10 w-auto" />
+              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" alt="ConectaIOS" className="h-10 w-auto" />
             </div>
             <Button 
               onClick={() => navigate('/auth')}

@@ -152,20 +152,24 @@ serve(async (req) => {
 
     // If type is 'task', extract task data
     if (type === 'task') {
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+      
       const taskPrompt = `
         Extraia os seguintes dados desta transcrição de áudio sobre uma tarefa em formato JSON:
         - titulo (string, resumo da tarefa)
         - descricao (string, descrição completa)
-        - data (string, formato YYYY-MM-DD, se mencionado "amanhã" use a data de amanhã, senão hoje)
+        - data (string, formato YYYY-MM-DD, DATA DE HOJE: ${today.toISOString().split('T')[0]}, AMANHÃ: ${tomorrow.toISOString().split('T')[0]})
         - hora (string, formato HH:MM, se mencionado, senão "09:00")
         - prioridade (string: "baixa", "media", "alta")
         - cliente (string, nome do cliente se mencionado)
         - telefone (string, telefone do cliente se mencionado, apenas números com DDD)
         
-        Para datas relativas:
-        - "amanhã" = adicione 1 dia à data de hoje
-        - "hoje" = data de hoje
-        - "próxima semana" = adicione 7 dias
+        Para datas relativas use as datas corretas:
+        - "amanhã" = ${tomorrow.toISOString().split('T')[0]}
+        - "hoje" = ${today.toISOString().split('T')[0]}
+        - Se não mencionou data específica = ${today.toISOString().split('T')[0]}
         
         Transcrição: "${result.text}"
         

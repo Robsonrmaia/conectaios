@@ -27,6 +27,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { VoiceTaskRecorder } from '@/components/VoiceTaskRecorder';
+import { ClientSelect } from '@/components/ClientSelect';
 
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
@@ -198,9 +199,16 @@ export default function SmartCalendar() {
       const today = new Date();
       let taskDate = today;
       
-      // Parse date from voice data
-      if (voiceData.data && voiceData.data !== today.toISOString().split('T')[0]) {
-        taskDate = new Date(voiceData.data);
+      // Parse date from voice data - fix date issues
+      if (voiceData.data) {
+        const voiceDate = new Date(voiceData.data);
+        // Only use voice date if it's valid and not in the past (older than yesterday)
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        
+        if (voiceDate >= yesterday && !isNaN(voiceDate.getTime())) {
+          taskDate = voiceDate;
+        }
       }
       
       // Format time properly
@@ -500,11 +508,26 @@ export default function SmartCalendar() {
                 <div className="w-16 p-2 text-sm text-muted-foreground text-right">
                   {hour.toString().padStart(2, '0')}:00
                 </div>
-                <div className="flex-1 p-2 min-h-[60px]">
+                <div 
+                  className="flex-1 p-2 min-h-[60px] cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => {
+                    if (hourTasks.length === 0) {
+                      setNewTask(prev => ({
+                        ...prev,
+                        date: format(currentDate, 'yyyy-MM-dd'),
+                        time: `${hour.toString().padStart(2, '0')}:00`
+                      }));
+                      setIsAddDialogOpen(true);
+                    }
+                  }}
+                >
                   {hourTasks.map((task) => (
                     <div
                       key={task.id}
-                      onClick={() => setSelectedTask(task)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTask(task);
+                      }}
                       className={`p-2 rounded mb-1 cursor-pointer ${
                         task.priority === 'alta' 
                           ? 'bg-red-100 border-l-4 border-red-500' 
@@ -526,6 +549,11 @@ export default function SmartCalendar() {
                       )}
                     </div>
                   ))}
+                  {hourTasks.length === 0 && (
+                    <div className="text-xs text-muted-foreground/60 text-center py-4">
+                      + Nova tarefa às {hour.toString().padStart(2, '0')}:00
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -626,10 +654,9 @@ export default function SmartCalendar() {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label>Cliente (opcional)</Label>
-                  <Input
+                  <ClientSelect
                     value={newTask.client_name}
-                    onChange={(e) => setNewTask(prev => ({ ...prev, client_name: e.target.value }))}
-                    placeholder="Nome do cliente"
+                    onValueChange={(value) => setNewTask(prev => ({ ...prev, client_name: value }))}
                   />
                 </div>
                 <div>

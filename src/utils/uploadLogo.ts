@@ -5,7 +5,7 @@ export async function uploadLogoToStorage() {
     console.log('Iniciando upload da logo...');
     
     // Fetch the logo from public folder
-    const response = await fetch('/logoconectaios.png');
+    const response = await fetch('/logonova.png');
     
     if (!response.ok) {
       console.error('Falha ao buscar logo da pasta public:', response.status);
@@ -18,7 +18,7 @@ export async function uploadLogoToStorage() {
     // Upload to storage - força sobrescrever se já existir
     const { data, error } = await supabase.storage
       .from('property-images')
-      .upload('logoconectaios.png', blob, {
+      .upload('logonova.png', blob, {
         cacheControl: '3600',
         upsert: true
       });
@@ -31,11 +31,11 @@ export async function uploadLogoToStorage() {
         console.log('Logo já existe, tentando sobrescrever...');
         await supabase.storage
           .from('property-images')
-          .remove(['logoconectaios.png']);
+          .remove(['logonova.png']);
           
         const { data: newData, error: newError } = await supabase.storage
           .from('property-images')
-          .upload('logoconectaios.png', blob, {
+          .upload('logonova.png', blob, {
             cacheControl: '3600'
           });
           
@@ -52,7 +52,7 @@ export async function uploadLogoToStorage() {
     }
 
     console.log('Logo carregada com sucesso no storage:', data);
-    console.log('URL da logo:', `https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png`);
+    console.log('URL da logo:', `https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png`);
     return true;
   } catch (error) {
     console.error('Erro ao carregar logo:', error);
