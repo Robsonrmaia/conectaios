@@ -83,11 +83,18 @@ serve(async (req) => {
       const structurePrompt = `
         Extraia os seguintes dados desta transcrição de áudio sobre um cliente imobiliário em formato JSON:
         - nome (string)
-        - telefone (string, apenas números)
+        - telefone (string, apenas números com DDD)
         - email (string, se mencionado)
         - interesse (string, ex: "comprar apartamento", "vender casa")
-        - orcamento (string, se mencionado)
+        - orcamento (número, converta valores como "300 mil" para 300000, "2 milhões" para 2000000)
         - observacoes (string, outras informações relevantes)
+        
+        IMPORTANTE para orçamento:
+        - "300 mil" = 300000
+        - "1 milhão" = 1000000
+        - "2 milhões" = 2000000
+        - "500.000" = 500000
+        - Sempre retorne números, não texto
         
         Transcrição: "${result.text}"
         
@@ -149,9 +156,16 @@ serve(async (req) => {
         Extraia os seguintes dados desta transcrição de áudio sobre uma tarefa em formato JSON:
         - titulo (string, resumo da tarefa)
         - descricao (string, descrição completa)
-        - data (string, formato YYYY-MM-DD, se mencionado, senão hoje)
+        - data (string, formato YYYY-MM-DD, se mencionado "amanhã" use a data de amanhã, senão hoje)
         - hora (string, formato HH:MM, se mencionado, senão "09:00")
         - prioridade (string: "baixa", "media", "alta")
+        - cliente (string, nome do cliente se mencionado)
+        - telefone (string, telefone do cliente se mencionado, apenas números com DDD)
+        
+        Para datas relativas:
+        - "amanhã" = adicione 1 dia à data de hoje
+        - "hoje" = data de hoje
+        - "próxima semana" = adicione 7 dias
         
         Transcrição: "${result.text}"
         

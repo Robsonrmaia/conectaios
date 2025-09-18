@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Mic, Square, Loader2 } from 'lucide-react';
 import { useVoiceRecording } from '@/hooks/useVoiceRecording';
 import { useToast } from '@/components/ui/use-toast';
+import { parseMonetaryValue } from '@/lib/utils';
 
 interface VoiceClientRecorderProps {
   isOpen: boolean;
@@ -30,7 +31,16 @@ export function VoiceClientRecorder({ isOpen, onClose, onClientData }: VoiceClie
     
     if (result && result.structured) {
       console.log('✅ Structured client data received:', result.structured);
-      onClientData(result.structured);
+      
+      // Processar orçamento com parser inteligente
+      const processedData = {
+        ...result.structured,
+        orcamento: result.structured.orcamento 
+          ? parseMonetaryValue(result.structured.orcamento.toString())
+          : 0
+      };
+      
+      onClientData(processedData);
       toast({
         title: "Cliente adicionado por voz",
         description: "Dados do cliente extraídos com sucesso!",

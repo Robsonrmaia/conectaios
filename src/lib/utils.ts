@@ -69,6 +69,32 @@ export function parseValueInput(value: string): number {
   return result;
 }
 
+// Função inteligente para parsing de valores monetários em português
+export function parseMonetaryValue(value: string): number {
+  if (!value || value.trim() === '') return 0;
+  
+  const cleanValue = value.trim().toLowerCase();
+  
+  // Detectar valores escritos por extenso
+  let multiplier = 1;
+  let numericPart = cleanValue;
+  
+  if (cleanValue.includes('milhão') || cleanValue.includes('milhões')) {
+    multiplier = 1000000;
+    numericPart = cleanValue.replace(/milhões?/g, '').trim();
+  } else if (cleanValue.includes('mil')) {
+    multiplier = 1000;
+    numericPart = cleanValue.replace(/mil/g, '').trim();
+  }
+  
+  // Extrair números do texto
+  const numberMatch = numericPart.match(/\d+([.,]\d+)?/);
+  if (!numberMatch) return 0;
+  
+  const baseValue = parseValueInput(numberMatch[0]);
+  return baseValue * multiplier;
+}
+
 // Função para formatar valor de entrada em tempo real
 export function formatValueInput(value: string): string {
   const numericValue = parseValueInput(value);

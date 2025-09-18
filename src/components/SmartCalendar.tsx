@@ -320,14 +320,34 @@ export default function SmartCalendar() {
         ))}
         
         {/* Tarefas para cada dia */}
-        {days.map((day) => (
-          <div key={`tasks-${day.toISOString()}`} className="p-1 sm:p-2 space-y-1 overflow-y-auto">
-            {filteredTasks
-              .filter(task => format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd'))
-              .map((task) => (
+        {days.map((day) => {
+          const dayTasks = filteredTasks.filter(task => 
+            format(new Date(task.date), 'yyyy-MM-dd') === format(day, 'yyyy-MM-dd')
+          );
+          
+          return (
+            <div 
+              key={`tasks-${day.toISOString()}`} 
+              onClick={() => {
+                // Adicionar tarefa quando clica em célula vazia
+                if (dayTasks.length === 0) {
+                  setNewTask(prev => ({
+                    ...prev,
+                    date: format(day, 'yyyy-MM-dd'),
+                    time: '09:00'
+                  }));
+                  setIsAddDialogOpen(true);
+                }
+              }}
+              className="p-1 sm:p-2 space-y-1 overflow-y-auto cursor-pointer hover:bg-muted/50 transition-colors"
+            >
+              {dayTasks.map((task) => (
                 <div
                   key={task.id}
-                  onClick={() => setSelectedTask(task)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTask(task);
+                  }}
                   className={`p-1 sm:p-2 rounded text-xs cursor-pointer transition-colors ${
                     task.priority === 'alta' 
                       ? 'bg-red-100 border-l-2 border-red-500 hover:bg-red-200' 
@@ -343,10 +363,15 @@ export default function SmartCalendar() {
                     </div>
                   )}
                 </div>
-              ))
-            }
-          </div>
-        ))}
+              ))}
+              {dayTasks.length === 0 && (
+                <div className="text-xs text-muted-foreground/60 text-center py-2">
+                  + Nova tarefa
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -388,8 +413,19 @@ export default function SmartCalendar() {
             return (
               <div
                 key={day.toISOString()}
-                className={`p-1 border rounded h-[60px] overflow-hidden ${
-                  isCurrentMonth ? 'bg-background' : 'bg-muted/30'
+                onClick={() => {
+                  // Abrir modal com data pré-preenchida quando clica em célula vazia
+                  if (dayTasks.length === 0) {
+                    setNewTask(prev => ({
+                      ...prev,
+                      date: format(day, 'yyyy-MM-dd'),
+                      time: '09:00'
+                    }));
+                    setIsAddDialogOpen(true);
+                  }
+                }}
+                className={`p-1 border rounded h-[60px] overflow-hidden cursor-pointer transition-colors ${
+                  isCurrentMonth ? 'bg-background hover:bg-muted/50' : 'bg-muted/30 hover:bg-muted/50'
                 } ${isToday ? 'ring-2 ring-primary' : ''}`}
               >
                 <div className={`text-sm mb-1 ${
@@ -402,7 +438,10 @@ export default function SmartCalendar() {
                   {dayTasks.slice(0, 1).map((task) => (
                     <div
                       key={task.id}
-                      onClick={() => setSelectedTask(task)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTask(task);
+                      }}
                       className={`text-xs p-1 rounded cursor-pointer truncate ${
                         task.priority === 'alta' 
                           ? 'bg-red-100 text-red-800 border border-red-200' 
@@ -417,6 +456,11 @@ export default function SmartCalendar() {
                   {dayTasks.length > 1 && (
                     <div className="text-xs text-muted-foreground">
                       +{dayTasks.length - 1}
+                    </div>
+                  )}
+                  {dayTasks.length === 0 && (
+                    <div className="text-xs text-muted-foreground/60 text-center pt-2">
+                      + Adicionar
                     </div>
                   )}
                 </div>
