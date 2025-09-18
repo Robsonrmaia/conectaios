@@ -8,6 +8,7 @@ import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import PropertyMap from './PropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 
 interface Property {
@@ -377,7 +378,16 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Localização Privilegiada</h2>
           <p className="text-gray-600 text-lg mb-8">No coração da Vila Madalena, próximo a tudo que você precisa</p>
           
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">Pontos de Interesse</h3>
+          {/* Map Integration */}
+          <div className="mb-8">
+            <PropertyMap 
+              zipcode=""
+              neighborhood={property.neighborhood || ""}
+              className="animate-fade-in"
+            />
+          </div>
+          
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 animate-fade-in">Pontos de Interesse</h3>
           
           <div className="space-y-4 mb-8">
             <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
