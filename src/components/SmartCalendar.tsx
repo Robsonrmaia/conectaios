@@ -41,6 +41,8 @@ interface Task {
   user_id: string;
   created_at: string;
   completed?: boolean;
+  client_name?: string;
+  client_phone?: string;
 }
 
 const localizer = dateFnsLocalizer({
@@ -71,7 +73,9 @@ export default function SmartCalendar() {
     date: '',
     time: '09:00',
     priority: 'media' as const,
-    category: 'geral'
+    category: 'geral',
+    client_name: '',
+    client_phone: ''
   });
 
   useEffect(() => {
@@ -91,17 +95,25 @@ export default function SmartCalendar() {
       if (error) throw error;
       
       // Map database schema to Task interface
-      const mappedTasks = (data || []).map(dbTask => ({
-        id: dbTask.id,
-        title: dbTask.txt || 'Tarefa sem título',
-        description: dbTask.porque || '',
-        date: dbTask.quando || new Date().toISOString().split('T')[0],
-        time: '09:00', // Default time since database doesn't have separate time field
-        priority: 'media' as const,
-        category: 'Geral',
-        user_id: dbTask.user_id,
-        created_at: dbTask.created_at
-      }));
+      const mappedTasks = (data || []).map(dbTask => {
+        const quandoParts = dbTask.quando ? dbTask.quando.split(' ') : ['', ''];
+        const taskDate = quandoParts[0] || new Date().toISOString().split('T')[0];
+        const taskTime = quandoParts[1] || '09:00';
+        
+        return {
+          id: dbTask.id,
+          title: dbTask.txt || 'Tarefa sem título',
+          description: dbTask.porque || '',
+          date: taskDate,
+          time: taskTime,
+          priority: 'media' as const,
+          category: 'Geral',
+          user_id: dbTask.user_id,
+          created_at: dbTask.created_at,
+          client_name: dbTask.quem || '',
+          client_phone: ''  // Will be extracted from quem field if it contains phone
+        };
+      });
       
       setTasks(mappedTasks);
     } catch (error) {
@@ -126,7 +138,9 @@ export default function SmartCalendar() {
           txt: newTask.title,
           quando: `${newTask.date} ${newTask.time}`,
           porque: newTask.description,
-          quem: '',
+          quem: newTask.client_name || '',
+          onde: newTask.client_phone || '',
+          responsavel: null,
           done: false,
           user_id: user.id
         }])
@@ -136,17 +150,19 @@ export default function SmartCalendar() {
       if (error) throw error;
 
       // Map database response back to Task interface
-      const mappedTask = {
-        id: data.id,
-        title: data.txt,
-        description: data.porque || '',
-        date: data.quando?.split(' ')[0] || newTask.date,
-        time: data.quando?.split(' ')[1] || newTask.time,
-        priority: newTask.priority,
-        category: newTask.category,
-        user_id: data.user_id,
-        created_at: data.created_at
-      };
+        const mappedTask = {
+          id: data.id,
+          title: data.txt,
+          description: data.porque || '',
+          date: data.quando?.split(' ')[0] || newTask.date,
+          time: data.quando?.split(' ')[1] || newTask.time,
+          priority: newTask.priority,
+          category: newTask.category,
+          user_id: data.user_id,
+          created_at: data.created_at,
+          client_name: data.quem || '',
+          client_phone: data.onde || ''
+        };
 
       setTasks(prev => [...prev, mappedTask]);
       setNewTask({
@@ -155,7 +171,9 @@ export default function SmartCalendar() {
         date: '',
         time: '09:00',
         priority: 'media',
-        category: 'geral'
+        category: 'geral',
+        client_name: '',
+        client_phone: ''
       });
       setIsAddDialogOpen(false);
       
@@ -175,36 +193,35 @@ export default function SmartCalendar() {
 
   const handleVoiceTaskData = async (voiceData: any) => {
     try {
+      console.log('Voice task data received:', voiceData);
+      
       const today = new Date();
       let taskDate = today;
       
-      // Se uma data foi especificada na voz, tentar processar
+      // Parse date from voice data
       if (voiceData.data && voiceData.data !== today.toISOString().split('T')[0]) {
         taskDate = new Date(voiceData.data);
       }
-
-      const taskData = {
-        title: voiceData.titulo || 'Nova tarefa',
-        description: voiceData.descricao || '',
-        date: taskDate.toISOString().split('T')[0],
-        time: voiceData.hora || '09:00',
-        priority: voiceData.prioridade || 'media',
-        category: 'geral',
-        user_id: user?.id,
-        created_at: new Date().toISOString()
-      };
-
+      
+      // Format time properly
+      const taskTime = voiceData.hora || '09:00';
+      
+      // Create the complete quando field with date and time
+      const quandoValue = `${taskDate.toISOString().split('T')[0]} ${taskTime}`;
+      
       // Map Task interface to database schema
       const dbTaskData = {
-        txt: taskData.title,
-        porque: taskData.description,
-        quando: taskData.date,
-        onde: '',
-        quem: '',
-        responsavel: user?.email || '',
+        txt: voiceData.titulo || 'Nova tarefa por voz',
+        porque: voiceData.descricao || '',
+        quando: quandoValue,
+        onde: voiceData.telefone || '',
+        quem: voiceData.cliente || '',
+        responsavel: null,
         done: false,
         user_id: user?.id
       };
+
+      console.log('Inserting task data:', dbTaskData);
 
       const { data, error } = await supabase
         .from('tasks')
@@ -212,19 +229,26 @@ export default function SmartCalendar() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+
+      console.log('Task created successfully:', data);
 
       // Map back to Task interface for state
       const newTask = {
         id: data.id,
         title: data.txt,
         description: data.porque || '',
-        date: data.quando || taskData.date,
-        time: taskData.time,
-        priority: taskData.priority,
-        category: taskData.category,
+        date: data.quando?.split(' ')[0] || taskDate.toISOString().split('T')[0],
+        time: data.quando?.split(' ')[1] || taskTime,
+        priority: (voiceData.prioridade as 'baixa' | 'media' | 'alta') || 'media',
+        category: 'geral',
         user_id: data.user_id,
-        created_at: data.created_at
+        created_at: data.created_at,
+        client_name: data.quem || '',
+        client_phone: data.onde || ''
       };
 
       setTasks(prev => [...prev, newTask]);
@@ -237,7 +261,7 @@ export default function SmartCalendar() {
       console.error('Error adding voice task:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível criar a tarefa via voz",
+        description: "Não foi possível criar a tarefa via voz. Verifique os dados e tente novamente.",
         variant: "destructive",
       });
     }
@@ -555,6 +579,24 @@ export default function SmartCalendar() {
                   />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label>Cliente (opcional)</Label>
+                  <Input
+                    value={newTask.client_name}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, client_name: e.target.value }))}
+                    placeholder="Nome do cliente"
+                  />
+                </div>
+                <div>
+                  <Label>Telefone (opcional)</Label>
+                  <Input
+                    value={newTask.client_phone}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, client_phone: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+              </div>
               <Button onClick={handleAddTask} className="w-full">
                 Criar Tarefa
               </Button>
@@ -646,6 +688,20 @@ export default function SmartCalendar() {
                   <p className="text-sm">{selectedTask.time}</p>
                 </div>
               </div>
+              {selectedTask.client_name && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Cliente</Label>
+                    <p className="text-sm">{selectedTask.client_name}</p>
+                  </div>
+                  {selectedTask.client_phone && (
+                    <div>
+                      <Label>Telefone</Label>
+                      <p className="text-sm">{selectedTask.client_phone}</p>
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Prioridade</Label>
