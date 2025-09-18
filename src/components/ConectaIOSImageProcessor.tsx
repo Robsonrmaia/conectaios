@@ -7,7 +7,7 @@ interface ConectaIOSImageProcessorProps {
   isOpen: boolean;
   onClose: () => void;
   onImageProcessed: (imageUrl: string) => void;
-  type: 'enhance' | 'staging' | 'logo' | 'banner' | 'cover';
+  type: 'enhance' | 'staging' | 'logo' | 'banner' | 'cover' | 'sketch';
   initialImage?: string;
 }
 
@@ -27,6 +27,7 @@ export function ConectaIOSImageProcessor({
       case 'logo': return 'Gerar Logo com IA';
       case 'banner': return 'Gerar Banner com IA';
       case 'cover': return 'Gerar Capa com IA';
+      case 'sketch': return 'Esboço a Lápis';
       default: return 'ConectAIOS - Processamento de Imagens';
     }
   };
@@ -35,6 +36,7 @@ export function ConectaIOSImageProcessor({
     switch (type) {
       case 'enhance': return <Sparkles className="h-5 w-5" />;
       case 'staging': return <Wand2 className="h-5 w-5" />;
+      case 'sketch': return <Palette className="h-5 w-5" />;
       case 'logo':
       case 'banner':
       case 'cover': return <Palette className="h-5 w-5" />;
@@ -103,7 +105,7 @@ export function ConectaIOSImageProcessor({
         </div>
         
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
-          💡 {type === 'enhance' || type === 'staging' 
+          💡 {type === 'enhance' || type === 'staging' || type === 'sketch'
             ? 'Após processar a imagem, ela será automaticamente aplicada'
             : 'Após gerar a imagem, faça o download e faça upload manualmente no editor'
           }

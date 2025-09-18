@@ -1,15 +1,17 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
+import { useRealPlaces } from '@/hooks/useRealPlaces';
 import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import PropertyMap from './PropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
+import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 interface Property {
   id: string;
@@ -43,11 +45,32 @@ interface PropertyPresentationProps {
 export function PropertyPresentation({ property, isOpen, onClose }: PropertyPresentationProps) {
   const { broker, loading: brokerLoading } = useBroker();
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
+  const { places, loading: placesLoading } = useRealPlaces({
+    zipcode: property.zipcode,
+    neighborhood: property.neighborhood,
+    address: property.city
+  });
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [sketchImage, setSketchImage] = useState<string | null>(null);
+  const [isSketchLoading, setIsSketchLoading] = useState(false);
+  const [isProcessorOpen, setIsProcessorOpen] = useState(false);
+
+  // Auto-generate sketch from cover image when presentation opens
+  useEffect(() => {
+    const generateSketch = async () => {
+      if (!isOpen || !property.fotos?.[0] || sketchImage) return;
+      
+      setIsSketchLoading(true);
+      // Auto-open sketch processor with cover image  
+      setIsProcessorOpen(true);
+    };
+
+    generateSketch();
+  }, [isOpen, property.fotos, sketchImage]);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -255,6 +278,35 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
       {/* Content Sections */}
       <div className="bg-white">
+        {/* Sketch Section - Before "Sobre o Imóvel" */}
+        {(sketchImage || isSketchLoading) && (
+          <section className="px-6 py-8 border-b">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Planta Baixa Esquemática</h2>
+            <div className="bg-gray-50 rounded-lg p-4">
+              {isSketchLoading ? (
+                <div className="flex items-center justify-center h-48 bg-white rounded-lg border-2 border-dashed border-gray-200">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-2"></div>
+                    <p className="text-gray-600 font-medium">Gerando esboço...</p>
+                    <p className="text-sm text-gray-500">Processando com IA</p>
+                  </div>
+                </div>
+              ) : sketchImage ? (
+                <div className="relative">
+                  <img 
+                    src={sketchImage} 
+                    alt="Esboço do imóvel" 
+                    className="w-full h-auto rounded-lg shadow-sm"
+                  />
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
+                    <span className="text-xs font-medium text-gray-700">IA Generated</span>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        )}
+
         {/* Sobre o Imóvel Section */}
         <section className="px-6 py-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Sobre o Imóvel</h2>
@@ -381,8 +433,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           {/* Map Integration */}
           <div className="mb-8">
             <PropertyMap 
-              zipcode=""
-              neighborhood={property.neighborhood || ""}
+              zipcode={property.zipcode}
+              neighborhood={property.neighborhood}
+              address={property.city}
               className="animate-fade-in"
             />
           </div>
@@ -390,60 +443,35 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           <h3 className="text-xl font-semibold text-gray-900 mb-6 animate-fade-in">Pontos de Interesse</h3>
           
           <div className="space-y-4 mb-8">
-            <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <ShoppingBag className="h-5 w-5 text-blue-600" />
+            {placesLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="flex items-center gap-3 bg-white p-4 rounded-lg animate-pulse">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full" />
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-32 mb-2" />
+                      <div className="h-3 bg-gray-200 rounded w-16" />
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="flex-1">
-                <div className="font-medium">Shopping Villa-Lobos</div>
-                <div className="text-sm text-gray-500">1.2 km</div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-            </div>
-            
-            <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Train className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">Estação Vila Madalena</div>
-                <div className="text-sm text-gray-500">800 m</div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-            </div>
-            
-            <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Hospital className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">Hospital Sírio-Libanês</div>
-                <div className="text-sm text-gray-500">2.5 km</div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-            </div>
-            
-            <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <GraduationCap className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">PUC-SP</div>
-                <div className="text-sm text-gray-500">1.8 km</div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-            </div>
-            
-            <div className="flex items-center gap-3 bg-white p-4 rounded-lg">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <TreePine className="h-5 w-5 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <div className="font-medium">Parque Villa-Lobos</div>
-                <div className="text-sm text-gray-500">1.5 km</div>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
-            </div>
+            ) : (
+              places.map((place, index) => {
+                const IconComponent = getPlaceIcon(place.icon);
+                return (
+                  <div key={index} className="flex items-center gap-3 bg-white p-4 rounded-lg hover:shadow-sm transition-shadow">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <IconComponent className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-medium">{place.name}</div>
+                      <div className="text-sm text-gray-500">{place.distance}</div>
+                    </div>
+                    <ChevronLeft className="h-5 w-5 text-gray-400 rotate-180" />
+                  </div>
+                );
+              })
+            )}
           </div>
 
           {/* Map placeholder */}
@@ -562,6 +590,36 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
       />
+
+      {/* Sketch Image Processor */}
+      <ConectaIOSImageProcessor
+        isOpen={isProcessorOpen}
+        onClose={() => {
+          setIsProcessorOpen(false);
+          setIsSketchLoading(false);
+        }}
+        onImageProcessed={(imageUrl) => {
+          setSketchImage(imageUrl);
+          setIsSketchLoading(false);
+          setIsProcessorOpen(false);
+        }}
+        type="sketch"
+        initialImage={property.fotos?.[0]}
+      />
     </div>
   );
+}
+
+// Helper function to get the appropriate icon component
+function getPlaceIcon(iconName: string) {
+  const iconMap: Record<string, any> = {
+    ShoppingBag,
+    Train,
+    Hospital,
+    GraduationCap,
+    TreePine,
+    MapPin: Building2, // fallback for generic places
+  };
+  
+  return iconMap[iconName] || Building2;
 }

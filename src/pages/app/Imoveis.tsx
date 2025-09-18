@@ -61,6 +61,8 @@ interface Property {
   sea_distance?: number;
   neighborhood?: string;
   zipcode?: string;
+  condominium_fee?: number;
+  iptu?: number;
 }
 
 export default function Imoveis() {
@@ -92,7 +94,7 @@ export default function Imoveis() {
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
   const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
-  const [processorType, setProcessorType] = useState<'enhance' | 'staging'>('enhance');
+  const [processorType, setProcessorType] = useState<'enhance' | 'staging' | 'sketch'>('enhance');
   const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('lista');
   const [tour360Property, setTour360Property] = useState<Property | null>(null);
@@ -158,6 +160,8 @@ export default function Imoveis() {
           has_sea_view,
           neighborhood,
           zipcode,
+          condominium_fee,
+          iptu,
           created_at,
           reference_code
         `, { count: 'exact' })
@@ -185,6 +189,9 @@ export default function Imoveis() {
         sea_distance: prop.sea_distance,
         has_sea_view: prop.has_sea_view || false,
         neighborhood: prop.neighborhood || '',
+        zipcode: prop.zipcode || '',
+        condominium_fee: prop.condominium_fee || null,
+        iptu: prop.iptu || null,
         is_furnished: false, // Computed field
         watermark_enabled: true, // Default setting
       }));
@@ -1036,6 +1043,24 @@ export default function Imoveis() {
                 {formatCurrency(Number(property.valor) || 0)}
               </div>
               
+              {/* Optional IPTU and Condominium fees */}
+              {(property.condominium_fee || property.iptu) && (
+                <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                  {property.condominium_fee && (
+                    <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded">
+                      <Building2 className="h-3 w-3" />
+                      <span>Cond: {formatCurrency(property.condominium_fee)}</span>
+                    </div>
+                  )}
+                  {property.iptu && (
+                    <div className="flex items-center gap-1 bg-muted/50 px-2 py-1 rounded">
+                      <span className="text-xs font-semibold">IPTU</span>
+                      <span>{formatCurrency(property.iptu)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+              
                 {/* All property icons in one line */}
                 <div className="flex items-center gap-3 text-sm text-muted-foreground flex-wrap">
                   <div className="flex items-center gap-1">
@@ -1219,14 +1244,23 @@ export default function Imoveis() {
                       variant="outline" 
                       size="sm"
                       onClick={() => {
-                        // Open evaluation tool for the property
-                        window.open(`https://simuladororquidario.gicarneiroimoveis.com.br/?area=${property.area}&quartos=${property.quartos}&tipo=${property.property_type}`, '_blank', 'noopener,noreferrer');
+                        if (property.fotos && property.fotos.length > 0) {
+                          setSelectedProperty(property);
+                          setProcessorType('sketch' as any);
+                          setIsProcessorOpen(true);
+                        } else {
+                          toast({
+                            title: "Sem Fotos",
+                            description: "Adicione fotos ao imóvel primeiro",
+                            variant: "destructive",
+                          });
+                        }
                       }}
-                      title="Avaliar Imóvel"
+                      title="Esboço a Lápis"
                       className="h-8 text-xs"
                     >
-                      <Target className="h-3 w-3 mr-1" />
-                      Avaliar
+                      <Palette className="h-3 w-3 mr-1" />
+                      Esboço
                     </Button>
                   </div>
                  

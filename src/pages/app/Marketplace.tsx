@@ -48,6 +48,9 @@ interface Property {
   listing_type: string;
   property_type?: string;
   neighborhood?: string;
+  zipcode?: string;
+  condominium_fee?: number;
+  iptu?: number;
   profiles?: {
     nome: string;
   } | null;
@@ -123,6 +126,9 @@ export default function Marketplace() {
           property_type,
           fotos,
           neighborhood,
+          zipcode,
+          condominium_fee,
+          iptu,
           descricao,
           user_id
         `)
@@ -180,6 +186,9 @@ export default function Marketplace() {
           fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
           videos: [], // Set default empty array since we don't fetch videos for performance
           neighborhood: property.neighborhood || '',
+          zipcode: property.zipcode || '',
+          condominium_fee: property.condominium_fee || null,
+          iptu: property.iptu || null,
           finalidade: property.listing_type || 'venda', // Use listing_type as finalidade
           descricao: property.descricao || '',
           created_at: new Date().toISOString(), // Set current time as fallback
@@ -475,8 +484,26 @@ export default function Marketplace() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                R$ {property.valor?.toLocaleString('pt-BR')}
+                {formatCurrency(property.valor)}
               </motion.div>
+                  
+                  {/* Location Info with CEP and Neighborhood */}
+                  {(property.neighborhood || property.zipcode) && (
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground border-l-2 border-primary/20 pl-2">
+                      <MapPin className="h-3 w-3 text-primary" />
+                      <div className="flex flex-wrap gap-1">
+                        {property.neighborhood && (
+                          <span className="font-medium">{property.neighborhood}</span>
+                        )}
+                        {property.neighborhood && property.zipcode && (
+                          <span>•</span>
+                        )}
+                        {property.zipcode && (
+                          <span>CEP: {property.zipcode}</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                   
                   {/* All property icons in one line */}
                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
