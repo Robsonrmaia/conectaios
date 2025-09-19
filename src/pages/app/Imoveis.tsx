@@ -63,6 +63,7 @@ interface Property {
   zipcode?: string;
   condominium_fee?: number;
   iptu?: number;
+  year_built?: number;
 }
 
 export default function Imoveis() {
@@ -165,6 +166,7 @@ export default function Imoveis() {
           zipcode,
           condominium_fee,
           iptu,
+          year_built,
           created_at,
           reference_code
         `, { count: 'exact' })
@@ -260,6 +262,7 @@ export default function Imoveis() {
       const parsedCondominiumFee = formData.condominium_fee ? parseValueInput(formData.condominium_fee) : null;
       const parsedIptu = formData.iptu ? parseValueInput(formData.iptu) : null;
       const parsedSeaDistance = formData.sea_distance ? parseInt(formData.sea_distance) : null;
+      const parsedYearBuilt = formData.year_built ? parseInt(formData.year_built) : null;
       
       // Validar dados numéricos
       if (parsedValue <= 0) {
@@ -302,6 +305,7 @@ export default function Imoveis() {
         banner_type: (formData.banner_type === "none" || formData.banner_type === "" || !formData.banner_type) ? null : formData.banner_type,
         furnishing_type: formData.furnishing_type,
         sea_distance: parsedSeaDistance,
+        year_built: parsedYearBuilt,
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
@@ -1378,7 +1382,7 @@ export default function Imoveis() {
                           watermark_enabled: true,
                           furnishing_type: (property.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
                           sea_distance: property.sea_distance ? String(property.sea_distance) : '',
-                          year_built: (property as any).year_built ? String((property as any).year_built) : '',
+                          year_built: property.year_built ? String(property.year_built) : '',
                         });
                         setSelectedProperty(property);
                         setIsAddDialogOpen(true);
@@ -1669,7 +1673,7 @@ export default function Imoveis() {
                             watermark_enabled: selectedProperty.watermark_enabled || false,
                             furnishing_type: (selectedProperty.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
                             sea_distance: selectedProperty.sea_distance ? String(selectedProperty.sea_distance) : '',
-                            year_built: (selectedProperty as any).year_built ? String((selectedProperty as any).year_built) : '',
+                            year_built: selectedProperty.year_built ? String(selectedProperty.year_built) : '',
                           });
                          setIsDetailDialogOpen(false);
                          setIsAddDialogOpen(true);
