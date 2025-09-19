@@ -225,21 +225,21 @@ export default function Match() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto px-4">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <Button 
             variant="outline" 
             onClick={() => navigate('/app')}
-            className="flex items-center gap-2 w-fit"
+            className="flex items-center gap-2 w-full sm:w-auto min-h-[44px] touch-target"
           >
             <Home className="h-4 w-4" />
             Dashboard
           </Button>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent">
+          <div className="px-1">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-primary to-brand-secondary bg-clip-text text-transparent leading-tight">
               Match IA
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-sm sm:text-base text-muted-foreground mt-1">
               Encontre imóveis perfeitos para seus clientes
             </p>
           </div>
@@ -248,7 +248,7 @@ export default function Match() {
         <div className="flex gap-2 w-full sm:w-auto">
           <Dialog open={showPreferences} onOpenChange={setShowPreferences}>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="min-h-[44px] touch-target w-full sm:w-auto">
                 <Target className="h-4 w-4 mr-2" />
                 Preferências
               </Button>
@@ -331,11 +331,11 @@ export default function Match() {
                   </Select>
                 </div>
 
-                <div className="flex gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setShowPreferences(false)} className="flex-1">
+                <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowPreferences(false)} className="flex-1 min-h-[44px] touch-target">
                     Cancelar
                   </Button>
-                  <Button onClick={handleUpdatePreferences} className="flex-1">
+                  <Button onClick={handleUpdatePreferences} className="flex-1 min-h-[44px] touch-target">
                     Buscar Matches
                   </Button>
                 </div>

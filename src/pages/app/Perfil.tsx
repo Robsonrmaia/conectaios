@@ -133,13 +133,13 @@ export default function Perfil() {
       </div>
 
       <Tabs defaultValue="perfil" className="space-y-4">
-        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto gap-1 p-1 min-w-max">
-            <TabsTrigger value="perfil" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Perfil</TabsTrigger>
-            <TabsTrigger value="minisite" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Minisite</TabsTrigger>
-            <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Config</TabsTrigger>
-            <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Awards</TabsTrigger>
-            <TabsTrigger value="plano" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap">Plano</TabsTrigger>
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 scroll-smooth-tabs">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-12 gap-1 p-1 min-w-max">
+            <TabsTrigger value="perfil" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Perfil</TabsTrigger>
+            <TabsTrigger value="minisite" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Minisite</TabsTrigger>
+            <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Config</TabsTrigger>
+            <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Awards</TabsTrigger>
+            <TabsTrigger value="plano" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Plano</TabsTrigger>
           </TabsList>
         </div>
 
@@ -192,7 +192,7 @@ export default function Perfil() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                     <Button variant="outline" size="sm" onClick={async () => {
+                       <Button variant="outline" size="sm" onClick={async () => {
                        const input = document.createElement('input');
                        input.type = 'file';
                        input.accept = 'image/*';
@@ -240,10 +240,10 @@ export default function Perfil() {
                          }
                        };
                        input.click();
-                       }} className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base">
-                          <Camera className="h-4 w-4 mr-2" />
-                          Alterar Foto
-                        </Button>
+                        }} className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base min-h-[44px] touch-target">
+                           <Camera className="h-4 w-4 mr-2" />
+                           Alterar Foto
+                         </Button>
                        <p className="text-xs text-muted-foreground mt-2">
                          PNG, JPG até 5MB
                        </p>
@@ -383,31 +383,31 @@ export default function Perfil() {
                     rows={3}
                   />
                 </div>
-                <Button 
-                  onClick={async () => {
-                    try {
-                      await updateBrokerProfile({
-                        name: profile.name,
-                        phone: profile.phone,
-                        bio: profile.bio,
-                        creci: profile.creci
-                      });
-                      toast({
-                        title: "Perfil atualizado!",
-                        description: "Suas informações foram salvas com sucesso.",
-                      });
-                    } catch (error) {
-                      toast({
-                        title: "Erro",
-                        description: "Erro ao salvar as alterações.",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                  className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                >
-                  Salvar Alterações
-                </Button>
+                 <Button 
+                   onClick={async () => {
+                     try {
+                       await updateBrokerProfile({
+                         name: profile.name,
+                         phone: profile.phone,
+                         bio: profile.bio,
+                         creci: profile.creci
+                       });
+                       toast({
+                         title: "Perfil atualizado!",
+                         description: "Suas informações foram salvas com sucesso.",
+                       });
+                     } catch (error) {
+                       toast({
+                         title: "Erro",
+                         description: "Erro ao salvar as alterações.",
+                         variant: "destructive",
+                       });
+                     }
+                   }}
+                   className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg w-full sm:w-auto min-h-[44px] touch-target"
+                 >
+                   Salvar Alterações
+                 </Button>
               </CardContent>
             </Card>
           </div>

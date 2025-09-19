@@ -32,3 +32,23 @@ button, input, select, textarea { min-width: 0; }
 
 /* Scroll suave para tabs horizontais */
 .scroll-smooth-tabs { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
+
+/* Layout responsivo para formulários */
+.form-mobile { padding: 1rem; }
+@media (min-width: 640px) { .form-mobile { padding: 1.5rem; } }
+
+/* Grupos de botões responsivos */
+.button-group-mobile { display: flex; flex-direction: column; gap: 0.5rem; }
+@media (min-width: 640px) { .button-group-mobile { flex-direction: row; gap: 1rem; } }
+
+/* Cards em pipeline responsivos */
+.pipeline-card { min-height: 120px; padding: 0.75rem; }
+@media (min-width: 640px) { .pipeline-card { padding: 1rem; } }
+
+/* Texto responsivo */
+.text-responsive { font-size: 0.875rem; line-height: 1.25rem; }
+@media (min-width: 640px) { .text-responsive { font-size: 1rem; line-height: 1.5rem; } }
+
+/* Espaçamento consistente em mobile */
+.space-mobile { gap: 0.75rem; }
+@media (min-width: 640px) { .space-mobile { gap: 1rem; } }
