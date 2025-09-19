@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
@@ -198,95 +198,115 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             </div>
           </div>
 
-          {/* Property info overlay - center positioned */}
-          <div className="absolute inset-x-0 top-1/3 px-6 text-white space-y-6">
+          {/* Property info overlay - center positioned with compact layout */}
+          <div className="absolute inset-x-0 top-1/2 transform -translate-y-1/2 px-4 text-white space-y-4">
             {/* Title */}
-            <h1 className="text-4xl font-bold leading-tight">
+            <h1 className="text-2xl sm:text-4xl font-bold leading-tight">
               {property.titulo}
             </h1>
             
             {/* Location in blue */}
-            <p className="text-blue-300 text-xl font-medium">
+            <p className="text-blue-300 text-sm sm:text-xl font-medium">
               {property.neighborhood && property.zipcode 
                 ? `${property.neighborhood} - CEP: ${property.zipcode}`
                 : property.neighborhood || property.city || 'Vila Madalena'
               }
             </p>
             
-            {/* Property specs with icons - vertical layout like readdy */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
-                  <Home className="h-4 w-4 text-white" />
+            {/* Property specs with smaller icons - 2x2 grid for mobile */}
+            <div className="grid grid-cols-2 gap-2 sm:space-y-3 sm:block">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                  <Home className="h-3 w-3 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-300">Área Construída</div>
-                  <div className="text-lg font-semibold">{property.area}m²</div>
+                  <div className="text-xs text-gray-300">Área</div>
+                  <div className="text-sm font-semibold">{property.area}m²</div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
-                  <Bed className="h-4 w-4 text-white" />
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                  <Bed className="h-3 w-3 text-white" />
                 </div>
                 <div>
-                  <div className="text-sm text-gray-300">Dormitórios</div>
-                  <div className="text-lg font-semibold">
-                    {property.quartos} {property.bathrooms ? 'Suítes' : 'Quartos'}
-                  </div>
+                  <div className="text-xs text-gray-300">Quartos</div>
+                  <div className="text-sm font-semibold">{property.quartos}</div>
                 </div>
               </div>
               
-              {property.parking_spots && property.parking_spots > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
-                    <Car className="h-4 w-4 text-white" />
+              {property.bathrooms && property.bathrooms > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                    <Bath className="h-3 w-3 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm text-gray-300">Garagem</div>
-                    <div className="text-lg font-semibold">{property.parking_spots} Vagas</div>
+                    <div className="text-xs text-gray-300">Banheiros</div>
+                    <div className="text-sm font-semibold">{property.bathrooms}</div>
                   </div>
                 </div>
               )}
               
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full">
-                  <span className="text-sm font-bold text-white">R$</span>
+              {property.parking_spots && property.parking_spots > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
+                    <Car className="h-3 w-3 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Vagas</div>
+                    <div className="text-sm font-semibold">{property.parking_spots}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-sm text-gray-300">Valor</div>
-                  <div className="text-xl font-bold">{formatCurrency(property.valor)}</div>
+              )}
+              
+              {/* Additional property features - remove non-existent properties */}
+              {property.bathrooms && property.bathrooms > 2 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-6 h-6 bg-purple-600 rounded-full">
+                    <Package className="h-3 w-3 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Luxo</div>
+                    <div className="text-sm font-semibold">Premium</div>
+                  </div>
                 </div>
+              )}
+            </div>
+            
+            {/* Value - separate prominent display */}
+            <div className="flex items-center gap-3 bg-black/40 rounded-lg p-3 backdrop-blur-sm">
+              <div className="flex items-center justify-center w-8 h-8 bg-green-600 rounded-full">
+                <span className="text-sm font-bold text-white">R$</span>
+              </div>
+              <div>
+                <div className="text-sm text-gray-300">Valor</div>
+                <div className="text-2xl font-bold text-green-300">{formatCurrency(property.valor)}</div>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons - Mobile: 2 columns grid */}
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:gap-4">
-              <Button 
-                onClick={handleScheduleVisit}
-                className="py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl sm:w-full sm:py-4 sm:text-lg"
-                size="sm"
-              >
-                Agendar Visita
-              </Button>
-              
-              <Button 
-                onClick={handleShare}
-                className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:py-4 sm:text-lg"
-                size="sm"
-              >
-                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                Compartilhar
-              </Button>
-            </div>
-          </div>
+        </div>
+      </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-20 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <ChevronDown className="h-8 w-8 text-white/70" />
-          </div>
+      {/* Action Buttons - Outside the hero image */}  
+      <div className="p-4 bg-white border-b">
+        <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:gap-4 sm:justify-center">
+          <Button 
+            onClick={handleScheduleVisit}
+            className="py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
+            size="default"
+          >
+            Agendar Visita
+          </Button>
+          
+          <Button 
+            onClick={handleShare}
+            className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
+            size="default"
+          >
+            <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+            Compartilhar
+          </Button>
         </div>
       </div>
 
