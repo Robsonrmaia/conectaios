@@ -96,6 +96,50 @@ export type Database = {
           },
         ]
       }
+      assinaturas_creditos: {
+        Row: {
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          referencia_ano_mes: number | null
+          tipo: string
+          usado: boolean | null
+          usado_em: string | null
+          usuario_id: string
+          valor: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          referencia_ano_mes?: number | null
+          tipo: string
+          usado?: boolean | null
+          usado_em?: string | null
+          usuario_id: string
+          valor?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          referencia_ano_mes?: number | null
+          tipo?: string
+          usado?: boolean | null
+          usado_em?: string | null
+          usuario_id?: string
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assinaturas_creditos_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_logs: {
         Row: {
           action: string
@@ -387,6 +431,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cards_prop_id_fkey"
+            columns: ["prop_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis_quality"
+            referencedColumns: ["imovel_id"]
           },
           {
             foreignKeyName: "cards_prop_id_fkey"
@@ -1328,6 +1379,13 @@ export type Database = {
             foreignKeyName: "deals_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
+            referencedRelation: "imoveis_quality"
+            referencedColumns: ["imovel_id"]
+          },
+          {
+            foreignKeyName: "deals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
@@ -1377,6 +1435,213 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gam_badges: {
+        Row: {
+          condicao_sql: string | null
+          descricao: string | null
+          icone: string | null
+          label: string
+          prioridade: number | null
+          slug: string
+        }
+        Insert: {
+          condicao_sql?: string | null
+          descricao?: string | null
+          icone?: string | null
+          label: string
+          prioridade?: number | null
+          slug: string
+        }
+        Update: {
+          condicao_sql?: string | null
+          descricao?: string | null
+          icone?: string | null
+          label?: string
+          prioridade?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      gam_events: {
+        Row: {
+          created_at: string | null
+          id: number
+          meta: Json | null
+          pontos: number
+          ref_id: string | null
+          ref_tipo: string | null
+          rule_key: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          meta?: Json | null
+          pontos: number
+          ref_id?: string | null
+          ref_tipo?: string | null
+          rule_key: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          meta?: Json | null
+          pontos?: number
+          ref_id?: string | null
+          ref_tipo?: string | null
+          rule_key?: string
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gam_events_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gam_points_rules: {
+        Row: {
+          ativo: boolean | null
+          created_at: string | null
+          descricao: string | null
+          key: string
+          label: string
+          pontos: number
+        }
+        Insert: {
+          ativo?: boolean | null
+          created_at?: string | null
+          descricao?: string | null
+          key: string
+          label: string
+          pontos: number
+        }
+        Update: {
+          ativo?: boolean | null
+          created_at?: string | null
+          descricao?: string | null
+          key?: string
+          label?: string
+          pontos?: number
+        }
+        Relationships: []
+      }
+      gam_user_history: {
+        Row: {
+          ano: number
+          badges: string[] | null
+          desconto_percent: number | null
+          fechado_em: string | null
+          id: number
+          mes: number
+          pontos: number | null
+          tier: string | null
+          usuario_id: string
+          was_champion: boolean | null
+        }
+        Insert: {
+          ano: number
+          badges?: string[] | null
+          desconto_percent?: number | null
+          fechado_em?: string | null
+          id?: number
+          mes: number
+          pontos?: number | null
+          tier?: string | null
+          usuario_id: string
+          was_champion?: boolean | null
+        }
+        Update: {
+          ano?: number
+          badges?: string[] | null
+          desconto_percent?: number | null
+          fechado_em?: string | null
+          id?: number
+          mes?: number
+          pontos?: number | null
+          tier?: string | null
+          usuario_id?: string
+          was_champion?: boolean | null
+        }
+        Relationships: []
+      }
+      gam_user_monthly: {
+        Row: {
+          ano: number
+          badges: string[] | null
+          desconto_percent: number | null
+          id: number
+          mes: number
+          pontos: number | null
+          tier: string | null
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          ano: number
+          badges?: string[] | null
+          desconto_percent?: number | null
+          id?: number
+          mes: number
+          pontos?: number | null
+          tier?: string | null
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          ano?: number
+          badges?: string[] | null
+          desconto_percent?: number | null
+          id?: number
+          mes?: number
+          pontos?: number | null
+          tier?: string | null
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gam_user_monthly_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gam_visibility_boost: {
+        Row: {
+          boost: number | null
+          expires_at: string | null
+          updated_at: string | null
+          usuario_id: string
+        }
+        Insert: {
+          boost?: number | null
+          expires_at?: string | null
+          updated_at?: string | null
+          usuario_id: string
+        }
+        Update: {
+          boost?: number | null
+          expires_at?: string | null
+          updated_at?: string | null
+          usuario_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gam_visibility_boost_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: true
+            referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
         ]
@@ -1632,6 +1897,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "media_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis_quality"
+            referencedColumns: ["imovel_id"]
+          },
           {
             foreignKeyName: "media_property_id_fkey"
             columns: ["property_id"]
@@ -2293,6 +2565,13 @@ export type Database = {
           videos?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_prop_id_fkey"
+            columns: ["prop_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis_quality"
+            referencedColumns: ["imovel_id"]
+          },
           {
             foreignKeyName: "projects_prop_id_fkey"
             columns: ["prop_id"]
@@ -3097,16 +3376,58 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      imoveis_quality: {
+        Row: {
+          corretor_id: string | null
+          imovel_id: string | null
+          percentual: number | null
+          tem_8_fotos: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          corretor_id?: string | null
+          imovel_id?: string | null
+          percentual?: never
+          tem_8_fotos?: never
+          updated_at?: string | null
+        }
+        Update: {
+          corretor_id?: string | null
+          imovel_id?: string | null
+          percentual?: never
+          tem_8_fotos?: never
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_change_user_role: {
         Args: { new_role: string; target_user_id: string }
         Returns: Json
       }
+      apply_points: {
+        Args: {
+          p_meta?: Json
+          p_pontos: number
+          p_ref_id?: string
+          p_ref_tipo?: string
+          p_rule_key: string
+          p_usuario_id: string
+        }
+        Returns: undefined
+      }
+      calc_imovel_quality: {
+        Args: { imovel_id: string }
+        Returns: number
+      }
       calculate_first_month_discount: {
         Args: { broker_id: string }
         Returns: number
+      }
+      calculate_user_badges: {
+        Args: { p_ano: number; p_mes: number; p_usuario_id: string }
+        Returns: string[]
       }
       check_plan_limit: {
         Args: { _limit_column: string; _resource_type: string }
@@ -3200,6 +3521,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      process_monthly_gamification_reset: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       process_monthly_indication_rewards: {
         Args: { target_month?: number }
         Returns: Json
@@ -3220,6 +3545,10 @@ export type Database = {
       }
       update_property_analytics: {
         Args: { _activity_type?: string; _property_id: string }
+        Returns: undefined
+      }
+      update_visibility_boost: {
+        Args: { p_usuario_id: string }
         Returns: undefined
       }
       validate_conectaios_credentials: {
