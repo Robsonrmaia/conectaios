@@ -81,6 +81,7 @@ export default function Imoveis() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [virtualStagingProperty, setVirtualStagingProperty] = useState<string | null>(null);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isAvaliationOpen, setIsAvaliationOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -130,6 +131,7 @@ export default function Imoveis() {
     watermark_enabled: true,
     furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
     sea_distance: '',
+    year_built: '',
   });
 
   const fetchProperties = useCallback(async (page = 1, pageSize = 20) => {
@@ -396,7 +398,7 @@ export default function Imoveis() {
         has_sea_view: false,
         watermark_enabled: true,
         furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
-        sea_distance: '',
+        year_built: '',
       });
       
       // Add delay to ensure database has processed the save
@@ -697,57 +699,71 @@ export default function Imoveis() {
                 </div>
 
                 {/* CEP, Bairro, IPTU e Condomínio */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="zipcode">CEP</Label>
-                    <Input
-                      id="zipcode"
-                      value={formData.zipcode || ''}
-                      onChange={(e) => setFormData({...formData, zipcode: e.target.value})}
-                      placeholder="12345-678"
-                      className="h-11"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="neighborhood">Bairro</Label>
-                    <Input
-                      id="neighborhood"
-                      value={formData.neighborhood}
-                      onChange={(e) => setFormData({...formData, neighborhood: e.target.value})}
-                      placeholder="Vila Madalena"
-                      className="h-11"
-                    />
-                  </div>
-                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="zipcode">CEP</Label>
+                            <Input
+                              id="zipcode"
+                              value={formData.zipcode || ''}
+                              onChange={(e) => setFormData({...formData, zipcode: e.target.value})}
+                              placeholder="12345-678"
+                              className="h-11"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="neighborhood">Bairro</Label>
+                            <Input
+                              id="neighborhood"
+                              value={formData.neighborhood}
+                              onChange={(e) => setFormData({...formData, neighborhood: e.target.value})}
+                              placeholder="Vila Madalena"
+                              className="h-11"
+                            />
+                          </div>
+                        </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="condominium_fee">Taxa de Condomínio (R$)</Label>
-                    <Input
-                      id="condominium_fee"
-                      value={formData.condominium_fee}
-                      onChange={(e) => setFormData({...formData, condominium_fee: e.target.value})}
-                      placeholder="580,00"
-                      className="h-11"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Opcional - Use formato brasileiro
-                    </p>
-                  </div>
-                  <div>
-                    <Label htmlFor="iptu">IPTU (R$)</Label>
-                    <Input
-                      id="iptu"
-                      value={formData.iptu}
-                      onChange={(e) => setFormData({...formData, iptu: e.target.value})}
-                      placeholder="1.200,00"
-                      className="h-11"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Opcional - Use formato brasileiro
-                    </p>
-                  </div>
-                </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="year_built">Ano de Construção</Label>
+                            <Input
+                              id="year_built"
+                              type="number"
+                              value={formData.year_built || ''}
+                              onChange={(e) => setFormData({...formData, year_built: e.target.value})}
+                              placeholder="2020"
+                              className="h-11"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="condominium_fee">Taxa de Condomínio (R$)</Label>
+                            <Input
+                              id="condominium_fee"
+                              value={formData.condominium_fee}
+                              onChange={(e) => setFormData({...formData, condominium_fee: e.target.value})}
+                              placeholder="580,00"
+                              className="h-11"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Opcional - Use formato brasileiro
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="iptu">IPTU (R$)</Label>
+                            <Input
+                              id="iptu"
+                              value={formData.iptu}
+                              onChange={(e) => setFormData({...formData, iptu: e.target.value})}
+                              placeholder="1.200,00"
+                              className="h-11"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Opcional - Use formato brasileiro
+                            </p>
+                          </div>
+                        </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1299,18 +1315,28 @@ export default function Imoveis() {
                       variant="outline" 
                       size="sm"
                       onClick={() => {
-                        // Simular avaliação do imóvel
-                        const avaliacaoEstimada = property.valor * (0.9 + Math.random() * 0.2);
-                        toast({
-                          title: "Avaliação Estimada",
-                          description: `Valor estimado: ${formatCurrency(avaliacaoEstimada)}`,
-                        });
+                        setSelectedProperty(property);
+                        setIsAvaliationOpen(true);
                       }}
                       title="Avaliar Imóvel"
                       className="h-8 text-xs"
                     >
                       <Target className="h-3 w-3 mr-1" />
                       Avaliar
+                    </Button>
+                    
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setTour360Property(property);
+                        setIsTour360ModalOpen(true);
+                      }}
+                      title="Tour 360°"
+                      className="h-8 text-xs"
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Tour 360
                     </Button>
                   </div>
                  

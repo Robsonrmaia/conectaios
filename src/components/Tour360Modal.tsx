@@ -12,21 +12,12 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
   // Get ALL photos (not just first one)
   const allPhotos = property?.fotos || [];
   
-  // Build URL for the Tour 360 generator with ALL property data and ALL photos pre-loaded
-  const tour360Url = `https://imagens-conectaios-420832656535.us-west1.run.app?` +
-    `action=tour360&` +
-    `propertyId=${encodeURIComponent(property?.id || '')}&` +
-    `titulo=${encodeURIComponent(property?.titulo || '')}&` +
-    `valor=${encodeURIComponent(property?.valor?.toString() || '')}&` +
-    `area=${encodeURIComponent(property?.area?.toString() || '')}&` +
-    `quartos=${encodeURIComponent(property?.quartos?.toString() || '')}&` +
-    `bathrooms=${encodeURIComponent(property?.bathrooms?.toString() || '')}&` +
-    `parking_spots=${encodeURIComponent(property?.parking_spots?.toString() || '')}&` +
-    `tipo=${encodeURIComponent(property?.property_type || '')}&` +
-    `finalidade=${encodeURIComponent(property?.listing_type || '')}&` +
-    `descricao=${encodeURIComponent(property?.descricao || '')}&` +
-    `fotos=${encodeURIComponent(JSON.stringify(allPhotos))}&` +
-    `autoload=true`;
+  const tour360Url = `https://conectaios.com.br/tour360/generate?property=${encodeURIComponent(JSON.stringify({
+    id: property.id,
+    title: property.titulo,
+    address: property.address,
+    photos: property.fotos || []
+  }))}&fotos=${encodeURIComponent(JSON.stringify(allPhotos))}&autoload=true`;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

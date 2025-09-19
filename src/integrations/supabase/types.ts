@@ -2181,12 +2181,14 @@ export type Database = {
           sea_distance: number | null
           state: string | null
           titulo: string
+          tour_360_url: string | null
           updated_at: string
           user_id: string | null
           valor: number | null
           videos: string[] | null
           views_count: number | null
           visibility: string | null
+          year_built: number | null
           zipcode: string | null
         }
         Insert: {
@@ -2224,12 +2226,14 @@ export type Database = {
           sea_distance?: number | null
           state?: string | null
           titulo: string
+          tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
           valor?: number | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
+          year_built?: number | null
           zipcode?: string | null
         }
         Update: {
@@ -2267,12 +2271,14 @@ export type Database = {
           sea_distance?: number | null
           state?: string | null
           titulo?: string
+          tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
           valor?: number | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
+          year_built?: number | null
           zipcode?: string | null
         }
         Relationships: []

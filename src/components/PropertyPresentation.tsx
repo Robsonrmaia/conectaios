@@ -9,7 +9,7 @@ import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import PropertyMap from './PropertyMap';
+import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
@@ -34,6 +34,10 @@ interface Property {
   sea_distance?: number;
   condominium_fee?: number;
   iptu?: number;
+  year_built?: number;
+  tour_360_url?: string;
+  state?: string;
+  address?: string;
 }
 
 interface PropertyPresentationProps {
@@ -58,6 +62,14 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [sketchImage, setSketchImage] = useState<string | null>(null);
   const [isSketchLoading, setIsSketchLoading] = useState(false);
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
+
+  // Auto-generate sketch when presentation opens
+  useEffect(() => {
+    if (isOpen && property.fotos && property.fotos.length > 0 && !sketchImage && !isSketchLoading) {
+      setIsSketchLoading(true);
+      console.log("Auto-generating sketch from first photo:", property.fotos[0]);
+    }
+  }, [isOpen, property.fotos, sketchImage, isSketchLoading]);
 
   // Auto-generate sketch from cover image when presentation opens
   useEffect(() => {
@@ -379,7 +391,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Ano:</span>
-                  <span className="font-medium">2022</span>
+                  <span className="font-medium">{property.year_built || 'Não informado'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Condomínio:</span>
@@ -432,10 +444,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           
           {/* Map Integration */}
           <div className="mb-8">
-            <PropertyMap 
+            <RealPropertyMap 
               zipcode={property.zipcode}
               neighborhood={property.neighborhood}
               address={property.city}
+              city={property.city}
+              state={property.state}
               className="animate-fade-in"
             />
           </div>
