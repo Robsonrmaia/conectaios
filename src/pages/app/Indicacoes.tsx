@@ -1,288 +1,314 @@
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Gift, Users, TrendingUp, Award, Share2, DollarSign } from 'lucide-react';
+import { useIndications } from '@/hooks/useIndications';
+import { useBroker } from '@/hooks/useBroker';
+import { Copy, Share2, Users, TrendingUp, DollarSign, Calendar, ExternalLink, Gift, Star, Trophy } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function Indicacoes() {
-  const stats = {
-    totalIndicacoes: 15,
-    indicacoesAtivas: 8,
-    comissaoTotal: 12500,
-    proximaRecompensa: 25000
+  const { indications, discounts, stats, loading } = useIndications();
+  const { broker } = useBroker();
+  const [copying, setCopying] = useState(false);
+
+  const generateReferralLink = () => {
+    if (!broker?.referral_code) return '';
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/signup?ref=${broker.referral_code}`;
   };
 
-  const indicacoes = [
-    {
-      id: 1,
-      nome: 'Carlos Oliveira',
-      email: 'carlos@email.com',
-      status: 'ativo',
-      dataIndicacao: '2024-01-15',
-      vendas: 3,
-      comissaoGerada: 4500
-    },
-    {
-      id: 2,
-      nome: 'Ana Santos',
-      email: 'ana@email.com',
-      status: 'ativo',
-      dataIndicacao: '2024-01-20',
-      vendas: 2,
-      comissaoGerada: 3200
-    },
-    {
-      id: 3,
-      nome: 'Roberto Silva',
-      email: 'roberto@email.com',
-      status: 'pendente',
-      dataIndicacao: '2024-01-25',
-      vendas: 0,
-      comissaoGerada: 0
-    }
-  ];
+  const copyReferralLink = async () => {
+    const link = generateReferralLink();
+    if (!link) return;
 
-  const recompensas = [
-    {
-      id: 1,
-      titulo: 'Primeira Indicação',
-      descricao: 'Ganhe R$ 500 pela sua primeira indicação ativa',
-      valor: 500,
-      requisito: '1 indicação ativa',
-      conquistada: true
-    },
-    {
-      id: 2,
-      titulo: 'Rede de Sucesso',
-      descricao: 'R$ 2.000 por ter 5 indicações ativas',
-      valor: 2000,
-      requisito: '5 indicações ativas',
-      conquistada: true
-    },
-    {
-      id: 3,
-      titulo: 'Embaixador',
-      descricao: 'R$ 5.000 por ter 10 indicações ativas',
-      valor: 5000,
-      requisito: '10 indicações ativas',
-      conquistada: false
-    },
-    {
-      id: 4,
-      titulo: 'Líder da Rede',
-      descricao: 'R$ 10.000 por gerar R$ 50.000 em comissões',
-      valor: 10000,
-      requisito: 'R$ 50.000 em comissões',
-      conquistada: false
+    setCopying(true);
+    try {
+      await navigator.clipboard.writeText(link);
+      toast({
+        title: 'Link copiado!',
+        description: 'O link de indicação foi copiado para a área de transferência.'
+      });
+    } catch (error) {
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível copiar o link',
+        variant: 'destructive'
+      });
+    } finally {
+      setCopying(false);
     }
-  ];
+  };
+
+  const shareWhatsApp = () => {
+    const link = generateReferralLink();
+    const message = `🎯 Quer economizar na sua ferramenta imobiliária?\n\n💰 Use meu código de indicação e ganhe 50% de desconto no primeiro mês da ConectaIOS!\n\n🔗 Cadastre-se aqui: ${link}\n\n✨ A ConectaIOS é a plataforma completa para corretores: CRM, gestão de imóveis, IA integrada e muito mais!`;
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'ativo': return 'bg-success/20 text-success';
-      case 'pendente': return 'bg-warning/20 text-warning';
-      case 'inativo': return 'bg-muted/20 text-muted-foreground';
-      default: return 'bg-muted';
+      case 'confirmado':
+        return 'bg-success text-success-foreground';
+      case 'pendente':
+        return 'bg-warning text-warning-foreground';
+      case 'cancelado':
+        return 'bg-destructive text-destructive-foreground';
+      default:
+        return 'bg-muted text-muted-foreground';
     }
   };
 
-  const progressToNextReward = (stats.comissaoTotal / stats.proximaRecompensa) * 100;
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary">
-            Indique e Ganhe
-          </h1>
-            <p className="text-muted-foreground">
-              Convide outros corretores e ganhe descontos nas mensalidades
-            </p>
+    <div className="container mx-auto px-4 py-8 space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <div className="flex items-center justify-center gap-2">
+          <Gift className="h-8 w-8 text-primary" />
+          <h1 className="text-4xl font-bold">Indique e Ganhe</h1>
         </div>
-        <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
-          <Share2 className="h-4 w-4 mr-2" />
-          Fazer Indicação
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              <div>
-                <div className="text-2xl font-bold">{stats.totalIndicacoes}</div>
-                <div className="text-sm text-muted-foreground">Total de Indicações</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-success" />
-              <div>
-                <div className="text-2xl font-bold text-success">{stats.indicacoesAtivas}</div>
-                <div className="text-sm text-muted-foreground">Indicações Ativas</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-          <div className="text-2xl font-bold text-primary">
-            {stats.comissaoTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Compartilhe a ConectaIOS com outros corretores e ganhe descontos na sua mensalidade!
+        </p>
+        
+        {/* Destaque principal */}
+        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-lg border-2 border-primary/20">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Trophy className="h-6 w-6 text-primary" />
+            <span className="text-lg font-semibold text-primary">
+              Indique 2 amigos no mesmo mês e sua mensalidade fica 100% grátis!
+            </span>
           </div>
-          <div className="text-sm text-muted-foreground">Desconto Total em Mensalidades</div>
+          <p className="text-sm text-muted-foreground">
+            Seus indicados também ganham 50% de desconto no primeiro mês
+          </p>
+        </div>
+      </div>
+
+      {/* Estatísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total de Indicações</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalIndications}</div>
           </CardContent>
         </Card>
+
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-warning">
-              {Math.round(progressToNextReward)}%
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Indicações Confirmadas</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">{stats.confirmedIndications}</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Economia Total</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">
+              R$ {stats.totalDiscountApplied.toFixed(2)}
             </div>
-            <div className="text-sm text-muted-foreground">Próxima Recompensa</div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Desconto Próximo Mês</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">
+              {stats.nextMonthDiscount}%
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Progress to Next Reward */}
+      {/* Link de Indicação */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Award className="h-5 w-5" />
-            Progresso para Próxima Recompensa
+            <Share2 className="h-5 w-5" />
+            Seu Link de Indicação
           </CardTitle>
           <CardDescription>
-            Faltam R$ {(stats.proximaRecompensa - stats.comissaoTotal).toLocaleString('pt-BR')} para sua próxima recompensa
+            Compartilhe este link para que novos corretores se cadastrem usando sua indicação
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Progress value={progressToNextReward} className="mb-2" />
-          <div className="flex justify-between text-sm text-muted-foreground">
-            <span>R$ {stats.comissaoTotal.toLocaleString('pt-BR')}</span>
-            <span>R$ {stats.proximaRecompensa.toLocaleString('pt-BR')}</span>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-2">
+            <div className="flex-1 p-3 bg-muted rounded-lg font-mono text-sm">
+              {generateReferralLink() || 'Carregando...'}
+            </div>
+            <Button
+              onClick={copyReferralLink}
+              disabled={copying || !broker?.referral_code}
+              variant="outline"
+              size="sm"
+            >
+              <Copy className="h-4 w-4 mr-2" />
+              {copying ? 'Copiando...' : 'Copiar'}
+            </Button>
           </div>
+          
+          <div className="flex gap-2">
+            <Button onClick={shareWhatsApp} className="flex-1" disabled={!broker?.referral_code}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Compartilhar no WhatsApp
+            </Button>
+          </div>
+
+          {broker?.referral_code && (
+            <div className="p-3 bg-muted/50 rounded-lg">
+              <p className="text-sm font-medium mb-1">Seu código de indicação:</p>
+              <p className="font-mono text-lg font-bold text-primary">{broker.referral_code}</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Minhas Indicações */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Minhas Indicações</CardTitle>
-            <CardDescription>
-              Corretores que você indicou para a plataforma
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {indicacoes.map((indicacao) => (
-              <div key={indicacao.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex-1">
-                  <div className="font-medium">{indicacao.nome}</div>
-                  <div className="text-sm text-muted-foreground">{indicacao.email}</div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Indicado em {new Date(indicacao.dataIndicacao).toLocaleDateString('pt-BR')}
+      {/* Minhas Indicações */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Minhas Indicações</CardTitle>
+          <CardDescription>
+            Acompanhe o status das suas indicações e descontos aplicados
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {indications.length === 0 ? (
+            <div className="text-center py-8">
+              <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">
+                Você ainda não possui indicações. Compartilhe seu link e comece a ganhar!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {indications.map((indication) => (
+                <div key={indication.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium">
+                        {indication.indicado?.name || 'Nome não informado'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {indication.indicado?.email}
+                      </p>
+                    </div>
+                    <Badge className={getStatusColor(indication.status)}>
+                      {indication.status}
+                    </Badge>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">Data da Indicação</p>
+                      <p className="font-medium">
+                        {format(new Date(indication.data_criacao), 'dd/MM/yyyy', { locale: ptBR })}
+                      </p>
+                    </div>
+                    
+                    {indication.data_confirmacao && (
+                      <div>
+                        <p className="text-muted-foreground">Data da Confirmação</p>
+                        <p className="font-medium">
+                          {format(new Date(indication.data_confirmacao), 'dd/MM/yyyy', { locale: ptBR })}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div>
+                      <p className="text-muted-foreground">Mês da Recompensa</p>
+                      <p className="font-medium">
+                        {String(indication.mes_recompensa).slice(4, 6)}/{String(indication.mes_recompensa).slice(0, 4)}
+                      </p>
+                    </div>
+                    
+                    {indication.desconto_aplicado > 0 && (
+                      <div>
+                        <p className="text-muted-foreground">Desconto Aplicado</p>
+                        <p className="font-medium text-success">
+                          R$ {indication.desconto_aplicado.toFixed(2)}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="text-right space-y-1">
-                  <Badge className={getStatusColor(indicacao.status)}>
-                    {indicacao.status === 'ativo' ? 'Ativo' : 
-                     indicacao.status === 'pendente' ? 'Pendente' : 'Inativo'}
-                  </Badge>
-                  <div className="text-sm">
-                    <div>{indicacao.vendas} vendas</div>
-                    <div className="text-primary font-medium">
-                      {indicacao.comissaoGerada.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} desconto
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Recompensas */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Gift className="h-5 w-5" />
-              Recompensas
-            </CardTitle>
-            <CardDescription>
-              Marcos e recompensas do programa de indicação
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {recompensas.map((recompensa) => (
-              <div key={recompensa.id} className={`p-3 border rounded-lg ${
-                recompensa.conquistada ? 'bg-success/5 border-success/20' : 'bg-muted/20'
-              }`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{recompensa.titulo}</h4>
-                      {recompensa.conquistada && (
-                        <Badge className="bg-success/20 text-success">
-                          Conquistada
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {recompensa.descricao}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Requisito: {recompensa.requisito}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-primary font-bold">
-                      <DollarSign className="h-4 w-4" />
-                      R$ {recompensa.valor.toLocaleString('pt-BR')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Como Funciona */}
       <Card>
         <CardHeader>
           <CardTitle>Como Funciona o Programa</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Share2 className="h-6 w-6 text-primary" />
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-2xl font-bold text-primary">1</span>
               </div>
-              <h3 className="font-semibold mb-2">1. Indique</h3>
+              <h3 className="font-semibold">Indique</h3>
               <p className="text-sm text-muted-foreground">
-                Convide outros corretores para usar nossa plataforma
+                Compartilhe seu link com outros corretores
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="h-6 w-6 text-primary" />
+            
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-2xl font-bold text-primary">2</span>
               </div>
-              <h3 className="font-semibold mb-2">2. Eles Vendem</h3>
+              <h3 className="font-semibold">Eles Se Cadastram</h3>
               <p className="text-sm text-muted-foreground">
-                Seus indicados usam a plataforma e fazem vendas
+                Seus indicados ganham 50% de desconto no primeiro mês
               </p>
             </div>
-            <div className="text-center">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
-                <DollarSign className="h-6 w-6 text-primary" />
+            
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                <span className="text-2xl font-bold text-primary">3</span>
               </div>
-              <h3 className="font-semibold mb-2">3. Você Ganha</h3>
+              <h3 className="font-semibold">Você Ganha</h3>
               <p className="text-sm text-muted-foreground">
-                Receba descontos na mensalidade do seu plano
+                50% de desconto no mês seguinte (ou mensalidade grátis com 2+ indicações)
               </p>
             </div>
+          </div>
+
+          <div className="bg-muted/50 p-4 rounded-lg">
+            <h4 className="font-semibold mb-2">Regras do Programa:</h4>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              <li>• Indicado ganha 50% de desconto no primeiro mês</li>
+              <li>• Indicador ganha 50% de desconto no mês seguinte à confirmação</li>
+              <li>• Com 2 ou mais indicações confirmadas no mesmo mês, sua mensalidade fica grátis</li>
+              <li>• Descontos não acumulam para meses futuros</li>
+              <li>• Cada pessoa pode ser indicada apenas uma vez</li>
+            </ul>
           </div>
         </CardContent>
       </Card>

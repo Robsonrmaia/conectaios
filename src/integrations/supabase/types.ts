@@ -1039,6 +1039,50 @@ export type Database = {
         }
         Relationships: []
       }
+      conectaios_sessions: {
+        Row: {
+          broker_id: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          session_token: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip_address?: string | null
+          session_token: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          session_token?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conectaios_sessions_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conectaios_tasks: {
         Row: {
           created_at: string
@@ -1337,6 +1381,126 @@ export type Database = {
           },
         ]
       }
+      indication_discounts: {
+        Row: {
+          aplicado_em: string
+          broker_id: string
+          created_at: string
+          id: string
+          indicacoes_relacionadas: string[] | null
+          mes_aplicacao: number
+          tipo_desconto: string
+          valor_desconto: number
+          valor_final: number
+          valor_original: number
+        }
+        Insert: {
+          aplicado_em?: string
+          broker_id: string
+          created_at?: string
+          id?: string
+          indicacoes_relacionadas?: string[] | null
+          mes_aplicacao: number
+          tipo_desconto: string
+          valor_desconto: number
+          valor_final: number
+          valor_original: number
+        }
+        Update: {
+          aplicado_em?: string
+          broker_id?: string
+          created_at?: string
+          id?: string
+          indicacoes_relacionadas?: string[] | null
+          mes_aplicacao?: number
+          tipo_desconto?: string
+          valor_desconto?: number
+          valor_final?: number
+          valor_original?: number
+        }
+        Relationships: []
+      }
+      indication_metrics: {
+        Row: {
+          created_at: string
+          desconto_total_aplicado: number | null
+          id: string
+          indicacoes_confirmadas: number | null
+          mes_referencia: number
+          receita_impactada: number | null
+          taxa_conversao: number | null
+          top_indicador_id: string | null
+          total_indicacoes: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          desconto_total_aplicado?: number | null
+          id?: string
+          indicacoes_confirmadas?: number | null
+          mes_referencia: number
+          receita_impactada?: number | null
+          taxa_conversao?: number | null
+          top_indicador_id?: string | null
+          total_indicacoes?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          desconto_total_aplicado?: number | null
+          id?: string
+          indicacoes_confirmadas?: number | null
+          mes_referencia?: number
+          receita_impactada?: number | null
+          taxa_conversao?: number | null
+          top_indicador_id?: string | null
+          total_indicacoes?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      indications: {
+        Row: {
+          codigo_indicacao: string
+          created_at: string
+          data_confirmacao: string | null
+          data_criacao: string
+          desconto_aplicado: number | null
+          id: string
+          id_indicado: string
+          id_indicador: string
+          mes_recompensa: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          codigo_indicacao: string
+          created_at?: string
+          data_confirmacao?: string | null
+          data_criacao?: string
+          desconto_aplicado?: number | null
+          id?: string
+          id_indicado: string
+          id_indicador: string
+          mes_recompensa?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          codigo_indicacao?: string
+          created_at?: string
+          data_confirmacao?: string | null
+          data_criacao?: string
+          desconto_aplicado?: number | null
+          id?: string
+          id_indicado?: string
+          id_indicador?: string
+          mes_recompensa?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null
@@ -1629,13 +1793,6 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "conectaios_brokers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_minisite_configs_broker"
-            columns: ["broker_id"]
-            isOneToOne: false
-            referencedRelation: "public_broker_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -2940,44 +3097,16 @@ export type Database = {
       }
     }
     Views: {
-      public_broker_profiles: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          cover_url: string | null
-          created_at: string | null
-          id: string | null
-          name: string | null
-          status: string | null
-          username: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-          status?: string | null
-          username?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          created_at?: string | null
-          id?: string | null
-          name?: string | null
-          status?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       admin_change_user_role: {
         Args: { new_role: string; target_user_id: string }
         Returns: Json
+      }
+      calculate_first_month_discount: {
+        Args: { broker_id: string }
+        Returns: number
       }
       check_plan_limit: {
         Args: { _limit_column: string; _resource_type: string }
@@ -2990,6 +3119,15 @@ export type Database = {
       cleanup_old_login_events: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_shared_session: {
+        Args: {
+          p_broker_id: string
+          p_ip_address?: string
+          p_user_agent?: string
+          p_user_id: string
+        }
+        Returns: string
       }
       ensure_admin_profile: {
         Args: Record<PropertyKey, never>
@@ -3062,6 +3200,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      process_monthly_indication_rewards: {
+        Args: { target_month?: number }
+        Returns: Json
+      }
       promote_user_to_admin: {
         Args: { target_user_id: string }
         Returns: boolean
@@ -3079,6 +3221,20 @@ export type Database = {
       update_property_analytics: {
         Args: { _activity_type?: string; _property_id: string }
         Returns: undefined
+      }
+      validate_conectaios_credentials: {
+        Args: { p_email: string; p_password: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          broker_id: string
+          cover_url: string
+          email: string
+          name: string
+          status: string
+          user_id: string
+          username: string
+        }[]
       }
     }
     Enums: {

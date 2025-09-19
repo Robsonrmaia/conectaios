@@ -7,12 +7,15 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useBroker } from '@/hooks/useBroker';
-import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import { Loader2, UserPlus } from 'lucide-react';
 
 export default function BrokerSetup() {
   const navigate = useNavigate();
   const { createBrokerProfile } = useBroker();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -20,7 +23,8 @@ export default function BrokerSetup() {
     creci: '',
     username: '',
     bio: '',
-    region_id: ''
+    region_id: '',
+    referral_code: ''
   });
 
   // Auto-fill username based on first name
@@ -41,10 +45,39 @@ export default function BrokerSetup() {
     setLoading(true);
 
     try {
+      // Criar o perfil do corretor
       await createBrokerProfile(formData);
+
+      // Se há código de indicação, processar indicação
+      if (formData.referral_code && formData.referral_code.trim()) {
+        try {
+          // Buscar o ID do corretor recém-criado
+          const { data: brokerData } = await supabase
+            .from('conectaios_brokers')
+            .select('id')
+            .eq('user_id', user?.id)
+            .single();
+
+          if (brokerData) {
+            await supabase.functions.invoke('indication-system', {
+              body: {
+                action: 'create',
+                referral_code: formData.referral_code.trim(),
+                indicated_broker_id: brokerData.id
+              }
+            });
+          }
+        } catch (indicationError) {
+          console.error('Erro ao processar indicação:', indicationError);
+          // Não bloquear o cadastro se a indicação falhar
+        }
+      }
+
       toast({
         title: "✅ Perfil criado com sucesso!",
-        description: "Bem-vindo ao ConectaIOS. Redirecionando para o painel...",
+        description: formData.referral_code ? 
+          "Bem-vindo ao ConectaIOS. Desconto de indicação aplicado!" :
+          "Bem-vindo ao ConectaIOS. Redirecionando para o painel...",
         duration: 3000
       });
       navigate('/app');
@@ -135,6 +168,20 @@ export default function BrokerSetup() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="referral_code">Código de Indicação (Opcional)</Label>
+              <Input
+                id="referral_code"
+                value={formData.referral_code}
+                onChange={(e) => setFormData(prev => ({...prev, referral_code: e.target.value.toUpperCase()}))}
+                placeholder="Digite o código se você foi indicado por alguém"
+                className="uppercase"
+              />
+              <p className="text-sm text-muted-foreground">
+                Se você foi indicado por outro corretor, digite o código para ganhar 50% de desconto no primeiro mês
+              </p>
             </div>
 
             <div>
