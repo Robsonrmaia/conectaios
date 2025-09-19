@@ -229,9 +229,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             </p>
             
             {/* Property specs with beautiful blue icons - 2x3 grid for mobile */}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
-              {/* Área - always show */}
-              {property.area && property.area > 0 && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+              {/* Área - only if > 0 */}
+              {property.area > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <Home className="h-4 w-4 text-white" />
@@ -243,8 +243,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
-              {/* Quartos - always show if > 0 */}
-              {property.quartos && property.quartos > 0 && (
+              {/* Quartos - only if > 0 */}
+              {property.quartos > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <Bed className="h-4 w-4 text-white" />
@@ -257,7 +257,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               )}
               
               {/* Banheiros - only if > 0 */}
-              {property.bathrooms && property.bathrooms > 0 && (
+              {(property.bathrooms || 0) > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <Bath className="h-4 w-4 text-white" />
@@ -270,7 +270,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               )}
               
               {/* Vagas - only if > 0 */}
-              {property.parking_spots && property.parking_spots > 0 && (
+              {(property.parking_spots || 0) > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <Car className="h-4 w-4 text-white" />
@@ -295,7 +295,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
-              {/* Mobiliado - changed to blue */}
+              {/* Mobiliado */}
               {property.furnishing_type && property.furnishing_type !== 'unfurnished' && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
@@ -308,8 +308,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
 
-              {/* Distância do Mar - if available */}
-              {property.sea_distance && property.sea_distance > 0 && (
+              {/* Distância do Mar - only if > 0 */}
+              {(property.sea_distance || 0) > 0 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <MapPin className="h-4 w-4 text-white" />
@@ -321,8 +321,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
-              {/* Luxo/Exclusivo - if high value */}
-              {property.valor && property.valor > 2000000 && (
+              {/* Luxo/Exclusivo - only if high value */}
+              {(property.valor || 0) > 2000000 && (
                 <div className="flex items-center gap-2">
                   <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
                     <Eye className="h-4 w-4 text-white" />
@@ -352,8 +352,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </div>
       </div>
 
-      {/* Action Buttons - Close to the image */}  
-      <div className="p-4 bg-white border-b -mt-1">
+      {/* Action Buttons - Directly attached to image */}  
+      <div className="p-4 bg-white border-b">
         <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:gap-4 sm:justify-center">
           <Button 
             onClick={handleScheduleVisit}

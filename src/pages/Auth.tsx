@@ -84,8 +84,8 @@ const Auth = () => {
       <div className="w-full max-w-md">
         <Card className="shadow-xl border-0 bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center space-y-4">
-            <div className="flex items-center justify-center space-x-2">
-              <ConectaLogo className="text-2xl" />
+            <div className="flex items-center justify-center">
+              <ConectaLogo className="text-2xl" vertical={true} />
             </div>
             <div>
               <CardTitle>Bem-vindo de volta</CardTitle>

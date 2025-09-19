@@ -45,36 +45,49 @@ export function ConectaIOSImageProcessor({
   };
 
   const handleMessage = (event: MessageEvent) => {
-    console.log('ConectAIOS Message received:', event);
+    console.log('🎨 ConectAIOS Message received:', event);
+    console.log('🔗 Message origin:', event.origin);
+    console.log('📝 Message data:', event.data);
     
     if (event.origin !== 'https://imagens-conectaios-420832656535.us-west1.run.app') {
-      console.log('Invalid origin:', event.origin);
+      console.log('❌ Invalid origin:', event.origin);
       return;
     }
 
-    console.log('Message data:', event.data);
-
-    // Support both 'imageGenerated' and 'imageProcessed' for compatibility
+    // Support multiple message formats
     if ((event.data.type === 'imageGenerated' || event.data.type === 'imageProcessed') && event.data.imageUrl) {
-      console.log('Image processed successfully:', event.data.imageUrl);
+      console.log('✅ Image processed successfully:', event.data.imageUrl);
       onImageProcessed(event.data.imageUrl);
       onClose();
     } else if (event.data.originalUrl && event.data.processedUrl) {
-      // Alternative format support
-      console.log('Image processed (alternative format):', event.data.processedUrl);
+      console.log('✅ Image processed (alternative format):', event.data.processedUrl);
       onImageProcessed(event.data.processedUrl);
       onClose();
+    } else if (event.data.success && event.data.result) {
+      console.log('✅ Image processed (result format):', event.data.result);
+      onImageProcessed(event.data.result);
+      onClose();
     } else {
-      console.log('Unknown message format:', event.data);
+      console.log('❓ Unknown message format:', event.data);
     }
   };
 
   useEffect(() => {
     if (isOpen) {
-      console.log('Adding message listener for ConectAIOS');
+      console.log('🎧 Adding message listener for ConectAIOS');
+      
+      // Test service availability when opening
+      fetch('https://imagens-conectaios-420832656535.us-west1.run.app')
+        .then(response => {
+          console.log('🌐 ConectAIOS service status:', response.status);
+        })
+        .catch(error => {
+          console.error('🚫 ConectAIOS service not available:', error);
+        });
+        
       window.addEventListener('message', handleMessage);
       return () => {
-        console.log('Removing message listener for ConectAIOS');
+        console.log('🔇 Removing message listener for ConectAIOS');
         window.removeEventListener('message', handleMessage);
       };
     }

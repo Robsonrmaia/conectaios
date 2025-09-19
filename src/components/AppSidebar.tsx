@@ -111,6 +111,12 @@ const configItems = [
     icon: User,
   },
   {
+    title: 'Social Conecta',
+    url: 'http://social.conectaios.com.br',
+    icon: Users,
+    external: true,
+  },
+  {
     title: 'Suporte',
     url: '/app/suporte',
     icon: HelpCircle,
@@ -206,14 +212,26 @@ export function AppSidebar() {
               {configItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(item.url)}
-                      data-tour={item.title === 'Perfil' && item.url === '/app/perfil' ? 'minisite' : undefined}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
+                    {(item as any).external ? (
+                      <a 
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:bg-accent hover:text-accent-foreground"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </a>
+                    ) : (
+                      <NavLink 
+                        to={item.url} 
+                        className={getNavClassName(item.url)}
+                        data-tour={item.title === 'Perfil' && item.url === '/app/perfil' ? 'minisite' : undefined}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </NavLink>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

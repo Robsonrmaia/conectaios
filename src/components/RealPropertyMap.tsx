@@ -30,12 +30,15 @@ const RealPropertyMap = ({
   useEffect(() => {
     // Get Mapbox token from Supabase secrets
     const getMapboxToken = async () => {
+      console.log('🗺️ Fetching Mapbox token...');
       try {
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+        console.log('🗺️ Token response:', { data, error });
         if (error) throw error;
+        console.log('✅ Mapbox token obtained successfully');
         setMapboxToken(data.token);
       } catch (error) {
-        console.error('Error getting Mapbox token:', error);
+        console.error('❌ Error getting Mapbox token:', error);
         setMapError(true);
         setIsLoading(false);
       }
@@ -49,33 +52,41 @@ const RealPropertyMap = ({
 
     const geocodeAddress = async () => {
       const query = address || `${neighborhood || ''} ${city || ''} ${state || ''} ${zipcode || ''}`.trim();
+      console.log('🗺️ Geocoding query:', query);
       
       if (!query) {
+        console.log('❌ No location query available');
         setMapError(true);
         setIsLoading(false);
         return;
       }
 
       try {
+        console.log('🌍 Starting geocoding request...');
         // Use Mapbox Geocoding API
         const response = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=BR&limit=1`
         );
         
-        if (!response.ok) throw new Error('Geocoding failed');
+        console.log('🌍 Geocoding response status:', response.status);
+        if (!response.ok) throw new Error(`Geocoding failed with status ${response.status}`);
         
         const data = await response.json();
+        console.log('🌍 Geocoding data:', data);
         
         if (data.features && data.features.length > 0) {
           const [lng, lat] = data.features[0].center;
+          console.log('📍 Coordinates found:', { lng, lat });
           initializeMap(lng, lat);
         } else {
+          console.log('📍 No coordinates found, using São Paulo fallback');
           // Fallback to default coordinates (São Paulo)
           initializeMap(-46.6333, -23.5505);
         }
       } catch (error) {
-        console.error('Geocoding error:', error);
+        console.error('❌ Geocoding error:', error);
         // Fallback to default coordinates
+        console.log('📍 Using São Paulo fallback due to error');
         initializeMap(-46.6333, -23.5505);
       }
     };

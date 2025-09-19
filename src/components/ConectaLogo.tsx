@@ -6,27 +6,29 @@ interface ConectaLogoProps {
   alt?: string;
   width?: number;
   height?: number;
+  vertical?: boolean;
 }
 
 export default function ConectaLogo({ 
   className = "", 
   alt = "ConectaIOS", 
   width = 60, 
-  height = 20 
+  height = 20,
+  vertical = false
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
 
   if (imageError) {
     // Fallback para texto se a imagem não carregar
     return (
-      <div className={`flex items-center justify-center font-bold text-primary ${className}`}>
+      <div className={`flex ${vertical ? 'flex-col' : 'items-center'} justify-center font-bold text-primary ${className}`}>
         ConectaIOS
       </div>
     );
   }
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className={`flex ${vertical ? 'flex-col items-center gap-1' : 'items-center gap-2'} ${className}`}>
       <img
         src={logonovaImg}
         alt={alt}
