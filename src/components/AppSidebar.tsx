@@ -30,6 +30,7 @@ import {
   FileText,
   Activity,
   HelpCircle,
+  Trophy,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -81,6 +82,11 @@ const toolsItems = [
     title: 'Ferramentas',
     url: '/app/ferramentas',
     icon: Wrench,
+  },
+  {
+    title: 'Gamificação',
+    url: '/app/gamificacao',
+    icon: Trophy,
   },
   {
     title: 'Vídeos',
