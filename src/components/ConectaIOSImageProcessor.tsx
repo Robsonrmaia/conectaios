@@ -51,49 +51,112 @@ export function ConectaIOSImageProcessor({
   };
 
   const handleMessage = (event: MessageEvent) => {
-    addDebugInfo(`Message received from ${event.origin}`);
-    addDebugInfo(`Message data: ${JSON.stringify(event.data).substring(0, 100)}...`);
+    addDebugInfo(`📨 Message from: ${event.origin}`);
+    addDebugInfo(`📋 Full data: ${JSON.stringify(event.data)}`);
     
     if (event.origin !== 'https://imagens-conectaios-420832656535.us-west1.run.app') {
       addDebugInfo('❌ Invalid origin rejected');
       return;
     }
 
-    // Support multiple message formats
-    if ((event.data.type === 'imageGenerated' || event.data.type === 'imageProcessed') && event.data.imageUrl) {
-      addDebugInfo('✅ Image processed successfully');
-      onImageProcessed(event.data.imageUrl);
+    // Enhanced support for multiple message formats
+    const data = event.data;
+    
+    // Format 1: Standard imageGenerated/imageProcessed with imageUrl
+    if ((data.type === 'imageGenerated' || data.type === 'imageProcessed') && data.imageUrl) {
+      addDebugInfo('✅ Format 1: Standard image URL');
+      onImageProcessed(data.imageUrl);
       onClose();
-    } else if (event.data.originalUrl && event.data.processedUrl) {
-      addDebugInfo('✅ Image processed (alternative format)');
-      onImageProcessed(event.data.processedUrl);
-      onClose();
-    } else if (event.data.success && event.data.result) {
-      addDebugInfo('✅ Image processed (result format)');
-      onImageProcessed(event.data.result);
-      onClose();
-    } else {
-      addDebugInfo('❓ Unknown message format');
+      return;
     }
+    
+    // Format 2: originalUrl + processedUrl
+    if (data.originalUrl && data.processedUrl) {
+      addDebugInfo('✅ Format 2: Processed URL');
+      onImageProcessed(data.processedUrl);
+      onClose();
+      return;
+    }
+    
+    // Format 3: success + result
+    if (data.success && data.result) {
+      addDebugInfo('✅ Format 3: Success result');
+      onImageProcessed(data.result);
+      onClose();
+      return;
+    }
+    
+    // Format 4: Direct URL string
+    if (typeof data === 'string' && (data.startsWith('http') || data.startsWith('data:'))) {
+      addDebugInfo('✅ Format 4: Direct URL string');
+      onImageProcessed(data);
+      onClose();
+      return;
+    }
+    
+    // Format 5: url property
+    if (data.url) {
+      addDebugInfo('✅ Format 5: URL property');
+      onImageProcessed(data.url);
+      onClose();
+      return;
+    }
+    
+    // Format 6: image property
+    if (data.image) {
+      addDebugInfo('✅ Format 6: Image property');
+      onImageProcessed(data.image);
+      onClose();
+      return;
+    }
+    
+    // Format 7: downloadUrl (for sketch generation)
+    if (data.downloadUrl || data.download_url) {
+      addDebugInfo('✅ Format 7: Download URL');
+      onImageProcessed(data.downloadUrl || data.download_url);
+      onClose();
+      return;
+    }
+    
+    // Format 8: Check for nested data
+    if (data.data && data.data.url) {
+      addDebugInfo('✅ Format 8: Nested URL');
+      onImageProcessed(data.data.url);
+      onClose();
+      return;
+    }
+    
+    addDebugInfo(`❓ Unknown format - Keys: ${Object.keys(data).join(', ')}`);
+    addDebugInfo('⚠️ Aguardando 3s para possível retry...');
   };
 
   useEffect(() => {
     if (isOpen) {
       console.log('🎧 Adding message listener for ConectAIOS');
+      addDebugInfo('🔄 Initializing communication...');
       
       // Test service availability when opening
       fetch('https://imagens-conectaios-420832656535.us-west1.run.app')
         .then(response => {
           console.log('🌐 ConectAIOS service status:', response.status);
+          addDebugInfo(`🌐 Service status: ${response.status}`);
         })
         .catch(error => {
           console.error('🚫 ConectAIOS service not available:', error);
+          addDebugInfo('🚫 Service connection failed');
         });
         
       window.addEventListener('message', handleMessage);
+      
+      // Auto-close fallback after 5 minutes if no response
+      const timeout = setTimeout(() => {
+        addDebugInfo('⏰ Timeout after 5 minutes');
+      }, 300000);
+      
       return () => {
         console.log('🔇 Removing message listener for ConectAIOS');
         window.removeEventListener('message', handleMessage);
+        clearTimeout(timeout);
       };
     }
   }, [isOpen]);

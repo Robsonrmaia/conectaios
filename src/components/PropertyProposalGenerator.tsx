@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Download, Eye, Upload, FileText } from 'lucide-react';
+import { Save, Download, Eye, Upload, FileText, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
+import { useAI } from '@/hooks/useAI';
 
 interface PropertyData {
   propertyId: string;
@@ -36,6 +37,7 @@ interface PropertyProposalGeneratorProps {
 }
 
 export function PropertyProposalGenerator({ property, isOpen, onClose }: PropertyProposalGeneratorProps) {
+  const { sendMessage, loading: aiLoading } = useAI();
   const [formData, setFormData] = useState({
     tituloPrincipal: property.title || '',
     subtitulo: property.bairro || '',
@@ -46,6 +48,7 @@ export function PropertyProposalGenerator({ property, isOpen, onClose }: Propert
   });
 
   const [activeTab, setActiveTab] = useState('basicos');
+  const [generatingDescription, setGeneratingDescription] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -74,6 +77,45 @@ export function PropertyProposalGenerator({ property, isOpen, onClose }: Propert
       title: "Proposta exportada",
       description: "O arquivo HTML foi baixado com sucesso!",
     });
+  };
+
+  const generateBuyerDescription = async () => {
+    setGeneratingDescription(true);
+    try {
+      const prompt = `Gere uma descrição comercial atrativa para este imóvel, focada em COMPRADORES/LOCATÁRIOS (não para corretores):
+
+Dados do imóvel:
+- Título: ${property.title}
+- Valor: ${formatCurrency(property.valor || 0)}
+- Área: ${property.area}m²
+- Quartos: ${property.quartos}
+- Banheiros: ${property.bathrooms}
+- Vagas: ${property.parking}
+- Tipo: ${property.tipo}
+- Finalidade: ${property.finalidade}
+- Bairro: ${property.bairro}
+- Vista mar: ${property.has_sea_view ? 'Sim' : 'Não'}
+- Mobiliado: ${property.furnishing_type}
+
+IMPORTANTE: Escreva como se fosse um anúncio para quem vai comprar/alugar o imóvel. Use linguagem persuasiva, destacue benefícios e características que atraem o público-alvo. Máximo 300 caracteres, focado em despertar interesse e desejo.
+
+Use palavras como "você", "seu novo lar", "aproveite", "desfrute", etc.`;
+
+      const response = await sendMessage(prompt);
+      handleInputChange('descricao', response);
+      
+      toast({
+        title: "Descrição gerada!",
+        description: "Texto comercial otimizado para compradores foi criado com IA.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível gerar a descrição. Tente novamente.",
+      });
+    } finally {
+      setGeneratingDescription(false);
+    }
   };
 
   const handleVisualize = () => {
@@ -252,18 +294,32 @@ export function PropertyProposalGenerator({ property, isOpen, onClose }: Propert
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="descricao">Descrição</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="descricao">Descrição Comercial</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={generateBuyerDescription}
+                    disabled={generatingDescription}
+                    className="text-xs"
+                  >
+                    <Sparkles className="h-3 w-3 mr-1" />
+                    {generatingDescription ? 'Gerando...' : 'Gerar com IA'}
+                  </Button>
+                </div>
                 <Textarea
                   id="descricao"
                   value={formData.descricao}
                   onChange={(e) => handleInputChange('descricao', e.target.value)}
-                  placeholder="Descrição detalhada do imóvel..."
+                  placeholder="Descrição atrativa para compradores/locatários..."
                   rows={6}
-                  maxLength={500}
+                  maxLength={300}
                 />
-                <p className="text-sm text-muted-foreground">
-                  {formData.descricao.length}/500 caracteres
-                </p>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>💡 Texto focado em despertar interesse do cliente final</span>
+                  <span>{formData.descricao.length}/300 caracteres</span>
+                </div>
               </div>
             </TabsContent>
 
