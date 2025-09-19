@@ -61,6 +61,9 @@ interface Property {
   sea_distance?: number;
   neighborhood?: string;
   zipcode?: string;
+  address?: string;
+  city?: string;
+  state?: string;
   condominium_fee?: number;
   iptu?: number;
   year_built?: number;
@@ -118,6 +121,7 @@ export default function Imoveis() {
     address: '',
     neighborhood: '',
     city: '',
+    state: '',
     zipcode: '',
     condominium_fee: '',
     iptu: '',
@@ -390,6 +394,7 @@ export default function Imoveis() {
         address: '',
         neighborhood: '',
         city: '',
+        state: '',
         zipcode: '',
         condominium_fee: '',
         iptu: '',
@@ -1352,9 +1357,10 @@ export default function Imoveis() {
                           descricao: property.descricao || '',
                           fotos: Array.isArray(property.fotos) ? property.fotos : [],
                           videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
-                          address: '',
+                          address: property.address || '',
           neighborhood: property.neighborhood || '',
-          city: '',
+          city: property.city || '',
+          state: property.state || '',
           zipcode: property.zipcode || '',
           condominium_fee: property.condominium_fee ? property.condominium_fee.toString() : '',
           iptu: property.iptu ? property.iptu.toString() : '',
@@ -1643,10 +1649,11 @@ export default function Imoveis() {
                             descricao: selectedProperty.descricao || '',
                             fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
-                           address: '',
-                           neighborhood: '',
-                           city: '',
-                           zipcode: '',
+                            address: selectedProperty.address || '',
+                            neighborhood: selectedProperty.neighborhood || '',
+                            city: selectedProperty.city || '',
+                            state: selectedProperty.state || '',
+                            zipcode: selectedProperty.zipcode || '',
                            condominium_fee: '',
                            iptu: '',
                             commission_percentage: 6,

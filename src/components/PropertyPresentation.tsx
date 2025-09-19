@@ -63,7 +63,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [isSketchLoading, setIsSketchLoading] = useState(false);
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
 
-  // Single useEffect for sketch generation (consolidated to prevent infinite loop)
+  // Auto-generate sketch when presentation opens (with proper state management)
   useEffect(() => {
     const generateSketch = async () => {
       // Prevent multiple executions and loops
@@ -71,28 +71,47 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       
       console.log("🎨 Starting sketch generation process...");
       console.log("🖼️ Cover image URL:", property.fotos[0]);
+      
+      // Set loading state
       setIsSketchLoading(true);
       
-      // Test ConectAIOS service availability first
       try {
-        const response = await fetch('https://imagens-conectaios-420832656535.us-west1.run.app');
+        // Check if ConectAIOS service is available with timeout
+        console.log("🔍 Checking ConectAIOS service availability...");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+        
+        const response = await fetch('https://imagens-conectaios-420832656535.us-west1.run.app', {
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        
         console.log("🌐 ConectAIOS service status:", response.status);
         
-        // Auto-open sketch processor with cover image after small delay
-        setTimeout(() => {
-          if (!sketchImage && !isProcessorOpen) { // Double-check to prevent loop
-            console.log("🚀 Opening ConectaIOSImageProcessor modal...");
-            setIsProcessorOpen(true);
-          }
-        }, 1000);
+        if (response.ok) {
+          // Auto-open sketch processor with cover image after small delay
+          setTimeout(() => {
+            if (!sketchImage && !isProcessorOpen) { // Double-check to prevent loop
+              console.log("🚀 Opening ConectaIOSImageProcessor modal...");
+              setIsProcessorOpen(true);
+            }
+          }, 1000);
+        } else {
+          throw new Error(`Service responded with status: ${response.status}`);
+        }
       } catch (error) {
         console.error("❌ ConectAIOS service not available:", error);
         setIsSketchLoading(false);
+        // Show user-friendly message without opening processor
+        console.log("ℹ️ Sketch generation temporarily unavailable");
       }
     };
 
-    generateSketch();
-  }, [isOpen, property.fotos]); // Removed sketchImage and isSketchLoading from deps to prevent loop
+    // Only run if we haven't already started the process
+    if (isOpen && property.fotos?.[0] && !sketchImage && !isSketchLoading && !isProcessorOpen) {
+      generateSketch();
+    }
+  }, [isOpen, property.fotos, sketchImage, isSketchLoading, isProcessorOpen]);
 
   // Fetch broker data for the property owner
   useEffect(() => {
