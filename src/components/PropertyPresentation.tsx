@@ -76,9 +76,13 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     const generateSketch = async () => {
       if (!isOpen || !property.fotos?.[0] || sketchImage) return;
       
+      console.log("🎨 Starting sketch generation process...");
       setIsSketchLoading(true);
       // Auto-open sketch processor with cover image  
-      setIsProcessorOpen(true);
+      setTimeout(() => {
+        console.log("🖼️ Opening ConectaIOSImageProcessor modal...");
+        setIsProcessorOpen(true);
+      }, 1000);
     };
 
     generateSketch();
@@ -213,83 +217,96 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               }
             </p>
             
-            {/* Property specs with smaller icons - 2x2 grid for mobile */}
-            <div className="grid grid-cols-2 gap-2 sm:space-y-3 sm:block">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
-                  <Home className="h-3 w-3 text-white" />
+            {/* Property specs with beautiful blue icons - 2x3 grid for mobile */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                  <Home className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <div className="text-xs text-gray-300">Área</div>
-                  <div className="text-sm font-semibold">{property.area}m²</div>
+                  <div className="text-sm font-bold">{property.area}m²</div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
-                  <Bed className="h-3 w-3 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                  <Bed className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <div className="text-xs text-gray-300">Quartos</div>
-                  <div className="text-sm font-semibold">{property.quartos}</div>
+                  <div className="text-sm font-bold">{property.quartos}</div>
                 </div>
               </div>
               
               {property.bathrooms && property.bathrooms > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
-                    <Bath className="h-3 w-3 text-white" />
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bath className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-gray-300">Banheiros</div>
-                    <div className="text-sm font-semibold">{property.bathrooms}</div>
+                    <div className="text-sm font-bold">{property.bathrooms}</div>
                   </div>
                 </div>
               )}
               
               {property.parking_spots && property.parking_spots > 0 && (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 bg-blue-600 rounded-full">
-                    <Car className="h-3 w-3 text-white" />
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Car className="h-5 w-5 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-gray-300">Vagas</div>
-                    <div className="text-sm font-semibold">{property.parking_spots}</div>
+                    <div className="text-sm font-bold">{property.parking_spots}</div>
                   </div>
                 </div>
               )}
               
-              {/* Additional property features - remove non-existent properties */}
-              {property.bathrooms && property.bathrooms > 2 && (
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-6 h-6 bg-purple-600 rounded-full">
-                    <Package className="h-3 w-3 text-white" />
+              {property.has_sea_view && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full shadow-lg">
+                    <Waves className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Luxo</div>
-                    <div className="text-sm font-semibold">Premium</div>
+                    <div className="text-xs text-gray-300">Vista</div>
+                    <div className="text-sm font-bold">Mar</div>
+                  </div>
+                </div>
+              )}
+              
+              {property.furnishing_type && property.furnishing_type !== 'unfurnished' && (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg">
+                    <Package className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Status</div>
+                    <div className="text-sm font-bold">Mobiliado</div>
                   </div>
                 </div>
               )}
             </div>
-            
-            {/* Value - separate prominent display */}
-            <div className="flex items-center gap-3 bg-black/40 rounded-lg p-3 backdrop-blur-sm">
-              <div className="flex items-center justify-center w-8 h-8 bg-green-600 rounded-full">
-                <span className="text-sm font-bold text-white">R$</span>
-              </div>
-              <div>
-                <div className="text-sm text-gray-300">Valor</div>
-                <div className="text-2xl font-bold text-green-300">{formatCurrency(property.valor)}</div>
-              </div>
-            </div>
           </div>
 
         </div>
+        
+        {/* Value - At the bottom of the image */}
+        <div className="absolute bottom-4 left-4 right-4 z-10">
+          <div className="flex items-center gap-3 bg-black/60 rounded-xl p-4 backdrop-blur-sm">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-lg">
+              <span className="text-lg font-bold text-white">R$</span>
+            </div>
+            <div>
+              <div className="text-sm text-gray-300">Valor</div>
+              <div className="text-2xl font-bold text-green-300">{formatCurrency(property.valor)}</div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Action Buttons - Outside the hero image */}  
-      <div className="p-4 bg-white border-b">
+      {/* Action Buttons - Close to the image */}  
+      <div className="p-4 bg-white border-b -mt-1">
         <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:gap-4 sm:justify-center">
           <Button 
             onClick={handleScheduleVisit}
@@ -455,14 +472,25 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           
           {/* Map Integration */}
           <div className="mb-8">
-            <RealPropertyMap 
-              zipcode={property.zipcode}
-              neighborhood={property.neighborhood}
-              address={property.city}
-              city={property.city}
-              state={property.state}
-              className="animate-fade-in"
-            />
+            <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
+              <RealPropertyMap 
+                zipcode={property.zipcode}
+                neighborhood={property.neighborhood}
+                address={property.city}
+                city={property.city}
+                state={property.state}
+                className="animate-fade-in w-full h-full"
+              />
+            </div>
+            {!property.zipcode && !property.neighborhood && !property.city && (
+              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <MapPin className="h-12 w-12 mx-auto mb-2" />
+                  <p>Mapa não disponível</p>
+                  <p className="text-sm">Localização não informada</p>
+                </div>
+              </div>
+            )}
           </div>
           
           <h3 className="text-xl font-semibold text-gray-900 mb-6 animate-fade-in">Pontos de Interesse</h3>
@@ -605,10 +633,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       <ConectaIOSImageProcessor
         isOpen={isProcessorOpen}
         onClose={() => {
+          console.log("🚫 Sketch processor closed");
           setIsProcessorOpen(false);
           setIsSketchLoading(false);
         }}
         onImageProcessed={(imageUrl) => {
+          console.log("✅ Sketch image processed successfully:", imageUrl);
           setSketchImage(imageUrl);
           setIsSketchLoading(false);
           setIsProcessorOpen(false);
