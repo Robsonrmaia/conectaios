@@ -1329,20 +1329,6 @@ export default function Imoveis() {
                       <Target className="h-3 w-3 mr-1" />
                       Avaliar
                     </Button>
-                    
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setTour360Property(property);
-                        setIsTour360ModalOpen(true);
-                      }}
-                      title="Tour 360°"
-                      className="h-8 text-xs"
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Tour 360
-                    </Button>
                   </div>
                  
                   <div className="grid grid-cols-2 gap-2">
@@ -1681,29 +1667,18 @@ export default function Imoveis() {
                          <Edit className="h-4 w-4 mr-2" />
                          Editar Imóvel
                        </Button>
-                       <Button 
-                         className="w-full" 
-                         variant="destructive"
-                         onClick={() => {
-                           handleDeleteProperty(selectedProperty.id);
-                           setIsDetailDialogOpen(false);
-                         }}
-                       >
-                         <Trash2 className="h-4 w-4 mr-2" />
-                         Excluir Imóvel
-                       </Button>
-                       <Button 
-                         className="w-full" 
-                         variant="outline"
-                         onClick={() => {
-                           setTour360Property(selectedProperty);
-                           setIsTour360ModalOpen(true);
-                         }}
-                       >
-                         <Eye className="h-4 w-4 mr-2" />
-                         Tour 360°
-                       </Button>
-                    </div>
+                        <Button 
+                          className="w-full" 
+                          variant="destructive"
+                          onClick={() => {
+                            handleDeleteProperty(selectedProperty.id);
+                            setIsDetailDialogOpen(false);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Excluir Imóvel
+                        </Button>
+                     </div>
                   </div>
                 </div>
               </div>
