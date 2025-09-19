@@ -150,7 +150,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           style={{
             backgroundImage: property.fotos && property.fotos.length > 0 
               ? `url(${property.fotos[0]})` 
-              : `url(https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagocomsombra.png)`,
+              : `url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)`,
           }}
           onClick={() => property.fotos && property.fotos.length > 0 && openPhotoGallery(property.fotos, 0)}
         >

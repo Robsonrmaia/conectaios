@@ -116,6 +116,7 @@ export default function Imoveis() {
     address: '',
     neighborhood: '',
     city: '',
+    zipcode: '',
     condominium_fee: '',
     iptu: '',
     commission_percentage: 5,
@@ -382,9 +383,10 @@ export default function Imoveis() {
         address: '',
         neighborhood: '',
         city: '',
+        zipcode: '',
         condominium_fee: '',
         iptu: '',
-        commission_percentage: 6,
+        commission_percentage: 5,
         commission_value: 0,
         commission_split_type: '50/50',
         commission_buyer_split: 50,
@@ -652,47 +654,100 @@ export default function Imoveis() {
                  </div>
                </div>
 
-               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                 <div>
-                   <Label htmlFor="parking_spots">Vagas</Label>
-                   <Input
-                     id="parking_spots"
-                     type="number"
-                     value={formData.parking_spots}
-                     onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
-                     placeholder="1"
-                   />
-                 </div>
-                 <div>
-                   <Label htmlFor="listing_type">Finalidade</Label>
-                   <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="venda">Venda</SelectItem>
-                       <SelectItem value="locacao">Locação</SelectItem>
-                       <SelectItem value="temporada">Temporada</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-                 <div>
-                   <Label htmlFor="property_type">Tipo</Label>
-                   <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
-                     <SelectTrigger>
-                       <SelectValue />
-                     </SelectTrigger>
-                     <SelectContent>
-                       <SelectItem value="apartamento">Apartamento</SelectItem>
-                       <SelectItem value="casa">Casa</SelectItem>
-                       <SelectItem value="sobrado">Sobrado</SelectItem>
-                       <SelectItem value="terreno">Terreno</SelectItem>
-                       <SelectItem value="comercial">Comercial</SelectItem>
-                       <SelectItem value="chacara">Chácara</SelectItem>
-                     </SelectContent>
-                   </Select>
-                 </div>
-               </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="parking_spots">Vagas</Label>
+                    <Input
+                      id="parking_spots"
+                      type="number"
+                      value={formData.parking_spots}
+                      onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
+                      placeholder="1"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="listing_type">Finalidade</Label>
+                    <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="venda">Venda</SelectItem>
+                        <SelectItem value="locacao">Locação</SelectItem>
+                        <SelectItem value="temporada">Temporada</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="property_type">Tipo</Label>
+                    <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="apartamento">Apartamento</SelectItem>
+                        <SelectItem value="casa">Casa</SelectItem>
+                        <SelectItem value="sobrado">Sobrado</SelectItem>
+                        <SelectItem value="terreno">Terreno</SelectItem>
+                        <SelectItem value="comercial">Comercial</SelectItem>
+                        <SelectItem value="chacara">Chácara</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* CEP, Bairro, IPTU e Condomínio */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="zipcode">CEP</Label>
+                    <Input
+                      id="zipcode"
+                      value={formData.zipcode || ''}
+                      onChange={(e) => setFormData({...formData, zipcode: e.target.value})}
+                      placeholder="12345-678"
+                      className="h-11"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="neighborhood">Bairro</Label>
+                    <Input
+                      id="neighborhood"
+                      value={formData.neighborhood}
+                      onChange={(e) => setFormData({...formData, neighborhood: e.target.value})}
+                      placeholder="Vila Madalena"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="condominium_fee">Taxa de Condomínio (R$)</Label>
+                    <Input
+                      id="condominium_fee"
+                      value={formData.condominium_fee}
+                      onChange={(e) => setFormData({...formData, condominium_fee: e.target.value})}
+                      placeholder="580,00"
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Opcional - Use formato brasileiro
+                    </p>
+                  </div>
+                  <div>
+                    <Label htmlFor="iptu">IPTU (R$)</Label>
+                    <Input
+                      id="iptu"
+                      value={formData.iptu}
+                      onChange={(e) => setFormData({...formData, iptu: e.target.value})}
+                      placeholder="1.200,00"
+                      className="h-11"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Opcional - Use formato brasileiro
+                    </p>
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1244,23 +1299,18 @@ export default function Imoveis() {
                       variant="outline" 
                       size="sm"
                       onClick={() => {
-                        if (property.fotos && property.fotos.length > 0) {
-                          setSelectedProperty(property);
-                          setProcessorType('sketch' as any);
-                          setIsProcessorOpen(true);
-                        } else {
-                          toast({
-                            title: "Sem Fotos",
-                            description: "Adicione fotos ao imóvel primeiro",
-                            variant: "destructive",
-                          });
-                        }
+                        // Simular avaliação do imóvel
+                        const avaliacaoEstimada = property.valor * (0.9 + Math.random() * 0.2);
+                        toast({
+                          title: "Avaliação Estimada",
+                          description: `Valor estimado: ${formatCurrency(avaliacaoEstimada)}`,
+                        });
                       }}
-                      title="Esboço a Lápis"
+                      title="Avaliar Imóvel"
                       className="h-8 text-xs"
                     >
-                      <Palette className="h-3 w-3 mr-1" />
-                      Esboço
+                      <Target className="h-3 w-3 mr-1" />
+                      Avaliar
                     </Button>
                   </div>
                  
@@ -1285,10 +1335,11 @@ export default function Imoveis() {
                           fotos: Array.isArray(property.fotos) ? property.fotos : [],
                           videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
                           address: '',
-                          neighborhood: property.neighborhood || '',
-                          city: '',
-                          condominium_fee: '',
-                          iptu: '',
+          neighborhood: property.neighborhood || '',
+          city: '',
+          zipcode: property.zipcode || '',
+          condominium_fee: property.condominium_fee ? property.condominium_fee.toString() : '',
+          iptu: property.iptu ? property.iptu.toString() : '',
                           commission_percentage: 6,
                           commission_value: 0,
                           commission_split_type: '50/50',
@@ -1573,11 +1624,12 @@ export default function Imoveis() {
                             descricao: selectedProperty.descricao || '',
                             fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
-                            address: '',
-                            neighborhood: '',
-                            city: '',
-                            condominium_fee: '',
-                            iptu: '',
+                           address: '',
+                           neighborhood: '',
+                           city: '',
+                           zipcode: '',
+                           condominium_fee: '',
+                           iptu: '',
                             commission_percentage: 6,
                             commission_value: 0,
                             commission_split_type: '50/50',
