@@ -3024,6 +3024,19 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_safe_broker_info: {
+        Args: { broker_id?: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          cover_url: string
+          created_at: string
+          id: string
+          name: string
+          status: string
+          username: string
+        }[]
+      }
       get_security_summary: {
         Args: Record<PropertyKey, never>
         Returns: Json

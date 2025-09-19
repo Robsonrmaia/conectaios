@@ -399,6 +399,7 @@ export default function Imoveis() {
         watermark_enabled: true,
         furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
         year_built: '',
+        sea_distance: '',
       });
       
       // Add delay to ensure database has processed the save
@@ -1377,6 +1378,7 @@ export default function Imoveis() {
                           watermark_enabled: true,
                           furnishing_type: (property.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
                           sea_distance: property.sea_distance ? String(property.sea_distance) : '',
+                          year_built: (property as any).year_built ? String((property as any).year_built) : '',
                         });
                         setSelectedProperty(property);
                         setIsAddDialogOpen(true);
@@ -1667,6 +1669,7 @@ export default function Imoveis() {
                             watermark_enabled: selectedProperty.watermark_enabled || false,
                             furnishing_type: (selectedProperty.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
                             sea_distance: selectedProperty.sea_distance ? String(selectedProperty.sea_distance) : '',
+                            year_built: (selectedProperty as any).year_built ? String((selectedProperty as any).year_built) : '',
                           });
                          setIsDetailDialogOpen(false);
                          setIsAddDialogOpen(true);
