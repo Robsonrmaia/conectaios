@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import logoconectaiosImg from '@/assets/logoconectaios.png';
+import logonovaImg from '@/assets/logonova.png';
 
 interface ConectaLogoProps {
   className?: string;
@@ -28,7 +28,7 @@ export default function ConectaLogo({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img
-        src={logoconectaiosImg}
+        src={logonovaImg}
         alt={alt}
         width={width}
         height={height}

@@ -158,7 +158,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       <div className="relative h-screen w-full">
         {/* Hero Image with overlays */}
         <div 
-          className="relative h-full w-full bg-cover bg-center cursor-pointer"
+          className="relative h-full w-full bg-cover bg-center cursor-pointer property-hero-mobile"
           style={{
             backgroundImage: property.fotos && property.fotos.length > 0 
               ? `url(${property.fotos[0]})` 
@@ -293,7 +293,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         {/* Sketch Section - Before "Sobre o Imóvel" */}
         {(sketchImage || isSketchLoading) && (
           <section className="px-6 py-8 border-b">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Planta Baixa Esquemática</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Esboço da sua Felicidade</h2>
             <div className="bg-gray-50 rounded-lg p-4">
               {isSketchLoading ? (
                 <div className="flex items-center justify-center h-48 bg-white rounded-lg border-2 border-dashed border-gray-200">
@@ -424,17 +424,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               </div>
             </div>
           </div>
-
-          {/* Floor Plan */}
-          <div className="bg-gray-50 rounded-lg p-6">
-            <div className="flex items-center justify-center h-40 bg-white rounded-lg border border-gray-200">
-              <div className="text-center">
-                <Building2 className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">Planta Baixa</p>
-                <p className="text-sm text-gray-500">Clique para ampliar</p>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* Localização Section */}
@@ -486,21 +475,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 );
               })
             )}
-          </div>
-
-          {/* Map placeholder */}
-          <div className="bg-white rounded-lg p-4 mb-4">
-            <div className="flex items-center justify-center h-48 bg-gray-100 rounded-lg">
-              <div className="text-center">
-                <MapPin className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600 font-medium">
-                  {property.neighborhood || 'Vila Madalena'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {property.zipcode ? `CEP: ${property.zipcode}` : 'São Paulo - SP'}
-                </p>
-              </div>
-            </div>
           </div>
         </section>
 

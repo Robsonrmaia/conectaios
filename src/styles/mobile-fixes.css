@@ -49,6 +49,16 @@ button, input, select, textarea { min-width: 0; }
 .text-responsive { font-size: 0.875rem; line-height: 1.25rem; }
 @media (min-width: 640px) { .text-responsive { font-size: 1rem; line-height: 1.5rem; } }
 
+/* Mobile cover photo aspect ratio */
+@media (max-width: 640px) {
+  .property-hero-mobile {
+    height: auto !important;
+    aspect-ratio: 16/9;
+    background-size: cover;
+    background-position: center;
+  }
+}
+
 /* Espaçamento consistente em mobile */
 .space-mobile { gap: 0.75rem; }
 @media (min-width: 640px) { .space-mobile { gap: 1rem; } }
