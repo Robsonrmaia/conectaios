@@ -77,6 +77,16 @@ async function simulateNearbyPlaces(query: string, neighborhood?: string): Promi
 
   // Location-specific places based on neighborhood
   const locationSpecificPlaces: Record<string, PlaceOfInterest[]> = {
+    // Ilhéus, BA - Zona Sul
+    'Zona Sul': [
+      { name: 'Shopping Jequitibá', distance: '2.3 km', category: 'shopping', icon: 'ShoppingBag' },
+      { name: 'Terminal Rodoviário', distance: '1.8 km', category: 'transport', icon: 'MapPin' },
+      { name: 'Hospital Regional Costa do Cacau', distance: '1.5 km', category: 'hospital', icon: 'Hospital' },
+      { name: 'UESC - Universidade Estadual', distance: '3.2 km', category: 'school', icon: 'GraduationCap' },
+      { name: 'Praia do Milionários', distance: '800 m', category: 'park', icon: 'Waves' },
+      { name: 'Centro Histórico', distance: '2.1 km', category: 'other', icon: 'MapPin' },
+    ],
+    // São Paulo neighborhoods
     'Vila Madalena': [
       { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'shopping', icon: 'ShoppingBag' },
       { name: 'Estação Vila Madalena (Linha 2)', distance: '800 m', category: 'transport', icon: 'Train' },
@@ -113,10 +123,10 @@ async function simulateNearbyPlaces(query: string, neighborhood?: string): Promi
     return locationSpecificPlaces[neighborhood];
   }
 
-  // Generic places for unknown neighborhoods
+  // Generic places for unknown neighborhoods (without metro references)
   return [
     { name: 'Shopping Center Local', distance: '1.5 km', category: 'shopping', icon: 'ShoppingBag' },
-    { name: 'Estação de Metrô/Trem', distance: '1.1 km', category: 'transport', icon: 'Train' },
+    { name: 'Terminal Rodoviário', distance: '1.1 km', category: 'transport', icon: 'MapPin' },
     { name: 'Hospital Regional', distance: '2.3 km', category: 'hospital', icon: 'Hospital' },
     { name: 'Escola Estadual', distance: '750 m', category: 'school', icon: 'GraduationCap' },
     { name: 'Praça Central', distance: '500 m', category: 'park', icon: 'TreePine' },

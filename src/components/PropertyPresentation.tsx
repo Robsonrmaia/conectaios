@@ -63,18 +63,11 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [isSketchLoading, setIsSketchLoading] = useState(false);
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
 
-  // Auto-generate sketch when presentation opens
-  useEffect(() => {
-    if (isOpen && property.fotos && property.fotos.length > 0 && !sketchImage && !isSketchLoading) {
-      setIsSketchLoading(true);
-      console.log("Auto-generating sketch from first photo:", property.fotos[0]);
-    }
-  }, [isOpen, property.fotos, sketchImage, isSketchLoading]);
-
-  // Auto-generate sketch from cover image when presentation opens
+  // Single useEffect for sketch generation (consolidated to prevent infinite loop)
   useEffect(() => {
     const generateSketch = async () => {
-      if (!isOpen || !property.fotos?.[0] || sketchImage) return;
+      // Prevent multiple executions and loops
+      if (!isOpen || !property.fotos?.[0] || sketchImage || isSketchLoading || isProcessorOpen) return;
       
       console.log("🎨 Starting sketch generation process...");
       console.log("🖼️ Cover image URL:", property.fotos[0]);
@@ -85,10 +78,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         const response = await fetch('https://imagens-conectaios-420832656535.us-west1.run.app');
         console.log("🌐 ConectAIOS service status:", response.status);
         
-        // Auto-open sketch processor with cover image  
+        // Auto-open sketch processor with cover image after small delay
         setTimeout(() => {
-          console.log("🚀 Opening ConectaIOSImageProcessor modal...");
-          setIsProcessorOpen(true);
+          if (!sketchImage && !isProcessorOpen) { // Double-check to prevent loop
+            console.log("🚀 Opening ConectaIOSImageProcessor modal...");
+            setIsProcessorOpen(true);
+          }
         }, 1000);
       } catch (error) {
         console.error("❌ ConectAIOS service not available:", error);
@@ -97,7 +92,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     };
 
     generateSketch();
-  }, [isOpen, property.fotos, sketchImage]);
+  }, [isOpen, property.fotos]); // Removed sketchImage and isSketchLoading from deps to prevent loop
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -354,7 +349,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
       {/* Action Buttons - Connected directly to image without gap */}  
       <div className="bg-white">
-        <div className="px-4 pt-4 pb-4">
+        <div className="px-4 pb-4">
           <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:gap-4 sm:justify-center">
             <Button 
               onClick={handleScheduleVisit}
@@ -708,6 +703,7 @@ function getPlaceIcon(iconName: string) {
     Hospital,
     GraduationCap,
     TreePine,
+    Waves,
     MapPin: Building2, // fallback for generic places
   };
   
