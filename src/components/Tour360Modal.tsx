@@ -13,10 +13,10 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
   const allPhotos = property?.fotos || [];
   
   const tour360Url = `https://conectaios.com.br/tour360/generate?property=${encodeURIComponent(JSON.stringify({
-    id: property.id,
-    title: property.titulo,
-    address: property.address,
-    photos: property.fotos || []
+    id: property?.id || 'temp',
+    title: property?.titulo || 'Imóvel',
+    address: property?.address || '',
+    photos: property?.fotos || []
   }))}&fotos=${encodeURIComponent(JSON.stringify(allPhotos))}&autoload=true`;
 
   return (
@@ -25,7 +25,7 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
         <DialogHeader className="sr-only">
           <DialogTitle className="flex items-center gap-2">
             <Eye className="h-5 w-5" />
-            Gerador de Tour 360° - {property?.titulo}
+            Gerador de Tour 360° - {property?.titulo || 'Imóvel'}
           </DialogTitle>
         </DialogHeader>
         
@@ -45,7 +45,7 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
         
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
           <div className="text-center">
-            <div className="font-medium mb-1">🎯 Tour 360° - {property?.titulo}</div>
+            <div className="font-medium mb-1">🎯 Tour 360° - {property?.titulo || 'Imóvel'}</div>
             <div className="text-xs">Foto de capa pré-carregada • Gere o tour virtual do imóvel</div>
           </div>
         </div>
