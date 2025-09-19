@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { uploadLogoToStorage } from '@/utils/uploadLogo';
+import { useState } from 'react';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 
 interface ConectaLogoProps {
@@ -17,11 +16,6 @@ export default function ConectaLogo({
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
 
-  useEffect(() => {
-    // Try to upload logo on component mount
-    uploadLogoToStorage();
-  }, []);
-
   if (imageError) {
     // Fallback para texto se a imagem não carregar
     return (
@@ -35,11 +29,12 @@ export default function ConectaLogo({
     <div className={`flex items-center gap-2 ${className}`}>
       <img
         src={logoconectaiosImg}
-        alt="Logo ConectaIOS"
-        width={height}
+        alt={alt}
+        width={width}
         height={height}
         onError={() => setImageError(true)}
         loading="lazy"
+        className="object-contain"
       />
       <span className="font-bold text-primary">ConectaIOS</span>
     </div>

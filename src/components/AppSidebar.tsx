@@ -140,10 +140,13 @@ export function AppSidebar() {
       className="border-r"
     >
       <SidebarContent>
-        {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <img src={logoconectaiosImg} alt="ConectaIOS" className="h-8 w-auto" />
+            <img 
+              src={logoconectaiosImg} 
+              alt="ConectaIOS" 
+              className="h-8 w-auto object-contain" 
+            />
           </div>
         </div>
 

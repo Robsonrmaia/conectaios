@@ -76,7 +76,11 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src={logoconectaiosImg} alt="ConectaIOS" className="h-10 w-auto" />
+              <img 
+                src={logoconectaiosImg} 
+                alt="ConectaIOS" 
+                className="h-10 w-auto object-contain" 
+              />
             </div>
             <Button 
               onClick={() => navigate('/auth')}
