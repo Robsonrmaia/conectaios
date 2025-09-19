@@ -86,7 +86,11 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
     return (
       <SidebarProvider>
         <div className="flex min-h-screen w-full items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <img 
+            src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" 
+            alt="ConectaIOS Logo" 
+            className="h-16 w-16 animate-spin"
+          />
         </div>
       </SidebarProvider>
     );

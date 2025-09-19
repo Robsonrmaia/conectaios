@@ -40,7 +40,11 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <img 
+            src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" 
+            alt="ConectaIOS Logo" 
+            className="h-12 w-12 animate-spin mx-auto mb-4"
+          />
           <p className="text-muted-foreground">Verificando status do sistema...</p>
           {showEmergencyAccess && (
             <div className="mt-6">
