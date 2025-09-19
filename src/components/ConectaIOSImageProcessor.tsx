@@ -19,6 +19,12 @@ export function ConectaIOSImageProcessor({
   initialImage 
 }: ConectaIOSImageProcessorProps) {
   const [processing, setProcessing] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
+  const addDebugInfo = (message: string) => {
+    console.log(`🎨 ConectAIOS: ${message}`);
+    setDebugInfo(prev => [...prev.slice(-4), `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
   const getTitle = () => {
     switch (type) {
@@ -45,30 +51,29 @@ export function ConectaIOSImageProcessor({
   };
 
   const handleMessage = (event: MessageEvent) => {
-    console.log('🎨 ConectAIOS Message received:', event);
-    console.log('🔗 Message origin:', event.origin);
-    console.log('📝 Message data:', event.data);
+    addDebugInfo(`Message received from ${event.origin}`);
+    addDebugInfo(`Message data: ${JSON.stringify(event.data).substring(0, 100)}...`);
     
     if (event.origin !== 'https://imagens-conectaios-420832656535.us-west1.run.app') {
-      console.log('❌ Invalid origin:', event.origin);
+      addDebugInfo('❌ Invalid origin rejected');
       return;
     }
 
     // Support multiple message formats
     if ((event.data.type === 'imageGenerated' || event.data.type === 'imageProcessed') && event.data.imageUrl) {
-      console.log('✅ Image processed successfully:', event.data.imageUrl);
+      addDebugInfo('✅ Image processed successfully');
       onImageProcessed(event.data.imageUrl);
       onClose();
     } else if (event.data.originalUrl && event.data.processedUrl) {
-      console.log('✅ Image processed (alternative format):', event.data.processedUrl);
+      addDebugInfo('✅ Image processed (alternative format)');
       onImageProcessed(event.data.processedUrl);
       onClose();
     } else if (event.data.success && event.data.result) {
-      console.log('✅ Image processed (result format):', event.data.result);
+      addDebugInfo('✅ Image processed (result format)');
       onImageProcessed(event.data.result);
       onClose();
     } else {
-      console.log('❓ Unknown message format:', event.data);
+      addDebugInfo('❓ Unknown message format');
     }
   };
 
@@ -117,11 +122,21 @@ export function ConectaIOSImageProcessor({
           />
         </div>
         
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
-          💡 {type === 'enhance' || type === 'staging' || type === 'sketch'
-            ? 'Após processar a imagem, ela será automaticamente aplicada'
-            : 'Após gerar a imagem, faça o download e faça upload manualmente no editor'
-          }
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground max-w-md">
+          <div className="text-center mb-1">
+            💡 {type === 'enhance' || type === 'staging' || type === 'sketch'
+              ? 'Após processar a imagem, ela será automaticamente aplicada'
+              : 'Após gerar a imagem, faça o download e faça upload manualmente no editor'
+            }
+          </div>
+          {debugInfo.length > 0 && (
+            <div className="text-xs text-gray-500 mt-1 space-y-1">
+              <div className="font-medium">Debug Info:</div>
+              {debugInfo.map((info, index) => (
+                <div key={index} className="truncate">{info}</div>
+              ))}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

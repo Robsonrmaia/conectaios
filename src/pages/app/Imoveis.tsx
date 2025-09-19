@@ -300,6 +300,7 @@ export default function Imoveis() {
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
+        zipcode: formData.zipcode, // ✅ FIX: CEP agora será salvo no banco
         condominium_fee: parsedCondominiumFee,
         iptu: parsedIptu,
         banner_type: (formData.banner_type === "none" || formData.banner_type === "" || !formData.banner_type) ? null : formData.banner_type,

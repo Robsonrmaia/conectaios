@@ -26,19 +26,24 @@ const RealPropertyMap = ({
   const [isLoading, setIsLoading] = useState(true);
   const [mapError, setMapError] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string>('');
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
+  const addDebugInfo = (message: string) => {
+    console.log(`🗺️ ${message}`);
+    setDebugInfo(prev => [...prev.slice(-4), `${new Date().toLocaleTimeString()}: ${message}`]);
+  };
 
   useEffect(() => {
     // Get Mapbox token from Supabase secrets
     const getMapboxToken = async () => {
-      console.log('🗺️ Fetching Mapbox token...');
+      addDebugInfo('Iniciando busca por token Mapbox...');
       try {
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
-        console.log('🗺️ Token response:', { data, error });
         if (error) throw error;
-        console.log('✅ Mapbox token obtained successfully');
+        addDebugInfo('✅ Token Mapbox obtido com sucesso');
         setMapboxToken(data.token);
       } catch (error) {
-        console.error('❌ Error getting Mapbox token:', error);
+        addDebugInfo(`❌ Erro ao obter token: ${error.message}`);
         setMapError(true);
         setIsLoading(false);
       }
