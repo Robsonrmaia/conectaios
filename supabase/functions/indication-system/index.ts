@@ -200,12 +200,8 @@ async function confirmIndication(supabaseClient: any, body: ConfirmIndicationReq
 async function getIndications(supabaseClient: any, body: GetIndicationsRequest) {
   let query = supabaseClient
     .from('indications')
-    .select(`
-      *,
-      indicador:id_indicador(id, name, username),
-      indicado:id_indicado(id, name, username, email)
-    `)
-    .order('created_at', { ascending: false });
+    .select('*')
+    .order('data_criacao', { ascending: false });
 
   if (body.broker_id) {
     query = query.or(`id_indicador.eq.${body.broker_id},id_indicado.eq.${body.broker_id}`);
@@ -221,6 +217,31 @@ async function getIndications(supabaseClient: any, body: GetIndicationsRequest) 
     );
   }
 
+  // Buscar dados dos corretores separadamente
+  const enrichedIndications = [];
+  
+  for (const indication of indications || []) {
+    // Buscar dados do indicador
+    const { data: indicador } = await supabaseClient
+      .from('conectaios_brokers')
+      .select('id, name, username')
+      .eq('id', indication.id_indicador)
+      .single();
+
+    // Buscar dados do indicado  
+    const { data: indicado } = await supabaseClient
+      .from('conectaios_brokers')
+      .select('id, name, username, email')
+      .eq('id', indication.id_indicado)
+      .single();
+
+    enrichedIndications.push({
+      ...indication,
+      indicador,
+      indicado
+    });
+  }
+
   // Buscar descontos aplicados
   const { data: discounts } = await supabaseClient
     .from('indication_discounts')
@@ -230,7 +251,7 @@ async function getIndications(supabaseClient: any, body: GetIndicationsRequest) 
   return new Response(
     JSON.stringify({
       success: true,
-      indications: indications || [],
+      indications: enrichedIndications,
       discounts: discounts || []
     }),
     { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }

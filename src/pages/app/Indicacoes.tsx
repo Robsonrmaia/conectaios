@@ -73,33 +73,33 @@ export default function Indicacoes() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 space-y-4 md:space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-2">
-          <Gift className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Indique e Ganhe</h1>
+          <Gift className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+          <h1 className="text-2xl md:text-4xl font-bold">Indique e Ganhe</h1>
         </div>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+        <p className="text-base md:text-xl text-muted-foreground max-w-2xl mx-auto px-2">
           Compartilhe a ConectaIOS com outros corretores e ganhe descontos na sua mensalidade!
         </p>
         
         {/* Destaque principal */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-6 rounded-lg border-2 border-primary/20">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <Trophy className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold text-primary">
+        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 md:p-6 rounded-lg border-2 border-primary/20">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 mb-2">
+            <Trophy className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            <span className="text-base md:text-lg font-semibold text-primary text-center">
               Indique 2 amigos no mesmo mês e sua mensalidade fica 100% grátis!
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground text-center">
             Seus indicados também ganham 50% de desconto no primeiro mês
           </p>
         </div>
       </div>
 
       {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total de Indicações</CardTitle>
@@ -157,8 +157,8 @@ export default function Indicacoes() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="flex-1 p-3 bg-muted rounded-lg font-mono text-sm">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <div className="flex-1 p-3 bg-muted rounded-lg font-mono text-xs sm:text-sm break-all">
               {generateReferralLink() || 'Carregando...'}
             </div>
             <Button
@@ -166,18 +166,21 @@ export default function Indicacoes() {
               disabled={copying || !broker?.referral_code}
               variant="outline"
               size="sm"
+              className="min-h-[44px] w-full sm:w-auto"
             >
               <Copy className="h-4 w-4 mr-2" />
               {copying ? 'Copiando...' : 'Copiar'}
             </Button>
           </div>
           
-          <div className="flex gap-2">
-            <Button onClick={shareWhatsApp} className="flex-1" disabled={!broker?.referral_code}>
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Compartilhar no WhatsApp
-            </Button>
-          </div>
+          <Button 
+            onClick={shareWhatsApp} 
+            className="w-full min-h-[44px]" 
+            disabled={!broker?.referral_code}
+          >
+            <ExternalLink className="h-4 w-4 mr-2" />
+            Compartilhar no WhatsApp
+          </Button>
 
           {broker?.referral_code && (
             <div className="p-3 bg-muted/50 rounded-lg">
@@ -207,13 +210,13 @@ export default function Indicacoes() {
           ) : (
             <div className="space-y-4">
               {indications.map((indication) => (
-                <div key={indication.id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div>
-                      <p className="font-medium">
+                <div key={indication.id} className="border rounded-lg p-3 md:p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">
                         {indication.indicado?.name || 'Nome não informado'}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground truncate">
                         {indication.indicado?.email}
                       </p>
                     </div>
@@ -222,7 +225,7 @@ export default function Indicacoes() {
                     </Badge>
                   </div>
                   
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
                     <div>
                       <p className="text-muted-foreground">Data da Indicação</p>
                       <p className="font-medium">
@@ -268,7 +271,7 @@ export default function Indicacoes() {
           <CardTitle>Como Funciona o Programa</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             <div className="text-center space-y-2">
               <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
                 <span className="text-2xl font-bold text-primary">1</span>
