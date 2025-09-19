@@ -11,8 +11,8 @@ interface ConectaLogoProps {
 export default function ConectaLogo({ 
   className = "", 
   alt = "ConectaIOS", 
-  width = 120, 
-  height = 40 
+  width = 60, 
+  height = 20 
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
 

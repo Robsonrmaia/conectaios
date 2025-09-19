@@ -49,11 +49,11 @@ button, input, select, textarea { min-width: 0; }
 .text-responsive { font-size: 0.875rem; line-height: 1.25rem; }
 @media (min-width: 640px) { .text-responsive { font-size: 1rem; line-height: 1.5rem; } }
 
-/* Mobile cover photo aspect ratio */
+/* Mobile cover photo aspect ratio - Square 1:1 */
 @media (max-width: 640px) {
   .property-hero-mobile {
     height: auto !important;
-    aspect-ratio: 16/9;
+    aspect-ratio: 1/1;
     background-size: cover;
     background-position: center;
   }

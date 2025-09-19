@@ -261,24 +261,26 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             </div>
           </div>
 
-          {/* Fixed bottom buttons - exactly like readdy */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 space-y-3">
-            <Button 
-              onClick={handleScheduleVisit}
-              className="w-full py-4 text-lg font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-              size="lg"
-            >
-              Agendar Visita
-            </Button>
-            
-            <Button 
-              onClick={handleShare}
-              className="w-full py-4 text-lg font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2"
-              size="lg"
-            >
-              <MessageCircle className="h-5 w-5" />
-              Compartilhar
-            </Button>
+          {/* Action Buttons - Mobile: 2 columns grid */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-row sm:gap-4">
+              <Button 
+                onClick={handleScheduleVisit}
+                className="py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl sm:w-full sm:py-4 sm:text-lg"
+                size="sm"
+              >
+                Agendar Visita
+              </Button>
+              
+              <Button 
+                onClick={handleShare}
+                className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:py-4 sm:text-lg"
+                size="sm"
+              >
+                <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                Compartilhar
+              </Button>
+            </div>
           </div>
 
           {/* Scroll indicator */}
@@ -573,7 +575,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
       {/* Photo Gallery */}
       <PhotoGallery
-        photos={galleryPhotos}
+        photos={property.fotos && property.fotos.length > 0 ? [property.fotos[0], ...property.fotos.slice(1)] : []}
         initialIndex={galleryInitialIndex}
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
