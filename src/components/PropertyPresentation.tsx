@@ -77,12 +77,23 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       if (!isOpen || !property.fotos?.[0] || sketchImage) return;
       
       console.log("🎨 Starting sketch generation process...");
+      console.log("🖼️ Cover image URL:", property.fotos[0]);
       setIsSketchLoading(true);
-      // Auto-open sketch processor with cover image  
-      setTimeout(() => {
-        console.log("🖼️ Opening ConectaIOSImageProcessor modal...");
-        setIsProcessorOpen(true);
-      }, 1000);
+      
+      // Test ConectAIOS service availability first
+      try {
+        const response = await fetch('https://imagens-conectaios-420832656535.us-west1.run.app');
+        console.log("🌐 ConectAIOS service status:", response.status);
+        
+        // Auto-open sketch processor with cover image  
+        setTimeout(() => {
+          console.log("🚀 Opening ConectaIOSImageProcessor modal...");
+          setIsProcessorOpen(true);
+        }, 1000);
+      } catch (error) {
+        console.error("❌ ConectAIOS service not available:", error);
+        setIsSketchLoading(false);
+      }
     };
 
     generateSketch();
@@ -218,31 +229,38 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             </p>
             
             {/* Property specs with beautiful blue icons - 2x3 grid for mobile */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                  <Home className="h-5 w-5 text-white" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
+              {/* Área - always show */}
+              {property.area && property.area > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Home className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Área</div>
+                    <div className="text-sm font-bold">{property.area}m²</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-300">Área</div>
-                  <div className="text-sm font-bold">{property.area}m²</div>
-                </div>
-              </div>
+              )}
               
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                  <Bed className="h-5 w-5 text-white" />
+              {/* Quartos - always show if > 0 */}
+              {property.quartos && property.quartos > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bed className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Quartos</div>
+                    <div className="text-sm font-bold">{property.quartos}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs text-gray-300">Quartos</div>
-                  <div className="text-sm font-bold">{property.quartos}</div>
-                </div>
-              </div>
+              )}
               
+              {/* Banheiros - only if > 0 */}
               {property.bathrooms && property.bathrooms > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Bath className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bath className="h-4 w-4 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-gray-300">Banheiros</div>
@@ -251,10 +269,11 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
+              {/* Vagas - only if > 0 */}
               {property.parking_spots && property.parking_spots > 0 && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Car className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Car className="h-4 w-4 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-gray-300">Vagas</div>
@@ -263,10 +282,11 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
+              {/* Vista do Mar */}
               {property.has_sea_view && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full shadow-lg">
-                    <Waves className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Waves className="h-4 w-4 text-white" />
                   </div>
                   <div>
                     <div className="text-xs text-gray-300">Vista</div>
@@ -275,14 +295,41 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 </div>
               )}
               
+              {/* Mobiliado - changed to blue */}
               {property.furnishing_type && property.furnishing_type !== 'unfurnished' && (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg">
-                    <Package className="h-5 w-5 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Package className="h-4 w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Status</div>
-                    <div className="text-sm font-bold">Mobiliado</div>
+                    <div className="text-xs text-gray-300">Mobiliado</div>
+                    <div className="text-sm font-bold">Sim</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Distância do Mar - if available */}
+              {property.sea_distance && property.sea_distance > 0 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <MapPin className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Praia</div>
+                    <div className="text-sm font-bold">{property.sea_distance}m</div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Luxo/Exclusivo - if high value */}
+              {property.valor && property.valor > 2000000 && (
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Eye className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-gray-300">Categoria</div>
+                    <div className="text-sm font-bold">Luxo</div>
                   </div>
                 </div>
               )}
@@ -291,15 +338,15 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
         </div>
         
-        {/* Value - At the bottom of the image */}
+        {/* Value - At the bottom of the image in blue tones */}
         <div className="absolute bottom-4 left-4 right-4 z-10">
           <div className="flex items-center gap-3 bg-black/60 rounded-xl p-4 backdrop-blur-sm">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full shadow-lg">
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
               <span className="text-lg font-bold text-white">R$</span>
             </div>
             <div>
               <div className="text-sm text-gray-300">Valor</div>
-              <div className="text-2xl font-bold text-green-300">{formatCurrency(property.valor)}</div>
+              <div className="text-2xl font-bold text-blue-300">{formatCurrency(property.valor)}</div>
             </div>
           </div>
         </div>
@@ -470,27 +517,28 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Localização Privilegiada</h2>
           <p className="text-gray-600 text-lg mb-8">No coração da Vila Madalena, próximo a tudo que você precisa</p>
           
-          {/* Map Integration */}
+          {/* Map Integration - Enhanced with debug logging */}
           <div className="mb-8">
-            <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden">
-              <RealPropertyMap 
-                zipcode={property.zipcode}
-                neighborhood={property.neighborhood}
-                address={property.city}
-                city={property.city}
-                state={property.state}
-                className="animate-fade-in w-full h-full"
-              />
-            </div>
-            {!property.zipcode && !property.neighborhood && !property.city && (
-              <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-center text-gray-500">
-                  <MapPin className="h-12 w-12 mx-auto mb-2" />
-                  <p>Mapa não disponível</p>
-                  <p className="text-sm">Localização não informada</p>
+            <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden relative">
+              {(property.zipcode || property.neighborhood || property.city) ? (
+                <RealPropertyMap 
+                  zipcode={property.zipcode}
+                  neighborhood={property.neighborhood}
+                  address={property.city}
+                  city={property.city}
+                  state={property.state}
+                  className="animate-fade-in w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <MapPin className="h-12 w-12 mx-auto mb-2" />
+                    <p>Mapa não disponível</p>
+                    <p className="text-sm">Localização não informada</p>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           
           <h3 className="text-xl font-semibold text-gray-900 mb-6 animate-fade-in">Pontos de Interesse</h3>
