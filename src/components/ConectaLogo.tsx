@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { uploadLogoToStorage } from '@/utils/uploadLogo';
+import logoconectaiosImg from '@/assets/logoconectaios.png';
 
 interface ConectaLogoProps {
   className?: string;
@@ -33,7 +34,7 @@ export default function ConectaLogo({
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <img
-        src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png"
+        src={logoconectaiosImg}
         alt="Logo ConectaIOS"
         width={height}
         height={height}

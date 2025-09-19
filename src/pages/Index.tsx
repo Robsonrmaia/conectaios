@@ -19,7 +19,8 @@ import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-import garotonectaImg from '@/assets/garoto-conecta.png';
+import garotonectaImg from '@/assets/iagocomsombra.png';
+import logoconectaiosImg from '@/assets/logoconectaios.png';
 
 const Index = () => {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center">
-              <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" alt="ConectaIOS" className="h-10 w-auto" />
+              <img src={logoconectaiosImg} alt="ConectaIOS" className="h-10 w-auto" />
             </div>
             <Button 
               onClick={() => navigate('/auth')}

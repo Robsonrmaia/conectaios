@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import logoconectaiosImg from '@/assets/logoconectaios.png';
 import {
   Sidebar,
   SidebarContent,
@@ -142,7 +143,7 @@ export function AppSidebar() {
         {/* Logo */}
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <img src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logoconectaios.png" alt="ConectaIOS" className="h-8 w-auto" />
+            <img src={logoconectaiosImg} alt="ConectaIOS" className="h-8 w-auto" />
           </div>
         </div>
 
