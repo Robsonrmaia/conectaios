@@ -19,7 +19,7 @@ import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-import garotonectaImg from '@/assets/iagocomsombra.png';
+const garotonectaImg = 'https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 
 const Index = () => {
