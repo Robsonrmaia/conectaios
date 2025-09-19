@@ -43,9 +43,8 @@ export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
           <img 
             src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" 
             alt="ConectaIOS Logo" 
-            className="h-12 w-12 animate-spin mx-auto mb-4"
+            className="h-15 w-15 animate-spin mx-auto mb-4"
           />
-          <p className="text-muted-foreground">Verificando status do sistema...</p>
           {showEmergencyAccess && (
             <div className="mt-6">
               <Button 
