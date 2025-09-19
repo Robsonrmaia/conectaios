@@ -22,3 +22,13 @@ button, input, select, textarea { min-width: 0; }
 .flex-row-wrap { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; }
 .btn-fluid { width:100%; }
 @media (min-width:640px){ .btn-fluid { width:auto; } }
+
+/* Touch targets mínimos para mobile */
+.touch-target { min-height: 44px; min-width: 44px; }
+
+/* Cards responsivos com melhor padding */
+.card-mobile { padding: 1rem; }
+@media (min-width: 640px) { .card-mobile { padding: 1.5rem; } }
+
+/* Scroll suave para tabs horizontais */
+.scroll-smooth-tabs { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
