@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertySearch, SearchFilters } from "@/components/PropertySearch";
+import { MinisiteDebugPanel } from "@/components/MinisiteDebugPanel";
 
 type Broker = {
   id: string;
@@ -100,26 +101,36 @@ export default function BrokerMinisite() {
       }
       setBroker(bq.data);
 
-      // 2) Propriedades PÚBLICAS
-      console.log('Fetching properties for user_id:', bq.data.user_id);
+      // 2) Propriedades PÚBLICAS - Query melhorada para minisite
+      console.log('🔍 Fetching properties for user_id:', bq.data.user_id);
+      console.log('🔍 Broker username:', cleanUsername);
       
       const { data: props, error: propsErr } = await supabase
         .from("properties")
         .select(`
           id, titulo, valor, quartos, bathrooms, area, fotos, 
           property_type, listing_type, finalidade, descricao, address,
-          neighborhood, city, state, features, parking_spots
+          neighborhood, city, state, features, parking_spots, created_at, updated_at
         `)
         .eq("user_id", bq.data.user_id)
         .eq("is_public", true)
         .eq("visibility", "public_site")
-        .order("updated_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(50);
 
-      console.log('Properties query result:', {
+      console.log('🎯 Properties query result:', {
         found: props?.length || 0,
         error: propsErr,
-        user_id: bq.data.user_id
+        user_id: bq.data.user_id,
+        broker_username: cleanUsername,
+        query_details: {
+          table: 'properties',
+          filters: {
+            user_id: bq.data.user_id,
+            is_public: true,
+            visibility: 'public_site'
+          }
+        }
       });
 
       if (propsErr) {
@@ -439,9 +450,29 @@ export default function BrokerMinisite() {
               )}
             </div>
 
-            {(filteredProperties.length > 0 || (filteredProperties.length === 0 && properties.length > 0)) ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {(filteredProperties.length > 0 ? filteredProperties : properties).map((property) => (
+              {/* Exibir imóveis ou mensagem de fallback */}
+              {properties.length === 0 ? (
+                <div className="text-center py-16 bg-gray-50 rounded-2xl">
+                  <Building2 className="h-16 w-16 text-gray-300 mx-auto mb-6" />
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">
+                    Nenhum imóvel disponível
+                  </h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    Este corretor ainda não publicou imóveis ou eles não estão disponíveis para visualização pública no momento.
+                  </p>
+                  {broker.phone && (
+                    <div className="mt-8">
+                      <Button className="text-white" style={{ backgroundColor: primaryColor }}>
+                        <a href={`https://wa.me/55${broker.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
+                          Entrar em contato
+                        </a>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {(filteredProperties.length > 0 ? filteredProperties : properties).map((property) => (
                 <article key={property.id} className="rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300">
                   <div className="relative">
                     {property.fotos && property.fotos.length > 0 ? (
@@ -550,15 +581,30 @@ export default function BrokerMinisite() {
                     </div>
                   </div>
                 </article>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Nenhum imóvel disponível</h3>
-              <p className="text-muted-foreground">Este corretor ainda não publicou imóveis.</p>
-            </div>
-          )}
+                  ))}
+                </div>
+              )}
+              
+              {/* Debug info - visível apenas com ?debug=1 */}
+              {debug && properties.length === 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+                  <h4 className="font-semibold text-red-800 mb-2">Debug - Nenhum imóvel encontrado</h4>
+                  <div className="text-sm text-red-700 space-y-1">
+                    <p>Broker ID: <code>{broker.id}</code></p>
+                    <p>User ID: <code>{broker.user_id}</code></p>
+                    <p>Username: <code>{broker.username}</code></p>
+                    <p>Query executada: properties WHERE user_id = '{broker.user_id}' AND is_public = true AND visibility = 'public_site'</p>
+                    {errs.length > 0 && (
+                      <div>
+                        <p className="font-semibold mt-2">Erros encontrados:</p>
+                        <ul className="list-disc list-inside">
+                          {errs.map((err, i) => <li key={i}>{err}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
         </div>
       </section>
 
@@ -811,6 +857,14 @@ export default function BrokerMinisite() {
           showOnScroll={true}
         />
       )}
+
+      {/* Debug Panel Component */}
+      <MinisiteDebugPanel
+        broker={broker}
+        properties={properties}
+        errors={errs}
+        config={minisiteConfig}
+      />
     </div>
   );
 }

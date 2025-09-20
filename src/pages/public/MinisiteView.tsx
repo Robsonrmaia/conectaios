@@ -151,18 +151,27 @@ export default function MinisiteView() {
               .select(`
                 id, titulo, valor, quartos, area, fotos, neighborhood, city, 
                 descricao, bathrooms, parking_spots, listing_type, property_type,
-                address, state, features
+                address, state, features, created_at, updated_at
               `)
               .eq('user_id', brokerData.user_id)
               .eq('is_public', true)
               .eq('visibility', 'public_site')
-              .order('updated_at', { ascending: false })
+              .order('created_at', { ascending: false })
               .limit(12);
 
-            console.log('Properties query completed:', {
+            console.log('🎯 MinisiteView Properties query completed:', {
               found: propertiesData?.length || 0,
               error: propertiesError,
-              user_id: brokerData.user_id
+              user_id: brokerData.user_id,
+              broker_id: configData.broker_id,
+              query_details: {
+                table: 'properties',
+                filters: {
+                  user_id: brokerData.user_id,
+                  is_public: true,
+                  visibility: 'public_site'
+                }
+              }
             });
 
             if (propertiesError) {
