@@ -625,35 +625,35 @@ export function MinisiteEditorIntegrated() {
                           <Camera className="h-6 w-6 text-muted-foreground" />
                         </div>
                       )}
-                      <div className="flex gap-2">
-                        <div className="flex gap-2">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageUpload(file, 'logo');
-                            }}
-                            className="hidden"
-                            id="logo-upload"
-                         />
-                         <Label htmlFor="logo-upload" className="cursor-pointer">
-                           <Button variant="outline" asChild>
-                             <span>
-                               <Upload className="h-4 w-4 mr-2" />
-                               Upload Logo
-                             </span>
-                           </Button>
-                         </Label>
-                          <Button
-                            variant="outline"
-                            onClick={() => setIsLogoProcessorOpen(true)}
-                            disabled={isGeneratingLogo}
-                          >
-                            <Wand2 className="h-4 w-4 mr-2" />
-                            Gerar Logo com IA
+                      <div className="flex flex-wrap gap-2">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(file, 'logo');
+                          }}
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <Label htmlFor="logo-upload" className="cursor-pointer">
+                          <Button variant="outline" size="sm" asChild>
+                            <span className="text-xs sm:text-sm">
+                              <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                              Upload Logo
+                            </span>
                           </Button>
-                       </div>
+                        </Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsLogoProcessorOpen(true)}
+                          disabled={isGeneratingLogo}
+                          className="text-xs sm:text-sm"
+                        >
+                          <Wand2 className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                          Gerar Logo
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -711,7 +711,7 @@ export function MinisiteEditorIntegrated() {
                           <Camera className="h-8 w-8 text-muted-foreground" />
                         </div>
                       )}
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <input
                             type="file"
                             accept="image/*"
@@ -723,19 +723,21 @@ export function MinisiteEditorIntegrated() {
                             id="cover-upload"
                           />
                           <Label htmlFor="cover-upload" className="cursor-pointer">
-                            <Button variant="outline" asChild>
-                              <span>
-                                <Upload className="h-4 w-4 mr-2" />
+                            <Button variant="outline" size="sm" asChild>
+                              <span className="text-xs sm:text-sm">
+                                <Upload className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                                 Upload Capa
                               </span>
                             </Button>
                           </Label>
                           <Button
                             variant="outline"
+                            size="sm"
                             onClick={() => setIsCoverProcessorOpen(true)}
                             disabled={isGeneratingLogo}
+                            className="text-xs sm:text-sm"
                           >
-                            <Sparkles className="h-4 w-4 mr-2" />
+                            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                             {isGeneratingLogo ? 'Gerando...' : 'Criar Capa com IA'}
                           </Button>
                         </div>
