@@ -278,7 +278,6 @@ serve(async (req) => {
 
         // Map CNM data to our property structure
         const photos = extractPhotos(imovel);
-        const valor = parseFloat(String(imovel.valor || imovel.preco || '0').replace(/[^\d.-]/g, '')) || 0;
         
         console.log(`💰 Property value extracted: ${valor} from raw: ${imovel.valor || imovel.preco}`);
         
