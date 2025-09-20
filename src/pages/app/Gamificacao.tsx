@@ -374,22 +374,46 @@ export default function Gamificacao() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {pointsRules.map(rule => (
-                  <div key={rule.key} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {getRuleIcon(rule.key)}
-                      <div>
-                        <p className="font-medium">{rule.label}</p>
-                        <p className="text-sm text-muted-foreground">{rule.descricao}</p>
+              {loading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => (
+                    <div key={i} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg animate-pulse">
+                      <div className="flex items-center gap-3">
+                        <div className="h-4 w-4 bg-muted rounded" />
+                        <div>
+                          <div className="h-4 w-32 bg-muted rounded mb-2" />
+                          <div className="h-3 w-48 bg-muted rounded" />
+                        </div>
                       </div>
+                      <div className="h-6 w-12 bg-muted rounded" />
                     </div>
-                    <Badge variant="outline" className="font-bold text-lg">
-                      +{rule.pontos}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : pointsRules.length > 0 ? (
+                <div className="space-y-4">
+                  {pointsRules.map(rule => (
+                    <div key={rule.key} className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        {getRuleIcon(rule.key)}
+                        <div>
+                          <p className="font-medium">{rule.label}</p>
+                          <p className="text-sm text-muted-foreground">{rule.descricao}</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="font-bold text-lg">
+                        +{rule.pontos}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    Nenhuma regra de pontuação encontrada.
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
