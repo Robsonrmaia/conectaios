@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.3.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -102,26 +103,27 @@ serve(async (req) => {
     console.log(`📄 Fetched XML content: ${xmlText.length} characters`);
 
     // Parse XML (CNM is case-sensitive)
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      preserveOrder: false,
+      trimValues: true
+    });
+    const json = parser.parse(xmlText);
     
-    if (xmlDoc.querySelector('parsererror')) {
-      throw new Error('Invalid XML format');
-    }
-
     // Get all property listings - CNM typically uses "imovel" or similar tags
-    const imoveis = xmlDoc.getElementsByTagName('imovel');
-    result.fetched_count = imoveis.length;
+    const imoveis = json.imoveis?.imovel || json.imovel || [];
+    const imoveisList = Array.isArray(imoveis) ? imoveis : [imoveis];
+    result.fetched_count = imoveisList.length;
     
     console.log(`🏠 Found ${result.fetched_count} properties to process`);
 
     // Process each property
-    for (let i = 0; i < imoveis.length; i++) {
+    for (let i = 0; i < imoveisList.length; i++) {
       try {
-        const imovel = imoveis[i];
+        const imovel = imoveisList[i];
         
         // Extract CNM data - case sensitive field mapping
-        const externalId = imovel.getElementsByTagName('codigo')[0]?.textContent?.trim();
+        const externalId = imovel.codigo?.toString()?.trim();
         if (!externalId) {
           result.errors.push(`Property ${i + 1}: Missing required field 'codigo'`);
           result.ignored_count++;
@@ -132,20 +134,20 @@ serve(async (req) => {
         const propertyData: PropertyData = {
           external_id: externalId,
           source_portal: 'cnm',
-          titulo: imovel.getElementsByTagName('titulo')[0]?.textContent?.trim() || 'Imóvel Importado',
-          listing_type: mapListingType(imovel.getElementsByTagName('finalidade')[0]?.textContent?.trim()),
-          property_type: mapPropertyType(imovel.getElementsByTagName('tipo')[0]?.textContent?.trim()),
-          valor: parseFloat(imovel.getElementsByTagName('valor')[0]?.textContent?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          area: parseFloat(imovel.getElementsByTagName('area')[0]?.textContent?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          quartos: parseInt(imovel.getElementsByTagName('quartos')[0]?.textContent?.trim() || '0') || 0,
-          banheiros: parseInt(imovel.getElementsByTagName('banheiros')[0]?.textContent?.trim() || '0') || 0,
-          vagas: parseInt(imovel.getElementsByTagName('vagas')[0]?.textContent?.trim() || '0') || 0,
-          descricao: imovel.getElementsByTagName('descricao')[0]?.textContent?.trim(),
-          endereco: imovel.getElementsByTagName('endereco')[0]?.textContent?.trim(),
-          bairro: imovel.getElementsByTagName('bairro')[0]?.textContent?.trim(),
-          cidade: imovel.getElementsByTagName('cidade')[0]?.textContent?.trim(),
+          titulo: imovel.titulo?.toString()?.trim() || 'Imóvel Importado',
+          listing_type: mapListingType(imovel.finalidade?.toString()?.trim()),
+          property_type: mapPropertyType(imovel.tipo?.toString()?.trim()),
+          valor: parseFloat(imovel.valor?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
+          area: parseFloat(imovel.area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
+          quartos: parseInt(imovel.quartos?.toString()?.trim() || '0') || 0,
+          banheiros: parseInt(imovel.banheiros?.toString()?.trim() || '0') || 0,
+          vagas: parseInt(imovel.vagas?.toString()?.trim() || '0') || 0,
+          descricao: imovel.descricao?.toString()?.trim(),
+          endereco: imovel.endereco?.toString()?.trim(),
+          bairro: imovel.bairro?.toString()?.trim(),
+          cidade: imovel.cidade?.toString()?.trim(),
           fotos: extractPhotos(imovel),
-          raw_cnm: xmlToObject(imovel),
+          raw_cnm: imovel,
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden'
@@ -234,41 +236,19 @@ function mapPropertyType(tipo: string | undefined): string {
   return 'apartamento';
 }
 
-function extractPhotos(imovel: Element): string[] {
+function extractPhotos(imovel: any): string[] {
   const photos: string[] = [];
-  const fotosElement = imovel.getElementsByTagName('fotos')[0];
-  if (fotosElement) {
-    const fotoElements = fotosElement.getElementsByTagName('foto');
-    for (let i = 0; i < fotoElements.length; i++) {
-      const url = fotoElements[i]?.textContent?.trim();
+  const fotosData = imovel.fotos;
+  
+  if (fotosData?.foto) {
+    const fotos = Array.isArray(fotosData.foto) ? fotosData.foto : [fotosData.foto];
+    for (const foto of fotos) {
+      const url = foto?.toString()?.trim();
       if (url) {
         photos.push(url);
       }
     }
   }
+  
   return photos;
-}
-
-function xmlToObject(element: Element): any {
-  const obj: any = {};
-  
-  // Get attributes
-  for (let i = 0; i < element.attributes.length; i++) {
-    const attr = element.attributes[i];
-    obj[`@${attr.name}`] = attr.value;
-  }
-  
-  // Get child elements
-  for (let i = 0; i < element.children.length; i++) {
-    const child = element.children[i];
-    const tagName = child.tagName;
-    
-    if (child.children.length > 0) {
-      obj[tagName] = xmlToObject(child);
-    } else {
-      obj[tagName] = child.textContent;
-    }
-  }
-  
-  return obj;
 }

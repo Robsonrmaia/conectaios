@@ -1,6 +1,7 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { XMLParser } from 'https://esm.sh/fast-xml-parser@4.3.2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -102,35 +103,24 @@ serve(async (req) => {
     console.log(`📄 Fetched XML content: ${xmlText.length} characters`);
 
     // Parse XML (VrSync is namespace-aware)
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      preserveOrder: false,
+      trimValues: true
+    });
+    const json = parser.parse(xmlText);
     
-    if (xmlDoc.querySelector('parsererror')) {
-      throw new Error('Invalid XML format');
-    }
-
     // Get all property listings - VrSync typically uses namespaced elements
-    // Try multiple possible element names for VrSync feeds
-    let imoveis = xmlDoc.getElementsByTagName('Imovel');
-    if (imoveis.length === 0) {
-      imoveis = xmlDoc.getElementsByTagName('imovel');
-    }
-    if (imoveis.length === 0) {
-      imoveis = xmlDoc.getElementsByTagName('property');
-    }
-    if (imoveis.length === 0) {
-      // Try with namespace prefix
-      imoveis = xmlDoc.getElementsByTagNameNS('*', 'Imovel');
-    }
-    
-    result.fetched_count = imoveis.length;
+    const imoveis = json.Imoveis?.Imovel || json.imoveis?.imovel || json.Imovel || json.imovel || json.property || [];
+    const imoveisList = Array.isArray(imoveis) ? imoveis : [imoveis];
+    result.fetched_count = imoveisList.length;
     
     console.log(`🏠 Found ${result.fetched_count} properties to process`);
 
     // Process each property
-    for (let i = 0; i < imoveis.length; i++) {
+    for (let i = 0; i < imoveisList.length; i++) {
       try {
-        const imovel = imoveis[i];
+        const imovel = imoveisList[i];
         
         // Extract VrSync data - namespace aware field mapping
         const externalId = getElementValue(imovel, ['CodigoImovel', 'Codigo', 'codigo', 'id', 'Id']);
@@ -227,26 +217,18 @@ serve(async (req) => {
   }
 });
 
-// Helper functions for VrSync namespace-aware parsing
-function getElementValue(parent: Element, tagNames: string[]): string | undefined {
+// Helper functions for VrSync parsing
+function getElementValue(obj: any, tagNames: string[]): string | undefined {
   for (const tagName of tagNames) {
-    // Try direct child
-    let element = parent.getElementsByTagName(tagName)[0];
-    if (element) {
-      return element.textContent?.trim();
-    }
-    
-    // Try with namespace
-    element = parent.getElementsByTagNameNS('*', tagName)[0];
-    if (element) {
-      return element.textContent?.trim();
+    if (obj[tagName] !== undefined && obj[tagName] !== null) {
+      return obj[tagName].toString().trim();
     }
     
     // Try case insensitive
-    const allElements = parent.getElementsByTagName('*');
-    for (let i = 0; i < allElements.length; i++) {
-      if (allElements[i].localName?.toLowerCase() === tagName.toLowerCase()) {
-        return allElements[i].textContent?.trim();
+    const lowerTag = tagName.toLowerCase();
+    for (const key in obj) {
+      if (key.toLowerCase() === lowerTag) {
+        return obj[key]?.toString()?.trim();
       }
     }
   }
@@ -271,35 +253,28 @@ function mapPropertyType(tipo: string | undefined): string {
   return 'apartamento';
 }
 
-function extractVrSyncPhotos(imovel: Element): string[] {
+function extractVrSyncPhotos(imovel: any): string[] {
   const photos: string[] = [];
   
   // Try different photo container names
   const photoContainers = ['Fotos', 'fotos', 'Photos', 'Imagens', 'imagens'];
   
   for (const containerName of photoContainers) {
-    const fotosElement = imovel.getElementsByTagName(containerName)[0] || 
-                        imovel.getElementsByTagNameNS('*', containerName)[0];
+    const fotosData = imovel[containerName];
     
-    if (fotosElement) {
+    if (fotosData) {
       // Try different photo element names
       const photoTags = ['Foto', 'foto', 'Photo', 'Imagem', 'imagem', 'Url', 'url'];
       
       for (const photoTag of photoTags) {
-        const fotoElements = fotosElement.getElementsByTagName(photoTag);
-        for (let i = 0; i < fotoElements.length; i++) {
-          const url = fotoElements[i]?.textContent?.trim();
-          if (url && !photos.includes(url)) {
-            photos.push(url);
-          }
-        }
-        
-        // Try with namespace
-        const fotoElementsNS = fotosElement.getElementsByTagNameNS('*', photoTag);
-        for (let i = 0; i < fotoElementsNS.length; i++) {
-          const url = fotoElementsNS[i]?.textContent?.trim();
-          if (url && !photos.includes(url)) {
-            photos.push(url);
+        const fotoData = fotosData[photoTag];
+        if (fotoData) {
+          const fotos = Array.isArray(fotoData) ? fotoData : [fotoData];
+          for (const foto of fotos) {
+            const url = foto?.toString()?.trim();
+            if (url && !photos.includes(url)) {
+              photos.push(url);
+            }
           }
         }
       }
@@ -309,28 +284,4 @@ function extractVrSyncPhotos(imovel: Element): string[] {
   }
   
   return photos;
-}
-
-function xmlToObject(element: Element): any {
-  const obj: any = {};
-  
-  // Get attributes
-  for (let i = 0; i < element.attributes.length; i++) {
-    const attr = element.attributes[i];
-    obj[`@${attr.name}`] = attr.value;
-  }
-  
-  // Get child elements
-  for (let i = 0; i < element.children.length; i++) {
-    const child = element.children[i];
-    const tagName = child.tagName || child.localName;
-    
-    if (child.children.length > 0) {
-      obj[tagName] = xmlToObject(child);
-    } else {
-      obj[tagName] = child.textContent;
-    }
-  }
-  
-  return obj;
 }
