@@ -40,6 +40,8 @@ interface PropertyData {
   imported_at: string;
   is_public?: boolean;
   visibility?: string;
+  user_id?: string | null;
+  site_id?: string | null;
 }
 
 serve(async (req) => {
@@ -53,6 +55,27 @@ serve(async (req) => {
     const dryRun = url.searchParams.get('dryRun') === '1';
     const debug = url.searchParams.get('debug') === '1';
     const urlParam = url.searchParams.get('url');
+    
+    // New parameters for broker assignment
+    const ownerParam = url.searchParams.get('owner');
+    const siteIdParam = url.searchParams.get('siteId');
+    const publishParam = url.searchParams.get('publish');
+    
+    // Validate owner UUID if provided
+    if (ownerParam && !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(ownerParam)) {
+      return new Response(JSON.stringify({
+        error: 'Invalid owner parameter: must be a UUID',
+        fetched_count: 0,
+        created_count: 0,
+        updated_count: 0,
+        ignored_count: 0,
+        errors: ['Invalid owner parameter: must be a UUID'],
+        dryRun: false
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     let feedUrl = '';
     
@@ -71,6 +94,9 @@ serve(async (req) => {
     console.log(`🚀 Starting CNM import from: ${feedUrl}`);
     console.log(`📋 Dry run mode: ${dryRun}`);
     console.log(`🔍 Debug mode: ${debug}`);
+    console.log(`👤 Owner: ${ownerParam || 'none'}`);
+    console.log(`🌐 Site ID: ${siteIdParam || 'none'}`);
+    console.log(`📢 Publish override: ${publishParam || 'none'}`);
 
     // Fetch XML feed with proper headers
     console.log('📡 Fetching XML feed...');
@@ -105,7 +131,7 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get configuration
-    const publishOnImport = Deno.env.get('PUBLISH_ON_IMPORT') === 'true';
+    const publishOnImport = publishParam === '1' ? true : (publishParam === '0' ? false : Deno.env.get('PUBLISH_ON_IMPORT') === 'true');
     const safeMode = Deno.env.get('INTEGRATIONS_SAFE_MODE') === 'true';
 
     console.log(`⚙️ Publish on import: ${publishOnImport}`);
@@ -325,7 +351,10 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       ...result,
-      conflict_key: 'reference_code'
+      conflict_key: 'reference_code',
+      owner: ownerParam || null,
+      siteId: siteIdParam || null,
+      published: publishOnImport
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
