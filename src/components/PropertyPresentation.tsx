@@ -380,9 +380,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             }}
           />
           
-          <p className="text-gray-600 text-lg leading-relaxed mb-8 mt-4">
-            {property.descricao || "Esta magnífica residência combina elegância contemporânea com funcionalidade excepcional. Localizada em uma das áreas mais valorizadas de São Paulo, oferece privacidade e sofisticação em cada detalhe."}
-          </p>
 
           {/* Photo Gallery */}
           {property.fotos && property.fotos.length > 1 && (

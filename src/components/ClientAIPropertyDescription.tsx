@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wand2, Loader2 } from 'lucide-react';
 import { useAI } from '@/hooks/useAI';
@@ -102,11 +102,11 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
   };
 
   // Auto-generate on mount
-  useState(() => {
-    if (!generatedDescription) {
+  useEffect(() => {
+    if (!generatedDescription && !isGenerating && !loading) {
       generateClientDescription();
     }
-  });
+  }, [property.id]); // Add dependency to avoid infinite loops
 
   return (
     <div className="text-center py-2">

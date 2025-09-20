@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 interface PlaceOfInterest {
   name: string;
   distance: string;
-  category: 'shopping' | 'transport' | 'hospital' | 'school' | 'park' | 'restaurant' | 'other';
+  category: string;
   icon: string;
 }
 
@@ -27,11 +27,11 @@ export function useRealPlaces({ zipcode, neighborhood, address, has_sea_view, se
       if (!zipcode && !neighborhood && !address) {
         // Set default places for fallback
         setPlaces([
-          { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'shopping', icon: 'ShoppingBag' },
-          { name: 'Estação Vila Madalena', distance: '800 m', category: 'transport', icon: 'Train' },
-          { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'hospital', icon: 'Hospital' },
-          { name: 'PUC-SP', distance: '1.8 km', category: 'school', icon: 'GraduationCap' },
-          { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'park', icon: 'TreePine' },
+          { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'Compras', icon: 'shopping-bag' },
+          { name: 'Estação Vila Madalena', distance: '800 m', category: 'Transporte', icon: 'train' },
+          { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'Saúde', icon: 'hospital' },
+          { name: 'PUC-SP', distance: '1.8 km', category: 'Educação', icon: 'graduation-cap' },
+          { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'Lazer', icon: 'tree-pine' },
         ]);
         return;
       }
@@ -62,11 +62,11 @@ export function useRealPlaces({ zipcode, neighborhood, address, has_sea_view, se
         
         // Fallback to default places on error
         setPlaces([
-          { name: 'Centro Comercial Local', distance: '500 m', category: 'shopping', icon: 'ShoppingBag' },
-          { name: 'Transporte Público', distance: '300 m', category: 'transport', icon: 'Train' },
-          { name: 'Hospital da Região', distance: '1.2 km', category: 'hospital', icon: 'Hospital' },
-          { name: 'Escola Municipal', distance: '800 m', category: 'school', icon: 'GraduationCap' },
-          { name: 'Praça Local', distance: '400 m', category: 'park', icon: 'TreePine' },
+          { name: 'Centro Comercial Local', distance: '500 m', category: 'Compras', icon: 'shopping-bag' },
+          { name: 'Transporte Público', distance: '300 m', category: 'Transporte', icon: 'train' },
+          { name: 'Hospital da Região', distance: '1.2 km', category: 'Saúde', icon: 'hospital' },
+          { name: 'Escola Municipal', distance: '800 m', category: 'Educação', icon: 'graduation-cap' },
+          { name: 'Praça Local', distance: '400 m', category: 'Lazer', icon: 'tree-pine' },
         ]);
       } finally {
         setLoading(false);
@@ -95,60 +95,75 @@ async function simulateNearbyPlaces(
 
   // Location-specific places based on neighborhood
   const locationSpecificPlaces: Record<string, PlaceOfInterest[]> = {
+    // Nossa Senhora da Vitória, BA
+    'Nossa Senhora da Vitória': [
+      { name: 'Dique do Tororó', distance: '800m', category: 'Lazer', icon: 'waves' },
+      { name: 'Shopping da Bahia', distance: '1.2km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Hospital Português', distance: '900m', category: 'Saúde', icon: 'hospital' },
+      { name: 'Colégio Central', distance: '600m', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Academia Smart Fit', distance: '400m', category: 'Fitness', icon: 'dumbbell' },
+      { name: 'Mercado do Rio Vermelho', distance: '1.1km', category: 'Compras', icon: 'shopping-bag' }
+    ],
     // Ilhéus, BA - Zona Sul
     'Zona Sul': [
-      { name: 'Shopping Jequitibá', distance: '2.3 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Terminal Rodoviário', distance: '1.8 km', category: 'transport', icon: 'MapPin' },
-      { name: 'Hospital Regional Costa do Cacau', distance: '1.5 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'UESC - Universidade Estadual', distance: '3.2 km', category: 'school', icon: 'GraduationCap' },
-      { name: 'Praia do Milionários', distance: '800 m', category: 'park', icon: 'Waves' },
-      { name: 'Centro Histórico', distance: '2.1 km', category: 'other', icon: 'MapPin' },
+      { name: 'Shopping Jequitibá', distance: '2.3 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Terminal Rodoviário', distance: '1.8 km', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital Regional Costa do Cacau', distance: '1.5 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'UESC - Universidade Estadual', distance: '3.2 km', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Praia do Milionários', distance: '800 m', category: 'Lazer', icon: 'waves' },
+      { name: 'Centro Histórico', distance: '2.1 km', category: 'Turismo', icon: 'tree-pine' },
     ],
     // São Paulo neighborhoods
     'Vila Madalena': [
-      { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Estação Vila Madalena (Linha 2)', distance: '800 m', category: 'transport', icon: 'Train' },
-      { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'PUC-SP Campus Consolação', distance: '1.8 km', category: 'school', icon: 'GraduationCap' },
-      { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'park', icon: 'TreePine' },
-      { name: 'Beco do Batman', distance: '600 m', category: 'other', icon: 'MapPin' },
+      { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Estação Vila Madalena (Linha 2)', distance: '800 m', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'PUC-SP Campus Consolação', distance: '1.8 km', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'Lazer', icon: 'tree-pine' },
+      { name: 'Beco do Batman', distance: '600 m', category: 'Turismo', icon: 'tree-pine' },
     ],
     'Pinheiros': [
-      { name: 'Shopping Eldorado', distance: '1.8 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Estação Pinheiros', distance: '1.2 km', category: 'transport', icon: 'Train' },
-      { name: 'Hospital Albert Einstein', distance: '3.2 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'Colégio Bandeirantes', distance: '2.1 km', category: 'school', icon: 'GraduationCap' },
-      { name: 'Parque do Povo', distance: '2.8 km', category: 'park', icon: 'TreePine' },
+      { name: 'Shopping Eldorado', distance: '1.8 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Estação Pinheiros', distance: '1.2 km', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital Albert Einstein', distance: '3.2 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'Colégio Bandeirantes', distance: '2.1 km', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Parque do Povo', distance: '2.8 km', category: 'Lazer', icon: 'tree-pine' },
     ],
     'Itaim Bibi': [
-      { name: 'Shopping Iguatemi', distance: '2.1 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Estação Faria Lima', distance: '1.5 km', category: 'transport', icon: 'Train' },
-      { name: 'Hospital São Luiz', distance: '1.8 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'Colégio Dante Alighieri', distance: '2.5 km', category: 'school', icon: 'GraduationCap' },
-      { name: 'Parque do Ibirapuera', distance: '3.5 km', category: 'park', icon: 'TreePine' },
+      { name: 'Shopping Iguatemi', distance: '2.1 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Estação Faria Lima', distance: '1.5 km', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital São Luiz', distance: '1.8 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'Colégio Dante Alighieri', distance: '2.5 km', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Parque do Ibirapuera', distance: '3.5 km', category: 'Lazer', icon: 'tree-pine' },
     ],
     'Moema': [
-      { name: 'Shopping Ibirapuera', distance: '1.3 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Estação Moema', distance: '900 m', category: 'transport', icon: 'Train' },
-      { name: 'Hospital Alemão Oswaldo Cruz', distance: '2.2 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'Colégio Santa Cruz', distance: '1.7 km', category: 'school', icon: 'GraduationCap' },
-      { name: 'Parque do Ibirapuera', distance: '800 m', category: 'park', icon: 'TreePine' },
+      { name: 'Shopping Ibirapuera', distance: '1.3 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Estação Moema', distance: '900 m', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital Alemão Oswaldo Cruz', distance: '2.2 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'Colégio Santa Cruz', distance: '1.7 km', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Parque do Ibirapuera', distance: '800 m', category: 'Lazer', icon: 'tree-pine' },
     ],
   };
 
   // Base places from neighborhood or generic
   let basePlaces: PlaceOfInterest[] = [];
   
-  if (neighborhood && locationSpecificPlaces[neighborhood]) {
+  // Check for Nossa Senhora da Vitória - flexible matching
+  const nsVitoriaPattern = /nossa\s+senhora\s+da\s+vit[oó]ria/i;
+  const isNossaSenhoraVitoria = neighborhood && nsVitoriaPattern.test(neighborhood);
+  
+  if (isNossaSenhoraVitoria && locationSpecificPlaces['Nossa Senhora da Vitória']) {
+    basePlaces = [...locationSpecificPlaces['Nossa Senhora da Vitória']];
+  } else if (neighborhood && locationSpecificPlaces[neighborhood]) {
     basePlaces = [...locationSpecificPlaces[neighborhood]];
   } else {
     basePlaces = [
-      { name: 'Shopping Center Local', distance: '1.5 km', category: 'shopping', icon: 'ShoppingBag' },
-      { name: 'Terminal Rodoviário', distance: '1.1 km', category: 'transport', icon: 'MapPin' },
-      { name: 'Hospital Regional', distance: '2.3 km', category: 'hospital', icon: 'Hospital' },
-      { name: 'Escola Estadual', distance: '750 m', category: 'school', icon: 'GraduationCap' },
-      { name: 'Praça Central', distance: '500 m', category: 'park', icon: 'TreePine' },
-      { name: 'Supermercado', distance: '400 m', category: 'other', icon: 'MapPin' },
+      { name: 'Shopping Center Local', distance: '1.5 km', category: 'Compras', icon: 'shopping-bag' },
+      { name: 'Terminal Rodoviário', distance: '1.1 km', category: 'Transporte', icon: 'train' },
+      { name: 'Hospital Regional', distance: '2.3 km', category: 'Saúde', icon: 'hospital' },
+      { name: 'Escola Estadual', distance: '750 m', category: 'Educação', icon: 'graduation-cap' },
+      { name: 'Praça Central', distance: '500 m', category: 'Lazer', icon: 'tree-pine' },
+      { name: 'Supermercado', distance: '400 m', category: 'Compras', icon: 'shopping-bag' },
     ];
   }
 
@@ -160,8 +175,8 @@ async function simulateNearbyPlaces(
       basePlaces.unshift({
         name: 'Praia Próxima',
         distance: beachDistance,
-        category: 'park',
-        icon: 'Waves'
+        category: 'Lazer',
+        icon: 'waves'
       });
     }
 
@@ -170,8 +185,8 @@ async function simulateNearbyPlaces(
       basePlaces.push({
         name: 'Loja de Móveis e Decoração',
         distance: '1.2 km',
-        category: 'shopping',
-        icon: 'Package'
+        category: 'Decoração',
+        icon: 'palette'
       });
     }
 
@@ -180,8 +195,8 @@ async function simulateNearbyPlaces(
       basePlaces.push({
         name: 'Academia/Fitness',
         distance: '600m',
-        category: 'other',
-        icon: 'Dumbbell'
+        category: 'Fitness',
+        icon: 'dumbbell'
       });
     }
   }
