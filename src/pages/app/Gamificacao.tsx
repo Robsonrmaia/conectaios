@@ -23,7 +23,11 @@ import {
   AlertCircle,
   ChevronRight,
   Sparkles,
-  Flame
+  Flame,
+  Clock,
+  Calendar,
+  MessageCircle,
+  User
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -78,17 +82,30 @@ export default function Gamificacao() {
 
   const getRuleIcon = (ruleKey: string) => {
     switch (ruleKey) {
+      case 'imovel_vendido':
+        return <Award className="h-4 w-4" />;
       case 'match_1h':
-      case 'match_12h': 
-      case 'match_24h': return <Zap className="h-4 w-4" />;
-      case 'anuncio_qualidade_90': return <Star className="h-4 w-4" />;
-      case 'anuncio_vendido_alugado': return <Trophy className="h-4 w-4" />;
-      case 'anuncio_8_fotos': return <Camera className="h-4 w-4" />;
-      case 'compartilhamento_social': return <Share2 className="h-4 w-4" />;
-      case 'interacao_social': return <Heart className="h-4 w-4" />;
-      case 'avaliacao_5':
-      case 'avaliacao_4': return <Award className="h-4 w-4" />;
-      default: return <Gift className="h-4 w-4" />;
+        return <Zap className="h-4 w-4" />;
+      case 'match_12h':
+        return <Clock className="h-4 w-4" />;
+      case 'match_24h':
+        return <Calendar className="h-4 w-4" />;
+      case 'imovel_qualidade':
+        return <Star className="h-4 w-4" />;
+      case 'imovel_8_fotos':
+        return <Camera className="h-4 w-4" />;
+      case 'indicacao':
+        return <Users className="h-4 w-4" />;
+      case 'social_share':
+        return <Share2 className="h-4 w-4" />;
+      case 'social_like':
+        return <Heart className="h-4 w-4" />;
+      case 'social_comment':
+        return <MessageCircle className="h-4 w-4" />;
+      case 'perfil_completo':
+        return <User className="h-4 w-4" />;
+      default:
+        return <Gift className="h-4 w-4" />;
     }
   };
 
