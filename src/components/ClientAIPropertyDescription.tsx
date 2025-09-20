@@ -32,7 +32,11 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
   const { sendMessage, loading } = useAI();
 
   const generateClientDescription = useCallback(async () => {
-    if (isGenerating || loading) return;
+    // Verificações internas para evitar execução desnecessária
+    if (isGenerating || loading) {
+      console.log('Skipping generation - already in progress');
+      return;
+    }
 
     setIsGenerating(true);
     
@@ -102,7 +106,7 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
     } finally {
       setIsGenerating(false);
     }
-  }, [property.id, property.titulo, sendMessage, isGenerating, loading, onDescriptionGenerated]);
+  }, [property.id, property.titulo, sendMessage, onDescriptionGenerated]);
 
   // Auto-generate on mount
   useEffect(() => {
@@ -114,11 +118,11 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
       propertyTitle: property.titulo 
     });
     
-    if (!generatedDescription && !isGenerating && !loading && property.id && property.titulo) {
+    if (!generatedDescription && property.id && property.titulo) {
       console.log('Starting AI description generation for:', property.titulo);
       generateClientDescription();
     }
-  }, [property.id, property.titulo, generateClientDescription]); // Add proper dependencies
+  }, [property.id, generatedDescription, generateClientDescription]);
 
   return (
     <div className="text-center py-2">

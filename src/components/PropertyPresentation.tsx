@@ -13,7 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
-import { FurnitureDetector } from '@/components/FurnitureDetector';
+import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 interface Property {
   id: string;
@@ -68,6 +68,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     brokerLoading
   });
   const [brokerData, setBrokerData] = useState<any>(null);
+  const [showSketchProcessor, setShowSketchProcessor] = useState(false);
+  const [selectedImageForSketch, setSelectedImageForSketch] = useState<string>('');
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
@@ -409,16 +411,23 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 ))}
               </div>
               
-              {/* Furniture Detector for first photo */}
+              {/* Sketch Generator for photos */}
               {property.fotos && property.fotos.length > 0 && (
-                <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                  <h4 className="text-sm font-medium mb-2">Análise de Móveis</h4>
-                  <FurnitureDetector
-                    imageUrl={property.fotos[0]}
-                    onFurnitureDetected={(furniture) => {
-                      console.log('Móveis detectados:', furniture);
+                <div className="mt-4 flex justify-center">
+                  <Button 
+                    onClick={() => {
+                      setSelectedImageForSketch(property.fotos[0]);
+                      setShowSketchProcessor(true);
                     }}
-                  />
+                    variant="outline" 
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Gerar Esboço
+                  </Button>
                 </div>
               )}
             </div>
@@ -658,6 +667,21 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
       />
+
+      {/* Sketch Processor Modal */}
+      {showSketchProcessor && (
+        <ConectaIOSImageProcessor
+          type="sketch"
+          initialImage={selectedImageForSketch}
+          isOpen={showSketchProcessor}
+          onClose={() => setShowSketchProcessor(false)}
+          onImageProcessed={(processedImageUrl) => {
+            console.log('Esboço gerado:', processedImageUrl);
+            setShowSketchProcessor(false);
+            // Aqui você pode salvar o esboço ou exibir em uma galeria
+          }}
+        />
+      )}
 
     </div>
   );
