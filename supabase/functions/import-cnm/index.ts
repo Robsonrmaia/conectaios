@@ -48,6 +48,7 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const dryRun = url.searchParams.get('dryRun') === '1';
+    const debug = url.searchParams.get('debug') === '1';
     const urlParam = url.searchParams.get('url');
     
     let feedUrl = '';
@@ -66,6 +67,34 @@ serve(async (req) => {
 
     console.log(`🚀 Starting CNM import from: ${feedUrl}`);
     console.log(`📋 Dry run mode: ${dryRun}`);
+    console.log(`🔍 Debug mode: ${debug}`);
+
+    // Fetch XML feed with proper headers
+    console.log('📡 Fetching XML feed...');
+    const res = await fetch(feedUrl, {
+      method: 'GET',
+      headers: { Accept: 'application/xml, text/xml, */*' },
+      redirect: 'follow',
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch feed: ${res.status} ${res.statusText}`);
+    }
+
+    const text = await res.text();
+    console.log(`📄 Fetched XML content: ${text.length} characters`);
+
+    // Debug mode - return raw response info
+    if (debug) {
+      return new Response(JSON.stringify({
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        size: text.length,
+        head: text.slice(0, 500)
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -92,35 +121,66 @@ serve(async (req) => {
       dryRun: dryRun || safeMode
     };
 
-    // Fetch XML feed
-    console.log('📡 Fetching XML feed...');
-    const response = await fetch(feedUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
-    }
-
-    const xmlText = await response.text();
-    console.log(`📄 Fetched XML content: ${xmlText.length} characters`);
-
-    // Parse XML (CNM is case-sensitive)
+    // Parse XML with namespace removal
     const parser = new XMLParser({
       ignoreAttributes: false,
+      trimValues: true,
       preserveOrder: false,
-      trimValues: true
+      removeNSPrefix: true, // Important for handling various namespaces
     });
-    const json = parser.parse(xmlText);
+    const xml = parser.parse(text);
     
-    // Get all property listings - CNM typically uses "imovel" or similar tags
-    const imoveis = json.imoveis?.imovel || json.imovel || [];
-    const imoveisList = Array.isArray(imoveis) ? imoveis : [imoveis];
-    result.fetched_count = imoveisList.length;
+    // Smart discovery of property lists - CNM variants
+    const cnmCandidates = [
+      ['Document', 'Imoveis', 'Imovel'],
+      ['Imoveis', 'Imovel'],
+      ['document', 'imoveis', 'imovel'],
+      ['imoveis', 'imovel'],
+    ];
+    
+    let items: any[] = [];
+    for (const path of cnmCandidates) {
+      const found = getByPath(xml, path);
+      if (Array.isArray(found)) { 
+        items = found; 
+        break; 
+      }
+      if (found) { 
+        items = [found]; 
+        break; 
+      }
+    }
+    
+    // Fallback: deep search for Imovel/imovel elements
+    if (!items.length) {
+      items = deepFindArraysByKeys(xml, ['Imovel', 'imovel']);
+    }
+    
+    const fetched_count = Array.isArray(items) ? items.length : 0;
+    result.fetched_count = fetched_count;
+    
+    console.log(`🏠 Found ${fetched_count} properties to process`);
+    
+    // Early return for dry run before processing
+    if (dryRun) {
+      return new Response(JSON.stringify({ 
+        fetched_count, 
+        created_count: 0, 
+        updated_count: 0, 
+        ignored_count: fetched_count, 
+        errors: [], 
+        dryRun: true 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     console.log(`🏠 Found ${result.fetched_count} properties to process`);
 
     // Process each property
-    for (let i = 0; i < imoveisList.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       try {
-        const imovel = imoveisList[i];
+        const imovel = items[i];
         
         // Extract CNM data - case sensitive field mapping
         const externalId = imovel.codigo?.toString()?.trim();
@@ -234,6 +294,33 @@ function mapPropertyType(tipo: string | undefined): string {
   if (t.includes('terreno') || t.includes('land')) return 'terreno';
   if (t.includes('sala') || t.includes('commercial')) return 'comercial';
   return 'apartamento';
+}
+
+// Helper functions for path navigation
+function getByPath(obj: any, path: string[]) {
+  let cur = obj;
+  for (const key of path) {
+    if (!cur) return undefined;
+    cur = cur[key] ?? cur[key.toLowerCase()] ?? cur[key.toUpperCase()];
+  }
+  return cur;
+}
+
+function deepFindArraysByKeys(obj: any, keys: string[]): any[] {
+  const out: any[] = [];
+  const stack = [obj];
+  while (stack.length) {
+    const node = stack.pop();
+    if (!node || typeof node !== 'object') continue;
+    for (const [k, v] of Object.entries(node)) {
+      if (keys.includes(k) || keys.includes(k.toLowerCase())) {
+        if (Array.isArray(v)) out.push(...v);
+        else out.push(v);
+      }
+      if (v && typeof v === 'object') stack.push(v);
+    }
+  }
+  return out;
 }
 
 function extractPhotos(imovel: any): string[] {

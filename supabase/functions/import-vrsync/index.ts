@@ -48,6 +48,7 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const dryRun = url.searchParams.get('dryRun') === '1';
+    const debug = url.searchParams.get('debug') === '1';
     const urlParam = url.searchParams.get('url');
     
     let feedUrl = '';
@@ -66,6 +67,34 @@ serve(async (req) => {
 
     console.log(`🚀 Starting VrSync import from: ${feedUrl}`);
     console.log(`📋 Dry run mode: ${dryRun}`);
+    console.log(`🔍 Debug mode: ${debug}`);
+
+    // Fetch XML feed with proper headers
+    console.log('📡 Fetching XML feed...');
+    const res = await fetch(feedUrl, {
+      method: 'GET',
+      headers: { Accept: 'application/xml, text/xml, */*' },
+      redirect: 'follow',
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Failed to fetch feed: ${res.status} ${res.statusText}`);
+    }
+
+    const text = await res.text();
+    console.log(`📄 Fetched XML content: ${text.length} characters`);
+
+    // Debug mode - return raw response info
+    if (debug) {
+      return new Response(JSON.stringify({
+        status: res.status,
+        contentType: res.headers.get('content-type'),
+        size: text.length,
+        head: text.slice(0, 500)
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -92,35 +121,66 @@ serve(async (req) => {
       dryRun: dryRun || safeMode
     };
 
-    // Fetch XML feed
-    console.log('📡 Fetching XML feed...');
-    const response = await fetch(feedUrl);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
-    }
-
-    const xmlText = await response.text();
-    console.log(`📄 Fetched XML content: ${xmlText.length} characters`);
-
-    // Parse XML (VrSync is namespace-aware)
+    // Parse XML with namespace removal
     const parser = new XMLParser({
       ignoreAttributes: false,
+      trimValues: true,
       preserveOrder: false,
-      trimValues: true
+      removeNSPrefix: true, // Important for VrSync (OLX)
     });
-    const json = parser.parse(xmlText);
+    const xml = parser.parse(text);
     
-    // Get all property listings - VrSync typically uses namespaced elements
-    const imoveis = json.Imoveis?.Imovel || json.imoveis?.imovel || json.Imovel || json.imovel || json.property || [];
-    const imoveisList = Array.isArray(imoveis) ? imoveis : [imoveis];
-    result.fetched_count = imoveisList.length;
+    // Smart discovery of property lists - VrSync variants
+    const vrsCandidates = [
+      ['ListingDataFeed', 'Listing'],
+      ['listingdatafeed', 'listing'],
+      ['Imoveis', 'Imovel'],
+      ['imoveis', 'imovel'],
+    ];
+    
+    let items: any[] = [];
+    for (const path of vrsCandidates) {
+      const found = getByPath(xml, path);
+      if (Array.isArray(found)) { 
+        items = found; 
+        break; 
+      }
+      if (found) { 
+        items = [found]; 
+        break; 
+      }
+    }
+    
+    // Fallback: deep search for Listing/listing elements
+    if (!items.length) {
+      items = deepFindArraysByKeys(xml, ['Listing', 'listing', 'Imovel', 'imovel']);
+    }
+    
+    const fetched_count = Array.isArray(items) ? items.length : 0;
+    result.fetched_count = fetched_count;
+    
+    console.log(`🏠 Found ${fetched_count} properties to process`);
+    
+    // Early return for dry run before processing
+    if (dryRun) {
+      return new Response(JSON.stringify({ 
+        fetched_count, 
+        created_count: 0, 
+        updated_count: 0, 
+        ignored_count: fetched_count, 
+        errors:[], 
+        dryRun: true 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     console.log(`🏠 Found ${result.fetched_count} properties to process`);
 
     // Process each property
-    for (let i = 0; i < imoveisList.length; i++) {
+    for (let i = 0; i < items.length; i++) {
       try {
-        const imovel = imoveisList[i];
+        const imovel = items[i];
         
         // Extract VrSync data - namespace aware field mapping
         const externalId = getElementValue(imovel, ['CodigoImovel', 'Codigo', 'codigo', 'id', 'Id']);
@@ -217,6 +277,33 @@ serve(async (req) => {
   }
 });
 
+// Helper functions for path navigation
+function getByPath(obj: any, path: string[]) {
+  let cur = obj;
+  for (const key of path) {
+    if (!cur) return undefined;
+    cur = cur[key] ?? cur[key.toLowerCase()] ?? cur[key.toUpperCase()];
+  }
+  return cur;
+}
+
+function deepFindArraysByKeys(obj: any, keys: string[]): any[] {
+  const out: any[] = [];
+  const stack = [obj];
+  while (stack.length) {
+    const node = stack.pop();
+    if (!node || typeof node !== 'object') continue;
+    for (const [k, v] of Object.entries(node)) {
+      if (keys.includes(k) || keys.includes(k.toLowerCase())) {
+        if (Array.isArray(v)) out.push(...v);
+        else out.push(v);
+      }
+      if (v && typeof v === 'object') stack.push(v);
+    }
+  }
+  return out;
+}
+
 // Helper functions for VrSync parsing
 function getElementValue(obj: any, tagNames: string[]): string | undefined {
   for (const tagName of tagNames) {
@@ -284,4 +371,9 @@ function extractVrSyncPhotos(imovel: any): string[] {
   }
   
   return photos;
+}
+
+function xmlToObject(obj: any): any {
+  // Simple object conversion for raw storage
+  return obj;
 }
