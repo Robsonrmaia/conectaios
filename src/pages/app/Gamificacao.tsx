@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useGamification } from '@/hooks/useGamification';
+import { ScrollableRow } from '@/components/layout/ResponsiveRow';
 import { 
   Trophy, 
   Star, 
@@ -111,7 +112,7 @@ export default function Gamificacao() {
   };
 
   return (
-    <div className="container mx-auto px-3 md:px-4 py-4 md:py-8 space-y-4 md:space-y-8">
+    <div className="container-responsive space-y-6">
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-2">
@@ -126,20 +127,46 @@ export default function Gamificacao() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-          <TabsTrigger value="overview" className="text-xs sm:text-sm">Visão Geral</TabsTrigger>
-          <TabsTrigger value="ranking" className="text-xs sm:text-sm">Ranking</TabsTrigger>
-          <TabsTrigger value="quality" className="text-xs sm:text-sm">Qualidade</TabsTrigger>
-          <TabsTrigger value="rules" className="text-xs sm:text-sm">Como Ganhar</TabsTrigger>
-        </TabsList>
+        <div className="mb-6">
+          <ScrollableRow padding={false}>
+            <TabsTrigger 
+              value="overview" 
+              className="text-sm sm:text-base touch-target whitespace-nowrap"
+              onClick={() => setActiveTab('overview')}
+            >
+              Visão Geral
+            </TabsTrigger>
+            <TabsTrigger 
+              value="ranking" 
+              className="text-sm sm:text-base touch-target whitespace-nowrap"
+              onClick={() => setActiveTab('ranking')}
+            >
+              Ranking
+            </TabsTrigger>
+            <TabsTrigger 
+              value="quality" 
+              className="text-sm sm:text-base touch-target whitespace-nowrap"
+              onClick={() => setActiveTab('quality')}
+            >
+              Qualidade
+            </TabsTrigger>
+            <TabsTrigger 
+              value="rules" 
+              className="text-sm sm:text-base touch-target whitespace-nowrap"
+              onClick={() => setActiveTab('rules')}
+            >
+              Como Ganhar
+            </TabsTrigger>
+          </ScrollableRow>
+        </div>
 
-        <TabsContent value="overview" className="space-y-4 md:space-y-6">
+        <TabsContent value="overview" className="space-mobile">
           {/* Current Status */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
             {/* Tier Card */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 card-mobile">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-responsive">
                   {getTierIcon(stats.tier)}
                   Tier Atual: {stats.tier}
                 </CardTitle>
@@ -177,9 +204,9 @@ export default function Gamificacao() {
             </Card>
 
             {/* Badges Card */}
-            <Card>
+            <Card className="card-mobile">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-responsive">
                   <Award className="h-5 w-5" />
                   Badges Conquistados
                 </CardTitle>
@@ -213,9 +240,9 @@ export default function Gamificacao() {
           </div>
 
           {/* Recent Activity */}
-          <Card>
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-responsive">
                 <Flame className="h-5 w-5" />
                 Atividade Recente
               </CardTitle>
@@ -257,10 +284,10 @@ export default function Gamificacao() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="ranking" className="space-y-4 md:space-y-6">
-          <Card>
+        <TabsContent value="ranking" className="space-mobile">
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-responsive">
                 <Trophy className="h-5 w-5" />
                 Ranking do Mês
               </CardTitle>
@@ -313,10 +340,10 @@ export default function Gamificacao() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="quality" className="space-y-4 md:space-y-6">
-          <Card>
+        <TabsContent value="quality" className="space-mobile">
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-responsive">
                 <Star className="h-5 w-5" />
                 Qualidade dos Seus Anúncios
               </CardTitle>
@@ -363,10 +390,10 @@ export default function Gamificacao() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="rules" className="space-y-4 md:space-y-6">
-          <Card>
+        <TabsContent value="rules" className="space-mobile">
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-responsive">
                 <Gift className="h-5 w-5" />
                 Como Ganhar Pontos
               </CardTitle>
@@ -416,19 +443,22 @@ export default function Gamificacao() {
                   <p className="text-xs text-muted-foreground mb-4">
                     Debug: {pointsRules?.length || 0} regras | Loading: {loading.toString()} | Mobile: {/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent).toString()}
                   </p>
-                  <div className="flex gap-2 justify-center flex-wrap">
-                    <button 
+                  <div className="button-group-mobile justify-center">
+                    <Button 
                       onClick={forceRefreshRules} 
-                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 text-sm"
+                      size="sm"
+                      className="w-full sm:w-auto touch-target"
                     >
                       🔥 Force Refresh
-                    </button>
-                    <button 
+                    </Button>
+                    <Button 
                       onClick={() => window.location.reload()} 
-                      className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 text-sm"
+                      variant="secondary"
+                      size="sm"
+                      className="w-full sm:w-auto touch-target"
                     >
                       🔄 Reload Page
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -436,9 +466,9 @@ export default function Gamificacao() {
           </Card>
 
           {/* Tier System */}
-          <Card>
+          <Card className="card-mobile">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-responsive">
                 <Medal className="h-5 w-5" />
                 Sistema de Tiers e Benefícios
               </CardTitle>
