@@ -43,7 +43,8 @@ export default function Gamificacao() {
     loading,
     getTierInfo,
     getBadgeInfo,
-    getProgressToNextTier
+    getProgressToNextTier,
+    forceRefreshRules
   } = useGamification();
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -413,14 +414,22 @@ export default function Gamificacao() {
                     Nenhuma regra de pontuação encontrada.
                   </p>
                   <p className="text-xs text-muted-foreground mb-4">
-                    Debug: {pointsRules.length} regras carregadas | Loading: {loading.toString()}
+                    Debug: {pointsRules?.length || 0} regras | Loading: {loading.toString()} | Mobile: {/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent).toString()}
                   </p>
-                  <button 
-                    onClick={() => window.location.reload()} 
-                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
-                  >
-                    Tentar Novamente
-                  </button>
+                  <div className="flex gap-2 justify-center flex-wrap">
+                    <button 
+                      onClick={forceRefreshRules} 
+                      className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 text-sm"
+                    >
+                      🔥 Force Refresh
+                    </button>
+                    <button 
+                      onClick={() => window.location.reload()} 
+                      className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 text-sm"
+                    >
+                      🔄 Reload Page
+                    </button>
+                  </div>
                 </div>
               )}
             </CardContent>

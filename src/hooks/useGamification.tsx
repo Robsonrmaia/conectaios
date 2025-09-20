@@ -144,14 +144,68 @@ export function useGamification() {
     }
   };
 
+  // Force refresh function for mobile issues
+  const forceRefreshRules = async () => {
+    console.log('🔥 FORCE REFRESH: Starting aggressive rules fetch...');
+    console.log('🔥 Device info:', {
+      userAgent: navigator.userAgent,
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+      timestamp: new Date().toISOString()
+    });
+    
+    // Clear any existing data first
+    setPointsRules([]);
+    
+    try {
+      console.log('🔥 Making direct supabase query with fresh connection...');
+      
+      // Force a fresh connection by adding timestamp
+      const { data, error } = await supabase
+        .from('gam_points_rules')
+        .select('*')
+        .eq('ativo', true)
+        .order('pontos', { ascending: false })
+        .limit(50); // Add limit to ensure it's not a data size issue
+
+      console.log('🔥 FORCE REFRESH Response:', { 
+        data, 
+        error,
+        dataType: typeof data,
+        dataLength: data?.length,
+        firstRule: data?.[0] 
+      });
+
+      if (error) {
+        console.error('🔥 FORCE REFRESH Supabase error:', error);
+        throw error;
+      }
+      
+      // Force set the data regardless
+      console.log('🔥 FORCE setting pointsRules to:', data);
+      setPointsRules(data || []);
+      
+      if (data && data.length > 0) {
+        toast({
+          title: '✅ Regras carregadas!',
+          description: `${data.length} regras carregadas com sucesso via force refresh`,
+        });
+      }
+      
+    } catch (error) {
+      console.error('🔥 FORCE REFRESH Error:', error);
+      toast({
+        title: 'Erro crítico',
+        description: `Falha na atualização forçada: ${error.message}`,
+        variant: 'destructive'
+      });
+    }
+  };
+
   // Fetch points rules
   const fetchPointsRules = async () => {
     console.log('🎯 fetchPointsRules: Starting fetch...');
-    console.log('🎯 Current broker:', broker);
     
     try {
-      console.log('🎯 Making supabase query to gam_points_rules...');
-      
       const { data, error } = await supabase
         .from('gam_points_rules')
         .select('*')
@@ -159,43 +213,18 @@ export function useGamification() {
         .order('pontos', { ascending: false });
 
       console.log('🎯 Supabase response:', { data, error });
-      console.log('🎯 Data length:', data?.length || 0);
 
-      if (error) {
-        console.error('🎯 Supabase error:', error);
-        throw error;
-      }
+      if (error) throw error;
       
-      if (data && data.length > 0) {
-        console.log('🎯 Setting pointsRules:', data);
-        setPointsRules(data);
-        toast({
-          title: 'Regras carregadas',
-          description: `${data.length} regras de pontuação carregadas com sucesso`,
-        });
-      } else {
-        console.warn('🎯 No rules found in database');
-        setPointsRules([]);
-        toast({
-          title: 'Aviso',
-          description: 'Nenhuma regra de pontuação encontrada no banco de dados',
-          variant: 'destructive'
-        });
-      }
+      setPointsRules(data || []);
+      console.log('🎯 Rules set successfully:', data?.length || 0);
+      
     } catch (error) {
       console.error('🎯 Error fetching points rules:', error);
-      setPointsRules([]);
-      toast({
-        title: 'Erro ao carregar regras',
-        description: `Erro: ${error.message || 'Erro desconhecido'}. Tentando novamente...`,
-        variant: 'destructive'
-      });
       
-      // Retry after 2 seconds
-      setTimeout(() => {
-        console.log('🎯 Retrying fetchPointsRules...');
-        fetchPointsRules();
-      }, 2000);
+      // Try force refresh on error
+      console.log('🎯 Trying force refresh due to error...');
+      await forceRefreshRules();
     }
   };
 
@@ -439,10 +468,17 @@ export function useGamification() {
     return { percentage, pointsNeeded, nextTier };
   };
 
-  // Load all data
+  // Load all data with timeout
   const loadData = async () => {
     console.log('🎯 loadData: Starting data load...');
     setLoading(true);
+    
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.warn('🎯 loadData: Timeout reached, forcing loading to false');
+      setLoading(false);
+    }, 10000); // 10 second timeout
+    
     try {
       console.log('🎯 loadData: Running parallel data fetches...');
       await Promise.all([
@@ -456,6 +492,7 @@ export function useGamification() {
     } catch (error) {
       console.error('🎯 loadData: Error during data load:', error);
     } finally {
+      clearTimeout(timeoutId);
       console.log('🎯 loadData: Setting loading to false');
       setLoading(false);
     }
@@ -488,6 +525,7 @@ export function useGamification() {
     // Refresh data
     refreshStats: fetchUserStats,
     refreshLeaderboard: fetchLeaderboard,
-    refreshData: loadData
+    refreshData: loadData,
+    forceRefreshRules
   };
 }
