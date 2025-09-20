@@ -409,9 +409,18 @@ export default function Gamificacao() {
               ) : (
                 <div className="text-center py-8">
                   <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground mb-4">
                     Nenhuma regra de pontuação encontrada.
                   </p>
+                  <p className="text-xs text-muted-foreground mb-4">
+                    Debug: {pointsRules.length} regras carregadas | Loading: {loading.toString()}
+                  </p>
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+                  >
+                    Tentar Novamente
+                  </button>
                 </div>
               )}
             </CardContent>

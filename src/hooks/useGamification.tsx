@@ -146,17 +146,56 @@ export function useGamification() {
 
   // Fetch points rules
   const fetchPointsRules = async () => {
+    console.log('🎯 fetchPointsRules: Starting fetch...');
+    console.log('🎯 Current broker:', broker);
+    
     try {
+      console.log('🎯 Making supabase query to gam_points_rules...');
+      
       const { data, error } = await supabase
         .from('gam_points_rules')
         .select('*')
         .eq('ativo', true)
         .order('pontos', { ascending: false });
 
-      if (error) throw error;
-      setPointsRules(data || []);
+      console.log('🎯 Supabase response:', { data, error });
+      console.log('🎯 Data length:', data?.length || 0);
+
+      if (error) {
+        console.error('🎯 Supabase error:', error);
+        throw error;
+      }
+      
+      if (data && data.length > 0) {
+        console.log('🎯 Setting pointsRules:', data);
+        setPointsRules(data);
+        toast({
+          title: 'Regras carregadas',
+          description: `${data.length} regras de pontuação carregadas com sucesso`,
+        });
+      } else {
+        console.warn('🎯 No rules found in database');
+        setPointsRules([]);
+        toast({
+          title: 'Aviso',
+          description: 'Nenhuma regra de pontuação encontrada no banco de dados',
+          variant: 'destructive'
+        });
+      }
     } catch (error) {
-      console.error('Error fetching points rules:', error);
+      console.error('🎯 Error fetching points rules:', error);
+      setPointsRules([]);
+      toast({
+        title: 'Erro ao carregar regras',
+        description: `Erro: ${error.message || 'Erro desconhecido'}. Tentando novamente...`,
+        variant: 'destructive'
+      });
+      
+      // Retry after 2 seconds
+      setTimeout(() => {
+        console.log('🎯 Retrying fetchPointsRules...');
+        fetchPointsRules();
+      }, 2000);
     }
   };
 
@@ -402,8 +441,10 @@ export function useGamification() {
 
   // Load all data
   const loadData = async () => {
+    console.log('🎯 loadData: Starting data load...');
     setLoading(true);
     try {
+      console.log('🎯 loadData: Running parallel data fetches...');
       await Promise.all([
         fetchUserStats(),
         fetchLeaderboard(),
@@ -411,7 +452,11 @@ export function useGamification() {
         fetchPointsRules(),
         fetchBadgeDefinitions()
       ]);
+      console.log('🎯 loadData: All data loaded successfully');
+    } catch (error) {
+      console.error('🎯 loadData: Error during data load:', error);
     } finally {
+      console.log('🎯 loadData: Setting loading to false');
       setLoading(false);
     }
   };
