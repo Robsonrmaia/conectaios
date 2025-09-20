@@ -12,8 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
-import { useAI } from '@/hooks/useAI';
-import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
+import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
 
 interface Property {
   id: string;
@@ -54,7 +53,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const { places, loading: placesLoading } = useRealPlaces({
     zipcode: property.zipcode,
     neighborhood: property.neighborhood,
-    address: property.city,
+    address: property.address,
     has_sea_view: property.has_sea_view,
     sea_distance: property.sea_distance,
     furnishing_type: property.furnishing_type,
@@ -72,60 +71,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
-  const [sketchImage, setSketchImage] = useState<string | null>(null);
-  const [isSketchLoading, setIsSketchLoading] = useState(false);
-  const [isProcessorOpen, setIsProcessorOpen] = useState(false);
-
-  // Auto-generate sketch when presentation opens (with proper state management)
-  useEffect(() => {
-    const generateSketch = async () => {
-      // Prevent multiple executions and loops
-      if (!isOpen || !property.fotos?.[0] || sketchImage || isSketchLoading || isProcessorOpen) return;
-      
-      console.log("🎨 Starting sketch generation process...");
-      console.log("🖼️ Cover image URL:", property.fotos[0]);
-      
-      // Set loading state
-      setIsSketchLoading(true);
-      
-      try {
-        // Check if ConectAIOS service is available with timeout
-        console.log("🔍 Checking ConectAIOS service availability...");
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-        
-        const response = await fetch('https://imagens-conectaios-420832656535.us-west1.run.app', {
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        
-        console.log("🌐 ConectAIOS service status:", response.status);
-        
-        if (response.ok) {
-          // Auto-open sketch processor with cover image after small delay
-          setTimeout(() => {
-            if (!sketchImage && !isProcessorOpen) { // Double-check to prevent loop
-              console.log("🚀 Opening ConectaIOSImageProcessor modal...");
-              setIsProcessorOpen(true);
-            }
-          }, 1000);
-        } else {
-          throw new Error(`Service responded with status: ${response.status}`);
-        }
-      } catch (error) {
-        console.error("❌ ConectAIOS service not available:", error);
-        setIsSketchLoading(false);
-        presentationState.updateSketchState(true); // Mark as ready even if failed
-        // Show user-friendly message without opening processor
-        console.log("ℹ️ Sketch generation temporarily unavailable");
-      }
-    };
-
-    // Only run if we haven't already started the process
-    if (isOpen && property.fotos?.[0] && !sketchImage && !isSketchLoading && !isProcessorOpen) {
-      generateSketch();
-    }
-  }, [isOpen, property.fotos, sketchImage, isSketchLoading, isProcessorOpen]);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -162,10 +107,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShare = async () => {
-    // Generate client-specific description if sharing
-    const shareDescription = await generateClientDescription();
     const propertyUrl = generatePropertyUrl(property.id);
-    const message = generatePropertyMessage({ ...property, descricao: shareDescription } as any, propertyUrl);
+    const message = generatePropertyMessage(property as any, propertyUrl);
     
     if (navigator.share) {
       await navigator.share({
@@ -179,51 +122,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         title: "Mensagem copiada!",
         description: "A mensagem foi copiada para a área de transferência",
       });
-    }
-  };
-
-  const generateClientDescription = async (): Promise<string> => {
-    try {
-      const { sendMessage } = useAI();
-      const prompt = `
-        Como especialista em marketing imobiliário, crie uma descrição emocional e persuasiva para este imóvel direcionada ao CLIENTE FINAL:
-        
-        🏠 DADOS DO IMÓVEL:
-        • Título: ${property.titulo}
-        • Tipo: ${property.property_type}
-        • Finalidade: ${property.listing_type} 
-        • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
-        • Área: ${property.area}m²
-        • Quartos: ${property.quartos}
-        • Banheiros: ${property.bathrooms}
-        • Vagas: ${property.parking_spots}
-        ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
-        ${property.city ? `• Cidade: ${property.city}` : ''}
-        ${property.has_sea_view ? `• Vista para o mar: Sim` : ''}
-        ${property.furnishing_type && property.furnishing_type !== 'unfurnished' ? `• Mobiliado: Sim` : ''}
-        ${property.sea_distance ? `• Distância da praia: ${property.sea_distance}m` : ''}
-        
-        🎯 FOQUE EM ASPECTOS QUE EMOCIONAM CLIENTES:
-        • Como será a vida neste imóvel (lifestyle)
-        • Conforto e comodidade para a família
-        • Localização privilegiada e conveniência
-        • Sensação de segurança e bem-estar
-        • Valorização e bom investimento
-        
-        INSTRUÇÕES:
-        1. Use linguagem emocional para clientes finais
-        2. Desperte o desejo pelo imóvel
-        3. Máximo 120 palavras para compartilhamento
-        4. NÃO use emojis ou caracteres especiais
-        5. Termine com call-to-action sutil
-        
-        Gere apenas a descrição, sem explicações.`;
-      
-      const response = await sendMessage(prompt);
-      return response;
-    } catch (error) {
-      // Fallback description for clients
-      return `${property.titulo} - ${property.property_type} para ${property.listing_type} em ${property.neighborhood || property.city || 'localização privilegiada'}. ${property.area}m², ${property.quartos} quartos, ${property.bathrooms} banheiros. ${property.has_sea_view ? 'Vista para o mar. ' : ''}Um lar perfeito para realizar seus sonhos. Entre em contato e agende uma visita!`;
     }
   };
 
@@ -463,40 +361,26 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
       {/* Content Sections */}
       <div className="bg-white">
-        {/* Sketch Section - Before "Sobre o Imóvel" */}
-        {(sketchImage || isSketchLoading) && (
-          <section className="px-6 py-8 border-b">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Esboço da sua Felicidade</h2>
-            <div className="bg-gray-50 rounded-lg p-4">
-              {isSketchLoading ? (
-                <div className="flex items-center justify-center h-48 bg-white rounded-lg border-2 border-dashed border-gray-200">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-2"></div>
-                    <p className="text-gray-600 font-medium">Gerando esboço...</p>
-                    <p className="text-sm text-gray-500">Processando com IA</p>
-                  </div>
-                </div>
-              ) : sketchImage ? (
-                <div className="relative">
-                  <img 
-                    src={sketchImage} 
-                    alt="Esboço do imóvel" 
-                    className="w-full h-auto rounded-lg shadow-sm"
-                  />
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1">
-                    <span className="text-xs font-medium text-gray-700">IA Generated</span>
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          </section>
-        )}
 
         {/* Sobre o Imóvel Section */}
         <section className="px-6 py-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-6">Sobre o Imóvel</h2>
           
-          <p className="text-gray-600 text-lg leading-relaxed mb-8">
+          <ClientAIPropertyDescription 
+            property={{
+              ...property,
+              bathrooms: property.bathrooms || 0,
+              parking_spots: property.parking_spots || 0,
+              listing_type: property.listing_type || 'venda',
+              property_type: property.property_type || 'apartamento'
+            }}
+            onDescriptionGenerated={(description) => {
+              // Description will be used internally by the component
+              presentationState.updateDescriptionState(true);
+            }}
+          />
+          
+          <p className="text-gray-600 text-lg leading-relaxed mb-8 mt-4">
             {property.descricao || "Esta magnífica residência combina elegância contemporânea com funcionalidade excepcional. Localizada em uma das áreas mais valorizadas de São Paulo, oferece privacidade e sofisticação em cada detalhe."}
           </p>
 
@@ -607,11 +491,11 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           {/* Map Integration - Enhanced with debug logging */}
           <div className="mb-8">
             <div className="w-full h-64 bg-gray-200 rounded-lg overflow-hidden relative">
-              {(property.zipcode || property.neighborhood || property.city) ? (
+              {(property.zipcode || property.neighborhood || property.address) ? (
                 <RealPropertyMap 
                   zipcode={property.zipcode}
                   neighborhood={property.neighborhood}
-                  address={property.city}
+                  address={property.address}
                   city={property.city}
                   state={property.state}
                   className="animate-fade-in w-full h-full"
@@ -764,23 +648,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         onClose={() => setIsGalleryOpen(false)}
       />
 
-      {/* Sketch Image Processor */}
-      <ConectaIOSImageProcessor
-        isOpen={isProcessorOpen}
-        onClose={() => {
-          console.log("🚫 Sketch processor closed");
-          setIsProcessorOpen(false);
-          setIsSketchLoading(false);
-        }}
-        onImageProcessed={(imageUrl) => {
-          console.log("✅ Sketch image processed successfully:", imageUrl);
-          setSketchImage(imageUrl);
-          setIsSketchLoading(false);
-          setIsProcessorOpen(false);
-        }}
-        type="sketch"
-        initialImage={property.fotos?.[0]}
-      />
     </div>
   );
 }

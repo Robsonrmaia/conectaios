@@ -36,7 +36,7 @@ interface Property {
   quartos: number;
   bathrooms?: number;
   parking_spots?: number;
-  furnishing_type?: string; // More flexible type to handle DB values
+  furnishing_type?: string;
   sea_distance?: number;
   has_sea_view?: boolean;
   finalidade: string;
@@ -51,6 +51,7 @@ interface Property {
   zipcode?: string;
   condominium_fee?: number;
   iptu?: number;
+  reference_code?: string;
   profiles?: {
     nome: string;
   } | null;
@@ -533,17 +534,18 @@ export default function Marketplace() {
                     />
                   </div>
 
-                  {/* CEP and Neighborhood - Removed invalid properties */}
-                  {property.descricao && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {property.descricao}
-                    </p>
-                  )}
+                   {/* Property Description */}
+                   {property.descricao && (
+                     <p className="text-sm text-muted-foreground line-clamp-2">
+                       {property.descricao}
+                     </p>
+                   )}
 
-                  {property.descricao && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {property.descricao}
-                    </p>
+                   {/* Property Reference Code */}
+                   {property.reference_code && (
+                     <div className="text-xs text-muted-foreground font-mono">
+                       Cód: {property.reference_code}
+                     </div>
                    )}
 
                    <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">

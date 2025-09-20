@@ -1216,14 +1216,7 @@ export default function Imoveis() {
                         Oculto
                       </Badge>
                     )}
-                  </div>
-                  <div className="text-right space-y-2">
-                    {property.reference_code && (
-                      <Badge variant="outline" className="text-xs font-mono">
-                        {property.reference_code}
-                      </Badge>
-                    )}
-                  </div>
+                   </div>
                 </div>
                 
                 {/* Action Buttons Grid - 2 columns for top buttons */}
