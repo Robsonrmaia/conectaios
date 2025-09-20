@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Download, Upload } from 'lucide-react';
+import { useBroker } from '@/hooks/useBroker';
+import { Download, Upload, ExternalLink, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 
 interface Property {
   id: string;
@@ -24,10 +30,27 @@ interface Property {
   photos?: string[];
 }
 
+interface ImportResult {
+  fetched_count: number;
+  created_count: number;
+  updated_count: number;
+  ignored_count: number;
+  errors: string[];
+  dryRun: boolean;
+  owner?: string;
+  siteId?: string;
+  published?: boolean;
+}
+
 export default function XMLImportExport() {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isImportingFromUrl, setIsImportingFromUrl] = useState(false);
+  const [xmlUrl, setXmlUrl] = useState('');
+  const [importFormat, setImportFormat] = useState<'cnm' | 'vrsync'>('cnm');
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const { user } = useAuth();
+  const { broker } = useBroker();
 
   if (!user) {
     return (
@@ -36,6 +59,50 @@ export default function XMLImportExport() {
       </div>
     );
   }
+
+  const handleImportFromUrl = async () => {
+    if (!xmlUrl.trim()) {
+      toast.error('Por favor, informe a URL do XML');
+      return;
+    }
+
+    if (!broker?.id) {
+      toast.error('Perfil de corretor não encontrado');
+      return;
+    }
+
+    setIsImportingFromUrl(true);
+    setImportResult(null);
+
+    try {
+      const functionName = importFormat === 'cnm' ? 'import-cnm' : 'import-vrsync';
+      
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: { 
+          url: xmlUrl.trim(),
+          owner: user.id // Pass user_id as owner
+        }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Erro na importação');
+      }
+
+      setImportResult(data);
+      
+      if (data.errors && data.errors.length > 0) {
+        toast.warning(`Importação concluída com ${data.errors.length} erro(s)`);
+      } else {
+        toast.success(`Importação concluída com sucesso! ${data.created_count} criados, ${data.updated_count} atualizados.`);
+      }
+
+    } catch (error) {
+      console.error('Erro na importação:', error);
+      toast.error('Erro ao importar do XML: ' + (error as Error).message);
+    } finally {
+      setIsImportingFromUrl(false);
+    }
+  };
 
   const handleImportXML = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -329,47 +396,180 @@ export default function XMLImportExport() {
     return xml;
   };
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-4">
-        <div>
-          <Input
-            type="file"
-            accept=".xml"
-            onChange={handleImportXML}
-            disabled={isImporting}
-            className="hidden"
-            id="xml-import"
-          />
-          <label htmlFor="xml-import">
-            <Button 
-              variant="outline" 
-              disabled={isImporting}
-              className="cursor-pointer"
-              asChild
-            >
-              <span className="flex items-center gap-2">
-                <Upload className="h-4 w-4" />
-                {isImporting ? 'Importando...' : 'Importar XML'}
-              </span>
-            </Button>
-          </label>
+  const ImportResultCard = ({ result }: { result: ImportResult }) => (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          Resultado da Importação
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{result.fetched_count}</div>
+            <div className="text-sm text-muted-foreground">Encontrados</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-green-600">{result.created_count}</div>
+            <div className="text-sm text-muted-foreground">Criados</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-orange-600">{result.updated_count}</div>
+            <div className="text-sm text-muted-foreground">Atualizados</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-red-600">{result.errors.length}</div>
+            <div className="text-sm text-muted-foreground">Erros</div>
+          </div>
         </div>
-        
-        <Button 
-          onClick={handleExportXML}
-          disabled={isExporting}
-          variant="outline"
-          className="flex items-center gap-2"
-        >
-          <Download className="h-4 w-4" />
-          {isExporting ? 'Exportando...' : 'Exportar XML'}
-        </Button>
-      </div>
-      
-      <p className="text-sm text-muted-foreground">
-        Importe imóveis de arquivo XML ou exporte seus imóveis para XML (compatível com OLX e outras plataformas)
-      </p>
+
+        <div className="flex gap-2 mb-3">
+          <Badge variant={result.published ? "default" : "secondary"}>
+            {result.published ? "Publicados" : "Privados"}
+          </Badge>
+          <Badge variant="outline">
+            {result.dryRun ? "Simulação" : "Importação Real"}
+          </Badge>
+        </div>
+
+        {result.errors.length > 0 && (
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="h-4 w-4 text-red-600" />
+              <span className="font-medium text-red-600">Erros encontrados:</span>
+            </div>
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <ul className="text-sm text-red-700 space-y-1">
+                {result.errors.slice(0, 5).map((error, index) => (
+                  <li key={index}>• {error}</li>
+                ))}
+                {result.errors.length > 5 && (
+                  <li className="text-muted-foreground">
+                    ... e mais {result.errors.length - 5} erro(s)
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* URL Import Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ExternalLink className="h-5 w-5" />
+            Importar de URL
+          </CardTitle>
+          <CardDescription>
+            Cole a URL do XML (Chaves na Mão, OLX, VrSync) para importação automática
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="xml-url">URL do XML</Label>
+            <Input
+              id="xml-url"
+              type="url"
+              placeholder="https://exemplo.com/feed.xml"
+              value={xmlUrl}
+              onChange={(e) => setXmlUrl(e.target.value)}
+              disabled={isImportingFromUrl}
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="import-format">Formato</Label>
+            <Select value={importFormat} onValueChange={(value: 'cnm' | 'vrsync') => setImportFormat(value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o formato" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cnm">Chaves na Mão (CNM)</SelectItem>
+                <SelectItem value="vrsync">VrSync / OLX</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button 
+            onClick={handleImportFromUrl}
+            disabled={isImportingFromUrl || !xmlUrl.trim()}
+            className="w-full"
+          >
+            {isImportingFromUrl ? (
+              <>
+                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                Importando...
+              </>
+            ) : (
+              <>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Importar da URL
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Import Result */}
+      {importResult && <ImportResultCard result={importResult} />}
+
+      <Separator />
+
+      {/* File Import Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Importar Arquivo
+          </CardTitle>
+          <CardDescription>
+            Faça upload de um arquivo XML local
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div>
+              <Input
+                type="file"
+                accept=".xml"
+                onChange={handleImportXML}
+                disabled={isImporting}
+                className="hidden"
+                id="xml-import"
+              />
+              <label htmlFor="xml-import">
+                <Button 
+                  variant="outline" 
+                  disabled={isImporting}
+                  className="cursor-pointer"
+                  asChild
+                >
+                  <span className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    {isImporting ? 'Importando...' : 'Selecionar Arquivo XML'}
+                  </span>
+                </Button>
+              </label>
+            </div>
+            
+            <Button 
+              onClick={handleExportXML}
+              disabled={isExporting}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              {isExporting ? 'Exportando...' : 'Exportar XML'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
