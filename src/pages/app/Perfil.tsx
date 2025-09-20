@@ -28,10 +28,11 @@ import {
   Target
 } from 'lucide-react';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
-import { supabase } from '@/integrations/supabase/client';
+import { useImageUpload } from '@/hooks/useImageUpload';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
+  const { createFileInput, isUploading } = useImageUpload();
   
   const [profile, setProfile] = useState({
     name: '',
@@ -192,57 +193,18 @@ export default function Perfil() {
                       </AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                       <Button variant="outline" size="sm" onClick={async () => {
-                       const input = document.createElement('input');
-                       input.type = 'file';
-                       input.accept = 'image/*';
-                       input.onchange = async (e: any) => {
-                         const file = e.target.files[0];
-                         if (file && broker) {
-                           try {
-                             // Upload real para Supabase Storage
-                             const fileExt = file.name.split('.').pop();
-                             const fileName = `${broker.id}-${Date.now()}.${fileExt}`;
-                             
-                             const { data: uploadData, error: uploadError } = await supabase.storage
-                               .from('property-images')
-                               .upload(`avatars/${fileName}`, file);
-
-                             if (uploadError) throw uploadError;
-
-                             const { data: { publicUrl } } = supabase.storage
-                               .from('property-images')  
-                               .getPublicUrl(`avatars/${fileName}`);
-
-                             // Atualizar perfil do broker
-                             const { error: updateError } = await supabase
-                               .from('conectaios_brokers')
-                               .update({ avatar_url: publicUrl })
-                               .eq('id', broker.id);
-
-                             if (updateError) throw updateError;
-
-                             toast({
-                               title: "Foto alterada",
-                               description: "Foto de perfil atualizada com sucesso!",
-                             });
-
-                             // Recarregar página para mostrar nova foto
-                             window.location.reload();
-                           } catch (error) {
-                             console.error('Error uploading avatar:', error);
-                             toast({
-                               title: "Erro",
-                               description: "Erro ao fazer upload da foto. Tente novamente.",
-                               variant: "destructive",
-                             });
-                           }
-                         }
-                       };
-                       input.click();
-                        }} className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base min-h-[44px] touch-target">
+                       <Button 
+                         variant="outline" 
+                         size="sm" 
+                         onClick={() => {
+                           const input = createFileInput('avatar');
+                           input.click();
+                         }} 
+                         disabled={isUploading}
+                         className="w-full sm:w-auto px-3 sm:px-4 text-sm sm:text-base min-h-[44px] touch-target"
+                       >
                            <Camera className="h-4 w-4 mr-2" />
-                           Alterar Foto
+                           {isUploading ? 'Enviando...' : 'Alterar Foto'}
                          </Button>
                        <p className="text-xs text-muted-foreground mt-2">
                          PNG, JPG até 5MB
@@ -388,9 +350,11 @@ export default function Perfil() {
                      try {
                        await updateBrokerProfile({
                          name: profile.name,
+                         email: profile.email,
                          phone: profile.phone,
                          bio: profile.bio,
-                         creci: profile.creci
+                         creci: profile.creci,
+                         username: profile.username
                        });
                        toast({
                          title: "Perfil atualizado!",

@@ -157,6 +157,9 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       if (error) throw error;
       setBroker(updatedBroker);
+      
+      // Refresh broker profile to ensure we have the latest data
+      await fetchBrokerProfile();
     } catch (error) {
       console.error('Error updating broker profile:', error);
       throw error;

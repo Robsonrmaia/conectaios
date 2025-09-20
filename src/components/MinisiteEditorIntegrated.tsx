@@ -34,6 +34,7 @@ import { useMinisite } from '@/hooks/useMinisite';
 import { ImageGeneratorModal } from '@/components/ImageGeneratorModal';
 import { ConectaIOSImageModal } from '@/components/ConectaIOSImageModal';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
+import { useImageUpload } from '@/hooks/useImageUpload';
 
 const TEMPLATES = [
   { 
@@ -74,6 +75,8 @@ export function MinisiteEditorIntegrated() {
   const { user } = useAuth();
   const { broker, updateBrokerProfile } = useBroker();
   const { config, loading, updateConfig, saveConfig, generateUrl } = useMinisite();
+  const { uploadImage, createFileInput, isUploading } = useImageUpload();
+  
   const [preview, setPreview] = useState('desktop');
   const [activeTab, setActiveTab] = useState('design');
   const [isSaving, setIsSaving] = useState(false);
@@ -332,50 +335,58 @@ export function MinisiteEditorIntegrated() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-end">        
-        <div className="flex gap-2">
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-end">        
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1 overflow-x-auto">
             <Button
               variant={preview === 'desktop' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setPreview('desktop')}
+              className="min-w-[44px] shrink-0"
             >
               <Monitor className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Desktop</span>
             </Button>
             <Button
               variant={preview === 'tablet' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setPreview('tablet')}
+              className="min-w-[44px] shrink-0"
             >
               <Laptop className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Tablet</span>
             </Button>
             <Button
               variant={preview === 'mobile' ? 'default' : 'ghost'}
               size="sm"
               onClick={() => setPreview('mobile')}
+              className="min-w-[44px] shrink-0"
             >
               <Smartphone className="h-4 w-4" />
+              <span className="hidden sm:inline ml-1">Mobile</span>
             </Button>
           </div>
           
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} disabled={isSaving} className="min-h-[44px]">
             <Save className="h-4 w-4 mr-2" />
             {isSaving ? 'Salvando...' : 'Salvar'}
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Editor Panel */}
-        <div className="space-y-6 order-2 lg:order-1">
+        <div className="space-y-4 lg:space-y-6 order-2 lg:order-1">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 h-auto gap-1 p-1">
-              <TabsTrigger value="design" className="text-xs sm:text-sm">Design</TabsTrigger>
-              <TabsTrigger value="content" className="text-xs sm:text-sm">Conteúdo</TabsTrigger>
-              <TabsTrigger value="images" className="text-xs sm:text-sm">Imagens</TabsTrigger>
-              <TabsTrigger value="seo" className="text-xs sm:text-sm">SEO</TabsTrigger>
-              <TabsTrigger value="domain" className="text-xs sm:text-sm">Domínio</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <TabsList className="flex w-max sm:grid sm:w-full sm:grid-cols-5 h-auto gap-1 p-1 min-w-max">
+                <TabsTrigger value="design" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap min-h-[44px]">Design</TabsTrigger>
+                <TabsTrigger value="content" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap min-h-[44px]">Conteúdo</TabsTrigger>
+                <TabsTrigger value="images" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap min-h-[44px]">Imagens</TabsTrigger>
+                <TabsTrigger value="seo" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap min-h-[44px]">SEO</TabsTrigger>
+                <TabsTrigger value="domain" className="text-xs sm:text-sm px-2 py-2 whitespace-nowrap min-h-[44px]">Domínio</TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="design" className="space-y-4">
               {/* Template Selection */}
