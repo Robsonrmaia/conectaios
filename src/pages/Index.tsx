@@ -430,8 +430,8 @@ const Index = () => {
             <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Users className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                  <Users className="h-8 w-8 text-white animate-rotate-gentle" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">CRM Completo</h3>
                 <p className="text-muted-foreground text-sm">
@@ -440,8 +440,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Building2 className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-glow-pulse hover:animate-scale-heartbeat">
+                  <Building2 className="h-8 w-8 text-white animate-float" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Gestão de Imóveis</h3>
                 <p className="text-muted-foreground text-sm">
@@ -450,8 +450,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <TrendingUp className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25 transition-all duration-300 animate-bounce hover:animate-glow-pulse">
+                  <TrendingUp className="h-8 w-8 text-white animate-scale-heartbeat" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Negociações Inteligentes</h3>
                 <p className="text-muted-foreground text-sm">
@@ -460,8 +460,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-pink-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Heart className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-pink-500/25 transition-all duration-300 animate-scale-heartbeat hover:animate-bounce">
+                  <Heart className="h-8 w-8 text-white animate-glow-pulse" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Match Inteligente com IA</h3>
                 <p className="text-muted-foreground text-sm">
@@ -470,8 +470,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-cyan-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Globe className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-cyan-500/25 transition-all duration-300 animate-float hover:animate-glow-pulse">
+                  <Globe className="h-8 w-8 text-white animate-rotate-gentle" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Mini Site Exclusivo</h3>
                 <p className="text-muted-foreground text-sm">
@@ -480,8 +480,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-lime-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <MessageCircle className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-lime-500/25 transition-all duration-300 animate-bounce hover:animate-float">
+                  <MessageCircle className="h-8 w-8 text-white animate-glow-pulse" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Chat em Tempo Real</h3>
                 <p className="text-muted-foreground text-sm">
@@ -490,8 +490,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-purple-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Camera className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-purple-500/25 transition-all duration-300 animate-glow-pulse hover:animate-scale-heartbeat">
+                  <Camera className="h-8 w-8 text-white animate-float" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Fotos com IA</h3>
                 <p className="text-muted-foreground text-sm">
@@ -500,8 +500,8 @@ const Index = () => {
               </div>
 
               <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-violet-500/25 transition-all duration-300 animate-pulse-gentle">
-                  <Sofa className="h-8 w-8 text-white" />
+                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-violet-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                  <Sofa className="h-8 w-8 text-white animate-rotate-gentle" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Mobiliário Virtual (Plano Plus)</h3>
                 <p className="text-muted-foreground text-sm">
@@ -784,7 +784,7 @@ const Index = () => {
           
           {/* Info Principal */}
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <img src={logoSvg} alt="ConectaIOS" className="h-6 w-6" />
+            <img src={logoconectaiosImg} alt="ConectaIOS" className="h-6 w-6 rounded-full" />
             <span className="text-lg font-semibold">ConectaIOS</span>
             <span className="text-sm text-slate-300">• Ilhéus</span>
           </div>

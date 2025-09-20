@@ -21,7 +21,8 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
     phone: '',
     creci: '',
     city: '',
-    region: ''
+    region: '',
+    duvidas: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -118,7 +119,8 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
           phone: '',
           creci: '',
           city: '',
-          region: ''
+          region: '',
+          duvidas: ''
         });
         setErrors({});
 
@@ -301,14 +303,15 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
             </div>
           </div>
 
-          <div className="bg-muted/50 p-4 rounded-lg">
-            <h4 className="font-medium mb-2 text-sm">Próximos passos:</h4>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• Nossa equipe validará seus dados</li>
-              <li>• Você receberá acesso exclusivo à plataforma</li>
-              <li>• Configuraremos seu perfil e mini-site</li>
-              <li>• Treinamento completo das funcionalidades</li>
-            </ul>
+          <div className="space-y-2">
+            <Label htmlFor="duvidas">Dúvidas ou Observações</Label>
+            <Textarea
+              id="duvidas"
+              value={formData.duvidas || ''}
+              onChange={(e) => handleInputChange('duvidas', e.target.value)}
+              placeholder="Descreva suas principais dúvidas ou necessidades..."
+              rows={3}
+            />
           </div>
 
           <Button 
@@ -325,20 +328,13 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
             ) : (
               <>
                 <UserPlus className="h-4 w-4 mr-2" />
-                Cadastrar como Corretor
+                Fale Conosco
               </>
             )}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Ao se cadastrar, você concorda com nossos{' '}
-            <a href="#" className="text-primary hover:underline">
-              Termos de Uso
-            </a>{' '}
-            e{' '}
-            <a href="#" className="text-primary hover:underline">
-              Política de Privacidade
-            </a>
+            Preencha os campos que entramos em contato para te dar mais informações e demonstração.
           </p>
         </form>
       </CardContent>
