@@ -154,7 +154,7 @@ export function GamificationFeatureFlag({ children, fallback = null }: Gamificat
       console.log('⚙️ Gamification settings:', settingsMap);
 
       // Check if gamification is globally enabled
-      const globallyEnabled = settingsMap.gamification_enabled === true;
+      const globallyEnabled = settingsMap.gamification_enabled === true || settingsMap.gamification_enabled === 'true';
       if (!globallyEnabled) {
         console.log('❌ Gamification globally disabled');
         setEnabled(false);
