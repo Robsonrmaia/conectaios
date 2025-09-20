@@ -182,14 +182,38 @@
   }
 }
 
-@keyframes pulse-gentle {
+/* Seamless scrolling animation for partnerships */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Enhanced icon animations */
+@keyframes icon-bounce {
   0%, 100% { 
-    opacity: 0.4;
-    transform: scale(0.95);
+    transform: scale(1) rotate(0deg);
+  }
+  25% { 
+    transform: scale(1.1) rotate(-2deg);
   }
   50% { 
-    opacity: 0.7;
-    transform: scale(1.05);
+    transform: scale(1.05) rotate(1deg);
+  }
+  75% { 
+    transform: scale(1.1) rotate(-1deg);
+  }
+}
+
+@keyframes icon-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% { 
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 40px rgba(59, 130, 246, 0.4);
   }
 }
 

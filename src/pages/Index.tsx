@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
@@ -21,6 +21,7 @@ import { TestimonialsSection } from '@/components/TestimonialsSection';
 
 const garotonectaImg = 'https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
+import logoSvg from '@/assets/logo.svg';
 
 const Index = () => {
   const { user } = useAuth();
@@ -49,23 +50,18 @@ const Index = () => {
   };
 
   const fetchPartnerships = async () => {
-    // Hardcoded partnerships for immediate display
-    const hardcodedPartnerships = [
-      { id: 1, name: 'Banco do Brasil', logo_url: null, icon: '🏦' },
-      { id: 2, name: 'Caixa Econômica', logo_url: null, icon: '🏛️' },
-      { id: 3, name: 'Bradesco', logo_url: null, icon: '🏦' },
-      { id: 4, name: 'Itaú', logo_url: null, icon: '🏦' },
-      { id: 5, name: 'Santander', logo_url: null, icon: '🏦' },
-      { id: 6, name: 'Prefeitura Ilhéus', logo_url: null, icon: '🏛️' },
-      { id: 7, name: 'CRECI-BA', logo_url: null, icon: '🏢' },
-      { id: 8, name: 'Cartório', logo_url: null, icon: '⚖️' },
-      { id: 9, name: 'Material Construção', logo_url: null, icon: '🧱' },
-      { id: 10, name: 'Móveis Planejados', logo_url: null, icon: '🪑' },
-      { id: 11, name: 'Correspondente Bancário', logo_url: null, icon: '💼' },
-      { id: 12, name: 'Serviços Jurídicos', logo_url: null, icon: '⚖️' }
+    // Filtered partnerships as requested
+    const filteredPartnerships = [
+      { id: 1, name: 'CRECI-BA', logo_url: null, icon: '🏢' },
+      { id: 2, name: 'Cartório de Ilhéus', logo_url: null, icon: '⚖️' },
+      { id: 3, name: 'Material de Construção', logo_url: null, icon: '🧱' },
+      { id: 4, name: 'Móveis Planejados', logo_url: null, icon: '🪑' },
+      { id: 5, name: 'Correspondente Bancário Caixa', logo_url: null, icon: '🏛️' },
+      { id: 6, name: 'Correspondente Multibancos', logo_url: null, icon: '💼' },
+      { id: 7, name: 'Serviços Jurídicos', logo_url: null, icon: '⚖️' }
     ];
     
-    setPartnerships(hardcodedPartnerships);
+    setPartnerships(filteredPartnerships);
   };
 
   return (
@@ -433,81 +429,81 @@ const Index = () => {
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-6 w-6 text-success" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Users className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 CRM Completo</h3>
+                <h3 className="text-lg font-semibold mb-2">CRM Completo</h3>
                 <p className="text-muted-foreground text-sm">
                   Organize leads, clientes e pipeline de vendas em um só lugar.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="h-6 w-6 text-primary" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Building2 className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Gestão de Imóveis</h3>
+                <h3 className="text-lg font-semibold mb-2">Gestão de Imóveis</h3>
                 <p className="text-muted-foreground text-sm">
                   Controle total dos seus imóveis com níveis de visibilidade flexíveis: todos, parceiros ou privado.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <TrendingUp className="h-6 w-6 text-warning" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <TrendingUp className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Negociações Inteligentes</h3>
+                <h3 className="text-lg font-semibold mb-2">Negociações Inteligentes</h3>
                 <p className="text-muted-foreground text-sm">
                   Gerencie acordos com rateio flexível e contratos automáticos.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-brand-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Heart className="h-6 w-6 text-brand-secondary" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-pink-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Heart className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Match Inteligente com IA</h3>
+                <h3 className="text-lg font-semibold mb-2">Match Inteligente com IA</h3>
                 <p className="text-muted-foreground text-sm">
                   Nossa IA conecta automaticamente clientes ao imóvel perfeito, aumentando suas chances de fechamento.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-6 w-6 text-info" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-cyan-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Globe className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Mini Site Exclusivo</h3>
+                <h3 className="text-lg font-semibold mb-2">Mini Site Exclusivo</h3>
                 <p className="text-muted-foreground text-sm">
                   Tenha um site profissional para divulgar seus imóveis e fortalecer sua marca.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <MessageSquare className="h-6 w-6 text-foreground" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-lime-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <MessageCircle className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Chat em Tempo Real</h3>
+                <h3 className="text-lg font-semibold mb-2">Chat em Tempo Real</h3>
                 <p className="text-muted-foreground text-sm">
                   Comunique-se instantaneamente com clientes e parceiros.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="h-6 w-6 text-purple-500" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-purple-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Camera className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Fotos com IA</h3>
+                <h3 className="text-lg font-semibold mb-2">Fotos com IA</h3>
                 <p className="text-muted-foreground text-sm">
                   Melhoria automática de qualidade para destacar seus imóveis. Marca d'água exclusiva, protegendo suas fotos contra uso indevido.
                 </p>
               </div>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover-scale">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Shield className="h-6 w-6 text-white" />
+              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
+                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-violet-500/25 transition-all duration-300 animate-pulse-gentle">
+                  <Sofa className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">🔹 Mobiliário Virtual (Plano Plus)</h3>
+                <h3 className="text-lg font-semibold mb-2">Mobiliário Virtual (Plano Plus)</h3>
                 <p className="text-muted-foreground text-sm">
                   Mostre imóveis vazios já mobiliados virtualmente com inteligência Hugging Face, ajudando o cliente a visualizar todo o potencial do espaço.
                 </p>
@@ -710,17 +706,29 @@ const Index = () => {
               <BrokerSignupForm />
             </div>
           </div>
-          <div className="mt-16">
+          <div className="mt-16 overflow-hidden">
             <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {partnerships.map((partnership) => (
-                <div key={partnership.id} className="text-center group">
-                  <div className="p-3 bg-card border rounded-lg hover:shadow-md transition-shadow h-20 flex flex-col items-center justify-center">
-                    <div className="text-2xl mb-1">{partnership.icon}</div>
-                    <span className="text-xs font-medium text-muted-foreground leading-tight">{partnership.name}</span>
+            <div className="relative">
+              <div className="flex animate-[scroll_20s_linear_infinite] gap-6">
+                {/* First set of partnerships */}
+                {partnerships.map((partnership) => (
+                  <div key={`first-${partnership.id}`} className="flex-shrink-0 text-center group">
+                    <div className="p-4 bg-card border rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 w-32 h-24 flex flex-col items-center justify-center shadow-md">
+                      <div className="text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">{partnership.icon}</div>
+                      <span className="text-xs font-medium text-muted-foreground leading-tight text-center">{partnership.name}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+                {/* Duplicate set for seamless loop */}
+                {partnerships.map((partnership) => (
+                  <div key={`second-${partnership.id}`} className="flex-shrink-0 text-center group">
+                    <div className="p-4 bg-card border rounded-xl hover:shadow-lg transition-all duration-300 hover:scale-105 w-32 h-24 flex flex-col items-center justify-center shadow-md">
+                      <div className="text-3xl mb-1 group-hover:scale-110 transition-transform duration-300">{partnership.icon}</div>
+                      <span className="text-xs font-medium text-muted-foreground leading-tight text-center">{partnership.name}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -776,7 +784,7 @@ const Index = () => {
           
           {/* Info Principal */}
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <Building2 className="h-6 w-6 text-white" />
+            <img src={logoSvg} alt="ConectaIOS" className="h-6 w-6" />
             <span className="text-lg font-semibold">ConectaIOS</span>
             <span className="text-sm text-slate-300">• Ilhéus</span>
           </div>

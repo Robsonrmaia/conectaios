@@ -161,10 +161,9 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
         <div className="mx-auto mb-4 p-3 bg-gradient-to-r from-primary/10 to-brand-secondary/10 rounded-full w-fit">
           <UserPlus className="h-8 w-8 text-primary" />
         </div>
-        <CardTitle className="text-2xl">Cadastre-se como Corretor</CardTitle>
+        <CardTitle className="text-2xl">Fale Conosco e Tenha Mais Informações</CardTitle>
         <CardDescription>
-          Junte-se à maior rede de corretores colaborativos do Brasil. 
-          Preencha seus dados e nossa equipe entrará em contato.
+          Quer saber mais sobre nossa plataforma? Preencha seus dados e nossa equipe entrará em contato com todas as informações que você precisa.
         </CardDescription>
       </CardHeader>
       
