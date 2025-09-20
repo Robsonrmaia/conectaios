@@ -57,19 +57,19 @@ serve(async (req) => {
     const urlParam = url.searchParams.get('url');
     
     // New parameters for broker assignment
-    const ownerParam = url.searchParams.get('owner');
+    const userIdParam = url.searchParams.get('user_id');
     const siteIdParam = url.searchParams.get('siteId');
     const publishParam = url.searchParams.get('publish');
     
-    // Validate owner UUID if provided
-    if (ownerParam && !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(ownerParam)) {
+    // Validate user_id UUID if provided
+    if (userIdParam && !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(userIdParam)) {
       return new Response(JSON.stringify({
-        error: 'Invalid owner parameter: must be a UUID',
+        error: 'Invalid user_id parameter: must be a UUID',
         fetched_count: 0,
         created_count: 0,
         updated_count: 0,
         ignored_count: 0,
-        errors: ['Invalid owner parameter: must be a UUID'],
+        errors: ['Invalid user_id parameter: must be a UUID'],
         dryRun: false
       }), {
         status: 400,
@@ -79,12 +79,15 @@ serve(async (req) => {
     
     let feedUrl = '';
     
-    // Get URL from query param or request body
+    let userId = userIdParam;
+    
+    // Get URL and user_id from query param or request body
     if (urlParam) {
       feedUrl = urlParam;
     } else if (req.method === 'POST') {
       const body = await req.json();
       feedUrl = body.url;
+      userId = userId || body.user_id;
     }
     
     if (!feedUrl) {
@@ -94,7 +97,7 @@ serve(async (req) => {
     console.log(`🚀 Starting VrSync import from: ${feedUrl}`);
     console.log(`📋 Dry run mode: ${dryRun}`);
     console.log(`🔍 Debug mode: ${debug}`);
-    console.log(`👤 Owner: ${ownerParam || 'none'}`);
+    console.log(`👤 User ID: ${userId || 'none'}`);
     console.log(`🌐 Site ID: ${siteIdParam || 'none'}`);
     console.log(`📢 Publish override: ${publishParam || 'none'}`);
 
@@ -298,7 +301,7 @@ serve(async (req) => {
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden',
           // New fields for broker assignment
-          user_id: ownerParam || null,
+          user_id: userId || null,
           site_id: siteIdParam || null
         };
 
@@ -357,7 +360,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({
       ...result,
       conflict_key: 'reference_code',
-      owner: ownerParam || null,
+      user_id: userId || null,
       siteId: siteIdParam || null,
       published: publishOnImport
     }), {

@@ -139,7 +139,7 @@ export default function XMLImportExport() {
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: { 
           url: xmlUrl.trim(),
-          owner: ownerId,
+          user_id: ownerId,
           publish: '0' // Always import as private initially
         }
       });
