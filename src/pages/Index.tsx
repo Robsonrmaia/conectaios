@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle, Home } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
@@ -16,6 +16,7 @@ import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';
 import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
+import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
@@ -429,85 +430,437 @@ const Index = () => {
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Users className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="CRM Completo"
+                description="Sistema de gestão de relacionamento completo para organizar clientes, leads e oportunidades de forma profissional"
+                icon={<Users className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-blue-500 to-purple-600"
+                howItWorks={{
+                  title: "Como funciona o CRM",
+                  items: [
+                    "Pipeline visual em formato kanban para organizar leads por etapa",
+                    "Cadastro completo de clientes com histórico de interações",
+                    "Follow-up automatizado com lembretes e notificações",
+                    "Relatórios de performance e análise de conversão",
+                    "Integração com WhatsApp para comunicação direta"
+                  ]
+                }}
+                benefits={{
+                  title: "Benefícios do CRM",
+                  items: [
+                    "Nunca mais perca uma oportunidade por falta de organização",
+                    "Histórico completo de cada cliente sempre à mão",
+                    "Acompanhamento visual do progresso de cada negócio",
+                    "Automação de tarefas repetitivas",
+                    "Análise de performance para melhorar resultados"
+                  ]
+                }}
+                useCases={{
+                  title: "Casos de uso práticos",
+                  scenarios: [
+                    {
+                      title: "Cliente interessado em apartamento",
+                      description: "Cliente viu um anúncio e demonstrou interesse. O CRM registra automaticamente o lead, programa follow-ups e acompanha toda a jornada até o fechamento."
+                    },
+                    {
+                      title: "Agendamento de visitas",
+                      description: "Sistema organiza agenda de visitas, envia lembretes automáticos e registra feedback de cada cliente após a visita."
+                    },
+                    {
+                      title: "Processo de venda completo",
+                      description: "Desde o primeiro contato até a assinatura do contrato, tudo fica documentado e organizado no pipeline visual."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-blue-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Users className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">CRM Completo</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Organize leads, clientes e pipeline de vendas em um só lugar.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">CRM Completo</h3>
-                <p className="text-muted-foreground text-sm">
-                  Organize leads, clientes e pipeline de vendas em um só lugar.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Building2 className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Gestão de Imóveis"
+                description="Controle total sobre a visibilidade e apresentação dos seus imóveis com tecnologia avançada"
+                icon={<Building2 className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-green-500 to-emerald-600"
+                howItWorks={{
+                  title: "Como funciona a Gestão",
+                  items: [
+                    "Três níveis de visibilidade: Privado (só você vê), Parceiros (outros corretores) e Público (no seu mini site)",
+                    "Upload de fotos com melhoria automática por IA",
+                    "Cadastro completo com dados técnicos e descrição detalhada",
+                    "Marca d'água personalizada para proteção de imagens",
+                    "Galeria organizada com ferramentas de apresentação"
+                  ]
+                }}
+                benefits={{
+                  title: "Vantagens da Gestão",
+                  items: [
+                    "Flexibilidade total no controle de visibilidade",
+                    "Proteção contra uso indevido de suas fotos",
+                    "Apresentação profissional automatizada",
+                    "Organização eficiente do portfólio",
+                    "Facilidade na criação de apresentações"
+                  ]
+                }}
+                useCases={{
+                  title: "Situações de uso",
+                  scenarios: [
+                    {
+                      title: "Exclusivo do proprietário",
+                      description: "Imóvel fica privado até você conseguir autorização para divulgação ampla. Apenas você tem acesso às informações completas."
+                    },
+                    {
+                      title: "Compartilhamento com parceiros",
+                      description: "Libera visibilidade para outros corretores colaborarem na venda, mantendo controle sobre quem pode acessar."
+                    },
+                    {
+                      title: "Marketing público",
+                      description: "Imóvel aparece no seu mini site e pode ser compartilhado nas redes sociais com fotos protegidas por marca d'água."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-green-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Building2 className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Gestão de Imóveis</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Controle total dos seus imóveis com níveis de visibilidade flexíveis: todos, parceiros ou privado.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Gestão de Imóveis</h3>
-                <p className="text-muted-foreground text-sm">
-                  Controle total dos seus imóveis com níveis de visibilidade flexíveis: todos, parceiros ou privado.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <TrendingUp className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Negociações Inteligentes"
+                description="Sistema transparente de acordos digitais com divisão justa e automática de comissões entre corretores"
+                icon={<Handshake className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-orange-500 to-red-600"
+                howItWorks={{
+                  title: "Como funcionam as Negociações",
+                  items: [
+                    "Criação de acordos digitais com termos claros e específicos",
+                    "Definição flexível de percentuais de comissão por corretor",
+                    "Documentação automática de todos os termos acordados",
+                    "Notificações para todas as partes envolvidas",
+                    "Histórico completo de todas as negociações realizadas"
+                  ]
+                }}
+                benefits={{
+                  title: "Benefícios das Negociações",
+                  items: [
+                    "Transparência total em todos os acordos",
+                    "Eliminação de mal-entendidos sobre comissões",
+                    "Documentação legal de todos os termos",
+                    "Agilidade na formalização de parcerias",
+                    "Confiança mútua entre corretores"
+                  ]
+                }}
+                useCases={{
+                  title: "Exemplos de negociações",
+                  scenarios: [
+                    {
+                      title: "Parceria entre corretores",
+                      description: "Corretor A tem o cliente, Corretor B tem o imóvel. Sistema documenta automaticamente a divisão de 50/50 da comissão."
+                    },
+                    {
+                      title: "Divisão customizada",
+                      description: "Acordo específico onde um corretor fica com 60% por ter trazido tanto cliente quanto imóvel, e o parceiro com 40% pelo suporte."
+                    },
+                    {
+                      title: "Histórico transparente",
+                      description: "Todos os acordos ficam documentados, criando um histórico de parcerias bem-sucedidas para futuras colaborações."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-orange-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Handshake className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Negociações Inteligentes</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Gerencie acordos com rateio flexível e contratos automáticos.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Negociações Inteligentes</h3>
-                <p className="text-muted-foreground text-sm">
-                  Gerencie acordos com rateio flexível e contratos automáticos.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-pink-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Heart className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Match IA"
+                description="Inteligência artificial avançada que conecta automaticamente clientes aos imóveis perfeitos"
+                icon={<Heart className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-pink-500 to-rose-600"
+                howItWorks={{
+                  title: "Como funciona o Match IA",
+                  items: [
+                    "Algoritmo analisa perfil completo do cliente (orçamento, preferências, localização)",
+                    "Cruza dados com características de todos os imóveis disponíveis",
+                    "Calcula compatibilidade baseada em múltiplos critérios",
+                    "Envia notificações automáticas quando encontra matches perfeitos",
+                    "Aprende com feedback para melhorar sugestões futuras"
+                  ]
+                }}
+                benefits={{
+                  title: "Vantagens do Match IA",
+                  items: [
+                    "Economia de tempo na busca por imóveis",
+                    "Maior assertividade nas apresentações",
+                    "Automatização do processo de prospecção",
+                    "Melhoria contínua através de machine learning",
+                    "Aumento significativo na taxa de conversão"
+                  ]
+                }}
+                useCases={{
+                  title: "Cenários de match",
+                  scenarios: [
+                    {
+                      title: "Cliente com perfil definido",
+                      description: "Cliente busca apartamento de 2 quartos, até R$ 300mil, no centro. IA encontra automaticamente opções compatíveis no banco de dados."
+                    },
+                    {
+                      title: "Novo imóvel cadastrado",
+                      description: "Corretor cadastra casa de 3 quartos. Sistema identifica automaticamente clientes com esse perfil e notifica sobre a oportunidade."
+                    },
+                    {
+                      title: "Refinamento de critérios",
+                      description: "Baseado no feedback do cliente após visualizar sugestões, IA ajusta parâmetros e melhora próximas recomendações."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-pink-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Heart className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Match Inteligente com IA</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Nossa IA conecta automaticamente clientes ao imóvel perfeito, aumentando suas chances de fechamento.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Match Inteligente com IA</h3>
-                <p className="text-muted-foreground text-sm">
-                  Nossa IA conecta automaticamente clientes ao imóvel perfeito, aumentando suas chances de fechamento.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-cyan-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Globe className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Mini Site"
+                description="Seu portfólio digital profissional com até 50 imóveis, formulário de contato e integração completa"
+                icon={<Globe className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-cyan-500 to-blue-600"
+                howItWorks={{
+                  title: "Como funciona o Mini Site",
+                  items: [
+                    "Site personalizado com sua marca e informações profissionais",
+                    "Galeria automática dos imóveis marcados como públicos",
+                    "Formulário de contato integrado com seu CRM",
+                    "Compartilhamento direto via WhatsApp",
+                    "URL personalizada e responsividade total"
+                  ]
+                }}
+                benefits={{
+                  title: "Benefícios do Mini Site",
+                  items: [
+                    "Presença digital profissional sem custo extra",
+                    "Geração automática de leads qualificados",
+                    "Credibilidade e confiança com clientes",
+                    "Marketing digital 24/7 trabalhando para você",
+                    "Integração perfeita com suas redes sociais"
+                  ]
+                }}
+                useCases={{
+                  title: "Usos do Mini Site",
+                  scenarios: [
+                    {
+                      title: "Marketing digital",
+                      description: "Compartilhe o link do seu mini site nas redes sociais, cartões de visita e materiais promocionais para atrair novos clientes."
+                    },
+                    {
+                      title: "Captação de clientes",
+                      description: "Formulário integrado captura leads interessados e alimenta automaticamente seu CRM com novos contatos qualificados."
+                    },
+                    {
+                      title: "Portfólio profissional",
+                      description: "Apresente seus melhores imóveis de forma organizada e profissional, demonstrando expertise e qualidade no atendimento."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-cyan-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Globe className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Mini Site Exclusivo</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Tenha um site profissional para divulgar seus imóveis e fortalecer sua marca.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Mini Site Exclusivo</h3>
-                <p className="text-muted-foreground text-sm">
-                  Tenha um site profissional para divulgar seus imóveis e fortalecer sua marca.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-lime-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <MessageCircle className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Chat Tempo Real"
+                description="Sistema de comunicação instantânea entre corretores para colaboração eficiente e negociações ágeis"
+                icon={<MessageCircle className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-lime-500 to-green-600"
+                howItWorks={{
+                  title: "Como funciona o Chat",
+                  items: [
+                    "Mensageria instantânea entre todos os corretores da plataforma",
+                    "Notificações em tempo real para mensagens importantes",
+                    "Histórico completo de todas as conversas",
+                    "Criação de grupos para discussões específicas",
+                    "Compartilhamento de imóveis e documentos direto no chat"
+                  ]
+                }}
+                benefits={{
+                  title: "Vantagens do Chat",
+                  items: [
+                    "Comunicação rápida e eficiente",
+                    "Eliminação da necessidade de trocar telefones",
+                    "Colaboração simplificada entre corretores",
+                    "Centralização de todas as conversas profissionais",
+                    "Agilidade na resolução de questões"
+                  ]
+                }}
+                useCases={{
+                  title: "Situações de uso do Chat",
+                  scenarios: [
+                    {
+                      title: "Negociação com parceiros",
+                      description: "Discussão rápida sobre divisão de comissão, detalhes do imóvel ou agendamento de visitas conjuntas."
+                    },
+                    {
+                      title: "Atendimento colaborativo",
+                      description: "Corretor consulta colega especialista em determinada região para dar melhor atendimento ao cliente."
+                    },
+                    {
+                      title: "Grupos de trabalho",
+                      description: "Criação de grupos para discutir estratégias de mercado, dicas de vendas ou organização de eventos do setor."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-lime-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-lime-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <MessageCircle className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Chat em Tempo Real</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Comunique-se instantaneamente com clientes e parceiros.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Chat em Tempo Real</h3>
-                <p className="text-muted-foreground text-sm">
-                  Comunique-se instantaneamente com clientes e parceiros.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-purple-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Camera className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Fotos com IA"
+                description="Tecnologia avançada para melhoria automática de fotos e proteção com marca d'água personalizada"
+                icon={<Camera className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-purple-500 to-indigo-600"
+                howItWorks={{
+                  title: "Como funciona a IA de Fotos",
+                  items: [
+                    "Upload automático com análise de qualidade da imagem",
+                    "Melhoria automática de brilho, contraste e nitidez",
+                    "Aplicação de marca d'água personalizada com seu nome/logo",
+                    "Diferentes tamanhos e resoluções para diversos usos",
+                    "Proteção contra download não autorizado"
+                  ]
+                }}
+                benefits={{
+                  title: "Benefícios das Fotos IA",
+                  items: [
+                    "Qualidade profissional sem custo de fotógrafo",
+                    "Proteção contra uso indevido das suas fotos",
+                    "Padronização visual de todo seu portfólio",
+                    "Economia de tempo na edição manual",
+                    "Destaque competitivo com imagens superiores"
+                  ]
+                }}
+                useCases={{
+                  title: "Aplicações práticas",
+                  scenarios: [
+                    {
+                      title: "Imóveis mal iluminados",
+                      description: "Fotos tiradas em condições ruins de luz são automaticamente melhoradas, destacando os pontos fortes do imóvel."
+                    },
+                    {
+                      title: "Proteção de propriedade intelectual",
+                      description: "Marca d'água impede que outros corretores usem suas fotos sem autorização, protegendo seu trabalho."
+                    },
+                    {
+                      title: "Marketing profissional",
+                      description: "Todas as imagens ficam com padrão visual consistente, transmitindo profissionalismo em todas as suas publicações."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-purple-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Camera className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Fotos com IA</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Melhoria automática de qualidade para destacar seus imóveis. Marca d'água exclusiva, protegendo suas fotos contra uso indevido.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Fotos com IA</h3>
-                <p className="text-muted-foreground text-sm">
-                  Melhoria automática de qualidade para destacar seus imóveis. Marca d'água exclusiva, protegendo suas fotos contra uso indevido.
-                </p>
-              </div>
+              </FeatureDetailDialog>
 
-              <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group">
-                <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-violet-500/25 transition-all duration-300 animate-float hover:animate-bounce">
-                  <Sofa className="h-8 w-8 text-white animate-rotate-gentle" />
+              <FeatureDetailDialog
+                title="Mobiliário Virtual"
+                description="Inteligência artificial Hugging Face para ambientação virtual com diferentes estilos decorativos"
+                icon={<Sofa className="h-8 w-8 text-white" />}
+                color="bg-gradient-to-br from-violet-500 to-purple-600"
+                howItWorks={{
+                  title: "Como funciona o Mobiliário Virtual",
+                  items: [
+                    "IA Hugging Face analisa o ambiente e dimensões do cômodo",
+                    "Seleção entre diversos estilos: moderno, clássico, minimalista, rústico",
+                    "Geração automática de ambientação realista",
+                    "Múltiplas opções de decoração para o mesmo ambiente",
+                    "Renderização em alta qualidade para apresentações"
+                  ]
+                }}
+                benefits={{
+                  title: "Vantagens do Mobiliário Virtual",
+                  items: [
+                    "Transformação de ambientes vazios em lares acolhedores",
+                    "Maior apelo visual para potenciais compradores",
+                    "Diferencial competitivo significativo",
+                    "Custo zero comparado à decoração física",
+                    "Versatilidade para diferentes públicos-alvo"
+                  ]
+                }}
+                useCases={{
+                  title: "Casos de uso do Mobiliário",
+                  scenarios: [
+                    {
+                      title: "Imóveis vazios",
+                      description: "Apartamento sem móveis fica difícil de visualizar. Com IA, cliente vê o potencial real do espaço com decoração adequada."
+                    },
+                    {
+                      title: "Dificuldade de visualização",
+                      description: "Cômodos com layout complexo ficam mais claros quando mobiliados virtualmente, ajudando cliente a imaginar possibilidades."
+                    },
+                    {
+                      title: "Marketing premium",
+                      description: "Imóveis de alto padrão ganham apresentação sofisticada com ambientação luxuosa, justificando valores mais altos."
+                    }
+                  ]
+                }}
+              >
+                <div className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border animate-fade-in hover:scale-105 transition-all duration-300 group cursor-pointer">
+                  <div className="w-16 h-16 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-violet-500/25 transition-all duration-300 animate-float hover:animate-bounce">
+                    <Sofa className="h-8 w-8 text-white animate-rotate-gentle" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Mobiliário Virtual (Plano Plus)</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Mostre imóveis vazios já mobiliados virtualmente com inteligência Hugging Face, ajudando o cliente a visualizar todo o potencial do espaço.
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold mb-2">Mobiliário Virtual (Plano Plus)</h3>
-                <p className="text-muted-foreground text-sm">
-                  Mostre imóveis vazios já mobiliados virtualmente com inteligência Hugging Face, ajudando o cliente a visualizar todo o potencial do espaço.
-                </p>
-              </div>
+              </FeatureDetailDialog>
             </div>
           </div>
 
