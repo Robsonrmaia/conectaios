@@ -20,6 +20,7 @@ interface ImportResult {
 }
 
 interface PropertyData {
+  reference_code: string;
   external_id: string;
   source_portal: string;
   titulo: string;
@@ -168,7 +169,10 @@ serve(async (req) => {
         // Extract VrSync data with enhanced parsing and logging
         const p = imovel;
         
-        // Try multiple fields for external ID
+        // Map reference_code for VrSync
+        const reference_code = p?.ListingID?.toString()?.trim() || null;
+        
+        // Also extract external_id for metadata  
         const externalId = p?.ListingID ?? p?.ID ?? p?.id ?? p?.ExternalId ?? null;
         
         console.log(`🔍 Processing VrSync property ${i + 1}: ID candidates:`, {
@@ -176,11 +180,13 @@ serve(async (req) => {
           ID: p?.ID,
           id: p?.id,
           ExternalId: p?.ExternalId,
+          reference_code,
           finalId: externalId
         });
         
-        if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required ID field (tried: ListingID, ID, id, ExternalId)`);
+        if (!reference_code) {
+          console.log(`❌ Skipping property ${i + 1}: Missing reference_code`);
+          result.errors.push(`Property ${i + 1}: Missing required reference_code (tried: ListingID)`);
           result.ignored_count++;
           continue;
         }
@@ -232,7 +238,7 @@ serve(async (req) => {
                         p?.Street ?? 
                         p?.Endereco ?? '';
         
-        console.log(`📋 Extracted VrSync data for ${externalId}:`, {
+        console.log(`📋 Extracted VrSync data for ${reference_code}:`, {
           titulo,
           valor: `${rawPrice} → ${valor}`,
           area: `${rawArea} → ${area}`,
@@ -245,7 +251,8 @@ serve(async (req) => {
 
         // Map VrSync fields with enhanced defaults
         const propertyData: PropertyData = {
-          external_id: externalId,
+          reference_code,
+          external_id: reference_code, // Same as reference_code for VrSync
           source_portal: 'vrsync',
           titulo,
           listing_type: mapListingType(p?.ListingType ?? p?.TransactionType ?? p?.Type),
@@ -271,15 +278,15 @@ serve(async (req) => {
         const hasValue = valor > 0;
         
         if (!hasTitle && !hasValue) {
-          console.log(`⚠️ Skipping VrSync ${externalId}: No valid title (${titulo}) or value (${valor})`);
-          result.errors.push(`Property ${externalId}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
+          console.log(`⚠️ Skipping VrSync ${reference_code}: No valid title (${titulo}) or value (${valor})`);
+          result.errors.push(`Property ${reference_code}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
           result.ignored_count++;
           continue;
         }
         
         // Accept partial data with warning
         if (!hasTitle || !hasValue) {
-          console.log(`⚠️ Accepting VrSync ${externalId} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
+          console.log(`⚠️ Accepting VrSync ${reference_code} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
         }
 
         if (result.dryRun) {
@@ -288,23 +295,23 @@ serve(async (req) => {
           continue;
         }
 
-        // Upsert property
+        // Upsert property using reference_code as conflict key
         const { data, error } = await supabase
           .from('properties')
           .upsert(propertyData, {
-            onConflict: 'source_portal,external_id',
+            onConflict: 'reference_code',
             ignoreDuplicates: false
           })
           .select();
 
         if (error) {
           console.error('❌ Upsert error:', error);
-          result.errors.push(`Property ${externalId}: ${error.message}`);
+          result.errors.push(`Property ${reference_code}: ${error.message}`);
           continue;
         }
 
         if (data && data.length > 0) {
-          console.log(`✅ Processed: ${propertyData.titulo} (${externalId})`);
+          console.log(`✅ Processed: ${propertyData.titulo} (${reference_code})`);
           result.created_count++;
         } else {
           result.updated_count++;
@@ -318,7 +325,10 @@ serve(async (req) => {
 
     console.log('📊 Import completed:', result);
 
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({
+      ...result,
+      conflict_key: 'reference_code'
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

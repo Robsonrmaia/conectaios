@@ -20,6 +20,7 @@ interface ImportResult {
 }
 
 interface PropertyData {
+  reference_code: string;
   external_id: string;
   source_portal: string;
   titulo: string;
@@ -189,7 +190,12 @@ serve(async (req) => {
         // Extract CNM data with detailed parsing and logging
         const it = imovel;
         
-        // Try multiple fields for external ID
+        // Map reference_code for CNM
+        const reference_code = it.referencia?.toString()?.trim() || 
+                              it.codigo_cliente?.toString()?.trim() || 
+                              null;
+        
+        // Also extract external_id for metadata
         const externalId = it.referencia ?? it.codigo_cliente ?? it.codigo ?? it.id ?? it.ref ?? null;
         
         console.log(`🔍 Processing property ${i + 1}: ID candidates:`, {
@@ -198,11 +204,13 @@ serve(async (req) => {
           codigo: it.codigo,
           id: it.id,
           ref: it.ref,
+          reference_code,
           finalId: externalId
         });
         
-        if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required ID field (tried: referencia, codigo_cliente, codigo, id, ref)`);
+        if (!reference_code) {
+          console.log(`❌ Skipping property ${i + 1}: Missing reference_code`);
+          result.errors.push(`Property ${i + 1}: Missing required reference_code (tried: referencia, codigo_cliente)`);
           result.ignored_count++;
           continue;
         }
@@ -228,7 +236,7 @@ serve(async (req) => {
         // Enhanced photo extraction
         const fotos = extractPhotos(imovel);
         
-        console.log(`📋 Extracted data for ${externalId}:`, {
+        console.log(`📋 Extracted data for ${reference_code}:`, {
           titulo,
           valor: `${rawValor} → ${valor}`,
           area: `${rawArea} → ${area}`,
@@ -241,7 +249,8 @@ serve(async (req) => {
 
         // Map CNM fields with enhanced defaults
         const propertyData: PropertyData = {
-          external_id: externalId,
+          reference_code,
+          external_id: reference_code, // Same as reference_code for CNM
           source_portal: 'cnm',
           titulo,
           listing_type: mapListingType(it.finalidade ?? it.transacao ?? it.tipo_transacao ?? it.negocio),
@@ -267,15 +276,15 @@ serve(async (req) => {
         const hasValue = valor > 0;
         
         if (!hasTitle && !hasValue) {
-          console.log(`⚠️ Skipping ${externalId}: No valid title (${titulo}) or value (${valor})`);
-          result.errors.push(`Property ${externalId}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
+          console.log(`⚠️ Skipping ${reference_code}: No valid title (${titulo}) or value (${valor})`);
+          result.errors.push(`Property ${reference_code}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
           result.ignored_count++;
           continue;
         }
         
         // Accept partial data with warning
         if (!hasTitle || !hasValue) {
-          console.log(`⚠️ Accepting ${externalId} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
+          console.log(`⚠️ Accepting ${reference_code} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
         }
 
         if (result.dryRun) {
@@ -284,23 +293,23 @@ serve(async (req) => {
           continue;
         }
 
-        // Upsert property
+        // Upsert property using reference_code as conflict key
         const { data, error } = await supabase
           .from('properties')
           .upsert(propertyData, {
-            onConflict: 'source_portal,external_id',
+            onConflict: 'reference_code',
             ignoreDuplicates: false
           })
           .select();
 
         if (error) {
           console.error('❌ Upsert error:', error);
-          result.errors.push(`Property ${externalId}: ${error.message}`);
+          result.errors.push(`Property ${reference_code}: ${error.message}`);
           continue;
         }
 
         if (data && data.length > 0) {
-          console.log(`✅ Processed: ${propertyData.titulo} (${externalId})`);
+          console.log(`✅ Processed: ${propertyData.titulo} (${reference_code})`);
           result.created_count++;
         } else {
           result.updated_count++;
@@ -314,7 +323,10 @@ serve(async (req) => {
 
     console.log('📊 Import completed:', result);
 
-    return new Response(JSON.stringify(result), {
+    return new Response(JSON.stringify({
+      ...result,
+      conflict_key: 'reference_code'
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
