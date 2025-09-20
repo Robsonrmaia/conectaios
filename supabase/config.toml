@@ -17,3 +17,9 @@ verify_jwt = false
 
 [functions.extract-property-data]
 verify_jwt = true
+
+[functions.feeds-cnm]
+verify_jwt = false
+
+[functions.feeds-olx]
+verify_jwt = false
