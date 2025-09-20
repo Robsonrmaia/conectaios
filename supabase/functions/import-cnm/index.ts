@@ -130,30 +130,32 @@ serve(async (req) => {
     });
     const xml = parser.parse(text);
     
-    // Smart discovery of property lists - CNM variants
-    const cnmCandidates = [
-      ['Document', 'Imoveis', 'Imovel'],
-      ['Imoveis', 'Imovel'],
-      ['document', 'imoveis', 'imovel'],
-      ['imoveis', 'imovel'],
-    ];
-    
-    let items: any[] = [];
-    for (const path of cnmCandidates) {
-      const found = getByPath(xml, path);
-      if (Array.isArray(found)) { 
-        items = found; 
-        break; 
-      }
-      if (found) { 
-        items = [found]; 
-        break; 
-      }
-    }
-    
-    // Fallback: deep search for Imovel/imovel elements
+    // CNM discovery - specific path with fallbacks
+    let items =
+      xml?.Document?.imoveis?.imovel ??
+      xml?.imoveis?.imovel ??
+      [];
+
+    // se for objeto único, vira array
+    if (!Array.isArray(items) && items) items = [items];
+
+    // fallback: procurar por chaves 'imovel' em qualquer nível
     if (!items.length) {
-      items = deepFindArraysByKeys(xml, ['Imovel', 'imovel']);
+      items = [];
+      const stack = [xml];
+      while (stack.length) {
+        const n = stack.pop();
+        if (n && typeof n === 'object') {
+          for (const [k, v] of Object.entries(n)) {
+            if (k.toLowerCase() === 'imovel') {
+              if (Array.isArray(v)) items.push(...v);
+              else items.push(v as any);
+            } else if (v && typeof v === 'object') {
+              stack.push(v as any);
+            }
+          }
+        }
+      }
     }
     
     const fetched_count = Array.isArray(items) ? items.length : 0;
@@ -182,31 +184,34 @@ serve(async (req) => {
       try {
         const imovel = items[i];
         
-        // Extract CNM data - case sensitive field mapping
-        const externalId = imovel.codigo?.toString()?.trim();
+        // Extract CNM data with specific mapping
+        const it = imovel;
+        const externalId = it.referencia ?? it.codigo_cliente ?? null;
+        
         if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required field 'codigo'`);
+          result.errors.push(`Property ${i + 1}: Missing required ID field (referencia or codigo_cliente)`);
           result.ignored_count++;
           continue;
         }
 
-        // Map CNM fields to our schema
+        // Map CNM fields with defaults
         const propertyData: PropertyData = {
           external_id: externalId,
           source_portal: 'cnm',
-          titulo: imovel.titulo?.toString()?.trim() || 'Imóvel Importado',
-          listing_type: mapListingType(imovel.finalidade?.toString()?.trim()),
-          property_type: mapPropertyType(imovel.tipo?.toString()?.trim()),
-          valor: parseFloat(imovel.valor?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          area: parseFloat(imovel.area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          quartos: parseInt(imovel.quartos?.toString()?.trim() || '0') || 0,
-          banheiros: parseInt(imovel.banheiros?.toString()?.trim() || '0') || 0,
-          vagas: parseInt(imovel.vagas?.toString()?.trim() || '0') || 0,
-          descricao: imovel.descricao?.toString()?.trim(),
-          endereco: imovel.endereco?.toString()?.trim(),
-          bairro: imovel.bairro?.toString()?.trim(),
-          cidade: imovel.cidade?.toString()?.trim(),
-          fotos: extractPhotos(imovel),
+          titulo: it.titulo ?? it.tipo ?? '',
+          listing_type: (it.finalidade === 'RE' || it.transacao === 'V') ? 'venda'
+                      : (it.transacao === 'L') ? 'aluguel' : 'venda',
+          property_type: it.tipo?.toLowerCase() ?? 'apartamento',
+          valor: Number((it.valor ?? '0').toString().replace(',', '.')),
+          area: parseFloat(it.area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
+          quartos: parseInt(it.quartos?.toString()?.trim() || '0') || 0,
+          banheiros: parseInt(it.banheiros?.toString()?.trim() || '0') || 0,
+          vagas: parseInt(it.vagas?.toString()?.trim() || '0') || 0,
+          descricao: it.descricao ?? '',
+          endereco: it.endereco?.toString()?.trim(),
+          bairro: it.bairro ?? it?.endereco?.bairro ?? '',
+          cidade: it.cidade ?? it?.endereco?.cidade ?? '',
+          fotos: Array.isArray(it?.fotos?.foto) ? it.fotos.foto.map((f: any) => f.url).filter(Boolean) : [],
           raw_cnm: imovel,
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,

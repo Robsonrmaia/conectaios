@@ -130,31 +130,12 @@ serve(async (req) => {
     });
     const xml = parser.parse(text);
     
-    // Smart discovery of property lists - VrSync variants
-    const vrsCandidates = [
-      ['ListingDataFeed', 'Listing'],
-      ['listingdatafeed', 'listing'],
-      ['Imoveis', 'Imovel'],
-      ['imoveis', 'imovel'],
-    ];
-    
-    let items: any[] = [];
-    for (const path of vrsCandidates) {
-      const found = getByPath(xml, path);
-      if (Array.isArray(found)) { 
-        items = found; 
-        break; 
-      }
-      if (found) { 
-        items = [found]; 
-        break; 
-      }
-    }
-    
-    // Fallback: deep search for Listing/listing elements
-    if (!items.length) {
-      items = deepFindArraysByKeys(xml, ['Listing', 'listing', 'Imovel', 'imovel']);
-    }
+    // VrSync discovery - specific path for <Listings><Listing>
+    let items = xml?.ListingDataFeed?.Listings?.Listing
+              ?? xml?.Listings?.Listing
+              ?? [];
+
+    if (!Array.isArray(items) && items) items = [items];
     
     const fetched_count = Array.isArray(items) ? items.length : 0;
     result.fetched_count = fetched_count;
@@ -182,31 +163,36 @@ serve(async (req) => {
       try {
         const imovel = items[i];
         
-        // Extract VrSync data - namespace aware field mapping
-        const externalId = getElementValue(imovel, ['CodigoImovel', 'Codigo', 'codigo', 'id', 'Id']);
+        // Extract VrSync data with specific mapping
+        const p = imovel;
+        const externalId = p?.ListingID ?? null;
+        
         if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required ID field`);
+          result.errors.push(`Property ${i + 1}: Missing required ListingID field`);
           result.ignored_count++;
           continue;
         }
 
-        // Map VrSync fields to our schema
+        const price = p?.PricingInfos?.Price ?? p?.PricingInfos?.RentalTotalPrice ?? null;
+
+        // Map VrSync fields with defaults
         const propertyData: PropertyData = {
           external_id: externalId,
           source_portal: 'vrsync',
-          titulo: getElementValue(imovel, ['TituloImovel', 'Titulo', 'titulo', 'title']) || 'Imóvel Importado',
-          listing_type: mapListingType(getElementValue(imovel, ['TipoOferta', 'Finalidade', 'finalidade', 'offerType'])),
-          property_type: mapPropertyType(getElementValue(imovel, ['TipoImovel', 'Tipo', 'tipo', 'propertyType'])),
-          valor: parseFloat(getElementValue(imovel, ['PrecoVenda', 'PrecoAluguel', 'Preco', 'Valor', 'valor', 'price'])?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          area: parseFloat(getElementValue(imovel, ['AreaTotal', 'AreaUtil', 'Area', 'area'])?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          quartos: parseInt(getElementValue(imovel, ['Quartos', 'QtdQuartos', 'quartos', 'bedrooms']) || '0') || 0,
-          banheiros: parseInt(getElementValue(imovel, ['Banheiros', 'QtdBanheiros', 'banheiros', 'bathrooms']) || '0') || 0,
-          vagas: parseInt(getElementValue(imovel, ['Vagas', 'QtdVagas', 'vagas', 'parkingSpaces']) || '0') || 0,
-          descricao: getElementValue(imovel, ['Observacoes', 'Descricao', 'descricao', 'description']),
-          endereco: getElementValue(imovel, ['Endereco', 'endereco', 'address']),
-          bairro: getElementValue(imovel, ['Bairro', 'bairro', 'neighborhood']),
-          cidade: getElementValue(imovel, ['Cidade', 'cidade', 'city']),
-          fotos: extractVrSyncPhotos(imovel),
+          titulo: p?.Title ?? '',
+          listing_type: (p?.ListingType === 'Sale') ? 'venda'
+                      : (p?.ListingType === 'Rental') ? 'aluguel' : 'venda',
+          property_type: p?.PropertyType?.toLowerCase() ?? 'apartamento',
+          valor: price ? Number(String(price).replace(',', '.')) : 0,
+          area: parseFloat(p?.Area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
+          quartos: parseInt(p?.Bedrooms?.toString() || '0') || 0,
+          banheiros: parseInt(p?.Bathrooms?.toString() || '0') || 0,
+          vagas: parseInt(p?.ParkingSpaces?.toString() || '0') || 0,
+          descricao: p?.Description ?? '',
+          endereco: p?.Address?.Street ?? '',
+          bairro: p?.Address?.Neighborhood ?? '',
+          cidade: p?.Address?.City ?? '',
+          fotos: Array.isArray(p?.Medias?.Media) ? p.Medias.Media.map((m: any) => m?.Url).filter(Boolean) : [],
           raw_vrsync: xmlToObject(imovel),
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
