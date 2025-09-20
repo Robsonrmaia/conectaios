@@ -63,6 +63,17 @@ export default function XMLImportExport() {
   const { broker } = useBroker();
   const { isAdmin } = useAdminAuth();
 
+  // Deduplication helper
+  const uniqueByEmail = (brokers: Broker[]) => {
+    const map = new Map<string, Broker>();
+    for (const broker of brokers) {
+      const key = (broker.email ?? '').toLowerCase();
+      if (!key) continue;
+      if (!map.has(key)) map.set(key, broker);
+    }
+    return Array.from(map.values());
+  };
+
   // Load brokers if admin
   useEffect(() => {
     const loadBrokers = async () => {
@@ -78,11 +89,17 @@ export default function XMLImportExport() {
         const { data, error } = await supabase
           .from('conectaios_brokers')
           .select('id, user_id, name, email')
-          .eq('status', 'active')
-          .order('name');
+          .eq('status', 'active');
 
         if (error) throw error;
-        setBrokers(data || []);
+        
+        // Deduplicate and sort
+        const uniqueBrokers = uniqueByEmail(data || []);
+        const sortedBrokers = uniqueBrokers.sort((a, b) =>
+          (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? '')
+        );
+        
+        setBrokers(sortedBrokers);
       } catch (error) {
         console.error('Error loading brokers:', error);
         toast.error('Erro ao carregar lista de corretores');
@@ -525,7 +542,7 @@ export default function XMLImportExport() {
                 <SelectContent>
                   {brokers.map((broker) => (
                     <SelectItem key={broker.user_id} value={broker.user_id}>
-                      {broker.name} ({broker.email})
+                      {broker.name || '(sem nome)'} ({broker.email})
                     </SelectItem>
                   ))}
                 </SelectContent>
