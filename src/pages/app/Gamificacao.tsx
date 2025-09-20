@@ -127,38 +127,32 @@ export default function Gamificacao() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="mb-6">
-          <ScrollableRow padding={false}>
-            <TabsTrigger 
-              value="overview" 
-              className="text-sm sm:text-base touch-target whitespace-nowrap"
-              onClick={() => setActiveTab('overview')}
-            >
-              Visão Geral
-            </TabsTrigger>
-            <TabsTrigger 
-              value="ranking" 
-              className="text-sm sm:text-base touch-target whitespace-nowrap"
-              onClick={() => setActiveTab('ranking')}
-            >
-              Ranking
-            </TabsTrigger>
-            <TabsTrigger 
-              value="quality" 
-              className="text-sm sm:text-base touch-target whitespace-nowrap"
-              onClick={() => setActiveTab('quality')}
-            >
-              Qualidade
-            </TabsTrigger>
-            <TabsTrigger 
-              value="rules" 
-              className="text-sm sm:text-base touch-target whitespace-nowrap"
-              onClick={() => setActiveTab('rules')}
-            >
-              Como Ganhar
-            </TabsTrigger>
-          </ScrollableRow>
-        </div>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1 h-auto p-1">
+          <TabsTrigger 
+            value="overview" 
+            className="text-xs sm:text-sm whitespace-nowrap px-2 py-2 min-h-[44px]"
+          >
+            Visão Geral
+          </TabsTrigger>
+          <TabsTrigger 
+            value="ranking" 
+            className="text-xs sm:text-sm whitespace-nowrap px-2 py-2 min-h-[44px]"
+          >
+            Ranking
+          </TabsTrigger>
+          <TabsTrigger 
+            value="quality" 
+            className="text-xs sm:text-sm whitespace-nowrap px-2 py-2 min-h-[44px]"
+          >
+            Qualidade
+          </TabsTrigger>
+          <TabsTrigger 
+            value="rules" 
+            className="text-xs sm:text-sm whitespace-nowrap px-2 py-2 min-h-[44px]"
+          >
+            Como Ganhar
+          </TabsTrigger>
+        </TabsList>
 
         <TabsContent value="overview" className="space-mobile">
           {/* Current Status */}
