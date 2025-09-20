@@ -22,8 +22,11 @@ type Broker = {
   phone?: string;
   email?: string;
   creci?: string;
-  city?: string;
-  state?: string;
+  region_id?: string;
+  regions?: {
+    name: string;
+    state: string;
+  } | null;
 };
 
 type Property = {
@@ -86,7 +89,7 @@ export default function BrokerMinisite() {
       // 1) Busca corretor por username na TABELA CERTA (only public-safe fields)
       const bq = await supabase
         .from("conectaios_brokers")
-        .select("id, user_id, username, name, avatar_url, cover_url, bio, status")
+        .select("id, user_id, username, name, avatar_url, cover_url, bio, status, phone, email, creci, region_id")
         .eq("username", cleanUsername)
         .maybeSingle();
 
@@ -99,7 +102,25 @@ export default function BrokerMinisite() {
         setLoading(false);
         return;
       }
-      setBroker(bq.data);
+
+      let brokerWithRegion: Broker = bq.data;
+      
+      // Buscar dados da região se region_id existir
+      if (bq.data.region_id) {
+        const { data: regionData, error: regionErr } = await supabase
+          .from("regions")
+          .select("name, state")
+          .eq("id", bq.data.region_id)
+          .maybeSingle();
+        
+        if (regionErr) {
+          pushErr("region.query", regionErr);
+        } else if (regionData) {
+          brokerWithRegion = { ...bq.data, regions: regionData };
+        }
+      }
+      
+      setBroker(brokerWithRegion);
 
       // 2) Propriedades PÚBLICAS - Query melhorada para minisite
       console.log('🔍 Fetching properties for user_id:', bq.data.user_id);
@@ -699,9 +720,9 @@ export default function BrokerMinisite() {
                   </div>
                   <div>
                     <p className="font-semibold">Localização</p>
-                    <p className="text-sm text-gray-600">
-                      {[broker.city, broker.state].filter(Boolean).join(', ') || 'Brasil'}
-                    </p>
+                     <p className="text-sm text-gray-600">
+                       {broker?.regions ? `${broker.regions.name}, ${broker.regions.state}` : 'Brasil'}
+                     </p>
                   </div>
                 </div>
 
@@ -770,7 +791,11 @@ export default function BrokerMinisite() {
                 style={{ border: 0 }} 
                 loading="lazy" 
                 allowFullScreen
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d501836.5149452417!2d-39.44!3d-14.80!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7341e344a5c39c9%3A0x355d5e9e9cb9d0d2!2sBrasil!5e0!3m2!1spt-BR!2sbr!4v1700000000000"
+                src={`https://www.google.com/maps?q=${encodeURIComponent(
+                  broker?.regions 
+                    ? `${broker.regions.name}, ${broker.regions.state}, Brasil`
+                    : 'Brasil'
+                )}&output=embed`}
               />
             </div>
           </div>
