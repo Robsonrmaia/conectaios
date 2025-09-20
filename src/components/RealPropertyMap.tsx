@@ -56,42 +56,58 @@ const RealPropertyMap = ({
     if (!mapContainer.current || !mapboxToken) return;
 
     const geocodeAddress = async () => {
-      const query = address || `${neighborhood || ''} ${city || ''} ${state || ''} ${zipcode || ''}`.trim();
-      console.log('🗺️ Geocoding query:', query);
+      // Priorize address completo, depois neighborhood + city + state
+      let query = '';
       
-      if (!query) {
-        console.log('❌ No location query available');
+      if (address) {
+        query = `${address}, ${city || ''} ${state || ''} Brazil`.trim();
+      } else {
+        const parts = [neighborhood, city, state, 'Brazil'].filter(Boolean);
+        query = parts.join(', ');
+      }
+      
+      // Se tiver CEP, adicione para melhor precisão
+      if (zipcode) {
+        query = `${query} ${zipcode}`.trim();
+      }
+      
+      addDebugInfo(`Geocoding query: ${query}`);
+      
+      if (!query || query === 'Brazil') {
+        addDebugInfo('❌ No location data available');
         setMapError(true);
         setIsLoading(false);
         return;
       }
 
       try {
-        console.log('🌍 Starting geocoding request...');
-        // Use Mapbox Geocoding API
-        const response = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=BR&limit=1`
-        );
+        addDebugInfo('🌍 Starting geocoding request...');
         
-        console.log('🌍 Geocoding response status:', response.status);
+        // Use Mapbox Geocoding API with Brazilian-specific parameters
+        const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=BR&types=address,poi,place&limit=1&proximity=-46.6333,-23.5505`;
+        
+        addDebugInfo(`Geocoding URL: ${geocodingUrl.substring(0, 100)}...`);
+        
+        const response = await fetch(geocodingUrl);
+        
+        addDebugInfo(`Response status: ${response.status}`);
         if (!response.ok) throw new Error(`Geocoding failed with status ${response.status}`);
         
         const data = await response.json();
-        console.log('🌍 Geocoding data:', data);
+        addDebugInfo(`Features found: ${data.features?.length || 0}`);
         
         if (data.features && data.features.length > 0) {
           const [lng, lat] = data.features[0].center;
-          console.log('📍 Coordinates found:', { lng, lat });
+          const locationName = data.features[0].place_name;
+          addDebugInfo(`✅ Coordinates found: ${lat}, ${lng} - ${locationName}`);
           initializeMap(lng, lat);
         } else {
-          console.log('📍 No coordinates found, using São Paulo fallback');
-          // Fallback to default coordinates (São Paulo)
+          addDebugInfo('⚠️ No coordinates found, using São Paulo fallback');
           initializeMap(-46.6333, -23.5505);
         }
       } catch (error) {
-        console.error('❌ Geocoding error:', error);
-        // Fallback to default coordinates
-        console.log('📍 Using São Paulo fallback due to error');
+        addDebugInfo(`❌ Geocoding error: ${error.message}`);
+        addDebugInfo('📍 Using São Paulo fallback due to error');
         initializeMap(-46.6333, -23.5505);
       }
     };

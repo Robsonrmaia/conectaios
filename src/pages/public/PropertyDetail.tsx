@@ -22,13 +22,18 @@ import {
   User, 
   ArrowLeft,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Sparkles,
+  Palette
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ShareButton } from '@/components/ShareButton';
 import { FavoritesManager } from '@/components/FavoritesManager';
+import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
+import RealPropertyMap from '@/components/RealPropertyMap';
+import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 interface Property {
   id: string;
@@ -46,9 +51,14 @@ interface Property {
   address: string;
   neighborhood: string;
   city: string;
+  state: string;
+  zipcode: string;
   reference_code: string;
   created_at: string;
   user_id: string;
+  has_sea_view?: boolean;
+  furnishing_type?: string;
+  sea_distance?: number;
 }
 
 interface BrokerProfile {
@@ -78,6 +88,9 @@ export default function PropertyDetail() {
     email: '',
     mensagem: ''
   });
+  const [aiDescription, setAiDescription] = useState('');
+  const [showSketchProcessor, setShowSketchProcessor] = useState(false);
+  const [selectedImageForSketch, setSelectedImageForSketch] = useState('');
 
   useEffect(() => {
     if (id) {
@@ -339,6 +352,70 @@ export default function PropertyDetail() {
                     </p>
                   </div>
                 )}
+
+                {/* AI Generated Description */}
+                <div>
+                  <ClientAIPropertyDescription 
+                    property={property} 
+                    onDescriptionGenerated={setAiDescription}
+                  />
+                  {aiDescription && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                      <h3 className="font-semibold mb-2 flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        Descrição Personalizada
+                      </h3>
+                      <p className="text-muted-foreground text-sm leading-relaxed">
+                        {aiDescription}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Enhanced Photo Gallery with Sketch Option */}
+                {photos.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold">Galeria de Fotos</h3>
+                      <Button 
+                        onClick={() => {
+                          setSelectedImageForSketch(photos[0]);
+                          setShowSketchProcessor(true);
+                        }}
+                        variant="outline" 
+                        size="sm"
+                        className="gap-2"
+                      >
+                        <Palette className="h-4 w-4" />
+                        Gerar Esboço
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {photos.slice(0, 6).map((photo, index) => (
+                        <img
+                          key={index}
+                          src={photo}
+                          alt={`Foto ${index + 1}`}
+                          className="w-full h-24 object-cover rounded cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => openPhotoGallery(index)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Property Location Map */}
+                <div>
+                  <h3 className="font-semibold mb-3">Localização</h3>
+                  <RealPropertyMap
+                    address={property.address}
+                    neighborhood={property.neighborhood}
+                    city={property.city}
+                    state={property.state}
+                    zipcode={property.zipcode}
+                    className="w-full h-64"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -486,6 +563,25 @@ export default function PropertyDetail() {
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}
       />
+
+      {/* Sketch Processor Modal */}
+      {showSketchProcessor && (
+        <ConectaIOSImageProcessor
+          type="sketch"
+          initialImage={selectedImageForSketch}
+          isOpen={showSketchProcessor}
+          onClose={() => setShowSketchProcessor(false)}
+          onImageProcessed={(processedImageUrl) => {
+            console.log('Esboço gerado:', processedImageUrl);
+            toast({
+              title: "Esboço Criado!",
+              description: "O esboço foi gerado com sucesso.",
+            });
+            setShowSketchProcessor(false);
+          }}
+        />
+      )}
+
     </div>
   );
 }
