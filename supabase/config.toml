@@ -23,3 +23,9 @@ verify_jwt = false
 
 [functions.feeds-olx]
 verify_jwt = false
+
+[functions.import-cnm]
+verify_jwt = false
+
+[functions.import-vrsync]
+verify_jwt = false
