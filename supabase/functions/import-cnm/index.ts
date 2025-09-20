@@ -469,6 +469,8 @@ function extractPhotos(imovel: any): string[] {
     
     // Try different possible paths for photos
     const fotoPaths = [
+      imovel?.fotos_imovel?.foto,  // CNM specific path
+      imovel?.fotos_imovel?.Foto,  // CNM with capital F
       imovel?.fotos?.foto,
       imovel?.Fotos?.Foto,
       imovel?.photos?.photo,
