@@ -294,7 +294,10 @@ serve(async (req) => {
           raw_cnm: imovel,
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
-          visibility: publishOnImport ? 'public_site' : 'hidden'
+          visibility: publishOnImport ? 'public_site' : 'hidden',
+          // New fields for broker assignment
+          user_id: ownerParam || null,
+          site_id: siteIdParam || null
         };
 
         // More lenient validation - accept if has title OR reasonable value

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Download, Upload, ExternalLink, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 
 interface Property {
@@ -42,6 +43,13 @@ interface ImportResult {
   published?: boolean;
 }
 
+interface Broker {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+}
+
 export default function XMLImportExport() {
   const [isImporting, setIsImporting] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -49,8 +57,40 @@ export default function XMLImportExport() {
   const [xmlUrl, setXmlUrl] = useState('');
   const [importFormat, setImportFormat] = useState<'cnm' | 'vrsync'>('cnm');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<string>('');
+  const [brokers, setBrokers] = useState<Broker[]>([]);
   const { user } = useAuth();
   const { broker } = useBroker();
+  const { isAdmin } = useAdminAuth();
+
+  // Load brokers if admin
+  useEffect(() => {
+    const loadBrokers = async () => {
+      if (!isAdmin) {
+        // If not admin, set current user as selected owner
+        if (user?.id) {
+          setSelectedOwner(user.id);
+        }
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('conectaios_brokers')
+          .select('id, user_id, name, email')
+          .eq('status', 'active')
+          .order('name');
+
+        if (error) throw error;
+        setBrokers(data || []);
+      } catch (error) {
+        console.error('Error loading brokers:', error);
+        toast.error('Erro ao carregar lista de corretores');
+      }
+    };
+
+    loadBrokers();
+  }, [isAdmin, user?.id]);
 
   if (!user) {
     return (
@@ -66,8 +106,10 @@ export default function XMLImportExport() {
       return;
     }
 
-    if (!broker?.id) {
-      toast.error('Perfil de corretor não encontrado');
+    // Validate owner selection
+    const ownerId = isAdmin ? selectedOwner : user.id;
+    if (!ownerId) {
+      toast.error(isAdmin ? 'Por favor, selecione um corretor' : 'Usuário não identificado');
       return;
     }
 
@@ -80,7 +122,8 @@ export default function XMLImportExport() {
       const { data, error } = await supabase.functions.invoke(functionName, {
         body: { 
           url: xmlUrl.trim(),
-          owner: user.id // Pass user_id as owner
+          owner: ownerId,
+          publish: '0' // Always import as private initially
         }
       });
 
@@ -471,6 +514,34 @@ export default function XMLImportExport() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Broker Selection for Admins */}
+          {isAdmin && (
+            <div>
+              <Label htmlFor="owner-select">Corretor (obrigatório)</Label>
+              <Select value={selectedOwner} onValueChange={setSelectedOwner}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um corretor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {brokers.map((broker) => (
+                    <SelectItem key={broker.user_id} value={broker.user_id}>
+                      {broker.name} ({broker.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Info for non-admin users */}
+          {!isAdmin && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+              <p className="text-sm text-blue-700">
+                <strong>Info:</strong> Os imóveis serão importados diretamente para sua conta.
+              </p>
+            </div>
+          )}
+
           <div>
             <Label htmlFor="xml-url">URL do XML</Label>
             <Input
