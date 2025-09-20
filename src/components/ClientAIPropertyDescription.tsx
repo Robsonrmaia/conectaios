@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wand2, Loader2 } from 'lucide-react';
 import { useAI } from '@/hooks/useAI';
@@ -31,7 +31,7 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
   const [isGenerating, setIsGenerating] = useState(false);
   const { sendMessage, loading } = useAI();
 
-  const generateClientDescription = async () => {
+  const generateClientDescription = useCallback(async () => {
     if (isGenerating || loading) return;
 
     setIsGenerating(true);
@@ -76,7 +76,10 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
       Gere apenas a descrição, sem explicações adicionais.`;
 
     try {
+      console.log('Sending AI request for property:', property.titulo);
       const response = await sendMessage(prompt);
+      console.log('AI response received:', response?.slice(0, 100) + '...');
+      
       setGeneratedDescription(response);
       onDescriptionGenerated(response);
       
@@ -99,14 +102,23 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
     } finally {
       setIsGenerating(false);
     }
-  };
+  }, [property.id, property.titulo, sendMessage, isGenerating, loading, onDescriptionGenerated]);
 
   // Auto-generate on mount
   useEffect(() => {
-    if (!generatedDescription && !isGenerating && !loading) {
+    console.log('ClientAI Effect:', { 
+      propertyId: property.id, 
+      hasDescription: !!generatedDescription, 
+      isGenerating, 
+      loading,
+      propertyTitle: property.titulo 
+    });
+    
+    if (!generatedDescription && !isGenerating && !loading && property.id && property.titulo) {
+      console.log('Starting AI description generation for:', property.titulo);
       generateClientDescription();
     }
-  }, [property.id]); // Add dependency to avoid infinite loops
+  }, [property.id, property.titulo, generateClientDescription]); // Add proper dependencies
 
   return (
     <div className="text-center py-2">

@@ -453,13 +453,19 @@ export default function BrokerMinisite() {
               {/* Exibir imóveis ou mensagem de fallback */}
               {properties.length === 0 ? (
                 <div className="text-center py-16 bg-gray-50 rounded-2xl">
-                  <Building2 className="h-16 w-16 text-gray-300 mx-auto mb-6" />
+                  <Search className="h-16 w-16 text-gray-300 mx-auto mb-6" />
                   <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                    Nenhum imóvel disponível
+                    Procurando por algo específico?
                   </h3>
-                  <p className="text-gray-600 max-w-md mx-auto">
-                    Este corretor ainda não publicou imóveis ou eles não estão disponíveis para visualização pública no momento.
+                  <p className="text-gray-600 max-w-md mx-auto mb-8">
+                    Este corretor pode ter o imóvel que você procura. Use a pesquisa acima ou entre em contato diretamente.
                   </p>
+                  <PropertySearch 
+                    onSearch={handleSearch}
+                    onClear={handleClearSearch}
+                    isVisible={true}
+                    onToggle={() => {}}
+                  />
                   {broker.phone && (
                     <div className="mt-8">
                       <Button className="text-white" style={{ backgroundColor: primaryColor }}>

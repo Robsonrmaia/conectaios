@@ -131,6 +131,7 @@ export default function Marketplace() {
           condominium_fee,
           iptu,
           descricao,
+          reference_code,
           user_id
         `)
         .eq('is_public', true)

@@ -13,6 +13,7 @@ import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
+import { FurnitureDetector } from '@/components/FurnitureDetector';
 
 interface Property {
   id: string;
@@ -407,6 +408,19 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                   </div>
                 ))}
               </div>
+              
+              {/* Furniture Detector for first photo */}
+              {property.fotos && property.fotos.length > 0 && (
+                <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                  <h4 className="text-sm font-medium mb-2">Análise de Móveis</h4>
+                  <FurnitureDetector
+                    imageUrl={property.fotos[0]}
+                    onFurnitureDetected={(furniture) => {
+                      console.log('Móveis detectados:', furniture);
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
 
