@@ -184,45 +184,96 @@ serve(async (req) => {
       try {
         const imovel = items[i];
         
-        // Extract CNM data with specific mapping
+        // Extract CNM data with detailed parsing and logging
         const it = imovel;
-        const externalId = it.referencia ?? it.codigo_cliente ?? null;
+        
+        // Try multiple fields for external ID
+        const externalId = it.referencia ?? it.codigo_cliente ?? it.codigo ?? it.id ?? it.ref ?? null;
+        
+        console.log(`🔍 Processing property ${i + 1}: ID candidates:`, {
+          referencia: it.referencia,
+          codigo_cliente: it.codigo_cliente,
+          codigo: it.codigo,
+          id: it.id,
+          ref: it.ref,
+          finalId: externalId
+        });
         
         if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required ID field (referencia or codigo_cliente)`);
+          result.errors.push(`Property ${i + 1}: Missing required ID field (tried: referencia, codigo_cliente, codigo, id, ref)`);
           result.ignored_count++;
           continue;
         }
 
-        // Map CNM fields with defaults
+        // Enhanced title extraction with multiple fallbacks
+        const titulo = it.titulo ?? it.nome ?? it.descricao_breve ?? it.tipo_imovel ?? it.tipo ?? `${it.tipo || 'Imóvel'} - ${externalId}`;
+        
+        // Enhanced value extraction with multiple patterns
+        const rawValor = it.valor ?? it.preco ?? it.price ?? it.valor_venda ?? it.valor_locacao ?? '0';
+        const valor = Number(rawValor.toString().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+        
+        // Enhanced area extraction
+        const rawArea = it.area ?? it.area_total ?? it.area_construida ?? it.metragem ?? it.metros ?? '0';
+        const area = parseFloat(rawArea.toString().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+        
+        // Enhanced address extraction
+        const endereco = it.endereco?.toString()?.trim() ?? 
+                        it.logradouro ?? 
+                        it.rua ?? 
+                        it.address ?? 
+                        [it.rua, it.numero, it.complemento].filter(Boolean).join(', ') ?? '';
+        
+        // Enhanced photo extraction
+        const fotos = extractPhotos(imovel);
+        
+        console.log(`📋 Extracted data for ${externalId}:`, {
+          titulo,
+          valor: `${rawValor} → ${valor}`,
+          area: `${rawArea} → ${area}`,
+          endereco,
+          fotos_count: fotos.length,
+          quartos: it.quartos,
+          banheiros: it.banheiros,
+          vagas: it.vagas
+        });
+
+        // Map CNM fields with enhanced defaults
         const propertyData: PropertyData = {
           external_id: externalId,
           source_portal: 'cnm',
-          titulo: it.titulo ?? it.tipo ?? '',
-          listing_type: (it.finalidade === 'RE' || it.transacao === 'V') ? 'venda'
-                      : (it.transacao === 'L') ? 'aluguel' : 'venda',
-          property_type: it.tipo?.toLowerCase() ?? 'apartamento',
-          valor: Number((it.valor ?? '0').toString().replace(',', '.')),
-          area: parseFloat(it.area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          quartos: parseInt(it.quartos?.toString()?.trim() || '0') || 0,
-          banheiros: parseInt(it.banheiros?.toString()?.trim() || '0') || 0,
-          vagas: parseInt(it.vagas?.toString()?.trim() || '0') || 0,
-          descricao: it.descricao ?? '',
-          endereco: it.endereco?.toString()?.trim(),
-          bairro: it.bairro ?? it?.endereco?.bairro ?? '',
-          cidade: it.cidade ?? it?.endereco?.cidade ?? '',
-          fotos: Array.isArray(it?.fotos?.foto) ? it.fotos.foto.map((f: any) => f.url).filter(Boolean) : [],
+          titulo,
+          listing_type: mapListingType(it.finalidade ?? it.transacao ?? it.tipo_transacao ?? it.negocio),
+          property_type: mapPropertyType(it.tipo ?? it.tipo_imovel ?? it.categoria),
+          valor,
+          area,
+          quartos: parseInt(it.quartos?.toString()?.trim() || it.dormitorios?.toString()?.trim() || '0') || 0,
+          banheiros: parseInt(it.banheiros?.toString()?.trim() || it.bwc?.toString()?.trim() || '0') || 0,
+          vagas: parseInt(it.vagas?.toString()?.trim() || it.garagem?.toString()?.trim() || it.garage?.toString()?.trim() || '0') || 0,
+          descricao: it.descricao ?? it.observacoes ?? it.detalhes ?? '',
+          endereco,
+          bairro: it.bairro ?? it?.endereco?.bairro ?? it.neighborhood ?? '',
+          cidade: it.cidade ?? it?.endereco?.cidade ?? it.city ?? '',
+          fotos,
           raw_cnm: imovel,
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden'
         };
 
-        // Skip if essential data is missing
-        if (!propertyData.titulo || propertyData.valor <= 0) {
-          result.errors.push(`Property ${externalId}: Missing essential data (titulo or valor)`);
+        // More lenient validation - accept if has title OR reasonable value
+        const hasTitle = titulo && titulo.trim().length > 2 && !titulo.toLowerCase().includes('undefined');
+        const hasValue = valor > 0;
+        
+        if (!hasTitle && !hasValue) {
+          console.log(`⚠️ Skipping ${externalId}: No valid title (${titulo}) or value (${valor})`);
+          result.errors.push(`Property ${externalId}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
           result.ignored_count++;
           continue;
+        }
+        
+        // Accept partial data with warning
+        if (!hasTitle || !hasValue) {
+          console.log(`⚠️ Accepting ${externalId} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
         }
 
         if (result.dryRun) {
@@ -330,15 +381,40 @@ function deepFindArraysByKeys(obj: any, keys: string[]): any[] {
 
 function extractPhotos(imovel: any): string[] {
   const photos: string[] = [];
-  const fotosData = imovel.fotos;
   
-  if (fotosData?.foto) {
-    const fotos = Array.isArray(fotosData.foto) ? fotosData.foto : [fotosData.foto];
-    for (const foto of fotos) {
-      const url = foto?.toString()?.trim();
-      if (url) {
-        photos.push(url);
+  // Try multiple photo container patterns
+  const photoSources = [
+    imovel.fotos?.foto,
+    imovel.fotos?.imagem,
+    imovel.imagens?.imagem,
+    imovel.imagens?.foto,
+    imovel.photos?.photo,
+    imovel.galeria?.foto,
+    imovel.midias?.midia,
+    imovel.anexos?.anexo
+  ];
+  
+  for (const source of photoSources) {
+    if (source) {
+      const items = Array.isArray(source) ? source : [source];
+      for (const item of items) {
+        // Try multiple URL patterns
+        const url = item?.url ?? 
+                   item?.src ?? 
+                   item?.href ?? 
+                   item?.link ?? 
+                   item?.arquivo ?? 
+                   (typeof item === 'string' ? item : null);
+        
+        if (url && typeof url === 'string' && url.trim()) {
+          const cleanUrl = url.trim();
+          if (cleanUrl.startsWith('http') && !photos.includes(cleanUrl)) {
+            photos.push(cleanUrl);
+          }
+        }
       }
+      
+      if (photos.length > 0) break; // Stop at first successful source
     }
   }
   

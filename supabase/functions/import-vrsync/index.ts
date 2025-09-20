@@ -163,47 +163,121 @@ serve(async (req) => {
       try {
         const imovel = items[i];
         
-        // Extract VrSync data with specific mapping
+        // Extract VrSync data with enhanced parsing and logging
         const p = imovel;
-        const externalId = p?.ListingID ?? null;
+        
+        // Try multiple fields for external ID
+        const externalId = p?.ListingID ?? p?.ID ?? p?.id ?? p?.ExternalId ?? null;
+        
+        console.log(`🔍 Processing VrSync property ${i + 1}: ID candidates:`, {
+          ListingID: p?.ListingID,
+          ID: p?.ID,
+          id: p?.id,
+          ExternalId: p?.ExternalId,
+          finalId: externalId
+        });
         
         if (!externalId) {
-          result.errors.push(`Property ${i + 1}: Missing required ListingID field`);
+          result.errors.push(`Property ${i + 1}: Missing required ID field (tried: ListingID, ID, id, ExternalId)`);
           result.ignored_count++;
           continue;
         }
 
-        const price = p?.PricingInfos?.Price ?? p?.PricingInfos?.RentalTotalPrice ?? null;
+        // Enhanced title extraction
+        const titulo = p?.Title ?? p?.Name ?? p?.Description?.substring(0, 100) ?? `Imóvel ${externalId}`;
+        
+        // Enhanced price extraction with multiple fallbacks
+        const priceFields = [
+          p?.PricingInfos?.Price,
+          p?.PricingInfos?.RentalTotalPrice,
+          p?.Price,
+          p?.SalePrice,
+          p?.RentPrice,
+          p?.Value,
+          p?.Valor
+        ];
+        
+        let valor = 0;
+        let rawPrice = null;
+        
+        for (const priceField of priceFields) {
+          if (priceField !== null && priceField !== undefined) {
+            rawPrice = priceField;
+            valor = Number(String(priceField).replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            if (valor > 0) break;
+          }
+        }
+        
+        // Enhanced area extraction
+        const areaFields = [p?.Area, p?.LivingArea, p?.TotalArea, p?.UsableArea, p?.BuiltArea];
+        let area = 0;
+        let rawArea = null;
+        
+        for (const areaField of areaFields) {
+          if (areaField !== null && areaField !== undefined) {
+            rawArea = areaField;
+            area = parseFloat(areaField.toString().replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+            if (area > 0) break;
+          }
+        }
+        
+        // Enhanced photos extraction
+        const fotos = extractVrSyncPhotos(imovel);
+        
+        // Enhanced address extraction
+        const endereco = p?.Address?.Street ?? 
+                        p?.Location?.Address ?? 
+                        p?.Street ?? 
+                        p?.Endereco ?? '';
+        
+        console.log(`📋 Extracted VrSync data for ${externalId}:`, {
+          titulo,
+          valor: `${rawPrice} → ${valor}`,
+          area: `${rawArea} → ${area}`,
+          endereco,
+          fotos_count: fotos.length,
+          bedrooms: p?.Bedrooms ?? p?.Details?.Bedrooms,
+          bathrooms: p?.Bathrooms ?? p?.Details?.Bathrooms,
+          parking: p?.ParkingSpaces ?? p?.Details?.Garage
+        });
 
-        // Map VrSync fields with defaults
+        // Map VrSync fields with enhanced defaults
         const propertyData: PropertyData = {
           external_id: externalId,
           source_portal: 'vrsync',
-          titulo: p?.Title ?? '',
-          listing_type: (p?.ListingType === 'Sale') ? 'venda'
-                      : (p?.ListingType === 'Rental') ? 'aluguel' : 'venda',
-          property_type: p?.PropertyType?.toLowerCase() ?? 'apartamento',
-          valor: price ? Number(String(price).replace(',', '.')) : 0,
-          area: parseFloat(p?.Area?.toString()?.replace(/[^\d.,]/g, '').replace(',', '.') || '0') || 0,
-          quartos: parseInt(p?.Bedrooms?.toString() || '0') || 0,
-          banheiros: parseInt(p?.Bathrooms?.toString() || '0') || 0,
-          vagas: parseInt(p?.ParkingSpaces?.toString() || '0') || 0,
-          descricao: p?.Description ?? '',
-          endereco: p?.Address?.Street ?? '',
-          bairro: p?.Address?.Neighborhood ?? '',
-          cidade: p?.Address?.City ?? '',
-          fotos: Array.isArray(p?.Medias?.Media) ? p.Medias.Media.map((m: any) => m?.Url).filter(Boolean) : [],
+          titulo,
+          listing_type: mapListingType(p?.ListingType ?? p?.TransactionType ?? p?.Type),
+          property_type: mapPropertyType(p?.PropertyType ?? p?.Details?.PropertyType ?? p?.Type),
+          valor,
+          area,
+          quartos: parseInt(p?.Bedrooms?.toString() ?? p?.Details?.Bedrooms?.toString() ?? '0') || 0,
+          banheiros: parseInt(p?.Bathrooms?.toString() ?? p?.Details?.Bathrooms?.toString() ?? '0') || 0,
+          vagas: parseInt(p?.ParkingSpaces?.toString() ?? p?.Details?.Garage?.toString() ?? p?.Details?.ParkingSpaces?.toString() ?? '0') || 0,
+          descricao: p?.Description ?? p?.Details?.Description ?? '',
+          endereco,
+          bairro: p?.Address?.Neighborhood ?? p?.Location?.Neighborhood ?? p?.Bairro ?? '',
+          cidade: p?.Address?.City ?? p?.Location?.City ?? p?.Cidade ?? '',
+          fotos,
           raw_vrsync: xmlToObject(imovel),
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden'
         };
 
-        // Skip if essential data is missing
-        if (!propertyData.titulo || propertyData.valor <= 0) {
-          result.errors.push(`Property ${externalId}: Missing essential data (titulo or valor)`);
+        // More lenient validation - accept if has title OR reasonable value
+        const hasTitle = titulo && titulo.trim().length > 2 && !titulo.toLowerCase().includes('undefined');
+        const hasValue = valor > 0;
+        
+        if (!hasTitle && !hasValue) {
+          console.log(`⚠️ Skipping VrSync ${externalId}: No valid title (${titulo}) or value (${valor})`);
+          result.errors.push(`Property ${externalId}: Missing essential data - titulo: "${titulo}", valor: ${valor}`);
           result.ignored_count++;
           continue;
+        }
+        
+        // Accept partial data with warning
+        if (!hasTitle || !hasValue) {
+          console.log(`⚠️ Accepting VrSync ${externalId} with partial data - titulo: ${hasTitle}, valor: ${hasValue}`);
         }
 
         if (result.dryRun) {
@@ -329,30 +403,55 @@ function mapPropertyType(tipo: string | undefined): string {
 function extractVrSyncPhotos(imovel: any): string[] {
   const photos: string[] = [];
   
-  // Try different photo container names
-  const photoContainers = ['Fotos', 'fotos', 'Photos', 'Imagens', 'imagens'];
-  
-  for (const containerName of photoContainers) {
-    const fotosData = imovel[containerName];
+  // Comprehensive photo extraction for VrSync format
+  const photoSources = [
+    // Standard VrSync paths
+    imovel?.Medias?.Media,
+    imovel?.Media,
+    imovel?.Photos?.Photo,
+    imovel?.Images?.Image,
     
-    if (fotosData) {
-      // Try different photo element names
-      const photoTags = ['Foto', 'foto', 'Photo', 'Imagem', 'imagem', 'Url', 'url'];
+    // Alternative paths
+    imovel?.Fotos?.Foto,
+    imovel?.fotos?.foto,
+    imovel?.Photos,
+    imovel?.Imagens?.Imagem,
+    imovel?.imagens?.imagem,
+    imovel?.Gallery?.Item,
+    imovel?.Midias?.Midia
+  ];
+  
+  for (const source of photoSources) {
+    if (source) {
+      const items = Array.isArray(source) ? source : [source];
       
-      for (const photoTag of photoTags) {
-        const fotoData = fotosData[photoTag];
-        if (fotoData) {
-          const fotos = Array.isArray(fotoData) ? fotoData : [fotoData];
-          for (const foto of fotos) {
-            const url = foto?.toString()?.trim();
-            if (url && !photos.includes(url)) {
-              photos.push(url);
-            }
+      for (const item of items) {
+        // Try multiple URL extraction patterns
+        let url = null;
+        
+        if (typeof item === 'string') {
+          url = item;
+        } else if (item && typeof item === 'object') {
+          url = item.Url ?? 
+               item.URL ?? 
+               item.url ?? 
+               item.src ?? 
+               item.href ?? 
+               item.link ?? 
+               item.Item?.URL ?? 
+               item.Item?.Url ??
+               item.arquivo;
+        }
+        
+        if (url && typeof url === 'string') {
+          const cleanUrl = url.trim();
+          if (cleanUrl.startsWith('http') && !photos.includes(cleanUrl)) {
+            photos.push(cleanUrl);
           }
         }
       }
       
-      if (photos.length > 0) break;
+      if (photos.length > 0) break; // Stop at first successful source
     }
   }
   
