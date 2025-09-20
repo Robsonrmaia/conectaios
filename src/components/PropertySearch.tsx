@@ -27,10 +27,10 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
     query: '',
     minPrice: '',
     maxPrice: '',
-    bedrooms: '',
-    bathrooms: '',
-    propertyType: '',
-    listingType: ''
+    bedrooms: 'all',
+    bathrooms: 'all',
+    propertyType: 'all',
+    listingType: 'all'
   });
 
   const handleSearch = () => {
@@ -42,10 +42,10 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
       query: '',
       minPrice: '',
       maxPrice: '',
-      bedrooms: '',
-      bathrooms: '',
-      propertyType: '',
-      listingType: ''
+      bedrooms: 'all',
+      bathrooms: 'all',
+      propertyType: 'all',
+      listingType: 'all'
     });
     onClear();
   };
@@ -105,7 +105,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
                   <SelectValue placeholder="Quartos" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Qualquer</SelectItem>
+                  <SelectItem value="all">Qualquer</SelectItem>
                   <SelectItem value="1">1 quarto</SelectItem>
                   <SelectItem value="2">2 quartos</SelectItem>
                   <SelectItem value="3">3 quartos</SelectItem>
@@ -118,7 +118,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
                   <SelectValue placeholder="Banheiros" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Qualquer</SelectItem>
+                  <SelectItem value="all">Qualquer</SelectItem>
                   <SelectItem value="1">1 banheiro</SelectItem>
                   <SelectItem value="2">2 banheiros</SelectItem>
                   <SelectItem value="3">3+ banheiros</SelectItem>
@@ -133,7 +133,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
                   <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="apartamento">Apartamento</SelectItem>
                   <SelectItem value="casa">Casa</SelectItem>
                   <SelectItem value="terreno">Terreno</SelectItem>
@@ -146,7 +146,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
                   <SelectValue placeholder="Negócio" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="venda">Venda</SelectItem>
                   <SelectItem value="locacao">Locação</SelectItem>
                 </SelectContent>

@@ -207,7 +207,7 @@ export default function BrokerMinisite() {
     }
 
     // Bedrooms filter
-    if (filters.bedrooms) {
+    if (filters.bedrooms && filters.bedrooms !== "all") {
       const bedrooms = parseInt(filters.bedrooms);
       if (bedrooms === 4) {
         filtered = filtered.filter(property => (property.quartos || 0) >= 4);
@@ -217,7 +217,7 @@ export default function BrokerMinisite() {
     }
 
     // Bathrooms filter
-    if (filters.bathrooms) {
+    if (filters.bathrooms && filters.bathrooms !== "all") {
       const bathrooms = parseInt(filters.bathrooms);
       if (bathrooms === 3) {
         filtered = filtered.filter(property => (property.bathrooms || 0) >= 3);
@@ -227,14 +227,14 @@ export default function BrokerMinisite() {
     }
 
     // Property type filter
-    if (filters.propertyType) {
+    if (filters.propertyType && filters.propertyType !== "all") {
       filtered = filtered.filter(property => 
         property.property_type === filters.propertyType
       );
     }
 
     // Listing type filter
-    if (filters.listingType) {
+    if (filters.listingType && filters.listingType !== "all") {
       filtered = filtered.filter(property => 
         property.listing_type === filters.listingType
       );

@@ -33,8 +33,8 @@ const AuditLogs = () => {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [actionFilter, setActionFilter] = useState('');
-  const [resourceFilter, setResourceFilter] = useState('');
+  const [actionFilter, setActionFilter] = useState('all');
+  const [resourceFilter, setResourceFilter] = useState('all');
 
   useEffect(() => {
     if (user) {
@@ -74,8 +74,8 @@ const AuditLogs = () => {
   const filteredLogs = logs.filter(log => {
     const matchesSearch = log.action.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          log.resource_type.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesAction = !actionFilter || log.action === actionFilter;
-    const matchesResource = !resourceFilter || log.resource_type === resourceFilter;
+    const matchesAction = !actionFilter || actionFilter === "all" || log.action === actionFilter;
+    const matchesResource = !resourceFilter || resourceFilter === "all" || log.resource_type === resourceFilter;
     
     return matchesSearch && matchesAction && matchesResource;
   });
@@ -135,7 +135,7 @@ const AuditLogs = () => {
                   <SelectValue placeholder="Filtrar por ação" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" key="all-actions">Todas as ações</SelectItem>
+                  <SelectItem value="all" key="all-actions">Todas as ações</SelectItem>
                   <SelectItem value="create" key="create">Criar</SelectItem>
                   <SelectItem value="update" key="update">Atualizar</SelectItem>
                   <SelectItem value="delete" key="delete">Deletar</SelectItem>
@@ -148,7 +148,7 @@ const AuditLogs = () => {
                   <SelectValue placeholder="Filtrar por recurso" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="" key="all-resources">Todos os recursos</SelectItem>
+                  <SelectItem value="all" key="all-resources">Todos os recursos</SelectItem>
                   <SelectItem value="properties" key="properties">Imóveis</SelectItem>
                   <SelectItem value="clients" key="clients">Clientes</SelectItem>
                   <SelectItem value="deals" key="deals">Negociações</SelectItem>

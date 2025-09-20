@@ -47,7 +47,7 @@ interface EnhancedPropertySearchProps {
 }
 
 const propertyTypes = [
-  { value: '', label: 'Todos os tipos' },
+  { value: 'all', label: 'Todos os tipos' },
   { value: 'apartamento', label: 'Apartamento' },
   { value: 'casa', label: 'Casa' },
   { value: 'terreno', label: 'Terreno' },
@@ -56,7 +56,7 @@ const propertyTypes = [
 ];
 
 const listingTypes = [
-  { value: '', label: 'Compra e Aluguel' },
+  { value: 'all', label: 'Compra e Aluguel' },
   { value: 'venda', label: 'Venda' },
   { value: 'aluguel', label: 'Aluguel' }
 ];
@@ -70,8 +70,8 @@ export function EnhancedPropertySearch({
 }: EnhancedPropertySearchProps) {
   const [filters, setFilters] = useState<PropertySearchFilters>({
     search: '',
-    property_type: '',
-    listing_type: '',
+    property_type: 'all',
+    listing_type: 'all',
     min_price: 0,
     max_price: 10000000,
     min_area: 0,
@@ -79,7 +79,7 @@ export function EnhancedPropertySearch({
     bedrooms: 0,
     bathrooms: 0,
     parking_spots: 0,
-    neighborhood: ''
+    neighborhood: 'all'
   });
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -112,8 +112,8 @@ export function EnhancedPropertySearch({
   const handleClear = () => {
     setFilters({
       search: '',
-      property_type: '',
-      listing_type: '',
+      property_type: 'all',
+      listing_type: 'all',
       min_price: 0,
       max_price: maxPrice || 10000000,
       min_area: 0,
@@ -121,7 +121,7 @@ export function EnhancedPropertySearch({
       bedrooms: 0,
       bathrooms: 0,
       parking_spots: 0,
-      neighborhood: ''
+      neighborhood: 'all'
     });
     onClear();
   };
@@ -253,7 +253,7 @@ export function EnhancedPropertySearch({
                     <SelectValue placeholder="Selecione o bairro" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Todos os bairros</SelectItem>
+                    <SelectItem value="all">Todos os bairros</SelectItem>
                     {uniqueNeighborhoods.map(neighborhood => (
                       <SelectItem key={neighborhood} value={neighborhood}>
                         {neighborhood}
@@ -389,7 +389,7 @@ export function EnhancedPropertySearch({
                         {propertyTypes.find(t => t.value === filters.property_type)?.label}
                         <X 
                           className="h-3 w-3 cursor-pointer" 
-                          onClick={() => updateFilter('property_type', '')} 
+                          onClick={() => updateFilter('property_type', 'all')} 
                         />
                       </Badge>
                     )}
@@ -398,7 +398,7 @@ export function EnhancedPropertySearch({
                         {listingTypes.find(t => t.value === filters.listing_type)?.label}
                         <X 
                           className="h-3 w-3 cursor-pointer" 
-                          onClick={() => updateFilter('listing_type', '')} 
+                          onClick={() => updateFilter('listing_type', 'all')} 
                         />
                       </Badge>
                     )}
@@ -407,7 +407,7 @@ export function EnhancedPropertySearch({
                         {filters.neighborhood}
                         <X 
                           className="h-3 w-3 cursor-pointer" 
-                          onClick={() => updateFilter('neighborhood', '')} 
+                          onClick={() => updateFilter('neighborhood', 'all')} 
                         />
                       </Badge>
                     )}
