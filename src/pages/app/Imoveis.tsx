@@ -36,6 +36,7 @@ import { Tour360Modal } from '@/components/Tour360Modal';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
+import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 
 interface Property {
   id: string;
@@ -98,6 +99,7 @@ export default function Imoveis() {
   const [showWatermark, setShowWatermark] = useState(false);
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
   const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
+  const { processPropertyEvent } = useGamificationIntegration();
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
   const [processorType, setProcessorType] = useState<'enhance' | 'staging' | 'sketch'>('enhance');
   const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
@@ -411,6 +413,14 @@ export default function Imoveis() {
         year_built: '',
         sea_distance: '',
       });
+      
+      // Process gamification event
+      if (result.data?.id) {
+        processPropertyEvent(
+          result.data.id, 
+          selectedProperty ? 'updated' : 'created'
+        );
+      }
       
       // Add delay to ensure database has processed the save
       setTimeout(() => {

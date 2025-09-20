@@ -22,6 +22,7 @@ import Imoveis from "./pages/app/Imoveis";
 import Marketplace from "./pages/app/Marketplace";
 import Minisite from "./pages/app/Minisite";
 import Gamificacao from "./pages/app/Gamificacao";
+import { GamificationFeatureFlag } from "@/components/GamificationFeatureFlag";
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";
@@ -146,7 +147,11 @@ const App = () => (
                           <Route path="minhas-buscas" element={<MinhasBuscas />} />
                           <Route path="marketplace" element={<Marketplace />} />
                            <Route path="minisite" element={<Minisite />} />
-                           <Route path="gamificacao" element={<Gamificacao />} />
+            <Route path="gamificacao" element={
+              <GamificationFeatureFlag fallback={<Navigate to="/app" replace />}>
+                <Gamificacao />
+              </GamificationFeatureFlag>
+            } />
                            <Route path="match" element={<Match />} />
                           <Route path="deals" element={<Deals />} />
                           <Route path="inbox" element={<Inbox />} />

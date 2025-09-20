@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Building2, Heart, X, Sparkles, User, MapPin, Bed, Bath, Car, Home, Plus, Target, ArrowLeft, ArrowRight, MessageSquare } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { CounterProposalDialog } from '@/components/CounterProposalDialog';
+import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 
 interface Property {
   id: string;
@@ -60,6 +61,7 @@ interface ClientPreferences {
 export default function Match() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { processMatchResponse } = useGamificationIntegration();
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -67,6 +69,7 @@ export default function Match() {
   const [showPreferences, setShowPreferences] = useState(false);
   const [selectedClient, setSelectedClient] = useState<string>('');
   const [showCounterProposal, setShowCounterProposal] = useState(false);
+  const [matchStartTime, setMatchStartTime] = useState<Date>(new Date());
   const [preferences, setPreferences] = useState<ClientPreferences>({
     min_price: 0,
     max_price: 1000000,
@@ -136,6 +139,10 @@ export default function Match() {
     if (matches.length === 0) return;
     
     const currentMatch = matches[currentIndex];
+    const responseTime = Math.floor((new Date().getTime() - matchStartTime.getTime()) / 1000);
+    
+    // Process gamification for match response
+    processMatchResponse(`match_${currentMatch.property_id}`, responseTime);
     
     toast({
       title: "Match salvo!",
@@ -152,6 +159,7 @@ export default function Match() {
   const nextMatch = () => {
     if (currentIndex < matches.length - 1) {
       setCurrentIndex(currentIndex + 1);
+      setMatchStartTime(new Date()); // Reset timer for new match
     } else {
       // No more matches
       toast({

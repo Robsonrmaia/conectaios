@@ -1,5 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useGamification } from '@/hooks/useGamification';
+import { GamificationBadge } from '@/components/GamificationBadge';
+import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 import {
   Sidebar,
@@ -134,6 +137,7 @@ export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const { isAdmin } = useAdminAuth();
+  const { stats } = useGamification();
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -176,10 +180,10 @@ export function AppSidebar() {
                       data-tour={item.title === 'Dashboard' ? 'dashboard' : 
                                  item.title === 'Meus Imóveis' ? 'properties' : 
                                  item.title === 'CRM' ? 'crm' : undefined}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
+                     >
+                       <item.icon className="h-4 w-4" />
+                       <span>{item.title}</span>
+                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -199,10 +203,22 @@ export function AppSidebar() {
                       to={item.url} 
                       className={getNavClassName(item.url)}
                       data-tour={item.title === 'Ferramentas' ? 'tools' : undefined}
-                    >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </NavLink>
+                     >
+                       <item.icon className="h-4 w-4" />
+                       <span>{item.title}</span>
+                       {item.title === 'Gamificação' ? (
+                         <GamificationFeatureFlag>
+                           <GamificationBadge 
+                             tier={stats.tier}
+                             badges={stats.badges}
+                             pontos={stats.pontos}
+                             size="sm"
+                             showTooltip={false}
+                             className="ml-2"
+                           />
+                         </GamificationFeatureFlag>
+                       ) : null}
+                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
