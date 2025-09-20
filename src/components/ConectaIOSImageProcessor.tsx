@@ -20,6 +20,8 @@ export function ConectaIOSImageProcessor({
 }: ConectaIOSImageProcessorProps) {
   const [processing, setProcessing] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [serviceAvailable, setServiceAvailable] = useState(true);
+  const [hasTimeout, setHasTimeout] = useState(false);
 
   const addDebugInfo = (message: string) => {
     console.log(`🎨 ConectAIOS: ${message}`);
@@ -136,22 +138,30 @@ export function ConectaIOSImageProcessor({
       addDebugInfo('🔄 Initializing communication...');
       
       // Test service availability when opening
-      fetch('https://imagens-conectaios-420832656535.us-west1.run.app')
+      fetch('https://imagens-conectaios-420832656535.us-west1.run.app', {
+        method: 'HEAD',
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(5000)
+      })
         .then(response => {
           console.log('🌐 ConectAIOS service status:', response.status);
           addDebugInfo(`🌐 Service status: ${response.status}`);
+          setServiceAvailable(true);
         })
         .catch(error => {
           console.error('🚫 ConectAIOS service not available:', error);
-          addDebugInfo('🚫 Service connection failed');
+          addDebugInfo('🚫 Service connection failed - check internet');
+          setServiceAvailable(false);
         });
         
       window.addEventListener('message', handleMessage);
       
-      // Auto-close fallback after 5 minutes if no response
+      // Auto-close fallback after 2 minutes if no response
       const timeout = setTimeout(() => {
-        addDebugInfo('⏰ Timeout after 5 minutes');
-      }, 300000);
+        addDebugInfo('⏰ Timeout after 2 minutes - service may be unavailable');
+        setHasTimeout(true);
+        setServiceAvailable(false);
+      }, 120000);
       
       return () => {
         console.log('🔇 Removing message listener for ConectAIOS');
@@ -171,7 +181,22 @@ export function ConectaIOSImageProcessor({
           </DialogTitle>
         </DialogHeader>
         
-        <div className="w-full h-full min-h-[90vh]">
+        <div className="w-full h-full min-h-[90vh] relative">
+          {!serviceAvailable && hasTimeout && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/90 z-10">
+              <div className="text-center p-6 max-w-md">
+                <div className="mb-4 text-destructive">⚠️ Serviço Indisponível</div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  O serviço de processamento de imagens não está respondendo. 
+                  Isso pode ser devido a manutenção ou problemas de conectividade.
+                </p>
+                <Button onClick={onClose} variant="outline">
+                  Fechar e Tentar Mais Tarde
+                </Button>
+              </div>
+            </div>
+          )}
+          
           <iframe
             src={`https://imagens-conectaios-420832656535.us-west1.run.app${initialImage ? `?imageUrl=${encodeURIComponent(initialImage)}&action=${type}` : ''}`}
             className="w-full h-full border-0 rounded-lg"

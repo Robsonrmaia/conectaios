@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Wand2, Loader2 } from 'lucide-react';
 import { useAI } from '@/hooks/useAI';
@@ -30,14 +30,14 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
   const [generatedDescription, setGeneratedDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const { sendMessage, loading } = useAI();
+  const hasGeneratedRef = useRef(false);
 
-  const generateClientDescription = useCallback(async () => {
-    // Verificações internas para evitar execução desnecessária
-    if (isGenerating || loading) {
-      console.log('Skipping generation - already in progress');
+  const generateClientDescription = async () => {
+    if (isGenerating || loading || hasGeneratedRef.current) {
       return;
     }
 
+    hasGeneratedRef.current = true;
     setIsGenerating(true);
     
     const prompt = `
@@ -92,6 +92,7 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
         description: "Descrição otimizada para atrair clientes interessados.",
       });
     } catch (error) {
+      console.error('AI Description Error:', error);
       toast({
         title: "Erro",
         description: "Não foi possível gerar a descrição. Usando descrição padrão.",
@@ -106,23 +107,15 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
     } finally {
       setIsGenerating(false);
     }
-  }, [property.id, property.titulo, sendMessage, onDescriptionGenerated]);
+  };
 
-  // Auto-generate on mount
+  // Auto-generate on mount - single execution
   useEffect(() => {
-    console.log('ClientAI Effect:', { 
-      propertyId: property.id, 
-      hasDescription: !!generatedDescription, 
-      isGenerating, 
-      loading,
-      propertyTitle: property.titulo 
-    });
-    
-    if (!generatedDescription && property.id && property.titulo) {
+    if (property.id && property.titulo && !hasGeneratedRef.current) {
       console.log('Starting AI description generation for:', property.titulo);
       generateClientDescription();
     }
-  }, [property.id, generatedDescription, generateClientDescription]);
+  }, [property.id]);
 
   return (
     <div className="text-center py-2">
