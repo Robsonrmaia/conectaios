@@ -446,6 +446,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "cards_prop_id_fkey"
+            columns: ["prop_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_properties"
+            referencedColumns: ["id"]
+          },
         ]
       }
       client_history: {
@@ -1390,6 +1397,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "deals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deals_seller_broker_id_fkey"
             columns: ["seller_broker_id"]
             isOneToOne: false
@@ -1766,6 +1780,54 @@ export type Database = {
         }
         Relationships: []
       }
+      integrations_logs: {
+        Row: {
+          created_count: number | null
+          dry_run: boolean | null
+          errors: Json | null
+          execution_time_ms: number | null
+          feed_url: string | null
+          fetched_count: number | null
+          hash: string | null
+          id: string
+          ignored_count: number | null
+          notes: string | null
+          run_at: string | null
+          source_portal: string
+          updated_count: number | null
+        }
+        Insert: {
+          created_count?: number | null
+          dry_run?: boolean | null
+          errors?: Json | null
+          execution_time_ms?: number | null
+          feed_url?: string | null
+          fetched_count?: number | null
+          hash?: string | null
+          id?: string
+          ignored_count?: number | null
+          notes?: string | null
+          run_at?: string | null
+          source_portal: string
+          updated_count?: number | null
+        }
+        Update: {
+          created_count?: number | null
+          dry_run?: boolean | null
+          errors?: Json | null
+          execution_time_ms?: number | null
+          feed_url?: string | null
+          fetched_count?: number | null
+          hash?: string | null
+          id?: string
+          ignored_count?: number | null
+          notes?: string | null
+          run_at?: string | null
+          source_portal?: string
+          updated_count?: number | null
+        }
+        Relationships: []
+      }
       locations: {
         Row: {
           address: string | null
@@ -1909,6 +1971,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "media_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_properties"
             referencedColumns: ["id"]
           },
         ]
@@ -2579,27 +2648,43 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "projects_prop_id_fkey"
+            columns: ["prop_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_properties"
+            referencedColumns: ["id"]
+          },
         ]
       }
       properties: {
         Row: {
           address: string | null
           area: number | null
+          area_privativa: number | null
+          area_total: number | null
           auto_delete_at: string | null
+          bairro: string | null
+          banheiros: number | null
           banner_type: string | null
           bathrooms: number | null
           broker_minisite_enabled: boolean | null
+          cidade: string | null
           city: string | null
           condominium_fee: number | null
           coordinates: Json | null
           created_at: string
           descricao: string | null
+          endereco: string | null
+          external_id: string | null
           features: Json | null
           finalidade: string | null
           fotos: string[] | null
           furnishing_type: string | null
+          galeria_urls: string[] | null
           has_sea_view: boolean | null
           id: string
+          imported_at: string | null
           iptu: number | null
           is_featured: boolean | null
           is_public: boolean | null
@@ -2609,17 +2694,27 @@ export type Database = {
           marked_as_sold_at: string | null
           neighborhood: string | null
           parking_spots: number | null
+          preco: number | null
           price_per_m2: number | null
           property_type: string | null
           quartos: number | null
+          raw_cnm: Json | null
+          raw_vrsync: Json | null
           reference_code: string | null
           sale_status: string | null
           sea_distance: number | null
+          site_id: string | null
+          slug: string | null
+          source_portal: string | null
           state: string | null
+          status: string | null
+          thumb_url: string | null
+          tipo: string | null
           titulo: string
           tour_360_url: string | null
           updated_at: string
           user_id: string | null
+          vagas: number | null
           valor: number | null
           videos: string[] | null
           views_count: number | null
@@ -2630,21 +2725,30 @@ export type Database = {
         Insert: {
           address?: string | null
           area?: number | null
+          area_privativa?: number | null
+          area_total?: number | null
           auto_delete_at?: string | null
+          bairro?: string | null
+          banheiros?: number | null
           banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
+          cidade?: string | null
           city?: string | null
           condominium_fee?: number | null
           coordinates?: Json | null
           created_at?: string
           descricao?: string | null
+          endereco?: string | null
+          external_id?: string | null
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
           furnishing_type?: string | null
+          galeria_urls?: string[] | null
           has_sea_view?: boolean | null
           id?: string
+          imported_at?: string | null
           iptu?: number | null
           is_featured?: boolean | null
           is_public?: boolean | null
@@ -2654,17 +2758,27 @@ export type Database = {
           marked_as_sold_at?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
+          preco?: number | null
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
+          raw_cnm?: Json | null
+          raw_vrsync?: Json | null
           reference_code?: string | null
           sale_status?: string | null
           sea_distance?: number | null
+          site_id?: string | null
+          slug?: string | null
+          source_portal?: string | null
           state?: string | null
+          status?: string | null
+          thumb_url?: string | null
+          tipo?: string | null
           titulo: string
           tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
+          vagas?: number | null
           valor?: number | null
           videos?: string[] | null
           views_count?: number | null
@@ -2675,21 +2789,30 @@ export type Database = {
         Update: {
           address?: string | null
           area?: number | null
+          area_privativa?: number | null
+          area_total?: number | null
           auto_delete_at?: string | null
+          bairro?: string | null
+          banheiros?: number | null
           banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
+          cidade?: string | null
           city?: string | null
           condominium_fee?: number | null
           coordinates?: Json | null
           created_at?: string
           descricao?: string | null
+          endereco?: string | null
+          external_id?: string | null
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
           furnishing_type?: string | null
+          galeria_urls?: string[] | null
           has_sea_view?: boolean | null
           id?: string
+          imported_at?: string | null
           iptu?: number | null
           is_featured?: boolean | null
           is_public?: boolean | null
@@ -2699,17 +2822,27 @@ export type Database = {
           marked_as_sold_at?: string | null
           neighborhood?: string | null
           parking_spots?: number | null
+          preco?: number | null
           price_per_m2?: number | null
           property_type?: string | null
           quartos?: number | null
+          raw_cnm?: Json | null
+          raw_vrsync?: Json | null
           reference_code?: string | null
           sale_status?: string | null
           sea_distance?: number | null
+          site_id?: string | null
+          slug?: string | null
+          source_portal?: string | null
           state?: string | null
+          status?: string | null
+          thumb_url?: string | null
+          tipo?: string | null
           titulo?: string
           tour_360_url?: string | null
           updated_at?: string
           user_id?: string | null
+          vagas?: number | null
           valor?: number | null
           videos?: string[] | null
           views_count?: number | null
@@ -3400,6 +3533,75 @@ export type Database = {
         }
         Relationships: []
       }
+      v_public_properties: {
+        Row: {
+          area_privativa: number | null
+          area_total: number | null
+          bairro: string | null
+          banheiros: number | null
+          cidade: string | null
+          created_at: string | null
+          descricao: string | null
+          endereco: string | null
+          finalidade: string | null
+          galeria_urls: string[] | null
+          id: string | null
+          metragem: number | null
+          preco: number | null
+          quartos: number | null
+          slug: string | null
+          source_portal: string | null
+          thumb_url: string | null
+          tipo: string | null
+          titulo: string | null
+          vagas: number | null
+        }
+        Insert: {
+          area_privativa?: number | null
+          area_total?: number | null
+          bairro?: string | null
+          banheiros?: number | null
+          cidade?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          endereco?: string | null
+          finalidade?: string | null
+          galeria_urls?: string[] | null
+          id?: string | null
+          metragem?: never
+          preco?: number | null
+          quartos?: number | null
+          slug?: string | null
+          source_portal?: string | null
+          thumb_url?: string | null
+          tipo?: string | null
+          titulo?: string | null
+          vagas?: number | null
+        }
+        Update: {
+          area_privativa?: number | null
+          area_total?: number | null
+          bairro?: string | null
+          banheiros?: number | null
+          cidade?: string | null
+          created_at?: string | null
+          descricao?: string | null
+          endereco?: string | null
+          finalidade?: string | null
+          galeria_urls?: string[] | null
+          id?: string | null
+          metragem?: never
+          preco?: number | null
+          quartos?: number | null
+          slug?: string | null
+          source_portal?: string | null
+          thumb_url?: string | null
+          tipo?: string | null
+          titulo?: string | null
+          vagas?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_change_user_role: {
@@ -3473,6 +3675,10 @@ export type Database = {
       }
       generate_property_reference_code: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_property_slug: {
+        Args: { p_cidade?: string; p_titulo: string }
         Returns: string
       }
       generate_referral_code: {
