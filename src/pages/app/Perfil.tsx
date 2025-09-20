@@ -345,29 +345,30 @@ export default function Perfil() {
                     rows={3}
                   />
                 </div>
-                 <Button 
-                   onClick={async () => {
-                     try {
-                       await updateBrokerProfile({
-                         name: profile.name,
-                         email: profile.email,
-                         phone: profile.phone,
-                         bio: profile.bio,
-                         creci: profile.creci,
-                         username: profile.username
-                       });
-                       toast({
-                         title: "Perfil atualizado!",
-                         description: "Suas informações foram salvas com sucesso.",
-                       });
-                     } catch (error) {
-                       toast({
-                         title: "Erro",
-                         description: "Erro ao salvar as alterações.",
-                         variant: "destructive",
-                       });
-                     }
-                   }}
+                  <Button 
+                    onClick={async () => {
+                      try {
+                        await updateBrokerProfile({
+                          name: profile.name,
+                          email: profile.email,
+                          phone: profile.phone,
+                          bio: profile.bio,
+                          creci: profile.creci,
+                          username: profile.username
+                        });
+                        toast({
+                          title: "Perfil atualizado!",
+                          description: "Suas informações foram salvas com sucesso.",
+                        });
+                      } catch (error) {
+                        console.error('Erro ao salvar perfil:', error);
+                        toast({
+                          title: "Erro",
+                          description: "Erro ao salvar as alterações.",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
                    className="bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg w-full sm:w-auto min-h-[44px] touch-target"
                  >
                    Salvar Alterações
