@@ -5,12 +5,14 @@ import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 import { useRealPlaces } from '@/hooks/useRealPlaces';
+import { usePropertyPresentationState } from '@/hooks/usePropertyPresentationState';
 import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
+import { useAI } from '@/hooks/useAI';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 interface Property {
@@ -52,7 +54,18 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const { places, loading: placesLoading } = useRealPlaces({
     zipcode: property.zipcode,
     neighborhood: property.neighborhood,
-    address: property.city
+    address: property.city,
+    has_sea_view: property.has_sea_view,
+    sea_distance: property.sea_distance,
+    furnishing_type: property.furnishing_type,
+    property_type: property.property_type
+  });
+  
+  const presentationState = usePropertyPresentationState({
+    isOpen,
+    hasPhotos: !!(property.fotos?.length),
+    placesLoading,
+    brokerLoading
   });
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
@@ -102,6 +115,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       } catch (error) {
         console.error("❌ ConectAIOS service not available:", error);
         setIsSketchLoading(false);
+        presentationState.updateSketchState(true); // Mark as ready even if failed
         // Show user-friendly message without opening processor
         console.log("ℹ️ Sketch generation temporarily unavailable");
       }
@@ -148,8 +162,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShare = async () => {
+    // Generate client-specific description if sharing
+    const shareDescription = await generateClientDescription();
     const propertyUrl = generatePropertyUrl(property.id);
-    const message = generatePropertyMessage(property, propertyUrl);
+    const message = generatePropertyMessage({ ...property, descricao: shareDescription } as any, propertyUrl);
     
     if (navigator.share) {
       await navigator.share({
@@ -163,6 +179,51 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         title: "Mensagem copiada!",
         description: "A mensagem foi copiada para a área de transferência",
       });
+    }
+  };
+
+  const generateClientDescription = async (): Promise<string> => {
+    try {
+      const { sendMessage } = useAI();
+      const prompt = `
+        Como especialista em marketing imobiliário, crie uma descrição emocional e persuasiva para este imóvel direcionada ao CLIENTE FINAL:
+        
+        🏠 DADOS DO IMÓVEL:
+        • Título: ${property.titulo}
+        • Tipo: ${property.property_type}
+        • Finalidade: ${property.listing_type} 
+        • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
+        • Área: ${property.area}m²
+        • Quartos: ${property.quartos}
+        • Banheiros: ${property.bathrooms}
+        • Vagas: ${property.parking_spots}
+        ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
+        ${property.city ? `• Cidade: ${property.city}` : ''}
+        ${property.has_sea_view ? `• Vista para o mar: Sim` : ''}
+        ${property.furnishing_type && property.furnishing_type !== 'unfurnished' ? `• Mobiliado: Sim` : ''}
+        ${property.sea_distance ? `• Distância da praia: ${property.sea_distance}m` : ''}
+        
+        🎯 FOQUE EM ASPECTOS QUE EMOCIONAM CLIENTES:
+        • Como será a vida neste imóvel (lifestyle)
+        • Conforto e comodidade para a família
+        • Localização privilegiada e conveniência
+        • Sensação de segurança e bem-estar
+        • Valorização e bom investimento
+        
+        INSTRUÇÕES:
+        1. Use linguagem emocional para clientes finais
+        2. Desperte o desejo pelo imóvel
+        3. Máximo 120 palavras para compartilhamento
+        4. NÃO use emojis ou caracteres especiais
+        5. Termine com call-to-action sutil
+        
+        Gere apenas a descrição, sem explicações.`;
+      
+      const response = await sendMessage(prompt);
+      return response;
+    } catch (error) {
+      // Fallback description for clients
+      return `${property.titulo} - ${property.property_type} para ${property.listing_type} em ${property.neighborhood || property.city || 'localização privilegiada'}. ${property.area}m², ${property.quartos} quartos, ${property.bathrooms} banheiros. ${property.has_sea_view ? 'Vista para o mar. ' : ''}Um lar perfeito para realizar seus sonhos. Entre em contato e agende uma visita!`;
     }
   };
 
@@ -380,11 +441,21 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             
             <Button 
               onClick={handleShare}
-              className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
+              disabled={!presentationState.isReadyForSharing}
+              className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
               size="default"
             >
-              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-              Compartilhar
+              {!presentationState.isReadyForSharing ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  Carregando...
+                </>
+              ) : (
+                <>
+                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Compartilhar
+                </>
+              )}
             </Button>
           </div>
         </div>

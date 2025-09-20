@@ -29,16 +29,24 @@ interface AIPropertyDescriptionProps {
   property: Property;
   onDescriptionGenerated: (description: string) => void;
   onClose: () => void;
+  targetAudience?: 'brokers' | 'clients';
+  initialDescription?: string;
 }
 
-export function AIPropertyDescription({ property, onDescriptionGenerated, onClose }: AIPropertyDescriptionProps) {
-  const [generatedDescription, setGeneratedDescription] = useState('');
+export function AIPropertyDescription({ property, onDescriptionGenerated, onClose, targetAudience = 'brokers', initialDescription }: AIPropertyDescriptionProps) {
+  const [generatedDescription, setGeneratedDescription] = useState(initialDescription || '');
+  const [hasGenerated, setHasGenerated] = useState(!!initialDescription);
   const [copied, setCopied] = useState(false);
   const { sendMessage, loading } = useAI();
   const { speak, isSpeaking, stop, isCurrentlySpeaking } = useElevenLabsVoice();
 
   const generateDescription = async () => {
-    const prompt = `
+    // Prevent duplicate generation
+    if (loading || (hasGenerated && generatedDescription && !confirm('Já existe uma descrição gerada. Deseja gerar uma nova?'))) {
+      return;
+    }
+
+    const brokerPrompt = `
       Como especialista imobiliário, crie uma descrição técnica e comercial para este imóvel direcionada a OUTROS CORRETORES:
       
       🏠 DADOS DO IMÓVEL:
@@ -75,12 +83,49 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
       
       Gere apenas a descrição, sem explicações adicionais.`;
 
+    const clientPrompt = `
+      Como especialista em marketing imobiliário, crie uma descrição atrativa e emocional para este imóvel direcionada aos CLIENTES FINAIS:
+      
+      🏠 DADOS DO IMÓVEL:
+      • Título: ${property.titulo}
+      • Tipo: ${property.property_type}
+      • Finalidade: ${property.listing_type} 
+      • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
+      • Área: ${property.area}m²
+      • Quartos: ${property.quartos}
+      • Banheiros: ${property.bathrooms}
+      • Vagas: ${property.parking_spots}
+      ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
+      ${property.address ? `• Endereço: ${property.address}` : ''}
+      
+      🎯 FOQUE EM ASPECTOS QUE EMOCIONAM CLIENTES:
+      • Como será a vida neste imóvel (lifestyle)
+      • Conforto e comodidade para a família
+      • Localização privilegiada e conveniência
+      • Sensação de segurança e bem-estar
+      • Valorização e bom investimento
+      • Características únicas e especiais
+      
+      INSTRUÇÕES:
+      1. Use linguagem emocional e persuasiva para clientes finais
+      2. Destaque o sonho de morar no imóvel
+      3. Fale sobre qualidade de vida e realizações
+      4. Mencione benefícios para a família
+      5. Máximo 150 palavras
+      6. Use linguagem calorosa mas profissional
+      7. NÃO use emojis, asteriscos (*) ou caracteres especiais
+      
+      Gere apenas a descrição, sem explicações adicionais.`;
+
+    const prompt = targetAudience === 'clients' ? clientPrompt : brokerPrompt;
+
     try {
       const response = await sendMessage(prompt);
       setGeneratedDescription(response);
+      setHasGenerated(true);
       toast({
         title: "Descrição gerada!",
-        description: "Descrição criada com IA. Você pode editá-la antes de usar.",
+        description: `Descrição criada para ${targetAudience === 'clients' ? 'clientes' : 'corretores'}. Você pode editá-la antes de usar.`,
       });
     } catch (error) {
       toast({
@@ -126,7 +171,7 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
           Gerar Descrição com IA
         </CardTitle>
         <CardDescription>
-          Crie uma descrição profissional e atrativa para: <strong>{property.titulo}</strong>
+          Crie uma descrição {targetAudience === 'clients' ? 'emocional para clientes' : 'técnica para corretores'} para: <strong>{property.titulo}</strong>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
