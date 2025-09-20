@@ -47,7 +47,7 @@ export function GamificationBadge({
         return {
           icon: Target,
           color: 'bg-muted text-muted-foreground',
-          label: 'Sem Desconto',
+          label: '',
           description: 'Ganhe pontos para desbloquear descontos!'
         };
     }
@@ -81,7 +81,7 @@ export function GamificationBadge({
   const badgeContent = (
     <div className="flex items-center gap-1">
       <Badge className={`${tierConfig.color} ${sizeClasses[size]} ${className}`}>
-        <Icon className={`${iconSizes[size]} mr-1`} />
+        <Icon className={`${iconSizes[size]} ${tierConfig.label ? 'mr-1' : ''}`} />
         {tierConfig.label}
       </Badge>
       
@@ -111,7 +111,7 @@ export function GamificationBadge({
         <TooltipContent side="top" className="max-w-xs">
           <div className="space-y-2">
             <div>
-              <p className="font-semibold">{tierConfig.label} Tier</p>
+              <p className="font-semibold">{tierConfig.label || 'Sem Desconto'} Tier</p>
               <p className="text-sm">{tierConfig.description}</p>
               {pontos > 0 && (
                 <p className="text-xs text-muted-foreground">{pontos} pontos este mês</p>
