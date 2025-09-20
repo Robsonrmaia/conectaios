@@ -276,28 +276,41 @@ serve(async (req) => {
           vagas: it.vagas
         });
 
-        // Map CNM fields with enhanced defaults
+        // Map CNM data to our property structure
+        const photos = extractPhotos(imovel);
+        const valor = parseFloat(String(imovel.valor || imovel.preco || '0').replace(/[^\d.-]/g, '')) || 0;
+        
+        console.log(`💰 Property value extracted: ${valor} from raw: ${imovel.valor || imovel.preco}`);
+        
         const propertyData: PropertyData = {
           reference_code,
           external_id: reference_code, // Same as reference_code for CNM
           source_portal: 'cnm',
-          titulo,
-          listing_type: mapListingType(it.finalidade ?? it.transacao ?? it.tipo_transacao ?? it.negocio),
-          property_type: mapPropertyType(it.tipo ?? it.tipo_imovel ?? it.categoria),
-          valor,
-          area,
-          quartos: parseInt(it.quartos?.toString()?.trim() || it.dormitorios?.toString()?.trim() || '0') || 0,
-          banheiros: parseInt(it.banheiros?.toString()?.trim() || it.bwc?.toString()?.trim() || '0') || 0,
-          vagas: parseInt(it.vagas?.toString()?.trim() || it.garagem?.toString()?.trim() || it.garage?.toString()?.trim() || '0') || 0,
-          descricao: it.descricao ?? it.observacoes ?? it.detalhes ?? '',
-          endereco,
-          bairro: it.bairro ?? it?.endereco?.bairro ?? it.neighborhood ?? '',
-          cidade: it.cidade ?? it?.endereco?.cidade ?? it.city ?? '',
-          fotos,
+          titulo: String(imovel.titulo || imovel.tipo || `${mapPropertyType(imovel.tipo)} ${imovel.referencia || 'Sem ID'}`).substring(0, 255),
+          listing_type: mapListingType(imovel.finalidade || imovel.transacao),
+          property_type: mapPropertyType(imovel.tipo),
+          valor: valor,
+          preco: valor, // Compatibility field
+          area: parseFloat(String(imovel.area || imovel.area_util || '0').replace(/[^\d.-]/g, '')) || 0,
+          quartos: parseInt(String(imovel.quartos || imovel.dormitorios || '0')) || 0,
+          banheiros: parseInt(String(imovel.banheiros || imovel.suites || '0')) || 0,
+          vagas: parseInt(String(imovel.vagas || imovel.garagem || '0')) || 0,
+          descricao: imovel.descricao || imovel.observacoes || '',
+          endereco: imovel.endereco?.logradouro || imovel.logradouro || '',
+          bairro: imovel.endereco?.bairro || imovel.bairro || '',
+          cidade: imovel.endereco?.cidade || imovel.cidade || '',
+          state: imovel.endereco?.uf || imovel.uf || '',
+          zipcode: imovel.endereco?.cep || imovel.cep || '',
+          fotos: photos,
+          galeria_urls: photos, // Array of photo URLs
+          thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
+          finalidade: mapListingType(imovel.finalidade || imovel.transacao), // Compatibility
+          tipo: mapPropertyType(imovel.tipo), // Compatibility
           raw_cnm: imovel,
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden',
+          status: 'ATIVO',
           // New fields for broker assignment
           user_id: userId || null,
           site_id: siteIdParam || null
@@ -385,10 +398,21 @@ serve(async (req) => {
 // Helper functions
 function mapListingType(tipo: string | undefined): string {
   if (!tipo) return 'venda';
-  const t = tipo.toLowerCase();
-  if (t.includes('alug') || t.includes('rent')) return 'aluguel';
-  if (t.includes('vend') || t.includes('sale')) return 'venda';
-  return 'venda';
+  
+  const normalized = tipo.toLowerCase().trim();
+  
+  // CNM specific mappings
+  if (normalized.includes('alug') || normalized.includes('rent') || normalized === 'l' || 
+      normalized === 're' || normalized.includes('loca')) {
+    return 'aluguel';
+  }
+  
+  if (normalized.includes('vend') || normalized.includes('sale') || normalized === 'v' ||
+      normalized.includes('compra')) {
+    return 'venda';
+  }
+  
+  return 'venda'; // Default to sale
 }
 
 function mapPropertyType(tipo: string | undefined): string {
@@ -428,44 +452,58 @@ function deepFindArraysByKeys(obj: any, keys: string[]): any[] {
   return out;
 }
 
+// Convert HTTP URLs to HTTPS using proxy
+function toHttps(url: string): string {
+  if (!url) return url;
+  if (url.startsWith('http://')) {
+    const cleanUrl = url.replace(/^http:\/\//, '');
+    return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`;
+  }
+  return url;
+}
+
 function extractPhotos(imovel: any): string[] {
   const photos: string[] = [];
   
-  // Try multiple photo container patterns
-  const photoSources = [
-    imovel.fotos?.foto,
-    imovel.fotos?.imagem,
-    imovel.imagens?.imagem,
-    imovel.imagens?.foto,
-    imovel.photos?.photo,
-    imovel.galeria?.foto,
-    imovel.midias?.midia,
-    imovel.anexos?.anexo
-  ];
-  
-  for (const source of photoSources) {
-    if (source) {
-      const items = Array.isArray(source) ? source : [source];
-      for (const item of items) {
-        // Try multiple URL patterns
-        const url = item?.url ?? 
-                   item?.src ?? 
-                   item?.href ?? 
-                   item?.link ?? 
-                   item?.arquivo ?? 
-                   (typeof item === 'string' ? item : null);
+  try {
+    console.log('🖼️ Extracting photos from CNM item:', JSON.stringify(imovel, null, 2));
+    
+    // Try different possible paths for photos
+    const fotoPaths = [
+      imovel?.fotos?.foto,
+      imovel?.Fotos?.Foto,
+      imovel?.photos?.photo,
+      imovel?.Photos?.Photo,
+      imovel?.imagens?.imagem,
+      imovel?.Imagens?.Imagem
+    ];
+    
+    for (const fotoPath of fotoPaths) {
+      if (fotoPath) {
+        const fotoArray = Array.isArray(fotoPath) ? fotoPath : [fotoPath];
+        console.log(`📷 Processing photo array with ${fotoArray.length} items`);
         
-        if (url && typeof url === 'string' && url.trim()) {
-          const cleanUrl = url.trim();
-          if (cleanUrl.startsWith('http') && !photos.includes(cleanUrl)) {
-            photos.push(cleanUrl);
+        for (const foto of fotoArray) {
+          if (foto && typeof foto === 'object') {
+            const url = foto.url || foto.URL || foto.src || foto.href;
+            if (url && typeof url === 'string' && url.trim()) {
+              const httpsUrl = toHttps(url.trim());
+              photos.push(httpsUrl);
+              console.log(`✅ Found photo URL: ${httpsUrl}`);
+            }
+          } else if (typeof foto === 'string' && foto.trim()) {
+            const httpsUrl = toHttps(foto.trim());
+            photos.push(httpsUrl);
+            console.log(`✅ Found photo URL (string): ${httpsUrl}`);
           }
         }
       }
-      
-      if (photos.length > 0) break; // Stop at first successful source
     }
+    
+    console.log(`🎯 Total photos extracted: ${photos.length}`);
+  } catch (error) {
+    console.error('❌ Error extracting photos:', error);
   }
   
-  return photos;
+  return [...new Set(photos)]; // Remove duplicates
 }

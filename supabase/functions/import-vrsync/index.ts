@@ -278,28 +278,43 @@ serve(async (req) => {
           parking: p?.ParkingSpaces ?? p?.Details?.Garage
         });
 
-        // Map VrSync fields with enhanced defaults
+        // Extract and map data with improved field mapping
+        const photos = extractVrSyncPhotos(imovel);
+        const valor = parseFloat(String(
+          getElementValue(imovel, ['Price', 'PricingInfos.Price', 'PricingInfos.RentalTotalPrice', 'valor', 'preco']) || '0'
+        ).replace(/[^\d.-]/g, '')) || 0;
+        
+        console.log(`💰 Property value extracted: ${valor} from raw: ${getElementValue(imovel, ['Price', 'PricingInfos.Price', 'valor', 'preco'])}`);
+        
         const propertyData: PropertyData = {
           reference_code,
           external_id: reference_code, // Same as reference_code for VrSync
           source_portal: 'vrsync',
-          titulo,
-          listing_type: mapListingType(p?.ListingType ?? p?.TransactionType ?? p?.Type),
-          property_type: mapPropertyType(p?.PropertyType ?? p?.Details?.PropertyType ?? p?.Type),
-          valor,
-          area,
-          quartos: parseInt(p?.Bedrooms?.toString() ?? p?.Details?.Bedrooms?.toString() ?? '0') || 0,
-          banheiros: parseInt(p?.Bathrooms?.toString() ?? p?.Details?.Bathrooms?.toString() ?? '0') || 0,
-          vagas: parseInt(p?.ParkingSpaces?.toString() ?? p?.Details?.Garage?.toString() ?? p?.Details?.ParkingSpaces?.toString() ?? '0') || 0,
-          descricao: p?.Description ?? p?.Details?.Description ?? '',
-          endereco,
-          bairro: p?.Address?.Neighborhood ?? p?.Location?.Neighborhood ?? p?.Bairro ?? '',
-          cidade: p?.Address?.City ?? p?.Location?.City ?? p?.Cidade ?? '',
-          fotos,
+          titulo: String(imovel.Title || imovel.titulo || `${mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo']))} ${imovel.ListingID || 'Sem ID'}`).substring(0, 255),
+          listing_type: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])),
+          property_type: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])),
+          valor: valor,
+          preco: valor, // Compatibility field
+          area: parseFloat(String(getElementValue(imovel, ['LivingArea', 'area', 'AreaUtil', 'area_util']) || '0').replace(/[^\d.-]/g, '')) || 0,
+          quartos: parseInt(String(getElementValue(imovel, ['Bedrooms', 'quartos', 'dormitorios']) || '0')) || 0,
+          banheiros: parseInt(String(getElementValue(imovel, ['Bathrooms', 'banheiros', 'suites']) || '0')) || 0,
+          vagas: parseInt(String(getElementValue(imovel, ['ParkingSpaces', 'vagas', 'garagem']) || '0')) || 0,
+          descricao: getElementValue(imovel, ['Description', 'descricao', 'Observacoes', 'observacoes']),
+          endereco: getElementValue(imovel, ['Address.Street', 'endereco', 'logradouro']) || '',
+          bairro: getElementValue(imovel, ['Address.Neighborhood', 'bairro']) || '',
+          cidade: getElementValue(imovel, ['Address.City', 'cidade']) || '',
+          state: getElementValue(imovel, ['Address.State', 'uf', 'estado']) || '',
+          zipcode: getElementValue(imovel, ['Address.ZipCode', 'cep']) || '',
+          fotos: photos,
+          galeria_urls: photos, // Array of photo URLs
+          thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
+          finalidade: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])), // Compatibility
+          tipo: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])), // Compatibility
           raw_vrsync: xmlToObject(imovel),
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden',
+          status: 'ATIVO',
           // New fields for broker assignment
           user_id: userId || null,
           site_id: siteIdParam || null
@@ -431,10 +446,21 @@ function getElementValue(obj: any, tagNames: string[]): string | undefined {
 
 function mapListingType(tipo: string | undefined): string {
   if (!tipo) return 'venda';
-  const t = tipo.toLowerCase();
-  if (t.includes('alug') || t.includes('rent') || t.includes('locacao')) return 'aluguel';
-  if (t.includes('vend') || t.includes('sale') || t.includes('venda')) return 'venda';
-  return 'venda';
+  
+  const normalized = tipo.toLowerCase().trim();
+  
+  // VrSync specific mappings
+  if (normalized.includes('alug') || normalized.includes('rent') || normalized === 'rental' ||
+      normalized.includes('loca') || normalized === 'l') {
+    return 'aluguel';
+  }
+  
+  if (normalized.includes('vend') || normalized.includes('sale') || normalized === 'sale' ||
+      normalized.includes('compra') || normalized === 'v') {
+    return 'venda';
+  }
+  
+  return 'venda'; // Default to sale
 }
 
 function mapPropertyType(tipo: string | undefined): string {
@@ -447,62 +473,63 @@ function mapPropertyType(tipo: string | undefined): string {
   return 'apartamento';
 }
 
+// Convert HTTP URLs to HTTPS using proxy
+function toHttps(url: string): string {
+  if (!url) return url;
+  if (url.startsWith('http://')) {
+    const cleanUrl = url.replace(/^http:\/\//, '');
+    return `https://images.weserv.nl/?url=${encodeURIComponent(cleanUrl)}`;
+  }
+  return url;
+}
+
 function extractVrSyncPhotos(imovel: any): string[] {
   const photos: string[] = [];
   
-  // Comprehensive photo extraction for VrSync format
-  const photoSources = [
-    // Standard VrSync paths
-    imovel?.Medias?.Media,
-    imovel?.Media,
-    imovel?.Photos?.Photo,
-    imovel?.Images?.Image,
+  try {
+    console.log('🖼️ Extracting photos from VrSync item:', JSON.stringify(imovel, null, 2));
     
-    // Alternative paths
-    imovel?.Fotos?.Foto,
-    imovel?.fotos?.foto,
-    imovel?.Photos,
-    imovel?.Imagens?.Imagem,
-    imovel?.imagens?.imagem,
-    imovel?.Gallery?.Item,
-    imovel?.Midias?.Midia
-  ];
-  
-  for (const source of photoSources) {
-    if (source) {
-      const items = Array.isArray(source) ? source : [source];
-      
-      for (const item of items) {
-        // Try multiple URL extraction patterns
-        let url = null;
+    // Try different possible paths for photos in VrSync format
+    const mediaPaths = [
+      imovel?.Medias?.Media,
+      imovel?.medias?.media,
+      imovel?.Media,
+      imovel?.media,
+      imovel?.fotos?.foto,
+      imovel?.Fotos?.Foto,
+      imovel?.Photos?.Photo,
+      imovel?.photos?.photo
+    ];
+    
+    for (const mediaPath of mediaPaths) {
+      if (mediaPath) {
+        const mediaArray = Array.isArray(mediaPath) ? mediaPath : [mediaPath];
+        console.log(`📷 Processing media array with ${mediaArray.length} items`);
         
-        if (typeof item === 'string') {
-          url = item;
-        } else if (item && typeof item === 'object') {
-          url = item.Url ?? 
-               item.URL ?? 
-               item.url ?? 
-               item.src ?? 
-               item.href ?? 
-               item.link ?? 
-               item.Item?.URL ?? 
-               item.Item?.Url ??
-               item.arquivo;
-        }
-        
-        if (url && typeof url === 'string') {
-          const cleanUrl = url.trim();
-          if (cleanUrl.startsWith('http') && !photos.includes(cleanUrl)) {
-            photos.push(cleanUrl);
+        for (const item of mediaArray) {
+          if (item && typeof item === 'object') {
+            // Try different URL properties, including #text for XML parsing
+            const url = item.Url || item.url || item.URL || item.src || item.href || item['#text'];
+            if (url && typeof url === 'string' && url.trim()) {
+              const httpsUrl = toHttps(url.trim());
+              photos.push(httpsUrl);
+              console.log(`✅ Found photo URL: ${httpsUrl}`);
+            }
+          } else if (typeof item === 'string' && item.trim()) {
+            const httpsUrl = toHttps(item.trim());
+            photos.push(httpsUrl);
+            console.log(`✅ Found photo URL (string): ${httpsUrl}`);
           }
         }
       }
-      
-      if (photos.length > 0) break; // Stop at first successful source
     }
+    
+    console.log(`🎯 Total photos extracted: ${photos.length}`);
+  } catch (error) {
+    console.error('❌ Error extracting VrSync photos:', error);
   }
   
-  return photos;
+  return [...new Set(photos)]; // Remove duplicates
 }
 
 function xmlToObject(obj: any): any {
