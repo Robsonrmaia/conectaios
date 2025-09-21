@@ -1334,19 +1334,11 @@ export default function Imoveis() {
                         <FileImage className="h-3 w-3 mr-1" />
                         Fotos
                       </Button>
-                       <Button 
-                         variant="outline" 
-                         size="sm"
-                         onClick={() => {
-                           const marketUrl = `/marketplace/${property.id}`;
-                           window.open(marketUrl, '_blank');
-                         }}
-                         title="Ver no Marketplace"
-                         className="h-8 text-xs"
-                       >
-                         <Target className="h-3 w-3 mr-1" />
-                         Market
-                       </Button>
+                       <ShareButton
+                         property={property}
+                         isOwner={true}
+                         isAuthorized={true}
+                       />
                     </div>
                   
                     <div className="grid grid-cols-2 gap-2">
