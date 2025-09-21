@@ -446,12 +446,12 @@ export default function Gamificacao() {
                       🔥 Force Refresh
                     </Button>
                     <Button 
-                      onClick={() => window.location.reload()} 
+                      onClick={forceRefreshRules} 
                       variant="secondary"
                       size="sm"
                       className="w-full sm:w-auto touch-target"
                     >
-                      🔄 Reload Page
+                      🔄 Atualizar Regras
                     </Button>
                   </div>
                 </div>
