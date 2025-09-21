@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AppErrorBoundary } from "@/components/AppErrorBoundary";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
@@ -84,20 +85,7 @@ const UserInfo = () => {
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { shouldShowTour, completeTour, loading } = useOnboarding();
 
-  if (loading) {
-    return (
-      <SidebarProvider>
-        <div className="flex min-h-screen w-full items-center justify-center">
-          <img 
-            src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" 
-            alt="ConectaIOS Logo" 
-            className="h-16 w-16 animate-spin"
-          />
-        </div>
-      </SidebarProvider>
-    );
-  }
-
+  // Don't block the UI for onboarding loading - make it non-blocking
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -112,7 +100,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           </main>
         </div>
       </div>
-      {shouldShowTour && (
+      {/* Onboarding is now non-blocking and loads asynchronously */}
+      {!loading && shouldShowTour && (
         <OnboardingTour onComplete={completeTour} />
       )}
     </SidebarProvider>
@@ -120,16 +109,17 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <AuthProvider>
-        <BrokerProvider>
-          <MinisiteProvider>
-            <BrowserRouter>
-              <MaintenanceCheck>
-                <Routes>
+  <AppErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <AuthProvider>
+          <BrokerProvider>
+            <MinisiteProvider>
+              <BrowserRouter>
+                <MaintenanceCheck>
+                  <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/admin-master" element={<AdminMaster />} />
@@ -172,14 +162,15 @@ const App = () => (
                     </ProtectedRoute>
                   } />
                   <Route path="*" element={<NotFound />} />
-                </Routes>
-              </MaintenanceCheck>
-            </BrowserRouter>
-          </MinisiteProvider>
-        </BrokerProvider>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+                  </Routes>
+                </MaintenanceCheck>
+              </BrowserRouter>
+            </MinisiteProvider>
+          </BrokerProvider>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </AppErrorBoundary>
 );
 
 export default App;

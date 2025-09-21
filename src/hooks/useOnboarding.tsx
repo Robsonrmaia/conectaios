@@ -14,7 +14,23 @@ export function useOnboarding() {
 
   useEffect(() => {
     if (user) {
-      checkOnboardingStatus();
+      // Add timeout to prevent infinite loading
+      const timeout = setTimeout(() => {
+        if (loading) {
+          console.warn('⚠️ Onboarding loading timeout - proceeding without onboarding');
+          setLoading(false);
+          setOnboardingStatus({ tourCompleted: true, completedAt: null }); // Default to completed
+        }
+      }, 2000);
+
+      checkOnboardingStatus().finally(() => {
+        clearTimeout(timeout);
+      });
+
+      return () => clearTimeout(timeout);
+    } else {
+      setLoading(false);
+      setOnboardingStatus(null);
     }
   }, [user]);
 
@@ -22,6 +38,9 @@ export function useOnboarding() {
     if (!user) return;
 
     try {
+      setLoading(true);
+      console.log('🎯 Checking onboarding status for user:', user.id);
+      
       const { data, error } = await supabase
         .from('user_onboarding')
         .select('tour_completed, completed_at')
@@ -31,16 +50,20 @@ export function useOnboarding() {
         .maybeSingle();
 
       if (error) {
-        console.error('Error checking onboarding status:', error);
+        console.error('❌ Error checking onboarding status:', error);
+        // Fallback to completed tour to prevent blocking
+        setOnboardingStatus({ tourCompleted: true, completedAt: null });
         return;
       }
 
       if (data) {
+        console.log('✅ Onboarding status loaded:', data.tour_completed);
         setOnboardingStatus({
           tourCompleted: data.tour_completed,
           completedAt: data.completed_at
         });
       } else {
+        console.log('ℹ️ Creating initial onboarding record');
         // Create initial onboarding record
         const { error: insertError } = await supabase
           .from('user_onboarding')
@@ -52,7 +75,9 @@ export function useOnboarding() {
           .single();
 
         if (insertError) {
-          console.error('Error creating onboarding record:', insertError);
+          console.error('❌ Error creating onboarding record:', insertError);
+          // Fallback to completed tour to prevent blocking
+          setOnboardingStatus({ tourCompleted: true, completedAt: null });
           return;
         }
 
@@ -62,7 +87,9 @@ export function useOnboarding() {
         });
       }
     } catch (error) {
-      console.error('Error in checkOnboardingStatus:', error);
+      console.error('❌ Error in checkOnboardingStatus:', error);
+      // Fallback to completed tour to prevent blocking
+      setOnboardingStatus({ tourCompleted: true, completedAt: null });
     } finally {
       setLoading(false);
     }
