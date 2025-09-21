@@ -1334,19 +1334,19 @@ export default function Imoveis() {
                         <FileImage className="h-3 w-3 mr-1" />
                         Fotos
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => {
-                          setShareProperty(property);
-                          setIsShareDialogOpen(true);
-                        }}
-                        title="Compartilhar Imóvel"
-                        className="h-8 text-xs"
-                      >
-                        <Globe className="h-3 w-3 mr-1" />
-                        Compartilhar
-                      </Button>
+                       <Button 
+                         variant="outline" 
+                         size="sm"
+                         onClick={() => {
+                           const marketUrl = `/marketplace/${property.id}`;
+                           window.open(marketUrl, '_blank');
+                         }}
+                         title="Ver no Marketplace"
+                         className="h-8 text-xs"
+                       >
+                         <Target className="h-3 w-3 mr-1" />
+                         Market
+                       </Button>
                     </div>
                   
                     <div className="grid grid-cols-2 gap-2">
@@ -1364,17 +1364,20 @@ export default function Imoveis() {
                         IA Desc
                       </Button>
                       <Button 
-                        variant={"outline"}
+                        variant="outline" 
                         size="sm"
                         onClick={() => {
-                          setTour360Property(property);
-                          setIsTour360ModalOpen(true);
+                          // Add evaluation functionality here
+                          toast({
+                            title: "Avaliação de Imóvel",
+                            description: "Funcionalidade em desenvolvimento",
+                          });
                         }}
-                        title="Tour 360°"
+                        title="Avaliar Imóvel"
                         className="h-8 text-xs"
                       >
-                        <Eye className="h-3 w-3 mr-1" />
-                        Tour 360°
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        Avaliar
                       </Button>
                     </div>
                    

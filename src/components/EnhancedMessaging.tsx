@@ -89,9 +89,9 @@ export function EnhancedMessaging() {
   }
 
   return (
-    <div className="flex h-[600px] border rounded-lg overflow-hidden">
+    <div className="flex flex-col lg:flex-row h-[600px] border rounded-lg overflow-hidden">
       {/* Threads List */}
-      <div className="w-1/3 border-r bg-muted/30">
+      <div className="w-full lg:w-1/3 border-r bg-muted/30 lg:min-h-0 max-h-64 lg:max-h-none">
         <div className="p-4 border-b">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold">Conversas</h3>
@@ -182,7 +182,7 @@ export function EnhancedMessaging() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         {activeThread ? (
           <>
             {/* Chat Header */}
