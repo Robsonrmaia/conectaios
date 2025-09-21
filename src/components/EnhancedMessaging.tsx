@@ -162,7 +162,7 @@ export function EnhancedMessaging() {
       const formattedMessages: Message[] = messagesData.map(msg => ({
         id: msg.id,
         content: msg.content,
-        sender_id: msg.broker_id,
+        sender_id: msg.user_id,
         receiver_id: '', // Not needed for thread-based messages
         created_at: msg.created_at,
         sender_name: msg.sender_name,
@@ -209,7 +209,7 @@ export function EnhancedMessaging() {
       const newMsg: Message = {
         id: data.id,
         content: data.content,
-        sender_id: data.broker_id,
+        sender_id: data.user_id,
         receiver_id: '',
         created_at: data.created_at,
         sender_name: data.sender_name

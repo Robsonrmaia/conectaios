@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Send, Users } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
@@ -38,10 +38,19 @@ export function SimpleMessagingSystem() {
 
   const fetchThreads = async () => {
     try {
+      // Get broker ID first
+      const { data: brokerData } = await supabase
+        .from('conectaios_brokers')
+        .select('id')
+        .eq('user_id', user?.id)
+        .single();
+      
+      if (!brokerData) return;
+      
       const { data, error } = await supabase
         .from('threads')
         .select('*')
-        .contains('participants', [user?.id]);
+        .contains('participants', [brokerData.id]);
       
       if (error) throw error;
       setThreads(data || []);
@@ -69,12 +78,19 @@ export function SimpleMessagingSystem() {
     if (!newMessage.trim() || !selectedThread || !user) return;
 
     try {
+      // Get broker data for sender name
+      const { data: brokerData } = await supabase
+        .from('conectaios_brokers')
+        .select('name')
+        .eq('user_id', user.id)
+        .single();
+      
       const { error } = await supabase
         .from('messages')
         .insert([{
           thread_id: selectedThread,
           content: newMessage,
-          sender_name: user.email || 'Usuário',
+          sender_name: brokerData?.name || user.email || 'Usuário',
           user_id: user.id
         }]);
 

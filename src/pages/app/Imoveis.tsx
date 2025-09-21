@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Building2, Plus, Search, Home, Eye, Globe, FileImage, EyeOff, Bath, Bed, Car, MapPin, ChevronDown, Pencil, Trash2, Settings, Camera, Sparkles, FileText, FileCheck } from 'lucide-react';
+import { Building2, Plus, Search, Home, Eye, Globe, FileImage, EyeOff, Bath, Bed, Car, MapPin, ChevronDown, Pencil, Trash2, Settings, Camera, Sparkles, FileText, FileCheck, MessageCircle, Calculator } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/ShareButton';
@@ -314,6 +314,22 @@ export default function Imoveis() {
                         <FileImage className="h-3 w-3 mr-1" />
                         Fotos
                       </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs bg-green-500 hover:bg-green-600 text-white border-green-500"
+                        onClick={() => {
+                          const message = `*${property.titulo}*\n\n💰 *R$ ${property.valor?.toLocaleString('pt-BR') || 'Consulte'}*\n\n📍 ${property.neighborhood || property.city || 'Localização'}\n\n📱 Entre em contato para mais informações!`;
+                          const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(message)}`;
+                          window.open(whatsappUrl, '_blank');
+                        }}
+                      >
+                        <MessageCircle className="h-3 w-3 mr-1" />
+                        WhatsApp
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2">
                       <ShareButton 
                         property={{
                           ...property,
@@ -327,8 +343,34 @@ export default function Imoveis() {
                         isOwner={true}
                         isAuthorized={true}
                       />
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          const url = `/minisite/${user?.id}?property=${property.id}`;
+                          window.open(url, '_blank');
+                        }}
+                      >
+                        <Globe className="h-3 w-3 mr-1" />
+                        Minisite
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          toast({
+                            title: "Comissão",
+                            description: `Comissão padrão: 6% sobre R$ ${property.valor?.toLocaleString('pt-BR') || '0'}`,
+                          });
+                        }}
+                      >
+                        <Calculator className="h-3 w-3 mr-1" />
+                        Comissão
+                      </Button>
                     </div>
-                    
+
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
@@ -363,74 +405,12 @@ export default function Imoveis() {
                         size="sm" 
                         className="h-8 text-xs"
                         onClick={() => {
-                          toast({
-                            title: "Configurações",
-                            description: "Abrindo configurações do imóvel",
-                          });
-                        }}
-                      >
-                        <Settings className="h-3 w-3 mr-1" />
-                        Config
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs"
-                        onClick={() => {
                           setTour360Property(property);
                           setIsTour360ModalOpen(true);
                         }}
                       >
                         <Camera className="h-3 w-3 mr-1" />
                         Tour 360°
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          toast({
-                            title: "IA Descrição",
-                            description: "Funcionalidade será implementada em breve",
-                          });
-                        }}
-                      >
-                        <Sparkles className="h-3 w-3 mr-1" />
-                        IA Desc
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          toast({
-                            title: "Relatório",
-                            description: "Gerando relatório do imóvel",
-                          });
-                        }}
-                      >
-                        <FileText className="h-3 w-3 mr-1" />
-                        Relatório
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="h-8 text-xs"
-                        onClick={() => {
-                          toast({
-                            title: "Contrato",
-                            description: "Abrindo gerador de contrato",
-                          });
-                        }}
-                      >
-                        <FileCheck className="h-3 w-3 mr-1" />
-                        Contrato
                       </Button>
                     </div>
                   </CollapsibleContent>
