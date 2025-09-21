@@ -74,7 +74,8 @@ export function SimpleMessagingSystem() {
         .insert([{
           thread_id: selectedThread,
           content: newMessage,
-          sender_name: user.email || 'Usuário'
+          sender_name: user.email || 'Usuário',
+          user_id: user.id
         }]);
 
       if (error) throw error;

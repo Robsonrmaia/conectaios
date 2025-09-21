@@ -94,13 +94,19 @@ export default function Imoveis() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [collapsedProperties, setCollapsedProperties] = useState<Set<string>>(new Set());
-
-  const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
-  const { processPropertyEvent } = useGamificationIntegration();
-
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [aiDescriptionProperty, setAiDescriptionProperty] = useState<Property | null>(null);
+  const [showAiDescription, setShowAiDescription] = useState(false);
+  const [isProcessorOpen, setIsProcessorOpen] = useState(false);
+  const [processorType, setProcessorType] = useState<'enhance' | 'staging' | 'banner' | 'logo' | 'cover' | 'sketch'>('enhance');
+  const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
+
+  const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
+  const { processPropertyEvent } = useGamificationIntegration();
 
   const [activeTab, setActiveTab] = useState('lista');
   const [tour360Property, setTour360Property] = useState<Property | null>(null);
