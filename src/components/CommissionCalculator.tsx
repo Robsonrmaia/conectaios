@@ -36,7 +36,7 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
     initialCommission?.businessType || businessType || "venda"
   );
   const [commissionPercentage, setCommissionPercentage] = useState(
-    initialCommission?.percentage || (businessType === "locacao" ? 100 : businessType === "temporada" ? 20 : 5)
+    initialCommission?.percentage || (currentBusinessType === "venda" ? 5 : currentBusinessType === "temporada" ? 20 : 100)
   );
   const [splitType, setSplitType] = useState(
     initialCommission?.splitType || "50/50"

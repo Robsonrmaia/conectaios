@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Download, Eye, Upload, FileText, Sparkles, Volume2, Palette } from 'lucide-react';
+import { Save, Download, Eye, Upload, FileText, Sparkles, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,7 +11,6 @@ import { toast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
 import { useAI } from '@/hooks/useAI';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
-import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 
 interface PropertyData {
   propertyId: string;
@@ -220,20 +219,12 @@ Use palavras como "você", "seu novo lar", "aproveite", "desfrute", etc.`;
               <Eye className="h-4 w-4 mr-2" />
               Visualizar
             </Button>
-            <Button 
-              onClick={() => setActiveTab('sketch')} 
-              variant="outline" 
-              className="bg-orange-600 hover:bg-orange-700 text-white"
-            >
-              <Palette className="h-4 w-4 mr-2" />
-              Esboço
-            </Button>
           </div>
         </CardHeader>
 
         <CardContent className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="basicos">
                 <FileText className="h-4 w-4 mr-1" />
                 Dados Básicos
@@ -243,10 +234,6 @@ Use palavras como "você", "seu novo lar", "aproveite", "desfrute", etc.`;
               <TabsTrigger value="contato">Contato</TabsTrigger>
               <TabsTrigger value="imagens">Imagens</TabsTrigger>
               <TabsTrigger value="caracteristicas">Características</TabsTrigger>
-              <TabsTrigger value="sketch">
-                <Palette className="h-4 w-4 mr-1" />
-                Esboço
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="basicos" className="space-y-6 mt-6">
@@ -434,22 +421,6 @@ Use palavras como "você", "seu novo lar", "aproveite", "desfrute", etc.`;
                   </div>
                 )}
               </div>
-            </TabsContent>
-
-            <TabsContent value="sketch" className="mt-6">
-                  <div className="text-center py-8">
-                    <Palette className="h-16 w-16 text-orange-500 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                      Gerador de Esboço
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      Funcionalidade de esboço será implementada em breve
-                    </p>
-                    <Button variant="outline" disabled>
-                      <Palette className="h-4 w-4 mr-2" />
-                      Em Desenvolvimento
-                    </Button>
-                  </div>
             </TabsContent>
           </Tabs>
         </CardContent>
