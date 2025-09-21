@@ -26,9 +26,9 @@ export function useMaintenanceMode() {
     console.log('useMaintenanceMode: Starting maintenance check');
     
     try {
-      // Timeout de segurança para a query
+      // Timeout reduzido para 2 segundos
       const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Maintenance check timeout')), 5000)
+        setTimeout(() => reject(new Error('Maintenance check timeout')), 2000)
       );
 
       const queryPromise = supabase
@@ -39,15 +39,12 @@ export function useMaintenanceMode() {
       const { data, error } = await Promise.race([queryPromise, timeoutPromise]) as any;
 
       if (error) {
-        console.error('Error checking maintenance mode:', error);
-        // Fallback para localStorage se banco falhar
-        const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-        setSettings({ maintenanceMode, constructionMode: false });
+        console.warn('Maintenance mode check failed, allowing access:', error);
+        // Permite acesso por padrão se há erro
+        setSettings({ maintenanceMode: false, constructionMode: false });
       } else {
         const maintenanceData = data?.find(item => item.key === 'maintenance_mode')?.value as any;
         const constructionData = data?.find(item => item.key === 'construction_mode')?.value as any;
-        
-        console.log('useMaintenanceMode: Data retrieved', { maintenanceData, constructionData });
         
         setSettings({
           maintenanceMode: maintenanceData?.enabled || false,
@@ -58,12 +55,10 @@ export function useMaintenanceMode() {
         });
       }
     } catch (error) {
-      console.error('Error checking maintenance mode:', error);
-      // Em caso de erro ou timeout, permite acesso
-      const maintenanceMode = localStorage.getItem('maintenanceMode') === 'true';
-      setSettings({ maintenanceMode, constructionMode: false });
+      console.warn('Maintenance mode check timeout, allowing access:', error);
+      // Em caso de erro ou timeout, sempre permite acesso
+      setSettings({ maintenanceMode: false, constructionMode: false });
     } finally {
-      console.log('useMaintenanceMode: Check completed');
       setLoading(false);
     }
   };

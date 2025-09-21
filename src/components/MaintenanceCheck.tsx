@@ -9,61 +9,22 @@ interface MaintenanceCheckProps {
 
 export default function MaintenanceCheck({ children }: MaintenanceCheckProps) {
   const { shouldShowMaintenancePage, loading } = useMaintenanceMode();
-  const [showEmergencyAccess, setShowEmergencyAccess] = useState(false);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  const [bypassMaintenance, setBypassMaintenance] = useState(false);
 
   useEffect(() => {
-    // Timeout de segurança para evitar loading infinito
+    // Se estiver carregando por mais de 1.5 segundos, bypass automático
     const timer = setTimeout(() => {
-      console.log('MaintenanceCheck: Loading timeout reached');
-      setLoadingTimeout(true);
-    }, 8000); // 8 segundos
+      if (loading) {
+        console.warn('MaintenanceCheck: Auto-bypass due to loading timeout');
+        setBypassMaintenance(true);
+      }
+    }, 1500);
 
-    // Emergency access after 12 seconds
-    const emergencyTimer = setTimeout(() => {
-      console.log('MaintenanceCheck: Emergency access enabled');
-      setShowEmergencyAccess(true);
-    }, 12000);
-
-    if (!loading) {
-      clearTimeout(timer);
-      clearTimeout(emergencyTimer);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(emergencyTimer);
-    };
+    return () => clearTimeout(timer);
   }, [loading]);
 
-  if (loading && !loadingTimeout) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <img 
-            src="https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/logonova.png" 
-            alt="ConectaIOS Logo" 
-            className="h-15 w-15 animate-spin mx-auto mb-4"
-          />
-          {showEmergencyAccess && (
-            <div className="mt-6">
-              <Button 
-                onClick={() => setLoadingTimeout(true)}
-                variant="outline"
-                size="sm"
-              >
-                Continuar mesmo assim
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Se deu timeout no loading, sempre permite acesso
-  if (loadingTimeout) {
-    console.log('MaintenanceCheck: Allowing access due to timeout');
+  // Bypass automático para não bloquear a aplicação
+  if (loading || bypassMaintenance) {
     return <>{children}</>;
   }
 

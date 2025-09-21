@@ -9,9 +9,11 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading } = useAuth();
-  const { broker, loading: brokerLoading } = useBroker();
+  const { loading: brokerLoading } = useBroker();
 
-  if (authLoading || brokerLoading) {
+  // Otimizado: só mostra loading se auth estiver carregando
+  // Broker loading não deve bloquear a navegação
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -20,7 +22,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
             alt="ConectaIOS Logo" 
             className="h-8 w-8 animate-spin mx-auto mb-4"
           />
-          <p className="text-muted-foreground">Carregando...</p>
+          <p className="text-muted-foreground">Autenticando...</p>
         </div>
       </div>
     );
@@ -30,9 +32,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Allow navigation even without broker profile
-  // BrokerSetup will be shown only when accessing profile-related pages
-
-  
+  // Permite navegação mesmo sem perfil de broker completamente carregado
   return <>{children}</>;
 }
