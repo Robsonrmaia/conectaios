@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUsernameGenerator } from './useUsernameGenerator';
 
 interface Broker {
   id: string;
@@ -45,6 +46,7 @@ const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
 
 export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
+  const { generateUsername } = useUsernameGenerator();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,6 +112,19 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .eq('slug', 'starter')
         .maybeSingle();
 
+      // Generate username automatically if not provided
+      let username = data.username;
+      if (!username && data.name) {
+        try {
+          username = await generateUsername(data.name);
+          console.log('✅ Generated username:', username);
+        } catch (error) {
+          console.error('❌ Error generating username:', error);
+          // Fallback to email-based username
+          username = user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user';
+        }
+      }
+
       // Validate region_id if provided
       const profileData: any = {
         user_id: user.id,
@@ -119,7 +134,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         referral_code: await generateReferralCode(),
         phone: data.phone || null,
         creci: data.creci || null,
-        username: data.username || null,
+        username: username || null,
         bio: data.bio || null,
         status: 'active'
       };

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useUsernameGenerator } from '@/hooks/useUsernameGenerator';
 import { Loader, UserPlus, MapPin, Phone, Mail, Building } from 'lucide-react';
 
 interface BrokerSignupFormProps {
@@ -15,6 +16,7 @@ interface BrokerSignupFormProps {
 
 export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
   const [loading, setLoading] = useState(false);
+  const { generateUsername } = useUsernameGenerator();
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -107,10 +109,23 @@ export function BrokerSignupForm({ onSuccess }: BrokerSignupFormProps) {
       }
 
       if (data?.success) {
-        toast({
-          title: "Cadastro realizado com sucesso! 🎉",
-          description: "Recebemos seus dados e entraremos em contato em breve. Verifique seu email.",
-        });
+        // Generate username automatically for the broker
+        let generatedUsername = '';
+        try {
+          generatedUsername = await generateUsername(sanitizedData.full_name);
+          
+          toast({
+            title: "Cadastro realizado com sucesso! 🎉",
+            description: `Recebemos seus dados e entraremos em contato em breve. Seu username será: ${generatedUsername}`,
+          });
+        } catch (usernameError) {
+          console.error('Error generating username:', usernameError);
+          
+          toast({
+            title: "Cadastro realizado com sucesso! 🎉", 
+            description: "Recebemos seus dados e entraremos em contato em breve. Verifique seu email.",
+          });
+        }
 
         // Reset form
         setFormData({

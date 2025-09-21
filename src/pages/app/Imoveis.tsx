@@ -68,6 +68,8 @@ interface Property {
   condominium_fee?: number;
   iptu?: number;
   year_built?: number;
+  raw_cnm?: any;
+  raw_vrsync?: any;
 }
 
 export default function Imoveis() {
@@ -174,7 +176,9 @@ export default function Imoveis() {
           iptu,
           year_built,
           created_at,
-          reference_code
+          reference_code,
+          raw_cnm,
+          raw_vrsync
         `, { count: 'exact' })
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
