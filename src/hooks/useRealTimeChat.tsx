@@ -6,14 +6,12 @@ import { toast } from '@/components/ui/use-toast';
 
 interface Message {
   id: string;
-  content: string;
-  sender_name: string;
-  broker_id: string;
   thread_id: string;
-  created_at: string;
+  user_id: string;
+  content: string;
+  sender_name: string | null;
   is_read: boolean;
-  message_type: string;
-  file_url?: string;
+  created_at: string;
 }
 
 interface Thread {
@@ -71,12 +69,10 @@ export function useRealTimeChat() {
           id: msg.id,
           content: msg.content,
           sender_name: msg.sender_name,
-          broker_id: msg.broker_id,
+          user_id: msg.user_id,
           thread_id: msg.thread_id,
           created_at: msg.created_at,
-          is_read: msg.is_read || false,
-          message_type: msg.message_type || 'text',
-          file_url: msg.file_url
+          is_read: msg.is_read || false
         }))
       }));
     } catch (error) {
@@ -95,7 +91,6 @@ export function useRealTimeChat() {
           thread_id: threadId,
           content: content.trim(),
           sender_name: broker.name,
-          broker_id: broker.id,
           user_id: user?.id
         });
 
@@ -157,7 +152,7 @@ export function useRealTimeChat() {
         .from('messages')
         .update({ is_read: true })
         .eq('thread_id', threadId)
-        .neq('broker_id', broker.id);
+        .neq('user_id', user?.id);
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -183,12 +178,10 @@ export function useRealTimeChat() {
             id: newMessage.id,
             content: newMessage.content,
             sender_name: newMessage.sender_name,
-            broker_id: newMessage.broker_id,
+            user_id: newMessage.user_id,
             thread_id: newMessage.thread_id,
             created_at: newMessage.created_at,
-            is_read: newMessage.is_read || false,
-            message_type: newMessage.message_type || 'text',
-            file_url: newMessage.file_url
+            is_read: newMessage.is_read || false
           };
 
           setMessages(prev => ({
@@ -207,7 +200,7 @@ export function useRealTimeChat() {
           ).sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()));
 
           // Show notification if not from current user
-          if (message.broker_id !== broker.id) {
+          if (message.user_id !== user?.id) {
             toast({
               title: "Nova mensagem",
               description: `${message.sender_name}: ${message.content.substring(0, 50)}...`,

@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Eye, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 interface Tour360ModalProps {
   isOpen: boolean;
@@ -48,12 +49,15 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
   }))}&fotos=${encodeURIComponent(JSON.stringify(allPhotos))}&autoload=true`;
 
   const handleFallbackTour = () => {
-    // Create a simple gallery-based "tour" as fallback
-    if (allPhotos && allPhotos.length > 0) {
-      // You could implement a carousel or gallery view here
-      onTourGenerated('fallback-gallery');
-      onClose();
+    toast({
+      title: "Tour 360° Demo",
+      description: "Funcionalidade em desenvolvimento - em breve disponível!",
+    });
+    
+    if (onTourGenerated) {
+      onTourGenerated('tour-placeholder-url');
     }
+    onClose();
   };
 
   return (

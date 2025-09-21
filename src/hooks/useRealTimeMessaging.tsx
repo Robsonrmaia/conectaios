@@ -5,14 +5,12 @@ import { toast } from '@/hooks/use-toast';
 
 interface Message {
   id: string;
-  content: string;
-  sender_name: string;
-  user_id: string;
   thread_id: string;
-  created_at: string;
+  user_id: string;
+  content: string;
+  sender_name: string | null;
   is_read: boolean;
-  message_type: string;
-  file_url?: string;
+  created_at: string;
 }
 
 interface Thread {
@@ -72,9 +70,7 @@ export function useRealTimeMessaging() {
           user_id: msg.user_id,
           thread_id: msg.thread_id,
           created_at: msg.created_at,
-          is_read: msg.is_read || false,
-          message_type: msg.message_type || 'text',
-          file_url: msg.file_url
+          is_read: msg.is_read || false
         }))
       }));
     } catch (error) {
@@ -183,9 +179,7 @@ export function useRealTimeMessaging() {
             user_id: newMessage.user_id,
             thread_id: newMessage.thread_id,
             created_at: newMessage.created_at,
-            is_read: newMessage.is_read || false,
-            message_type: newMessage.message_type || 'text',
-            file_url: newMessage.file_url
+            is_read: newMessage.is_read || false
           };
 
           setMessages(prev => ({
@@ -203,11 +197,11 @@ export function useRealTimeMessaging() {
               : thread
           ).sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()));
 
-          // Show notification if not from current user
-          if (message.user_id !== user.id) {
+          // Send notification if message is from another user
+          if (payload.new.user_id !== user?.id) {
             toast({
               title: "Nova mensagem",
-              description: `${message.sender_name}: ${message.content.substring(0, 50)}...`,
+              description: `${payload.new.sender_name || 'Usuário'}: ${payload.new.content.substring(0, 50)}${payload.new.content.length > 50 ? '...' : ''}`,
             });
           }
         }
