@@ -2716,6 +2716,7 @@ export type Database = {
           user_id: string | null
           vagas: number | null
           valor: number | null
+          verified: boolean | null
           videos: string[] | null
           views_count: number | null
           visibility: string | null
@@ -2780,6 +2781,7 @@ export type Database = {
           user_id?: string | null
           vagas?: number | null
           valor?: number | null
+          verified?: boolean | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
@@ -2844,6 +2846,7 @@ export type Database = {
           user_id?: string | null
           vagas?: number | null
           valor?: number | null
+          verified?: boolean | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null

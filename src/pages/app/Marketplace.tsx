@@ -53,6 +53,7 @@ interface Property {
   condominium_fee?: number;
   iptu?: number;
   reference_code?: string;
+  verified?: boolean;
   profiles?: {
     nome: string;
   } | null;
@@ -137,6 +138,7 @@ export default function Marketplace() {
           iptu,
           descricao,
           reference_code,
+          verified,
           user_id
         `)
         .eq('is_public', true)
@@ -198,6 +200,7 @@ export default function Marketplace() {
           iptu: property.iptu || null,
           finalidade: property.listing_type || 'venda', // Use listing_type as finalidade
           descricao: property.descricao || '',
+          verified: property.verified || false,
           created_at: new Date().toISOString(), // Set current time as fallback
           conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
@@ -322,16 +325,28 @@ export default function Marketplace() {
     }
 
     try {
-      // Here you would implement the bulk verification logic
-      // For now, we'll just show a success message
+      // Update properties as verified in the database
+      const { error } = await supabase
+        .from('properties')
+        .update({ verified: true })
+        .in('id', selectedProperties);
+
+      if (error) {
+        throw error;
+      }
+
       toast({
-        title: "Imóveis marcados para verificação!",
-        description: `${selectedProperties.length} imóvel${selectedProperties.length > 1 ? 'is' : ''} marcado${selectedProperties.length > 1 ? 's' : ''} para verificação.`,
+        title: "Imóveis verificados com sucesso!",
+        description: `${selectedProperties.length} imóvel${selectedProperties.length > 1 ? 'is' : ''} marcado${selectedProperties.length > 1 ? 's' : ''} como verificado${selectedProperties.length > 1 ? 's' : ''}.`,
       });
+      
+      // Refresh properties to show updated status
+      await fetchPublicProperties(0);
       
       setSelectedProperties([]);
       setSelectMode(false);
     } catch (error) {
+      console.error('Error verifying properties:', error);
       toast({
         title: "Erro",
         description: "Erro ao marcar imóveis para verificação.",
@@ -601,11 +616,20 @@ export default function Marketplace() {
                     alt={property.titulo}
                     className="w-full h-48 object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1">
-                    <Badge variant="secondary" className="text-xs">
-                      {property.listing_type === 'venda' ? 'Venda' : 
-                       property.listing_type === 'aluguel' ? 'Aluguel' : 'Temporada'}
-                    </Badge>
+                  <div className="absolute top-2 right-2 flex gap-1">
+                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {property.listing_type === 'venda' ? 'Venda' : 
+                         property.listing_type === 'aluguel' ? 'Aluguel' : 'Temporada'}
+                      </Badge>
+                    </div>
+                    {property.verified && (
+                      <div className="bg-green-500/90 backdrop-blur-sm rounded-full p-1">
+                        <Badge variant="default" className="text-xs bg-green-500 text-white border-0">
+                          ✓ Verificado
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Selection Overlay */}
