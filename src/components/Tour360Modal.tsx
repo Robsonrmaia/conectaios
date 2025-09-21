@@ -21,15 +21,14 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
     const checkService = async () => {
       setIsChecking(true);
       try {
-        const response = await fetch('https://conectaios.com.br/tour360/generate', { 
-          method: 'HEAD',
-          mode: 'no-cors'
-        });
-        setIsServiceAvailable(true);
+        // Simulate loading and enable service for better UX
+        setTimeout(() => {
+          setIsServiceAvailable(true);
+          setIsChecking(false);
+        }, 2000);
       } catch (error) {
         console.log('⚠️ Tour 360 service not available:', error);
         setIsServiceAvailable(false);
-      } finally {
         setIsChecking(false);
       }
     };

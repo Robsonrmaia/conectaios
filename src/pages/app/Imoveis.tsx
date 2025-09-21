@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
@@ -33,6 +33,7 @@ import { AIPropertyDescription } from '@/components/AIPropertyDescription';
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { Tour360Modal } from '@/components/Tour360Modal';
+import { PropertyShareDialog } from '@/components/PropertyShareDialog';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -108,6 +109,22 @@ export default function Imoveis() {
   const [activeTab, setActiveTab] = useState('lista');
   const [tour360Property, setTour360Property] = useState<Property | null>(null);
   const [isTour360ModalOpen, setIsTour360ModalOpen] = useState(false);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  const [shareProperty, setShareProperty] = useState<Property | null>(null);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  
+  const toggleCardExpansion = (propertyId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(propertyId)) {
+        newSet.delete(propertyId);
+      } else {
+        newSet.add(propertyId);
+      }
+      return newSet;
+    });
+  };
+
   const [formData, setFormData] = useState({
     titulo: '',
     valor: '',
@@ -1264,253 +1281,275 @@ export default function Imoveis() {
                    </div>
                 </div>
                 
-                {/* Action Buttons Grid - 2 columns for top buttons */}
-                <div className="space-y-3 mt-4">
-                  <div className="grid grid-cols-3 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setSelectedProperty(property);
-                        setIsDetailDialogOpen(true);
-                      }}
-                      title="Visualizar Imóvel"
-                      className="h-8 text-xs"
-                    >
-                      <Eye className="h-3 w-3 mr-1" />
-                      Ver
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
-                        setGalleryInitialIndex(0);
-                        setGalleryOpen(true);
-                      }}
-                      title="Editar Fotos"
-                      className="h-8 text-xs"
-                    >
-                      <FileImage className="h-3 w-3 mr-1" />
-                      Fotos
-                    </Button>
-                    <ShareButton 
-                      property={{
-                        ...property,
-                        has_sea_view: property.has_sea_view || false,
-                        bathrooms: property.bathrooms || 0,
-                        parking_spots: property.parking_spots || 0,
-                        neighborhood: property.neighborhood || '',
-                        descricao: property.descricao || '',
-                        user_id: user?.id || ''
-                      }}
-                      isOwner={true}
-                      isAuthorized={true}
-                    />
-                  </div>
-                 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setAiDescriptionProperty(property);
-                        setShowAiDescription(true);
-                      }}
-                      title="Gerar Descrição com IA"
-                      className="h-8 text-xs"
-                    >
-                      <Wand2 className="h-3 w-3 mr-1" />
-                      IA Desc
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        if (property.fotos && property.fotos.length > 0) {
-                          setSelectedProperty(property);
-                          setProcessorType('staging');
-                          setIsProcessorOpen(true);
-                        } else {
-                          toast({
-                            title: "Sem Fotos",
-                            description: "Adicione fotos ao imóvel primeiro",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      title="Colocar Móveis"
-                      className="h-8 text-xs"
-                    >
-                      <Wand2 className="h-3 w-3 mr-1" />
-                      Móveis
-                    </Button>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        if (property.fotos && property.fotos.length > 0) {
-                          setSelectedProperty(property);
-                          setProcessorType('enhance');
-                          setIsProcessorOpen(true);
-                        } else {
-                          toast({
-                            title: "Sem Fotos",
-                            description: "Adicione fotos ao imóvel primeiro",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      title="Melhorar Qualidade"
-                      className="h-8 text-xs"
-                    >
-                      <Sparkles className="h-3 w-3 mr-1" />
-                      Qualidade
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        setSelectedProperty(property);
-                        setIsAvaliationOpen(true);
-                      }}
-                      title="Avaliar Imóvel"
-                      className="h-8 text-xs"
-                    >
-                      <Target className="h-3 w-3 mr-1" />
-                      Avaliar
-                    </Button>
-                  </div>
-                 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => {
-                        // Preenche o formulário com os dados do imóvel selecionado
-                        setFormData({
-                          titulo: property.titulo,
-                          valor: property.valor.toString(),
-                          area: property.area.toString(),
-                          quartos: property.quartos.toString(),
-                          bathrooms: property.bathrooms.toString(),
-                          parking_spots: property.parking_spots.toString(),
-                          listing_type: property.listing_type,
-                          property_type: property.property_type,
-                          visibility: property.visibility,
-                          broker_minisite_enabled: false,
-                          descricao: property.descricao || '',
-                          fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                          videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
-                          address: property.address || '',
-          neighborhood: property.neighborhood || '',
-          city: property.city || '',
-          state: property.state || '',
-          zipcode: property.zipcode || '',
-          condominium_fee: property.condominium_fee ? property.condominium_fee.toString() : '',
-          iptu: property.iptu ? property.iptu.toString() : '',
-                          commission_percentage: 6,
-                          commission_value: 0,
-                          commission_split_type: '50/50',
-                          commission_buyer_split: 50,
-                          commission_seller_split: 50,
-                          banner_type: property.banner_type || null,
-                          is_furnished: property.is_furnished || false,
-                          has_sea_view: property.has_sea_view || false,
-                          watermark_enabled: true,
-                          furnishing_type: (property.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
-                          sea_distance: property.sea_distance ? String(property.sea_distance) : '',
-                          year_built: property.year_built ? String(property.year_built) : '',
-                        });
-                        setSelectedProperty(property);
-                        setIsAddDialogOpen(true);
-                      }}
-                      title="Editar Imóvel"
-                      className="h-8 text-xs"
-                    >
-                      <Edit className="h-3 w-3 mr-1" />
-                      Editar
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleDeleteProperty(property.id)}
-                      title="Excluir Imóvel"
-                      className="h-8 hover:bg-destructive/10 text-xs"
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Excluir
-                    </Button>
-                  </div>
-
-                  {/* Visibility Toggle Buttons - Simplified System */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'marketplace' || property.visibility === 'both' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Toggle marketplace visibility
-                        let newVisibility = property.visibility;
-                        if (property.visibility === 'marketplace') {
-                          newVisibility = 'hidden';
-                        } else if (property.visibility === 'public_site') {
-                          newVisibility = 'both';
-                        } else if (property.visibility === 'both') {
-                          newVisibility = 'public_site';
-                        } else {
-                          newVisibility = 'marketplace';
-                        }
-                        updatePropertyVisibility(property.id, newVisibility);
-                      }}
-                      title="Marketplace - Imóvel aparece no marketplace"
-                      className="text-xs h-6 flex items-center justify-center"
-                    >
-                      <Target className="h-2 w-2 mr-1" />
-                      Market
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Toggle public site visibility
-                        let newVisibility = property.visibility;
-                        if (property.visibility === 'public_site') {
-                          newVisibility = 'hidden';
-                        } else if (property.visibility === 'marketplace') {
-                          newVisibility = 'both';
-                        } else if (property.visibility === 'both') {
-                          newVisibility = 'marketplace';
-                        } else {
-                          newVisibility = 'public_site';
-                        }
-                        updatePropertyVisibility(property.id, newVisibility);
-                      }}
-                      title="Site Público - Imóvel aparece no site público e minisite"
-                      className="text-xs h-6 flex items-center justify-center"
-                    >
-                      <Globe className="h-2 w-2 mr-1" />
-                      Site
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant={property.visibility === 'hidden' ? 'default' : 'outline'}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        updatePropertyVisibility(property.id, 'hidden');
-                      }}
-                      title="Oculto - Visível apenas para você no painel"
-                      className="text-xs h-6 flex items-center justify-center"
-                    >
-                      <EyeOff className="h-2 w-2 mr-1" />
-                      Oculto
-                    </Button>
-                  </div>
+                {/* Toggle Button */}
+                <div className="flex justify-center mt-4">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleCardExpansion(property.id)}
+                    className="h-6 text-xs text-muted-foreground"
+                  >
+                    {expandedCards.has(property.id) ? (
+                      <>
+                        <ChevronUp className="h-3 w-3 mr-1" />
+                        Ocultar Ações
+                      </>
+                    ) : (
+                      <>
+                        <ChevronDown className="h-3 w-3 mr-1" />
+                        Ver Ações
+                      </>
+                    )}
+                  </Button>
                 </div>
+                
+                {/* Collapsible Action Buttons Grid */}
+                {expandedCards.has(property.id) && (
+                  <div className="space-y-3 mt-4 border-t pt-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProperty(property);
+                          setIsDetailDialogOpen(true);
+                        }}
+                        title="Visualizar Imóvel"
+                        className="h-8 text-xs"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Ver
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setGalleryPhotos(Array.isArray(property.fotos) ? property.fotos : []);
+                          setGalleryInitialIndex(0);
+                          setGalleryOpen(true);
+                        }}
+                        title="Editar Fotos"
+                        className="h-8 text-xs"
+                      >
+                        <FileImage className="h-3 w-3 mr-1" />
+                        Fotos
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setShareProperty(property);
+                          setIsShareDialogOpen(true);
+                        }}
+                        title="Compartilhar Imóvel"
+                        className="h-8 text-xs"
+                      >
+                        <Globe className="h-3 w-3 mr-1" />
+                        Compartilhar
+                      </Button>
+                    </div>
+                  
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setAiDescriptionProperty(property);
+                          setShowAiDescription(true);
+                        }}
+                        title="Gerar Descrição com IA"
+                        className="h-8 text-xs"
+                      >
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        IA Desc
+                      </Button>
+                      <Button 
+                        variant={"outline"}
+                        size="sm"
+                        onClick={() => {
+                          setTour360Property(property);
+                          setIsTour360ModalOpen(true);
+                        }}
+                        title="Tour 360°"
+                        className="h-8 text-xs"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Tour 360°
+                      </Button>
+                    </div>
+                   
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          if (property.fotos && property.fotos.length > 0) {
+                            setSelectedProperty(property);
+                            setProcessorType('enhance');
+                            setIsProcessorOpen(true);
+                          } else {
+                            toast({
+                              title: "Sem Fotos",
+                              description: "Adicione fotos ao imóvel primeiro",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        title="Melhorar Qualidade"
+                        className="h-8 text-xs"
+                      >
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        Qualidade
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          if (property.fotos && property.fotos.length > 0) {
+                            setSelectedProperty(property);
+                            setProcessorType('staging');
+                            setIsProcessorOpen(true);
+                          } else {
+                            toast({
+                              title: "Sem Fotos",
+                              description: "Adicione fotos ao imóvel primeiro",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        title="Colocar Móveis"
+                        className="h-8 text-xs"
+                      >
+                        <Wand2 className="h-3 w-3 mr-1" />
+                        Móveis
+                      </Button>
+                    </div>
+                  
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          // Preenche o formulário com os dados do imóvel selecionado
+                          setFormData({
+                            titulo: property.titulo,
+                            valor: property.valor.toString(),
+                            area: property.area.toString(),
+                            quartos: property.quartos.toString(),
+                            bathrooms: property.bathrooms.toString(),
+                            parking_spots: property.parking_spots.toString(),
+                            listing_type: property.listing_type,
+                            property_type: property.property_type,
+                            visibility: property.visibility,
+                            broker_minisite_enabled: false,
+                            descricao: property.descricao || '',
+                            fotos: Array.isArray(property.fotos) ? property.fotos : [],
+                            videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
+                            address: property.address || '',
+                            neighborhood: property.neighborhood || '',
+                            city: property.city || '',
+                            state: property.state || '',
+                            zipcode: property.zipcode || '',
+                            condominium_fee: property.condominium_fee ? property.condominium_fee.toString() : '',
+                            iptu: property.iptu ? property.iptu.toString() : '',
+                            commission_percentage: property.listing_type === "venda" ? 5 : property.listing_type === "locacao" ? 100 : 20,
+                            commission_value: 0,
+                            commission_split_type: '50/50',
+                            commission_buyer_split: 50,
+                            commission_seller_split: 50,
+                            banner_type: property.banner_type || null,
+                            is_furnished: property.is_furnished || false,
+                            has_sea_view: property.has_sea_view || false,
+                            watermark_enabled: true,
+                            furnishing_type: (property.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+                            sea_distance: property.sea_distance ? String(property.sea_distance) : '',
+                            year_built: property.year_built ? String(property.year_built) : '',
+                          });
+                          setSelectedProperty(property);
+                          setIsAddDialogOpen(true);
+                        }}
+                        title="Editar Imóvel"
+                        className="h-8 text-xs"
+                      >
+                        <Edit className="h-3 w-3 mr-1" />
+                        Editar
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleDeleteProperty(property.id)}
+                        title="Excluir Imóvel"
+                        className="h-8 hover:bg-destructive/10 text-xs"
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Excluir
+                      </Button>
+                    </div>
+
+                    {/* Visibility Toggle Buttons */}
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      <Button
+                        size="sm"
+                        variant={property.visibility === 'marketplace' || property.visibility === 'both' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          let newVisibility = property.visibility;
+                          if (property.visibility === 'marketplace') {
+                            newVisibility = 'hidden';
+                          } else if (property.visibility === 'public_site') {
+                            newVisibility = 'both';
+                          } else if (property.visibility === 'both') {
+                            newVisibility = 'public_site';
+                          } else {
+                            newVisibility = 'marketplace';
+                          }
+                          updatePropertyVisibility(property.id, newVisibility);
+                        }}
+                        title="Marketplace - Imóvel aparece no marketplace"
+                        className="text-xs h-6 flex items-center justify-center"
+                      >
+                        <Target className="h-2 w-2 mr-1" />
+                        Market
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          let newVisibility = property.visibility;
+                          if (property.visibility === 'public_site') {
+                            newVisibility = 'hidden';
+                          } else if (property.visibility === 'marketplace') {
+                            newVisibility = 'both';
+                          } else if (property.visibility === 'both') {
+                            newVisibility = 'marketplace';
+                          } else {
+                            newVisibility = 'public_site';
+                          }
+                          updatePropertyVisibility(property.id, newVisibility);
+                        }}
+                        title="Site Público - Imóvel aparece no site público e minisite"
+                        className="text-xs h-6 flex items-center justify-center"
+                      >
+                        <Globe className="h-2 w-2 mr-1" />
+                        Site
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={property.visibility === 'hidden' ? 'default' : 'outline'}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          updatePropertyVisibility(property.id, 'hidden');
+                        }}
+                        title="Oculto - Visível apenas para você no painel"
+                        className="text-xs h-6 flex items-center justify-center"
+                      >
+                        <EyeOff className="h-2 w-2 mr-1" />
+                        Oculto
+                      </Button>
+                    </div>
+                  </div>
+                )}
             </CardContent>
           </Card>
         ))}

@@ -36,7 +36,7 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
     initialCommission?.businessType || businessType || "venda"
   );
   const [commissionPercentage, setCommissionPercentage] = useState(
-    initialCommission?.percentage || (currentBusinessType === "venda" ? 5 : currentBusinessType === "temporada" ? 20 : 100)
+    initialCommission?.percentage || (currentBusinessType === "venda" ? 5 : currentBusinessType === "temporada" ? 20 : currentBusinessType === "locacao" ? 100 : 5)
   );
   const [splitType, setSplitType] = useState(
     initialCommission?.splitType || "50/50"
@@ -68,6 +68,17 @@ export const CommissionCalculator: React.FC<CommissionCalculatorProps> = ({
   const sellerCommission = (commissionValue * sellerSplit) / 100;
 
   // Update parent component when values change
+  // Update commission percentage when business type changes
+  useEffect(() => {
+    if (currentBusinessType === "venda" && commissionPercentage !== 5) {
+      setCommissionPercentage(5);
+    } else if (currentBusinessType === "locacao" && commissionPercentage !== 100) {
+      setCommissionPercentage(100);
+    } else if (currentBusinessType === "temporada" && commissionPercentage !== 20) {
+      setCommissionPercentage(20);
+    }
+  }, [currentBusinessType]);
+
   useEffect(() => {
     onCommissionChange({
       percentage: commissionPercentage,

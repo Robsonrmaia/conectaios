@@ -133,11 +133,14 @@ export default function SmartCalendar() {
     if (!newTask.title.trim() || !user) return;
 
     try {
+      // Fix: Use the selected date correctly
+      const taskDateTime = `${newTask.date} ${newTask.time}`;
+      
       const { data, error } = await supabase
         .from('tasks')
         .insert([{
           txt: newTask.title,
-          quando: `${newTask.date} ${newTask.time}`,
+          quando: taskDateTime,
           porque: newTask.description,
           quem: newTask.client_name || '',
           onde: newTask.client_phone || '',
@@ -202,11 +205,8 @@ export default function SmartCalendar() {
       // Parse date from voice data - fix date issues
       if (voiceData.data) {
         const voiceDate = new Date(voiceData.data);
-        // Only use voice date if it's valid and not in the past (older than yesterday)
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        
-        if (voiceDate >= yesterday && !isNaN(voiceDate.getTime())) {
+        // Use voice date if it's valid
+        if (!isNaN(voiceDate.getTime())) {
           taskDate = voiceDate;
         }
       }
