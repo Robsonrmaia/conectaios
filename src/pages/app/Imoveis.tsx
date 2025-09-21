@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Building2, Plus, Search, Home, Eye, Globe, FileImage, EyeOff, Bath, Bed, Car, MapPin, ChevronDown } from 'lucide-react';
+import { Building2, Plus, Search, Home, Eye, Globe, FileImage, EyeOff, Bath, Bed, Car, MapPin, ChevronDown, Pencil, Trash2, Settings, Camera, Sparkles, FileText, FileCheck } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 import { ShareButton } from '@/components/ShareButton';
@@ -285,7 +285,7 @@ export default function Imoveis() {
                       }`} />
                     </Button>
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="space-y-2">
+                   <CollapsibleContent className="space-y-2">
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
@@ -329,6 +329,51 @@ export default function Imoveis() {
                       />
                     </div>
                     
+                    <div className="grid grid-cols-3 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          toast({
+                            title: "Editar",
+                            description: "Abrindo editor de imóvel",
+                          });
+                        }}
+                      >
+                        <Pencil className="h-3 w-3 mr-1" />
+                        Editar
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        onClick={() => {
+                          toast({
+                            title: "Deletar",
+                            description: "Funcionalidade de deletar imóvel",
+                          });
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3 mr-1" />
+                        Deletar
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          toast({
+                            title: "Configurações",
+                            description: "Abrindo configurações do imóvel",
+                          });
+                        }}
+                      >
+                        <Settings className="h-3 w-3 mr-1" />
+                        Config
+                      </Button>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
@@ -339,7 +384,7 @@ export default function Imoveis() {
                           setIsTour360ModalOpen(true);
                         }}
                       >
-                        <Eye className="h-3 w-3 mr-1" />
+                        <Camera className="h-3 w-3 mr-1" />
                         Tour 360°
                       </Button>
                       <Button 
@@ -353,8 +398,39 @@ export default function Imoveis() {
                           });
                         }}
                       >
-                        <Eye className="h-3 w-3 mr-1" />
+                        <Sparkles className="h-3 w-3 mr-1" />
                         IA Desc
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          toast({
+                            title: "Relatório",
+                            description: "Gerando relatório do imóvel",
+                          });
+                        }}
+                      >
+                        <FileText className="h-3 w-3 mr-1" />
+                        Relatório
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          toast({
+                            title: "Contrato",
+                            description: "Abrindo gerador de contrato",
+                          });
+                        }}
+                      >
+                        <FileCheck className="h-3 w-3 mr-1" />
+                        Contrato
                       </Button>
                     </div>
                   </CollapsibleContent>
