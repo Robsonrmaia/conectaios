@@ -133,7 +133,7 @@ export function EnhancedMessaging() {
                         <div 
                           key={broker.id}
                           className="flex items-center space-x-3 p-2 hover:bg-muted/50 rounded cursor-pointer"
-                          onClick={() => createNewChat([broker.user_id])}
+                          onClick={() => createNewChat([broker.id])}
                         >
                           <Avatar className="h-8 w-8">
                             <AvatarImage src={broker.avatar_url} />
