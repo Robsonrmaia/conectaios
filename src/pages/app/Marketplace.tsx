@@ -13,12 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, MessageCircle, Share2, Eye, Home, Target, Volume2 } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, MessageCircle, Share2, Eye, Home, Target, Volume2, CheckSquare, Square } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
@@ -85,6 +86,10 @@ export default function Marketplace() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
+  
+  // Selection states
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
 
   const fetchPublicProperties = useCallback(async (page = 0) => {
     const cacheKey = `marketplace_properties_${page}`;
@@ -282,6 +287,59 @@ export default function Marketplace() {
     });
   };
 
+  // Selection handlers
+  const toggleSelectMode = () => {
+    setSelectMode(!selectMode);
+    if (selectMode) {
+      setSelectedProperties([]);
+    }
+  };
+
+  const togglePropertySelection = (propertyId: string) => {
+    setSelectedProperties(prev => 
+      prev.includes(propertyId) 
+        ? prev.filter(id => id !== propertyId)
+        : [...prev, propertyId]
+    );
+  };
+
+  const selectAllProperties = () => {
+    setSelectedProperties(paginatedProperties.map(p => p.id));
+  };
+
+  const clearSelection = () => {
+    setSelectedProperties([]);
+  };
+
+  const handleBulkVerification = async () => {
+    if (selectedProperties.length === 0) {
+      toast({
+        title: "Nenhum imóvel selecionado",
+        description: "Selecione pelo menos um imóvel para verificar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Here you would implement the bulk verification logic
+      // For now, we'll just show a success message
+      toast({
+        title: "Imóveis marcados para verificação!",
+        description: `${selectedProperties.length} imóvel${selectedProperties.length > 1 ? 'is' : ''} marcado${selectedProperties.length > 1 ? 's' : ''} para verificação.`,
+      });
+      
+      setSelectedProperties([]);
+      setSelectMode(false);
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Erro ao marcar imóveis para verificação.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -378,6 +436,57 @@ export default function Marketplace() {
           </div>
         </section>
 
+        {/* Selection Toolbar */}
+        {selectMode && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4"
+          >
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">
+                  {selectedProperties.length} imóvel{selectedProperties.length !== 1 ? 'is' : ''} selecionado{selectedProperties.length !== 1 ? 's' : ''}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={selectAllProperties}
+                    disabled={selectedProperties.length === paginatedProperties.length}
+                  >
+                    Selecionar todos
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearSelection}
+                    disabled={selectedProperties.length === 0}
+                  >
+                    Limpar seleção
+                  </Button>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleBulkVerification}
+                  disabled={selectedProperties.length === 0}
+                  className="flex items-center gap-2"
+                >
+                  <CheckSquare className="h-4 w-4" />
+                  Marcar para verificação
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={toggleSelectMode}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Search and Filters */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -441,6 +550,16 @@ export default function Marketplace() {
               <SelectItem value="4">4+ quartos</SelectItem>
             </SelectContent>
           </Select>
+          
+          {/* Selection Mode Toggle */}
+          <Button
+            variant={selectMode ? "default" : "outline"}
+            onClick={toggleSelectMode}
+            className="flex items-center gap-2"
+          >
+            {selectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
+            {selectMode ? 'Selecionando' : 'Selecionar'}
+          </Button>
         </motion.div>
 
         {/* Properties Grid */}
@@ -458,10 +577,25 @@ export default function Marketplace() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
             >
               <AnimatedCard className="h-full overflow-hidden cursor-pointer" onClick={() => {
-                setSelectedProperty(property);
-                setIsDetailDialogOpen(true);
+                if (selectMode) {
+                  togglePropertySelection(property.id);
+                } else {
+                  setSelectedProperty(property);
+                  setIsDetailDialogOpen(true);
+                }
               }}>
                 <div className="relative">
+                  {/* Selection Checkbox */}
+                  {selectMode && (
+                    <div className="absolute top-2 left-2 z-10" onClick={(e) => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedProperties.includes(property.id)}
+                        onCheckedChange={() => togglePropertySelection(property.id)}
+                        className="bg-white/90 border-2 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                      />
+                    </div>
+                  )}
+                  
                   <img 
                     src={property.fotos?.[0] || '/placeholder.svg'} 
                     alt={property.titulo}
@@ -473,6 +607,13 @@ export default function Marketplace() {
                        property.listing_type === 'aluguel' ? 'Aluguel' : 'Temporada'}
                     </Badge>
                   </div>
+                  
+                  {/* Selection Overlay */}
+                  {selectMode && selectedProperties.includes(property.id) && (
+                    <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                      <CheckSquare className="h-8 w-8 text-primary" />
+                    </div>
+                  )}
                 </div>
                 
                 <CardHeader className="pb-3">

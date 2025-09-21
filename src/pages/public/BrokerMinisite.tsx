@@ -85,6 +85,8 @@ export default function BrokerMinisite() {
     (async () => {
       setLoading(true);
       setErrs([]);
+      
+      console.log('🚀 BrokerMinisite: Starting data fetch for username:', cleanUsername);
 
       // 1) Busca corretor por username na TABELA CERTA (only public-safe fields)
       const bq = await supabase
@@ -93,10 +95,26 @@ export default function BrokerMinisite() {
         .eq("username", cleanUsername)
         .maybeSingle();
 
-      if (bq.error) pushErr("broker.query", bq.error);
+      console.log('📊 Broker query result:', {
+        found: !!bq.data,
+        error: bq.error,
+        username: cleanUsername,
+        data: bq.data ? {
+          id: bq.data.id,
+          user_id: bq.data.user_id,
+          name: bq.data.name,
+          status: bq.data.status
+        } : null
+      });
+
+      if (bq.error) {
+        console.error('❌ Broker query error:', bq.error);
+        pushErr("broker.query", bq.error);
+      }
       if (!mounted) return;
 
       if (!bq.data) {
+        console.warn('⚠️ No broker found for username:', cleanUsername);
         setBroker(null);
         setProperties([]);
         setLoading(false);
@@ -126,37 +144,63 @@ export default function BrokerMinisite() {
       console.log('🔍 Fetching properties for user_id:', bq.data.user_id);
       console.log('🔍 Broker username:', cleanUsername);
       
-      const { data: props, error: propsErr } = await supabase
-        .from("properties")
-        .select(`
-          id, titulo, valor, quartos, bathrooms, area, fotos, 
-          property_type, listing_type, finalidade, descricao, address,
-          neighborhood, city, state, features, parking_spots, created_at, updated_at
-        `)
-        .eq("user_id", bq.data.user_id)
-        .eq("is_public", true)
-        .eq("visibility", "public_site")
-        .order("created_at", { ascending: false })
-        .limit(50);
+      try {
+        const { data: props, error: propsErr } = await supabase
+          .from("properties")
+          .select(`
+            id, titulo, valor, quartos, bathrooms, area, fotos, 
+            property_type, listing_type, finalidade, descricao, address,
+            neighborhood, city, state, features, parking_spots, created_at, updated_at,
+            is_public, visibility, status
+          `)
+          .eq("user_id", bq.data.user_id)
+          .eq("is_public", true)
+          .eq("visibility", "public_site")
+          .neq("status", "INATIVO")
+          .order("created_at", { ascending: false })
+          .limit(50);
 
-      console.log('🎯 Properties query result:', {
-        found: props?.length || 0,
-        error: propsErr,
-        user_id: bq.data.user_id,
-        broker_username: cleanUsername,
-        query_details: {
-          table: 'properties',
-          filters: {
-            user_id: bq.data.user_id,
-            is_public: true,
-            visibility: 'public_site'
+        console.log('🎯 Properties query result:', {
+          found: props?.length || 0,
+          error: propsErr,
+          user_id: bq.data.user_id,
+          broker_username: cleanUsername,
+          properties_sample: props?.slice(0, 3).map(p => ({
+            id: p.id,
+            titulo: p.titulo,
+            is_public: p.is_public,
+            visibility: p.visibility,
+            status: p.status
+          })),
+          query_details: {
+            table: 'properties',
+            filters: {
+              user_id: bq.data.user_id,
+              is_public: true,
+              visibility: 'public_site',
+              status_not: 'INATIVO'
+            }
           }
-        }
-      });
+        });
 
-      if (propsErr) {
-        pushErr("properties.query", propsErr);
-        // Don't throw, just log and continue with empty array
+        if (propsErr) {
+          console.error('❌ Properties query error:', propsErr);
+          pushErr("properties.query", propsErr);
+          // Continue with empty array
+        }
+        
+        // Validate properties data
+        const validProps = (props || []).filter(p => p && p.id && p.titulo);
+        console.log('✅ Valid properties after filtering:', validProps.length);
+        
+        if (!mounted) return;
+        setProperties(validProps);
+        
+      } catch (error) {
+        console.error('❌ Properties fetch error:', error);
+        pushErr("properties.fetch", error);
+        if (!mounted) return;
+        setProperties([]);
       }
 
       // 3) Buscar configuração do minisite
@@ -169,7 +213,6 @@ export default function BrokerMinisite() {
       if (configErr) pushErr("minisite_configs.query", configErr);
       
       if (!mounted) return;
-      setProperties(props ?? []);
       setMinisiteConfig(config);
       setLoading(false);
     })();
