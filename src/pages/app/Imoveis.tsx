@@ -184,28 +184,54 @@ export default function Imoveis() {
         throw error;
       }
       
-      // Map data preserving all saved fields
-      const mappedData = (data || []).map(prop => ({
-        ...prop,
-        bathrooms: prop.bathrooms || 0,
-        parking_spots: prop.parking_spots || 0,
-        listing_type: prop.listing_type || 'venda',
-        property_type: prop.property_type || 'apartamento',
-        visibility: prop.visibility || 'public_site',
-        fotos: prop.fotos || [],
-        videos: prop.videos || [],
-        descricao: prop.descricao || '',
-        banner_type: prop.banner_type,
-        furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
-        sea_distance: prop.sea_distance,
-        has_sea_view: prop.has_sea_view || false,
-        neighborhood: prop.neighborhood || '',
-        zipcode: prop.zipcode || '',
-        condominium_fee: prop.condominium_fee || null,
-        iptu: prop.iptu || null,
-        is_furnished: false, // Computed field
-        watermark_enabled: true, // Default setting
-      }));
+      // Map data preserving all saved fields and extracting from raw data when needed
+      const mappedData = (data || []).map(prop => {
+        // Extract data from raw_cnm or raw_vrsync if available
+        let extractedBathrooms = prop.bathrooms || 0;
+        let extractedParkingSpots = prop.parking_spots || 0;
+        
+        if (prop.raw_cnm && typeof prop.raw_cnm === 'object') {
+          const rawCnm = prop.raw_cnm as any;
+          if (rawCnm.banheiros && !prop.bathrooms) {
+            extractedBathrooms = parseInt(rawCnm.banheiros) || 0;
+          }
+          if (rawCnm.vagas && !prop.parking_spots) {
+            extractedParkingSpots = parseInt(rawCnm.vagas) || 0;
+          }
+        }
+        
+        if (prop.raw_vrsync && typeof prop.raw_vrsync === 'object') {
+          const rawVrsync = prop.raw_vrsync as any;
+          if (rawVrsync.banheiros && !prop.bathrooms) {
+            extractedBathrooms = parseInt(rawVrsync.banheiros) || 0;
+          }
+          if (rawVrsync.vagas && !prop.parking_spots) {
+            extractedParkingSpots = parseInt(rawVrsync.vagas) || 0;
+          }
+        }
+
+        return {
+          ...prop,
+          bathrooms: extractedBathrooms,
+          parking_spots: extractedParkingSpots,
+          listing_type: prop.listing_type || 'venda',
+          property_type: prop.property_type || 'apartamento',
+          visibility: prop.visibility || 'public_site',
+          fotos: prop.fotos || [],
+          videos: prop.videos || [],
+          descricao: prop.descricao || '',
+          banner_type: prop.banner_type,
+          furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+          sea_distance: prop.sea_distance,
+          has_sea_view: prop.has_sea_view || false,
+          neighborhood: prop.neighborhood || '',
+          zipcode: prop.zipcode || '',
+          condominium_fee: prop.condominium_fee || null,
+          iptu: prop.iptu || null,
+          is_furnished: false, // Computed field
+          watermark_enabled: true, // Default setting
+        };
+      });
       
       setProperties(mappedData);
       
@@ -477,12 +503,25 @@ export default function Imoveis() {
 
   const updatePropertyVisibility = async (propertyId: string, visibility: string) => {
     try {
-      const { error } = await supabase
+      console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
+      
+      const { error, data } = await supabase
         .from('properties')
         .update({ visibility })
-        .eq('id', propertyId);
+        .eq('id', propertyId)
+        .eq('user_id', user?.id) // Garantir que só atualiza propriedades do usuário
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('❌ Erro do Supabase:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        throw new Error('Propriedade não encontrada ou não pertence ao usuário');
+      }
+
+      console.log('✅ Visibilidade atualizada:', data[0]);
 
       // Update local state
       setProperties(prev => 
@@ -497,11 +536,13 @@ export default function Imoveis() {
         title: "Visibilidade atualizada",
         description: "A visibilidade do imóvel foi alterada com sucesso.",
       });
-    } catch (error) {
-      console.error('Error updating visibility:', error);
+    } catch (error: any) {
+      console.error('❌ Error updating visibility:', error);
+      
+      const errorMessage = error?.message || 'Erro desconhecido';
       toast({
-        title: "Erro",
-        description: "Erro ao atualizar visibilidade do imóvel.",
+        title: "Erro ao atualizar visibilidade",
+        description: `Detalhes: ${errorMessage}`,
         variant: "destructive",
       });
     }

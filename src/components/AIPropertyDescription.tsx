@@ -31,9 +31,10 @@ interface AIPropertyDescriptionProps {
   onClose: () => void;
   targetAudience?: 'brokers' | 'clients';
   initialDescription?: string;
+  autoSaveToDatabase?: boolean;
 }
 
-export function AIPropertyDescription({ property, onDescriptionGenerated, onClose, targetAudience = 'brokers', initialDescription }: AIPropertyDescriptionProps) {
+export function AIPropertyDescription({ property, onDescriptionGenerated, onClose, targetAudience = 'clients', initialDescription, autoSaveToDatabase = true }: AIPropertyDescriptionProps) {
   const [generatedDescription, setGeneratedDescription] = useState(initialDescription || '');
   const [hasGenerated, setHasGenerated] = useState(!!initialDescription);
   const [copied, setCopied] = useState(false);
@@ -123,6 +124,22 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
       const response = await sendMessage(prompt);
       setGeneratedDescription(response);
       setHasGenerated(true);
+
+      // Auto-save to database if enabled
+      if (autoSaveToDatabase) {
+        try {
+          const { supabase } = await import('@/integrations/supabase/client');
+          await supabase
+            .from('properties')
+            .update({ descricao: response })
+            .eq('id', property.id);
+          
+          console.log('✅ Descrição salva automaticamente no banco');
+        } catch (saveError) {
+          console.error('❌ Erro ao salvar descrição no banco:', saveError);
+        }
+      }
+
       toast({
         title: "Descrição gerada!",
         description: `Descrição criada para ${targetAudience === 'clients' ? 'clientes' : 'corretores'}. Você pode editá-la antes de usar.`,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Save, Download, Eye, Upload, FileText, Sparkles } from 'lucide-react';
+import { Save, Download, Eye, Upload, FileText, Sparkles, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
 import { useAI } from '@/hooks/useAI';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 
 interface PropertyData {
   propertyId: string;
@@ -38,13 +39,14 @@ interface PropertyProposalGeneratorProps {
 
 export function PropertyProposalGenerator({ property, isOpen, onClose }: PropertyProposalGeneratorProps) {
   const { sendMessage, loading: aiLoading } = useAI();
+  const { speak, stop, isCurrentlySpeaking } = useElevenLabsVoice();
   const [formData, setFormData] = useState({
     tituloPrincipal: property.title || '',
     subtitulo: property.bairro || '',
     preco: formatCurrency(property.valor || 0),
     status: 'Disponível',
     categoria: property.tipo?.toUpperCase() || 'EXCLUSIVO',
-    descricao: property.descricao || `Esta magnífica residência combina elegância contemporânea com funcionalidade excepcional. Localizada em uma das áreas mais valorizadas, oferece privacidade e sofisticação em cada detalhe.`
+    descricao: property.descricao || `Imóvel exclusivo em localização privilegiada. Entre em contato para mais informações e agendamento de visita.`
   });
 
   const [activeTab, setActiveTab] = useState('basicos');
@@ -296,17 +298,37 @@ Use palavras como "você", "seu novo lar", "aproveite", "desfrute", etc.`;
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="descricao">Descrição Comercial</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={generateBuyerDescription}
-                    disabled={generatingDescription}
-                    className="text-xs"
-                  >
-                    <Sparkles className="h-3 w-3 mr-1" />
-                    {generatingDescription ? 'Gerando...' : 'Gerar com IA'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={generateBuyerDescription}
+                      disabled={generatingDescription}
+                      className="text-xs"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      {generatingDescription ? 'Gerando...' : 'Gerar com IA'}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const audioId = `proposal-description-${property.propertyId}`;
+                        if (isCurrentlySpeaking(audioId)) {
+                          stop();
+                        } else {
+                          speak(formData.descricao, audioId);
+                        }
+                      }}
+                      disabled={!formData.descricao.trim()}
+                      className="text-xs"
+                    >
+                      <Volume2 className="h-3 w-3 mr-1" />
+                      {isCurrentlySpeaking(`proposal-description-${property.propertyId}`) ? 'Parar' : 'Ouvir'}
+                    </Button>
+                  </div>
                 </div>
                 <Textarea
                   id="descricao"
