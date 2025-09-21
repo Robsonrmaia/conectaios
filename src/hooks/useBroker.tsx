@@ -53,7 +53,19 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user) {
-      fetchBrokerProfile();
+      // Add timeout to prevent infinite loading
+      const timeout = setTimeout(() => {
+        if (loading) {
+          console.warn('⚠️ Broker profile loading timeout - proceeding without broker');
+          setLoading(false);
+        }
+      }, 3000);
+
+      fetchBrokerProfile().finally(() => {
+        clearTimeout(timeout);
+      });
+
+      return () => clearTimeout(timeout);
     } else {
       setBroker(null);
       setPlan(null);
@@ -65,18 +77,25 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     if (!user) return;
 
     try {
-      // Fetch broker profile
+      setLoading(true);
+      console.log('🔄 Fetching broker profile for user:', user.id);
+      
+      // Fetch broker profile with ORDER BY to handle any potential duplicates
       const { data: brokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (brokerError && brokerError.code !== 'PGRST116') {
+      if (brokerError) {
+        console.error('❌ Error fetching broker profile:', brokerError);
         throw brokerError;
       }
 
       if (brokerData) {
+        console.log('✅ Broker profile loaded:', brokerData.id);
         setBroker(brokerData);
 
         // Fetch plan details if broker has plan_id
@@ -85,17 +104,24 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
             .from('plans')
             .select('*')
             .eq('id', brokerData.plan_id)
-            .single();
+            .maybeSingle();
 
           if (planError) {
-            console.error('Error fetching plan:', planError);
-          } else {
+            console.error('⚠️ Error fetching plan:', planError);
+          } else if (planData) {
+            console.log('✅ Plan loaded:', planData.name);
             setPlan(planData);
           }
         }
+      } else {
+        console.log('ℹ️ No broker profile found for user');
+        setBroker(null);
       }
     } catch (error) {
-      console.error('Error fetching broker profile:', error);
+      console.error('❌ Error in fetchBrokerProfile:', error);
+      // Set broker to null on error to prevent infinite loading
+      setBroker(null);
+      setPlan(null);
     } finally {
       setLoading(false);
     }
