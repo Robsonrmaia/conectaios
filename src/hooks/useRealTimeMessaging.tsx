@@ -115,13 +115,25 @@ export function useRealTimeMessaging() {
     if (!user?.id) return null;
 
     try {
+      // Get broker ID for current user
+      const { data: brokerData, error: brokerError } = await supabase
+        .from('conectaios_brokers')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (brokerError || !brokerData) {
+        throw new Error('Broker não encontrado para o usuário');
+      }
+
       const { data, error } = await supabase
         .from('threads')
         .insert({
-          participants: [user.id, ...participantIds.filter(id => id !== user.id)],
+          participants: [brokerData.id, ...participantIds.filter(id => id !== brokerData.id)],
           title: title || 'Nova Conversa',
           type: dealId ? 'deal' : 'general',
-          deal_id: dealId
+          deal_id: dealId,
+          created_by: brokerData.id
         })
         .select()
         .single();

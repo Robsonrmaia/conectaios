@@ -123,7 +123,8 @@ export function useRealTimeChat() {
           participants: [broker.id, ...participantIds.filter(id => id !== broker.id)],
           title: title || 'Nova Conversa',
           type: dealId ? 'deal' : 'general',
-          deal_id: dealId
+          deal_id: dealId,
+          created_by: broker.id
         })
         .select()
         .single();
