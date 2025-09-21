@@ -16,26 +16,17 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
   
   // Check service availability when modal opens
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || !property) return;
     
-    const checkService = async () => {
-      setIsChecking(true);
-      try {
-        const response = await fetch('https://conectaios.com.br/tour360/generate', { 
-          method: 'HEAD',
-          mode: 'no-cors'
-        });
-        setIsServiceAvailable(true);
-      } catch (error) {
-        console.log('⚠️ Tour 360 service not available:', error);
-        setIsServiceAvailable(false);
-      } finally {
-        setIsChecking(false);
-      }
-    };
+    setIsChecking(true);
+    // Verificar se existe tour_360_url na propriedade
+    const checkService = setTimeout(() => {
+      setIsServiceAvailable(!!property.tour_360_url);
+      setIsChecking(false);
+    }, 1500);
     
-    checkService();
-  }, [isOpen]);
+    return () => clearTimeout(checkService);
+  }, [isOpen, property]);
 
   // Get ALL photos (not just first one)
   const allPhotos = property?.fotos || [];
