@@ -50,14 +50,25 @@ export function EnhancedMessaging() {
 
   const fetchAvailableBrokers = async () => {
     try {
+      // Use uma subquery para evitar duplicatas por email
       const { data: brokersData, error } = await supabase
         .from('conectaios_brokers')
         .select('id, name, email, creci, avatar_url, user_id')
         .eq('status', 'active')
-        .neq('user_id', user?.id);
+        .neq('user_id', user?.id)
+        .order('name');
 
       if (error) throw error;
-      setAvailableBrokers(brokersData || []);
+      
+      // Remove duplicatas manualmente por email (pega sempre o primeiro)
+      const uniqueBrokers = brokersData?.reduce((acc: Broker[], broker) => {
+        if (!acc.some(b => b.email === broker.email)) {
+          acc.push(broker);
+        }
+        return acc;
+      }, []) || [];
+      
+      setAvailableBrokers(uniqueBrokers);
     } catch (error) {
       console.error('Error fetching brokers:', error);
     }
