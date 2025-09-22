@@ -3801,6 +3801,12 @@ export type Database = {
           property_id: string
         }[]
       }
+      find_or_create_one_to_one_thread: {
+        Args: { a: string; b: string }
+        Returns: {
+          thread_id: string
+        }[]
+      }
       find_property_matches: {
         Args: { client_preferences: Json }
         Returns: {

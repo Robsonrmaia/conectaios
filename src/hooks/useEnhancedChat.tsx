@@ -226,8 +226,8 @@ export function useEnhancedChat() {
     try {
       console.log('Creating/getting thread for peer:', peerUserId);
       
-      const { data, error } = await supabase.functions.invoke('chat-create-thread', {
-        body: { peer_user_id: peerUserId, is_group: false }
+      const { data, error } = await supabase.functions.invoke('chat-create-or-get-thread', {
+        body: { peer_user_id: peerUserId }
       });
 
       if (error) {
