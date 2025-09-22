@@ -17,11 +17,10 @@ interface Message {
 interface Thread {
   id: string;
   title?: string;
-  participants: string[];
-  last_message_at: string;
+  is_group: boolean;
+  created_by: string;
+  updated_at: string;
   created_at: string;
-  type: string;
-  deal_id?: string;
 }
 
 export function useRealTimeChat() {
@@ -38,10 +37,9 @@ export function useRealTimeChat() {
 
     try {
       const { data, error } = await supabase
-        .from('threads')
+        .from('chat_threads')
         .select('*')
-        .contains('participants', [broker.id])
-        .order('last_message_at', { ascending: false });
+        .order('updated_at', { ascending: false });
 
       if (error) throw error;
       setThreads(data || []);
@@ -56,7 +54,7 @@ export function useRealTimeChat() {
   const fetchMessages = useCallback(async (threadId: string) => {
     try {
       const { data, error } = await supabase
-        .from('messages')
+        .from('chat_messages')
         .select('*')
         .eq('thread_id', threadId)
         .order('created_at', { ascending: true });
@@ -67,12 +65,12 @@ export function useRealTimeChat() {
         ...prev,
         [threadId]: (data || []).map(msg => ({
           id: msg.id,
-          content: msg.content,
-          sender_name: msg.sender_name,
-          user_id: msg.user_id,
+          content: msg.body || '',
+          sender_name: msg.sender_id, // Will need to resolve this
+          user_id: msg.sender_id,
           thread_id: msg.thread_id,
           created_at: msg.created_at,
-          is_read: msg.is_read || false
+          is_read: true // Simplified for now
         }))
       }));
     } catch (error) {
@@ -86,20 +84,20 @@ export function useRealTimeChat() {
 
     try {
       const { error } = await supabase
-        .from('messages')
+        .from('chat_messages')
         .insert({
           thread_id: threadId,
-          content: content.trim(),
-          sender_name: broker.name,
-          user_id: user?.id
+          body: content.trim(),
+          sender_id: user?.id,
+          attachments: []
         });
 
       if (error) throw error;
 
-      // Update thread's last_message_at
+      // Update thread's updated_at
       await supabase
-        .from('threads')
-        .update({ last_message_at: new Date().toISOString() })
+        .from('chat_threads')
+        .update({ updated_at: new Date().toISOString() })
         .eq('id', threadId);
 
     } catch (error) {
@@ -118,12 +116,10 @@ export function useRealTimeChat() {
 
     try {
       const { data, error } = await supabase
-        .from('threads')
+        .from('chat_threads')
         .insert({
-          participants: [broker.id, ...participantIds.filter(id => id !== broker.id)],
+          is_group: participantIds.length > 1,
           title: title || 'Nova Conversa',
-          type: dealId ? 'deal' : 'general',
-          deal_id: dealId,
           created_by: broker.id
         })
         .select()
@@ -149,11 +145,12 @@ export function useRealTimeChat() {
     if (!broker?.id) return;
 
     try {
-      await supabase
-        .from('messages')
-        .update({ is_read: true })
-        .eq('thread_id', threadId)
-        .neq('user_id', user?.id);
+      // Use the chat-mark-read edge function instead
+      await supabase.functions.invoke('chat-mark-read', {
+        body: {
+          thread_id: threadId
+        }
+      });
     } catch (error) {
       console.error('Error marking as read:', error);
     }
@@ -170,19 +167,18 @@ export function useRealTimeChat() {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'messages',
-          filter: `thread_id=in.(${threads.map(t => t.id).join(',')})`
+          table: 'chat_messages'
         },
         (payload) => {
           const newMessage = payload.new as any;
           const message: Message = {
             id: newMessage.id,
-            content: newMessage.content,
-            sender_name: newMessage.sender_name,
-            user_id: newMessage.user_id,
+            content: newMessage.body || '',
+            sender_name: 'User', // Simplified
+            user_id: newMessage.sender_id,
             thread_id: newMessage.thread_id,
             created_at: newMessage.created_at,
-            is_read: newMessage.is_read || false
+            is_read: false
           };
 
           setMessages(prev => ({
@@ -196,9 +192,9 @@ export function useRealTimeChat() {
           // Update thread's last message time in local state
           setThreads(prev => prev.map(thread =>
             thread.id === message.thread_id
-              ? { ...thread, last_message_at: message.created_at }
+              ? { ...thread, updated_at: message.created_at }
               : thread
-          ).sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()));
+          ).sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()));
 
           // Show notification if not from current user
           if (message.user_id !== user?.id) {
