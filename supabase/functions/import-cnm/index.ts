@@ -38,6 +38,7 @@ interface PropertyData {
   condominium_fee?: number;
   iptu?: number;
   year_built?: number;
+  furnishing_type?: string;
   descricao?: string;
   endereco?: string;
   address?: string; // Mapped from endereco for table compatibility
@@ -330,8 +331,8 @@ serve(async (req) => {
           reference_code,
           external_id: reference_code, // Same as reference_code for CNM
           source_portal: 'cnm',
-          titulo: String(imovel.titulo || imovel.nome || imovel.descricao_breve || `${mapPropertyType(imovel.tipo)} ${imovel.referencia || 'Sem ID'}`).substring(0, 255),
-          listing_type: mapListingType(imovel.finalidade || imovel.transacao),
+          titulo: String(imovel.titulo || `${mapPropertyType(imovel.tipo)} ${quartos ? `${quartos} quartos` : ''} ${mapListingType(imovel.transacao)} ${imovel.bairro || ''}`.trim()).substring(0, 255),
+          listing_type: mapListingType(imovel.transacao || imovel.finalidade),
           property_type: mapPropertyType(imovel.tipo),
           valor: valor,
           preco: valor, // Compatibility field
@@ -346,19 +347,20 @@ serve(async (req) => {
           condominium_fee: condominio > 0 ? condominio : null,
           iptu: iptu_value > 0 ? iptu_value : null,
           year_built: ano_construcao,
-          descricao: imovel.descricao || imovel.observacoes || '',
+          furnishing_type: detectFurnishingType(imovel.descritivo || ''),
+          descricao: imovel.descritivo || imovel.descricao || imovel.observacoes || '',
           endereco: endereco_completo,
           address: endereco_completo, // Map to table field
           bairro: bairro_name,
           neighborhood: bairro_name, // Map to table field
           cidade: cidade_name,
           city: cidade_name, // Map to table field
-          state: imovel.endereco?.uf || imovel.uf || '',
-          zipcode: imovel.endereco?.cep || imovel.cep || '',
+          state: imovel.estado || imovel.uf || '',
+          zipcode: imovel.cep || '',
           fotos: photos,
           galeria_urls: photos, // Array of photo URLs
           thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
-          finalidade: mapListingType(imovel.finalidade || imovel.transacao), // Compatibility
+          finalidade: mapListingType(imovel.transacao || imovel.finalidade), // Compatibility
           tipo: mapPropertyType(imovel.tipo), // Compatibility
           raw_cnm: imovel,
           imported_at: new Date().toISOString(),
@@ -450,6 +452,26 @@ serve(async (req) => {
 });
 
 // Helper functions
+function detectFurnishingType(descricao: string): string {
+  if (!descricao) return 'none';
+  
+  const desc = descricao.toLowerCase();
+  
+  // Check for furnished keywords
+  if (desc.includes('mobiliado') || desc.includes('mobiliada') || desc.includes('furnished') ||
+      desc.includes('completo') || desc.includes('equipado') || desc.includes('equipada')) {
+    return 'furnished';
+  }
+  
+  // Check for semi-furnished keywords  
+  if (desc.includes('semi-mobiliado') || desc.includes('semi mobiliado') || 
+      desc.includes('parcialmente mobiliado') || desc.includes('semi-furnished')) {
+    return 'semi_furnished';
+  }
+  
+  return 'none';
+}
+
 function mapListingType(tipo: string | undefined): string {
   if (!tipo) return 'venda';
   

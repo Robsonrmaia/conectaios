@@ -1,17 +1,23 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
-
-export function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
+export const formatCurrency = (amount: number | string | null | undefined): string => {
+  const numValue = typeof amount === 'string' ? parseFloat(amount) : (amount || 0);
+  return numValue.toLocaleString('pt-BR', { 
+    style: 'currency', 
     currency: 'BRL',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-  }).format(value || 0);
+  });
+};
+
+export const formatNumber = (num: number | string | null | undefined): string => {
+  const numValue = typeof num === 'string' ? parseFloat(num) : (num || 0);
+  return numValue.toLocaleString('pt-BR');
+};
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
 
 // Cache para evitar reprocessamento de valores
