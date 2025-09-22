@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Chat mark read request received');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -23,18 +25,25 @@ serve(async (req) => {
     );
 
     // Get the session
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
-    if (!user) {
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { thread_id, message_ids } = await req.json();
+    console.log('Authenticated user:', user.id);
+
+    const requestBody = await req.json();
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    
+    const { thread_id, message_ids } = requestBody;
 
     if (!thread_id) {
+      console.log('Missing thread_id');
       return new Response(JSON.stringify({ error: 'thread_id is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

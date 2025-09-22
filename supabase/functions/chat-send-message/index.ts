@@ -12,6 +12,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Chat send message request received');
+    
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -23,18 +25,25 @@ serve(async (req) => {
     );
 
     // Get the session
-    const { data: { user } } = await supabaseClient.auth.getUser();
+    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
     
-    if (!user) {
+    if (authError || !user) {
+      console.error('Authentication error:', authError);
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { thread_id, body, attachments, reply_to_id } = await req.json();
+    console.log('Authenticated user:', user.id);
+
+    const requestBody = await req.json();
+    console.log('Request body:', JSON.stringify(requestBody, null, 2));
+    
+    const { thread_id, body, attachments, reply_to_id } = requestBody;
 
     if (!thread_id) {
+      console.log('Missing thread_id');
       return new Response(JSON.stringify({ error: 'thread_id is required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -42,6 +51,7 @@ serve(async (req) => {
     }
 
     if (!body && (!attachments || attachments.length === 0)) {
+      console.log('Missing message content');
       return new Response(JSON.stringify({ error: 'Message must have body or attachments' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

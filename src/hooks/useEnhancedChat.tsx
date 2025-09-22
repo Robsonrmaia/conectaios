@@ -224,19 +224,29 @@ export function useEnhancedChat() {
     if (!user?.id) return null;
 
     try {
+      console.log('Creating/getting thread for peer:', peerUserId);
+      
       const { data, error } = await supabase.functions.invoke('chat-create-thread', {
-        body: { peer_user_id: peerUserId }
+        body: { peer_user_id: peerUserId, is_group: false }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(`Failed to create thread: ${error.message || 'Unknown error'}`);
+      }
 
+      if (!data || !data.thread_id) {
+        throw new Error('No thread ID returned from server');
+      }
+
+      console.log('Thread created/found:', data.thread_id);
       await fetchThreads();
       return data.thread_id;
     } catch (error) {
       console.error('Error creating thread:', error);
       toast({
         title: "Erro",
-        description: "Erro ao criar conversa",
+        description: error instanceof Error ? error.message : "Erro ao criar conversa",
         variant: "destructive",
       });
       return null;
@@ -248,6 +258,8 @@ export function useEnhancedChat() {
     if (!user?.id) return null;
 
     try {
+      console.log('Creating group:', title, 'with members:', memberIds);
+      
       const { data, error } = await supabase.functions.invoke('chat-create-thread', {
         body: { 
           is_group: true,
@@ -256,15 +268,23 @@ export function useEnhancedChat() {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(`Failed to create group: ${error.message || 'Unknown error'}`);
+      }
 
+      if (!data || !data.thread_id) {
+        throw new Error('No thread ID returned from server');
+      }
+
+      console.log('Group created:', data.thread_id);
       await fetchThreads();
       return data.thread_id;
     } catch (error) {
       console.error('Error creating group:', error);
       toast({
         title: "Erro",
-        description: "Erro ao criar grupo",
+        description: error instanceof Error ? error.message : "Erro ao criar grupo",
         variant: "destructive",
       });
       return null;
