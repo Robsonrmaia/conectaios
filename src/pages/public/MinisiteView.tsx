@@ -151,24 +151,27 @@ export default function MinisiteView() {
       }
 
       // Fetch broker's properties if show_properties is enabled
-      if (configData?.show_properties && configData.broker_id) {
-        console.log('Fetching properties for broker_id:', configData.broker_id);
+      const finalConfig = configData || (configData === null ? null : configData);
+      
+      if (finalConfig?.show_properties && finalConfig.broker_id) {
+        console.log('🏠 Fetching properties for broker_id:', finalConfig.broker_id);
         
         try {
           // First get broker info to find the correct user_id
           const { data: brokerData, error: brokerError } = await supabase
             .from('conectaios_brokers')
             .select('user_id')
-            .eq('id', configData.broker_id)
+            .eq('id', finalConfig.broker_id)
             .single();
 
-          if (brokerError) {
-            console.error('Error fetching broker data:', brokerError);
-            throw brokerError;
-          }
+          console.log('👤 Broker data result:', { brokerData, brokerError });
 
-          if (brokerData?.user_id) {
-            console.log('Fetching properties for user_id:', brokerData.user_id);
+          if (brokerError) {
+            console.error('❌ Error fetching broker data:', brokerError);
+            setProperties([]);
+            setFilteredProperties([]);
+          } else if (brokerData?.user_id) {
+            console.log('🔍 Fetching properties for user_id:', brokerData.user_id);
             
             // Query properties with comprehensive error handling
             const { data: propertiesData, error: propertiesError } = await supabase
@@ -178,19 +181,25 @@ export default function MinisiteView() {
                 descricao, bathrooms, parking_spots, listing_type, property_type,
                 address, state, features, created_at, updated_at, reference_code,
                 furnishing_type, condominium_fee, iptu, price_per_m2, has_sea_view,
-                sea_distance, year_built, zipcode
+                sea_distance, year_built, zipcode, is_public, visibility
               `)
               .eq('user_id', brokerData.user_id)
               .eq('is_public', true)
               .eq('visibility', 'public_site')
               .order('created_at', { ascending: false })
-              .limit(24);
+              .limit(50);
 
             console.log('🎯 MinisiteView Properties query completed:', {
               found: propertiesData?.length || 0,
               error: propertiesError,
               user_id: brokerData.user_id,
-              broker_id: configData.broker_id,
+              broker_id: finalConfig.broker_id,
+              firstProperty: propertiesData?.[0] ? {
+                id: propertiesData[0].id,
+                titulo: propertiesData[0].titulo,
+                is_public: propertiesData[0].is_public,
+                visibility: propertiesData[0].visibility
+              } : null,
               query_details: {
                 table: 'properties',
                 filters: {
@@ -202,26 +211,30 @@ export default function MinisiteView() {
             });
 
             if (propertiesError) {
-              console.error('Error fetching properties:', propertiesError);
-              // Don't throw error, just log it and continue with empty properties
+              console.error('❌ Error fetching properties:', propertiesError);
               setProperties([]);
               setFilteredProperties([]);
             } else {
-              setProperties(propertiesData || []);
-              setFilteredProperties(propertiesData || []);
+              console.log('✅ Properties fetched successfully:', propertiesData?.length || 0);
+              const validProperties = propertiesData || [];
+              setProperties(validProperties);
+              setFilteredProperties(validProperties);
             }
-        } else {
-          console.warn('No user_id found for broker');
-          setProperties([]);
-          setFilteredProperties([]);
-        }
+          } else {
+            console.warn('⚠️ No user_id found for broker');
+            setProperties([]);
+            setFilteredProperties([]);
+          }
         } catch (error) {
-          console.error('Error in properties fetch process:', error);
+          console.error('💥 Error in properties fetch process:', error);
           setProperties([]);
           setFilteredProperties([]);
         }
       } else {
-        console.log('Properties disabled or no broker_id');
+        console.log('🚫 Properties disabled or no broker_id:', {
+          show_properties: finalConfig?.show_properties,
+          broker_id: finalConfig?.broker_id
+        });
         setProperties([]);
         setFilteredProperties([]);
       }
@@ -405,80 +418,101 @@ export default function MinisiteView() {
                 </CardHeader>
                 <CardContent>
                   {/* Search and Filters */}
-                  {properties.length > 0 && (
-                    <div className="mb-6 p-4 bg-muted/30 rounded-lg space-y-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Search className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium">Pesquisar Imóveis</span>
-                      </div>
-                      
-                      {/* Search Input */}
-                      <div className="relative">
-                        <Input
-                          placeholder="Buscar por título, descrição ou localização..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      </div>
-
-                      {/* Filters Row */}
-                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-                        <Select value={selectedListingType} onValueChange={setSelectedListingType}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Finalidade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="todos">Todas</SelectItem>
-                            <SelectItem value="venda">Venda</SelectItem>
-                            <SelectItem value="locacao">Locação</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select value={selectedType} onValueChange={setSelectedType}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Tipo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="todos">Todos</SelectItem>
-                            <SelectItem value="apartamento">Apartamento</SelectItem>
-                            <SelectItem value="casa">Casa</SelectItem>
-                            <SelectItem value="terreno">Terreno</SelectItem>
-                            <SelectItem value="comercial">Comercial</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Quartos" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="todos">Todos</SelectItem>
-                            <SelectItem value="0">Kitnet</SelectItem>
-                            <SelectItem value="1">1 quarto</SelectItem>
-                            <SelectItem value="2">2 quartos</SelectItem>
-                            <SelectItem value="3">3 quartos</SelectItem>
-                            <SelectItem value="4">4+ quartos</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        <Input
-                          placeholder="Preço mínimo"
-                          type="number"
-                          value={minPrice}
-                          onChange={(e) => setMinPrice(e.target.value)}
-                        />
-
-                        <Input
-                          placeholder="Preço máximo"
-                          type="number"
-                          value={maxPrice}
-                          onChange={(e) => setMaxPrice(e.target.value)}
-                        />
-                      </div>
+                  <div className="mb-6 p-4 bg-muted/30 rounded-lg space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Pesquisar Imóveis</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {filteredProperties.length} de {properties.length} imóveis
+                      </span>
                     </div>
-                  )}
+                    
+                    {/* Search Input */}
+                    <div className="relative">
+                      <Input
+                        placeholder="Buscar por título, descrição ou localização..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
+
+                    {/* Filters Row */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                      <Select value={selectedListingType} onValueChange={setSelectedListingType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Finalidade" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todas</SelectItem>
+                          <SelectItem value="venda">Venda</SelectItem>
+                          <SelectItem value="locacao">Locação</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Select value={selectedType} onValueChange={setSelectedType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todos</SelectItem>
+                          <SelectItem value="apartamento">Apartamento</SelectItem>
+                          <SelectItem value="casa">Casa</SelectItem>
+                          <SelectItem value="terreno">Terreno</SelectItem>
+                          <SelectItem value="comercial">Comercial</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Quartos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todos</SelectItem>
+                          <SelectItem value="0">Kitnet</SelectItem>
+                          <SelectItem value="1">1 quarto</SelectItem>
+                          <SelectItem value="2">2 quartos</SelectItem>
+                          <SelectItem value="3">3 quartos</SelectItem>
+                          <SelectItem value="4">4+ quartos</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Input
+                        placeholder="Preço mínimo"
+                        type="number"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                      />
+
+                      <Input
+                        placeholder="Preço máximo"
+                        type="number"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                      />
+                    </div>
+                    
+                    {/* Clear Filters Button */}
+                    {(searchTerm || selectedType !== 'todos' || selectedListingType !== 'todos' || 
+                      selectedBedrooms !== 'todos' || minPrice || maxPrice) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSearchTerm('');
+                          setSelectedType('todos');
+                          setSelectedListingType('todos');
+                          setSelectedBedrooms('todos');
+                          setMinPrice('');
+                          setMaxPrice('');
+                        }}
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Limpar Filtros
+                      </Button>
+                    )}
+                  </div>
 
                   {properties.length === 0 ? (
                     <div className="text-center py-8">
