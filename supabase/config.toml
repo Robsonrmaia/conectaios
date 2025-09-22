@@ -1,5 +1,8 @@
 project_id = "hvbdeyuqcliqrmzvyciq"
 
+[functions.chat-create-or-get-thread]
+verify_jwt = true
+
 [functions.virtual-staging]
 verify_jwt = false
 
