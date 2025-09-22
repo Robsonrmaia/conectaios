@@ -18,6 +18,10 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const authHeader = req.headers.get("authorization") ?? "";
+    
+    console.log('Using Supabase URL:', supabaseUrl);
+    console.log('Auth header present:', !!authHeader);
+    
     const supabase = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: authHeader } },
     });
@@ -25,49 +29,38 @@ Deno.serve(async (req) => {
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
     if (userErr || !user) {
       console.error('Authentication error:', userErr);
-      return json({ error: "UNAUTHENTICATED" }, 401);
+      return json({ error: "UNAUTHENTICATED", detail: userErr?.message || "No user found" }, 401);
     }
     const me = user.id;
     console.log('Authenticated user:', me);
 
     // 2) Body parsing
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json().catch((e) => {
+      console.error('JSON parse error:', e);
+      return {};
+    });
     const peer_user_id = String(body?.peer_user_id || "").trim();
     console.log('Request body:', JSON.stringify(body, null, 2));
 
     if (!peer_user_id || peer_user_id === me) {
-      console.error('Invalid peer_user_id:', peer_user_id);
+      console.error('Invalid peer_user_id - value:', peer_user_id, 'same as me:', peer_user_id === me);
       return json({ error: "INVALID_PEER", detail: "peer_user_id obrigatório e diferente do próprio usuário" }, 400);
     }
 
-    // 3) Verificar se já existe thread 1:1
+    // 3) Verificar se já existe thread 1:1 usando RPC
     console.log('Searching for existing thread between users:', me, 'and', peer_user_id);
     
-    const { data: candidates } = await supabase
-      .from("chat_participants")
-      .select("thread_id")
-      .in("user_id", [me, peer_user_id]);
+    const { data: existingThreadId, error: rpcErr } = await supabase
+      .rpc("find_existing_one_to_one_thread", { user_a: me, user_b: peer_user_id });
 
-    // Agrupar por thread_id e ver se tem exatamente os 2 usuários
-    const countByThread: Record<string, number> = {};
-    for (const r of candidates ?? []) {
-      countByThread[r.thread_id] = (countByThread[r.thread_id] ?? 0) + 1;
+    if (rpcErr) {
+      console.error('RPC error:', rpcErr);
+      return json({ error: "RPC_ERROR", detail: rpcErr.message }, 500);
     }
-    
-    // Verificar se alguma thread tem exatamente 2 participantes (os nossos 2)
-    for (const [threadId, count] of Object.entries(countByThread)) {
-      if (count === 2) {
-        // Verificar se essa thread tem exatamente 2 participantes total
-        const { data: allParticipants } = await supabase
-          .from("chat_participants")
-          .select("user_id")
-          .eq("thread_id", threadId);
-          
-        if (allParticipants && allParticipants.length === 2) {
-          console.log('Found existing thread:', threadId);
-          return json({ thread_id: threadId, created: false });
-        }
-      }
+
+    if (existingThreadId) {
+      console.log('Found existing thread:', existingThreadId);
+      return json({ thread_id: existingThreadId, created: false });
     }
 
     // 4) Criar nova thread
@@ -102,6 +95,7 @@ Deno.serve(async (req) => {
       // Tentar limpar a thread criada se a inserção de participantes falhou
       try {
         await supabase.from("chat_threads").delete().eq("id", thread.id);
+        console.log('Cleaned up failed thread');
       } catch (cleanupErr) {
         console.error('Cleanup error:', cleanupErr);
       }

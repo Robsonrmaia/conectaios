@@ -3792,6 +3792,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      find_existing_one_to_one_thread: {
+        Args: { user_a: string; user_b: string }
+        Returns: string
+      }
       find_intelligent_property_matches: {
         Args: { search_id: string }
         Returns: {
