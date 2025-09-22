@@ -6,8 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
-import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home, Volume2 } from 'lucide-react';
+import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home, Volume2, Search, Filter, Share2, Eye, BedDouble, Bath, Car, DollarSign } from 'lucide-react';
+import { ShareButton } from '@/components/ShareButton';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
 
@@ -48,6 +50,20 @@ interface Property {
   descricao: string;
   bathrooms: number;
   parking_spots: number;
+  listing_type: string;
+  property_type: string;
+  address: string;
+  state: string;
+  features: any;
+  reference_code?: string;
+  furnishing_type?: string;
+  condominium_fee?: number;
+  iptu?: number;
+  price_per_m2?: number;
+  has_sea_view?: boolean;
+  sea_distance?: number;
+  year_built?: number;
+  zipcode?: string;
 }
 
 export default function MinisiteView() {
@@ -55,6 +71,7 @@ export default function MinisiteView() {
   const { speak, stop, isSpeaking } = useElevenLabsVoice();
   const [config, setConfig] = useState<MinisiteConfig | null>(null);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [contactForm, setContactForm] = useState({
     nome: '',
@@ -62,6 +79,14 @@ export default function MinisiteView() {
     telefone: '',
     mensagem: ''
   });
+  
+  // Search and filter states
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('todos');
+  const [selectedListingType, setSelectedListingType] = useState('todos');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [selectedBedrooms, setSelectedBedrooms] = useState('todos');
 
   useEffect(() => {
     if (username) {
@@ -151,13 +176,15 @@ export default function MinisiteView() {
               .select(`
                 id, titulo, valor, quartos, area, fotos, neighborhood, city, 
                 descricao, bathrooms, parking_spots, listing_type, property_type,
-                address, state, features, created_at, updated_at
+                address, state, features, created_at, updated_at, reference_code,
+                furnishing_type, condominium_fee, iptu, price_per_m2, has_sea_view,
+                sea_distance, year_built, zipcode
               `)
               .eq('user_id', brokerData.user_id)
               .eq('is_public', true)
               .eq('visibility', 'public_site')
               .order('created_at', { ascending: false })
-              .limit(12);
+              .limit(24);
 
             console.log('🎯 MinisiteView Properties query completed:', {
               found: propertiesData?.length || 0,
@@ -178,20 +205,25 @@ export default function MinisiteView() {
               console.error('Error fetching properties:', propertiesError);
               // Don't throw error, just log it and continue with empty properties
               setProperties([]);
+              setFilteredProperties([]);
             } else {
               setProperties(propertiesData || []);
+              setFilteredProperties(propertiesData || []);
             }
-          } else {
-            console.warn('No user_id found for broker');
-            setProperties([]);
-          }
+        } else {
+          console.warn('No user_id found for broker');
+          setProperties([]);
+          setFilteredProperties([]);
+        }
         } catch (error) {
           console.error('Error in properties fetch process:', error);
           setProperties([]);
+          setFilteredProperties([]);
         }
       } else {
         console.log('Properties disabled or no broker_id');
         setProperties([]);
+        setFilteredProperties([]);
       }
     } catch (error) {
       console.error('Error fetching minisite data:', error);
@@ -204,6 +236,46 @@ export default function MinisiteView() {
       setLoading(false);
     }
   };
+
+  // Filter properties based on search criteria
+  useEffect(() => {
+    let filtered = [...properties];
+
+    // Text search
+    if (searchTerm) {
+      filtered = filtered.filter(property =>
+        property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.city?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Property type filter
+    if (selectedType !== 'todos') {
+      filtered = filtered.filter(property => property.property_type === selectedType);
+    }
+
+    // Listing type filter
+    if (selectedListingType !== 'todos') {
+      filtered = filtered.filter(property => property.listing_type === selectedListingType);
+    }
+
+    // Price range filter
+    if (minPrice) {
+      filtered = filtered.filter(property => property.valor >= parseFloat(minPrice));
+    }
+    if (maxPrice) {
+      filtered = filtered.filter(property => property.valor <= parseFloat(maxPrice));
+    }
+
+    // Bedrooms filter
+    if (selectedBedrooms !== 'todos') {
+      filtered = filtered.filter(property => property.quartos === parseInt(selectedBedrooms));
+    }
+
+    setFilteredProperties(filtered);
+  }, [properties, searchTerm, selectedType, selectedListingType, minPrice, maxPrice, selectedBedrooms]);
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -326,12 +398,88 @@ export default function MinisiteView() {
                     Imóveis Disponíveis
                     {properties.length > 0 && (
                       <span className="text-sm font-normal text-muted-foreground">
-                        ({properties.length})
+                        ({filteredProperties.length} de {properties.length})
                       </span>
                     )}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {/* Search and Filters */}
+                  {properties.length > 0 && (
+                    <div className="mb-6 p-4 bg-muted/30 rounded-lg space-y-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Search className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium">Pesquisar Imóveis</span>
+                      </div>
+                      
+                      {/* Search Input */}
+                      <div className="relative">
+                        <Input
+                          placeholder="Buscar por título, descrição ou localização..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      </div>
+
+                      {/* Filters Row */}
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <Select value={selectedListingType} onValueChange={setSelectedListingType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Finalidade" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="todos">Todas</SelectItem>
+                            <SelectItem value="venda">Venda</SelectItem>
+                            <SelectItem value="locacao">Locação</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={selectedType} onValueChange={setSelectedType}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="todos">Todos</SelectItem>
+                            <SelectItem value="apartamento">Apartamento</SelectItem>
+                            <SelectItem value="casa">Casa</SelectItem>
+                            <SelectItem value="terreno">Terreno</SelectItem>
+                            <SelectItem value="comercial">Comercial</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Quartos" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="todos">Todos</SelectItem>
+                            <SelectItem value="0">Kitnet</SelectItem>
+                            <SelectItem value="1">1 quarto</SelectItem>
+                            <SelectItem value="2">2 quartos</SelectItem>
+                            <SelectItem value="3">3 quartos</SelectItem>
+                            <SelectItem value="4">4+ quartos</SelectItem>
+                          </SelectContent>
+                        </Select>
+
+                        <Input
+                          placeholder="Preço mínimo"
+                          type="number"
+                          value={minPrice}
+                          onChange={(e) => setMinPrice(e.target.value)}
+                        />
+
+                        <Input
+                          placeholder="Preço máximo"
+                          type="number"
+                          value={maxPrice}
+                          onChange={(e) => setMaxPrice(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+
                   {properties.length === 0 ? (
                     <div className="text-center py-8">
                       <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -340,51 +488,171 @@ export default function MinisiteView() {
                         Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.
                       </p>
                     </div>
+                  ) : filteredProperties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel encontrado</h3>
+                      <p className="text-muted-foreground">
+                        Tente ajustar os filtros de pesquisa para encontrar imóveis.
+                      </p>
+                    </div>
                   ) : (
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {properties.map((property) => (
-                      <div key={property.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                        {property.fotos?.[0] && (
-                          <img 
-                            src={property.fotos[0]} 
-                            alt={property.titulo}
-                            className="w-full h-48 object-cover rounded-md mb-3"
-                          />
-                        )}
-                        <h3 className="font-semibold mb-2">{property.titulo}</h3>
-                        <p className="text-lg font-bold text-primary mb-2">
-                          {formatCurrency(property.valor)}
-                        </p>
-                        <div className="flex gap-4 text-sm text-muted-foreground mb-2">
-                          <span>{property.quartos} quartos</span>
-                          <span>{property.area}m²</span>
-                          <span>{property.bathrooms || 0} banheiros</span>
-                          <span>{property.parking_spots || 0} vagas</span>
+                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                      {filteredProperties.map((property) => (
+                        <div key={property.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
+                          {/* Property Image */}
+                          {property.fotos?.[0] && (
+                            <div className="relative">
+                              <img 
+                                src={property.fotos[0]} 
+                                alt={property.titulo}
+                                className="w-full h-48 object-cover"
+                              />
+                              {property.has_sea_view && (
+                                <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                  Vista Mar
+                                </div>
+                              )}
+                              {property.listing_type && (
+                                <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-medium">
+                                  {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          <div className="p-4">
+                            {/* Title and Reference */}
+                            <div className="mb-3">
+                              <h3 className="font-semibold text-lg mb-1 line-clamp-2">{property.titulo}</h3>
+                              {property.reference_code && (
+                                <p className="text-xs text-muted-foreground">Cód: {property.reference_code}</p>
+                              )}
+                            </div>
+
+                            {/* Price */}
+                            <div className="mb-3">
+                              <p className="text-2xl font-bold text-primary mb-1">
+                                {formatCurrency(property.valor)}
+                              </p>
+                              {property.price_per_m2 && (
+                                <p className="text-sm text-muted-foreground">
+                                  {formatCurrency(property.price_per_m2)}/m²
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Property Details */}
+                            <div className="grid grid-cols-4 gap-2 mb-3 text-sm">
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <BedDouble className="h-4 w-4" />
+                                <span>{property.quartos}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Bath className="h-4 w-4" />
+                                <span>{property.bathrooms || 0}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Car className="h-4 w-4" />
+                                <span>{property.parking_spots || 0}</span>
+                              </div>
+                              <div className="text-muted-foreground">
+                                <span>{property.area}m²</span>
+                              </div>
+                            </div>
+
+                            {/* Additional Costs */}
+                            {(property.condominium_fee || property.iptu) && (
+                              <div className="mb-3 text-sm text-muted-foreground">
+                                {property.condominium_fee && (
+                                  <span className="mr-3">Cond: {formatCurrency(property.condominium_fee)}</span>
+                                )}
+                                {property.iptu && (
+                                  <span>IPTU: {formatCurrency(property.iptu)}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Location */}
+                            {(property.neighborhood || property.city) && (
+                              <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                {property.neighborhood}
+                                {property.neighborhood && property.city && ' - '}
+                                {property.city}
+                                {property.state && `, ${property.state}`}
+                              </p>
+                            )}
+
+                            {/* Property Type and Features */}
+                            <div className="mb-3">
+                              {property.property_type && (
+                                <span className="inline-block bg-muted px-2 py-1 rounded text-xs text-muted-foreground mr-2">
+                                  {property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}
+                                </span>
+                              )}
+                              {property.furnishing_type && property.furnishing_type !== 'none' && (
+                                <span className="inline-block bg-muted px-2 py-1 rounded text-xs text-muted-foreground mr-2">
+                                  {property.furnishing_type === 'furnished' ? 'Mobiliado' : 
+                                   property.furnishing_type === 'semi-furnished' ? 'Semi-mobiliado' : 'Não mobiliado'}
+                                </span>
+                              )}
+                              {property.sea_distance && (
+                                <span className="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs mr-2">
+                                  {property.sea_distance}m do mar
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Description */}
+                            {property.descricao && (
+                              <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                                {property.descricao}
+                              </p>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2">
+                              <ShareButton
+                                property={{
+                                  id: property.id,
+                                  titulo: property.titulo,
+                                  valor: property.valor,
+                                  area: property.area,
+                                  quartos: property.quartos,
+                                  bathrooms: property.bathrooms || 0,
+                                  parking_spots: property.parking_spots || 0,
+                                  fotos: property.fotos || [],
+                                  neighborhood: property.neighborhood || '',
+                                  descricao: property.descricao || '',
+                                  property_type: property.property_type || '',
+                                  listing_type: property.listing_type || 'venda',
+                                  has_sea_view: property.has_sea_view || false,
+                                  furnishing_type: property.furnishing_type || '',
+                                  sea_distance: property.sea_distance || 0
+                                }}
+                                isOwner={false}
+                                isAuthorized={true}
+                              />
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  if (isSpeaking) {
+                                    stop();
+                                  } else {
+                                    const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
+                                    speak(descricao);
+                                  }
+                                }}
+                                title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                              >
+                                <Volume2 className="h-4 w-4 mr-2" />
+                                {isSpeaking ? "Parar" : "Ouvir"}
+                              </Button>
+                            </div>
+                          </div>
                         </div>
-                        {(property.neighborhood || property.city) && (
-                          <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
-                            <MapPin className="h-4 w-4" />
-                            {property.neighborhood} {property.city && `- ${property.city}`}
-                          </p>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            if (isSpeaking) {
-                              stop();
-                            } else {
-                              const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
-                              speak(descricao);
-                            }
-                          }}
-                          className="w-full"
-                          title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
-                        >
-                          <Volume2 className="h-4 w-4 mr-2" />
-                          {isSpeaking ? "Parar Áudio" : "Ouvir Descrição"}
-                        </Button>
-                      </div>
                       ))}
                     </div>
                   )}
