@@ -221,21 +221,35 @@ export function useEnhancedChat() {
 
   // Create or get 1:1 thread
   const createOrGetThread = useCallback(async (peerUserId: string) => {
-    if (!user?.id) return null;
+    if (!user?.id) {
+      console.error('No authenticated user found');
+      toast({
+        title: "Erro",
+        description: "É necessário fazer login para iniciar uma conversa",
+        variant: "destructive",
+      });
+      return null;
+    }
 
     try {
       console.log('Creating/getting thread for peer:', peerUserId);
+      console.log('User ID:', user?.id);
+      console.log('Calling edge function with body:', { peer_user_id: peerUserId });
       
       const { data, error } = await supabase.functions.invoke('chat-create-or-get-thread', {
         body: { peer_user_id: peerUserId }
       });
 
+      console.log('Edge function response - data:', data);
+      console.log('Edge function response - error:', error);
+
       if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(`Failed to create thread: ${error.message || 'Unknown error'}`);
+        console.error('Edge function error details:', JSON.stringify(error, null, 2));
+        throw new Error(`Edge function error: ${error.message || JSON.stringify(error)}`);
       }
 
       if (!data || !data.thread_id) {
+        console.error('Invalid response data:', data);
         throw new Error('No thread ID returned from server');
       }
 
