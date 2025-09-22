@@ -3859,6 +3859,14 @@ export type Database = {
         Args: { user_uuid?: string }
         Returns: boolean
       }
+      is_chat_participant: {
+        Args: { p_thread_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_chat_thread_creator: {
+        Args: { p_thread_id: string; p_user_id: string }
+        Returns: boolean
+      }
       log_audit_event: {
         Args: {
           _action: string
