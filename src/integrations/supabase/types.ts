@@ -455,6 +455,259 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          attachments: Json | null
+          body: string | null
+          created_at: string
+          edited_at: string | null
+          id: string
+          reply_to_id: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          reply_to_id?: string | null
+          sender_id: string
+          thread_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string
+          edited_at?: string | null
+          id?: string
+          reply_to_id?: string | null
+          sender_id?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_messages_backup: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          sender_name: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_name: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_name?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_backup"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_participants: {
+        Row: {
+          joined_at: string
+          left_at: string | null
+          role: string | null
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          left_at?: string | null
+          role?: string | null
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          left_at?: string | null
+          role?: string | null
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_presence: {
+        Row: {
+          last_seen_at: string
+          status: string
+          typing_in_thread: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_seen_at?: string
+          status?: string
+          typing_in_thread?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_seen_at?: string
+          status?: string
+          typing_in_thread?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_presence_typing_in_thread_fkey"
+            columns: ["typing_in_thread"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_receipts: {
+        Row: {
+          created_at: string
+          message_id: string
+          status: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          message_id: string
+          status: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          message_id?: string
+          status?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_receipts_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_group: boolean
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_group?: boolean
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_group?: boolean
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_threads_backup: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          deal_id: string | null
+          id: string
+          last_message_at: string | null
+          participants: string[]
+          title: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          id?: string
+          last_message_at?: string | null
+          participants?: string[]
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          deal_id?: string | null
+          id?: string
+          last_message_at?: string | null
+          participants?: string[]
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "threads_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_history: {
         Row: {
           action: string
@@ -1982,44 +2235,6 @@ export type Database = {
           },
         ]
       }
-      messages: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          is_read: boolean | null
-          sender_name: string
-          thread_id: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_read?: boolean | null
-          sender_name: string
-          thread_id: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_read?: boolean | null
-          sender_name?: string
-          thread_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "messages_thread_id_fkey"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       minisite_configs: {
         Row: {
           broker_id: string
@@ -3311,50 +3526,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      threads: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          deal_id: string | null
-          id: string
-          last_message_at: string | null
-          participants: string[]
-          title: string | null
-          type: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          deal_id?: string | null
-          id?: string
-          last_message_at?: string | null
-          participants?: string[]
-          title?: string | null
-          type?: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          deal_id?: string | null
-          id?: string
-          last_message_at?: string | null
-          participants?: string[]
-          title?: string | null
-          type?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "threads_deal_id_fkey"
-            columns: ["deal_id"]
-            isOneToOne: false
-            referencedRelation: "deals"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       ticket_messages: {
         Row: {
