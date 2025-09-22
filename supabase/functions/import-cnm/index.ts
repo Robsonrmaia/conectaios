@@ -28,14 +28,32 @@ interface PropertyData {
   property_type: string;
   valor: number;
   area: number;
+  area_total?: number;
+  area_privativa?: number;
   quartos: number;
   banheiros: number;
+  bathrooms: number; // Mapped from banheiros for table compatibility
   vagas: number;
+  parking_spots: number; // Mapped from vagas for table compatibility
+  condominium_fee?: number;
+  iptu?: number;
+  year_built?: number;
   descricao?: string;
   endereco?: string;
+  address?: string; // Mapped from endereco for table compatibility
   bairro?: string;
+  neighborhood?: string; // Mapped from bairro for table compatibility
   cidade?: string;
+  city?: string; // Mapped from cidade for table compatibility
+  state?: string;
+  zipcode?: string;
   fotos?: string[];
+  galeria_urls?: string[];
+  thumb_url?: string | null;
+  finalidade?: string;
+  tipo?: string;
+  preco?: number;
+  status?: string;
   raw_cnm?: any;
   imported_at: string;
   is_public?: boolean;
@@ -281,23 +299,60 @@ serve(async (req) => {
         
         console.log(`💰 Property value extracted: ${valor} from raw: ${imovel.valor || imovel.preco}`);
         
+        // Enhanced data extraction with proper mapping
+        const quartos = parseInt(String(imovel.quartos || imovel.dormitorios || '0')) || 0;
+        const banheiros = parseInt(String(imovel.banheiros || imovel.suites || '0')) || 0;
+        const vagas = parseInt(String(imovel.vagas || imovel.garagem || '0')) || 0;
+        const area_total = parseFloat(String(imovel.area_total || imovel.area || imovel.area_util || '0').replace(/[^\d.-]/g, '')) || 0;
+        const area_privativa = parseFloat(String(imovel.area_privativa || imovel.area_util || '0').replace(/[^\d.-]/g, '')) || 0;
+        const condominio = parseFloat(String(imovel.valor_condominio || imovel.condominio || '0').replace(/[^\d.-]/g, '')) || 0;
+        const iptu_value = parseFloat(String(imovel.valor_iptu || imovel.iptu || '0').replace(/[^\d.-]/g, '')) || 0;
+        const ano_construcao = parseInt(String(imovel.ano_construcao || imovel.ano || '0')) || null;
+        const endereco_completo = imovel.endereco?.logradouro || imovel.logradouro || imovel.endereco || '';
+        const bairro_name = imovel.endereco?.bairro || imovel.bairro || '';
+        const cidade_name = imovel.endereco?.cidade || imovel.cidade || '';
+        
+        console.log(`🏗️ Enhanced data extraction for ${reference_code}:`, {
+          quartos,
+          banheiros,
+          vagas,
+          area_total,
+          area_privativa,
+          condominio,
+          iptu_value,
+          ano_construcao,
+          endereco_completo,
+          bairro_name,
+          cidade_name
+        });
+        
         const propertyData: PropertyData = {
           reference_code,
           external_id: reference_code, // Same as reference_code for CNM
           source_portal: 'cnm',
-          titulo: String(imovel.titulo || imovel.tipo || `${mapPropertyType(imovel.tipo)} ${imovel.referencia || 'Sem ID'}`).substring(0, 255),
+          titulo: String(imovel.titulo || imovel.nome || imovel.descricao_breve || `${mapPropertyType(imovel.tipo)} ${imovel.referencia || 'Sem ID'}`).substring(0, 255),
           listing_type: mapListingType(imovel.finalidade || imovel.transacao),
           property_type: mapPropertyType(imovel.tipo),
           valor: valor,
           preco: valor, // Compatibility field
-          area: parseFloat(String(imovel.area || imovel.area_util || '0').replace(/[^\d.-]/g, '')) || 0,
-          quartos: parseInt(String(imovel.quartos || imovel.dormitorios || '0')) || 0,
-          banheiros: parseInt(String(imovel.banheiros || imovel.suites || '0')) || 0,
-          vagas: parseInt(String(imovel.vagas || imovel.garagem || '0')) || 0,
+          area: area_total, // Use area_total as main area
+          area_total: area_total,
+          area_privativa: area_privativa,
+          quartos: quartos,
+          banheiros: banheiros,
+          bathrooms: banheiros, // Map to table field
+          vagas: vagas,
+          parking_spots: vagas, // Map to table field
+          condominium_fee: condominio > 0 ? condominio : null,
+          iptu: iptu_value > 0 ? iptu_value : null,
+          year_built: ano_construcao,
           descricao: imovel.descricao || imovel.observacoes || '',
-          endereco: imovel.endereco?.logradouro || imovel.logradouro || '',
-          bairro: imovel.endereco?.bairro || imovel.bairro || '',
-          cidade: imovel.endereco?.cidade || imovel.cidade || '',
+          endereco: endereco_completo,
+          address: endereco_completo, // Map to table field
+          bairro: bairro_name,
+          neighborhood: bairro_name, // Map to table field
+          cidade: cidade_name,
+          city: cidade_name, // Map to table field
           state: imovel.endereco?.uf || imovel.uf || '',
           zipcode: imovel.endereco?.cep || imovel.cep || '',
           fotos: photos,
