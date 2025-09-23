@@ -28,6 +28,7 @@ import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";
 import CRM from "./pages/app/CRM";
+import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
 import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
@@ -42,6 +43,7 @@ import Suporte from "./pages/app/Suporte";
 import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
+import PropertySubmissionForm from "@/pages/public/PropertySubmissionForm";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
 import PublicProbe from "@/pages/PublicProbe";
 
@@ -120,14 +122,15 @@ const App = () => (
               <BrowserRouter>
                 <MaintenanceCheck>
                   <Routes>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route path="/admin-master" element={<AdminMaster />} />
-                  <Route path="/@:username" element={<AtRedirect />} />
-                  <Route path="/broker" element={<BrokerRedirect />} />
-                  <Route path="/broker/:username" element={<BrokerMinisite />} />
-                  <Route path="/imovel/:id" element={<PropertyDetail />} />
-                  <Route path="/public-test" element={<PublicProbe />} />
+                   <Route path="/" element={<Index />} />
+                   <Route path="/auth" element={<Auth />} />
+                   <Route path="/admin-master" element={<AdminMaster />} />
+                   <Route path="/@:username" element={<AtRedirect />} />
+                   <Route path="/broker" element={<BrokerRedirect />} />
+                   <Route path="/broker/:username" element={<BrokerMinisite />} />
+                   <Route path="/imovel/:id" element={<PropertyDetail />} />
+                   <Route path="/formulario-imovel/:token" element={<PropertySubmissionForm />} />
+                   <Route path="/public-test" element={<PublicProbe />} />
                   <Route path="/app/*" element={
                     <ProtectedRoute>
                       <AppLayout>
@@ -145,8 +148,9 @@ const App = () => (
                            <Route path="match" element={<Match />} />
                           <Route path="deals" element={<Deals />} />
                           <Route path="inbox" element={<Inbox />} />
-                          <Route path="crm" element={<CRM />} />
-                          <Route path="ferramentas" element={<Ferramentas />} />
+                           <Route path="crm" element={<CRM />} />
+                           <Route path="envios-proprietarios" element={<PropertySubmissions />} />
+                           <Route path="ferramentas" element={<Ferramentas />} />
                           <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />
                           <Route path="videos" element={<Videos />} />
                           <Route path="indicacoes" element={<Indicacoes />} />

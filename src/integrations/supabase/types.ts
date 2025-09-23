@@ -883,6 +883,48 @@ export type Database = {
         }
         Relationships: []
       }
+      clientes: {
+        Row: {
+          cidade: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          telefone: string | null
+          uf: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       clients: {
         Row: {
           classificacao: string | null
@@ -1519,6 +1561,176 @@ export type Database = {
           },
         ]
       }
+      contratos: {
+        Row: {
+          broker_id: string | null
+          conectaios_client_id: string | null
+          conectaios_property_id: string | null
+          created_at: string | null
+          data_inicio: string
+          detalhes_garantia: string | null
+          html_preview: string | null
+          id: string
+          observacoes: string | null
+          pdf_url: string | null
+          prazo_meses: number
+          provider_document_id: string | null
+          status: Database["public"]["Enums"]["contrato_status"] | null
+          tipo_garantia: string | null
+          updated_at: string | null
+          user_id: string
+          valor_aluguel: number
+          vencimento_dia: number | null
+        }
+        Insert: {
+          broker_id?: string | null
+          conectaios_client_id?: string | null
+          conectaios_property_id?: string | null
+          created_at?: string | null
+          data_inicio: string
+          detalhes_garantia?: string | null
+          html_preview?: string | null
+          id?: string
+          observacoes?: string | null
+          pdf_url?: string | null
+          prazo_meses: number
+          provider_document_id?: string | null
+          status?: Database["public"]["Enums"]["contrato_status"] | null
+          tipo_garantia?: string | null
+          updated_at?: string | null
+          user_id: string
+          valor_aluguel: number
+          vencimento_dia?: number | null
+        }
+        Update: {
+          broker_id?: string | null
+          conectaios_client_id?: string | null
+          conectaios_property_id?: string | null
+          created_at?: string | null
+          data_inicio?: string
+          detalhes_garantia?: string | null
+          html_preview?: string | null
+          id?: string
+          observacoes?: string | null
+          pdf_url?: string | null
+          prazo_meses?: number
+          provider_document_id?: string | null
+          status?: Database["public"]["Enums"]["contrato_status"] | null
+          tipo_garantia?: string | null
+          updated_at?: string | null
+          user_id?: string
+          valor_aluguel?: number
+          vencimento_dia?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_conectaios_client_id_fkey"
+            columns: ["conectaios_client_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contratos_conectaios_property_id_fkey"
+            columns: ["conectaios_property_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos_eventos: {
+        Row: {
+          contrato_id: string | null
+          created_at: string | null
+          dados: Json | null
+          descricao: string | null
+          id: number
+          tipo: string
+        }
+        Insert: {
+          contrato_id?: string | null
+          created_at?: string | null
+          dados?: Json | null
+          descricao?: string | null
+          id?: never
+          tipo: string
+        }
+        Update: {
+          contrato_id?: string | null
+          created_at?: string | null
+          dados?: Json | null
+          descricao?: string | null
+          id?: never
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_eventos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contratos_signatarios: {
+        Row: {
+          assinado: boolean | null
+          assinado_em: string | null
+          contrato_id: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          nome: string
+          papel: string | null
+          provider_signer_id: string | null
+          telefone: string | null
+        }
+        Insert: {
+          assinado?: boolean | null
+          assinado_em?: string | null
+          contrato_id?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome: string
+          papel?: string | null
+          provider_signer_id?: string | null
+          telefone?: string | null
+        }
+        Update: {
+          assinado?: boolean | null
+          assinado_em?: string | null
+          contrato_id?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          nome?: string
+          papel?: string | null
+          provider_signer_id?: string | null
+          telefone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_signatarios_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deal_history: {
         Row: {
           action: string
@@ -1912,6 +2124,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      imoveis: {
+        Row: {
+          aluguel_mensal: number | null
+          bairro: string | null
+          cep: string | null
+          cidade: string
+          condominio_mensal: number | null
+          created_at: string | null
+          endereco: string
+          id: string
+          iptu_mensal: number | null
+          titulo: string
+          uf: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          aluguel_mensal?: number | null
+          bairro?: string | null
+          cep?: string | null
+          cidade: string
+          condominio_mensal?: number | null
+          created_at?: string | null
+          endereco: string
+          id?: string
+          iptu_mensal?: number | null
+          titulo: string
+          uf: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          aluguel_mensal?: number | null
+          bairro?: string | null
+          cep?: string | null
+          cidade?: string
+          condominio_mensal?: number | null
+          created_at?: string | null
+          endereco?: string
+          id?: string
+          iptu_mensal?: number | null
+          titulo?: string
+          uf?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       indication_discounts: {
         Row: {
@@ -3065,6 +3325,69 @@ export type Database = {
         }
         Relationships: []
       }
+      property_submissions: {
+        Row: {
+          broker_id: string
+          consent_ip_address: string | null
+          consent_timestamp: string | null
+          created_at: string
+          exclusivity_type: string
+          id: string
+          marketing_consent: boolean
+          notes: string | null
+          owner_email: string
+          owner_name: string
+          owner_phone: string
+          photos: string[] | null
+          property_data: Json
+          reviewed_at: string | null
+          status: string
+          submission_token: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          broker_id: string
+          consent_ip_address?: string | null
+          consent_timestamp?: string | null
+          created_at?: string
+          exclusivity_type: string
+          id?: string
+          marketing_consent?: boolean
+          notes?: string | null
+          owner_email: string
+          owner_name: string
+          owner_phone: string
+          photos?: string[] | null
+          property_data?: Json
+          reviewed_at?: string | null
+          status?: string
+          submission_token: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          broker_id?: string
+          consent_ip_address?: string | null
+          consent_timestamp?: string | null
+          created_at?: string
+          exclusivity_type?: string
+          id?: string
+          marketing_consent?: boolean
+          notes?: string | null
+          owner_email?: string
+          owner_name?: string
+          owner_phone?: string
+          photos?: string[] | null
+          property_data?: Json
+          reviewed_at?: string | null
+          status?: string
+          submission_token?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
           commission_amount: number | null
@@ -3831,6 +4154,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      generate_submission_token: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -3927,6 +4254,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "broker"
+      contrato_status: "rascunho" | "em_assinatura" | "assinado" | "cancelado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4055,6 +4383,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user", "broker"],
+      contrato_status: ["rascunho", "em_assinatura", "assinado", "cancelado"],
     },
   },
 } as const
