@@ -15,6 +15,9 @@ interface GamificationEventRequest {
   ref_id?: string;
   meta?: Record<string, any>;
   target_month?: number;
+  property_id?: string;
+  event_type?: 'created' | 'updated' | 'sold';
+  broker_id?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -37,6 +40,8 @@ const handler = async (req: Request): Promise<Response> => {
         return await addPoints(supabaseClient, body);
       case 'check_property_quality':
         return await checkPropertyQuality(supabaseClient, body);
+      case 'process_property_event':
+        return await processPropertyEventHandler(supabaseClient, body);
       case 'process_match_response':
         return await processMatchResponse(supabaseClient, body);
       case 'process_property_sold':
@@ -456,6 +461,37 @@ async function getLeaderboard(supabaseClient: any) {
     }),
     { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
   );
+}
+
+// Import processPropertyEvent from property-events.ts
+import { processPropertyEvent } from './property-events.ts';
+
+async function processPropertyEventHandler(supabaseClient: any, body: GamificationEventRequest) {
+  const { property_id, event_type, broker_id } = body;
+
+  if (!property_id || !event_type || !broker_id) {
+    return new Response(
+      JSON.stringify({ error: 'Missing required fields: property_id, event_type, broker_id' }),
+      { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+    );
+  }
+
+  console.log(`Processing property event: ${event_type} for property ${property_id} by broker ${broker_id}`);
+
+  try {
+    const result = await processPropertyEvent(supabaseClient, property_id, event_type, broker_id);
+    
+    return new Response(
+      JSON.stringify(result),
+      { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+    );
+  } catch (error) {
+    console.error('Error processing property event:', error);
+    return new Response(
+      JSON.stringify({ error: 'Failed to process property event', details: error.message }),
+      { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+    );
+  }
 }
 
 serve(handler);

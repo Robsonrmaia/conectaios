@@ -38,6 +38,8 @@ import { PropertyShareDialog } from '@/components/PropertyShareDialog';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
+import { testPropertyQualityScoring } from '@/utils/testGamification';
+import { useBroker } from '@/hooks/useBroker';
 
 interface Property {
   id: string;
@@ -76,6 +78,7 @@ interface Property {
 export default function Imoveis() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { broker } = useBroker();
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -463,10 +466,22 @@ export default function Imoveis() {
       
       // Process gamification event
       if (result.data?.id) {
-        processPropertyEvent(
-          result.data.id, 
-          selectedProperty ? 'updated' : 'created'
-        );
+        console.log('🎮 Triggering gamification for property:', result.data.id);
+        console.log('🏢 Broker ID:', broker?.id);
+        
+        if (broker?.id) {
+          try {
+            const gamificationResult = await processPropertyEvent(
+              result.data.id, 
+              selectedProperty ? 'updated' : 'created'
+            );
+            console.log('✅ Gamification result:', gamificationResult);
+          } catch (gamError) {
+            console.error('❌ Gamification error:', gamError);
+          }
+        } else {
+          console.warn('⚠️ No broker ID found for gamification');
+        }
       }
       
       // Add delay to ensure database has processed the save
