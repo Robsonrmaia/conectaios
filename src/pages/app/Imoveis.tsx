@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2 } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
@@ -34,6 +34,8 @@ import { PropertyIcons } from '@/components/PropertyIcons';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { Tour360Modal } from '@/components/Tour360Modal';
 import { PropertyShareDialog } from '@/components/PropertyShareDialog';
+import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
+import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -118,6 +120,7 @@ export default function Imoveis() {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
   
   const toggleCardExpansion = (propertyId: string) => {
     setExpandedCards(prev => {
@@ -693,6 +696,14 @@ export default function Imoveis() {
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+            <Button 
+              variant="outline"
+              onClick={() => setIsSubmissionModalOpen(true)}
+              className="flex items-center gap-2 h-11"
+            >
+              <Share2 className="h-4 w-4" />
+              Formulário Proprietário
+            </Button>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
@@ -1133,10 +1144,14 @@ export default function Imoveis() {
 
       {/* Search and Filters wrapped in Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="lista" className="flex items-center gap-2">
             <Building2 className="h-4 w-4" />
             Lista de Imóveis
+          </TabsTrigger>
+          <TabsTrigger value="envios" className="flex items-center gap-2">
+            <Share2 className="h-4 w-4" />
+            Envios Pendentes
           </TabsTrigger>
           <TabsTrigger value="envio-flash" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
@@ -2085,6 +2100,10 @@ export default function Imoveis() {
       
         </TabsContent>
         
+        <TabsContent value="envios" className="space-y-6">
+          <PropertySubmissionsList onImport={() => fetchProperties(pagination.currentPage)} />
+        </TabsContent>
+        
         <TabsContent value="envio-flash" className="space-y-6">
           <EnvioFlash
             onDataExtracted={handleExtractedData}
@@ -2107,6 +2126,12 @@ export default function Imoveis() {
           />
         </DialogContent>
       </Dialog>
+      
+      {/* Property Submission Modal */}
+      <PropertySubmissionModal 
+        open={isSubmissionModalOpen} 
+        onOpenChange={setIsSubmissionModalOpen}
+      />
     </div>
   );
 }
