@@ -34,13 +34,13 @@ export async function processPropertyEvent(
       if (qualityPercentage >= 90) {
         await supabase.rpc('apply_points', {
           p_usuario_id: brokerId,
-          p_rule_key: 'anuncio_qualidade_90',
+          p_rule_key: 'imovel_qualidade',
           p_pontos: 15,
           p_ref_tipo: 'imovel',
           p_ref_id: propertyId,
           p_meta: { quality_percentage: qualityPercentage }
         });
-        events.push('anuncio_qualidade_90');
+        events.push('imovel_qualidade');
         totalPoints += 15;
       }
 
@@ -48,26 +48,26 @@ export async function processPropertyEvent(
       if (hasEightPhotos) {
         await supabase.rpc('apply_points', {
           p_usuario_id: brokerId,
-          p_rule_key: 'anuncio_8_fotos',
+          p_rule_key: 'imovel_8_fotos',
           p_pontos: 2,
           p_ref_tipo: 'imovel',
           p_ref_id: propertyId,
           p_meta: { photo_count: (property.fotos || []).length }
         });
-        events.push('anuncio_8_fotos');
+        events.push('imovel_8_fotos');
         totalPoints += 2;
       }
     } else if (eventType === 'sold') {
       // Property sold points
       await supabase.rpc('apply_points', {
         p_usuario_id: brokerId,
-        p_rule_key: 'anuncio_vendido_alugado',
+        p_rule_key: 'imovel_vendido',
         p_pontos: 50,
         p_ref_tipo: 'imovel',
         p_ref_id: propertyId,
         p_meta: { sale_value: property.valor }
       });
-      events.push('anuncio_vendido_alugado');
+      events.push('imovel_vendido');
       totalPoints += 50;
     }
 

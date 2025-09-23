@@ -1230,6 +1230,7 @@ export default function Imoveis() {
                       suggestions={calculateQualityAnalysis(property).suggestions}
                       size="sm"
                       className="flex-shrink-0"
+                      property={property}
                     />
                   </div>
                   <CardDescription>
