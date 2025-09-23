@@ -40,6 +40,8 @@ import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 import { testPropertyQualityScoring } from '@/utils/testGamification';
 import { useBroker } from '@/hooks/useBroker';
+import { usePropertyQuality } from '@/hooks/usePropertyQuality';
+import { QualityIndicator } from '@/components/QualityIndicator';
 
 interface Property {
   id: string;
@@ -106,6 +108,7 @@ export default function Imoveis() {
   const [selectedPropertyForWatermark, setSelectedPropertyForWatermark] = useState<Property | null>(null);
   const { speak, stop, isSpeaking, isCurrentlySpeaking, currentSpeakingId } = useElevenLabsVoice();
   const { processPropertyEvent } = useGamificationIntegration();
+  const { calculateQualityAnalysis } = usePropertyQuality();
   const [isProcessorOpen, setIsProcessorOpen] = useState(false);
   const [processorType, setProcessorType] = useState<'enhance' | 'staging' | 'sketch'>('enhance');
   const [isEnvioFlashModalOpen, setIsEnvioFlashModalOpen] = useState(false);
@@ -422,10 +425,36 @@ export default function Imoveis() {
       console.log('=== SALVAMENTO BEM-SUCEDIDO ===');
       console.log('Property saved successfully:', result.data);
 
+      // Calculate quality and show suggestions
+      const qualityAnalysis = calculateQualityAnalysis(result.data);
+      
       toast({
         title: "Sucesso",
         description: selectedProperty ? "Imóvel atualizado com sucesso!" : "Imóvel adicionado com sucesso!",
       });
+
+      // Show quality suggestions if score is not perfect
+      if (qualityAnalysis.score < 100) {
+        setTimeout(() => {
+          qualityAnalysis.suggestions.forEach((suggestion, index) => {
+            setTimeout(() => {
+              toast({
+                title: `💡 Dica de Qualidade (${Math.round(qualityAnalysis.score)}%)`,
+                description: suggestion,
+                duration: 4000,
+              });
+            }, index * 1000);
+          });
+        }, 1000);
+      } else {
+        setTimeout(() => {
+          toast({
+            title: "🎉 Qualidade Perfeita!",
+            description: "Seu anúncio tem 100% de qualidade! Ganhe pontos extras na gamificação!",
+            duration: 4000,
+          });
+        }, 1000);
+      }
 
       setIsAddDialogOpen(false);
       setSelectedProperty(null);
@@ -1193,14 +1222,22 @@ export default function Imoveis() {
             
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{property.titulo}</CardTitle>
+                <div className="flex-1">
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <CardTitle className="text-lg flex-1">{property.titulo}</CardTitle>
+                    <QualityIndicator 
+                      score={calculateQualityAnalysis(property).score}
+                      suggestions={calculateQualityAnalysis(property).suggestions}
+                      size="sm"
+                      className="flex-shrink-0"
+                    />
+                  </div>
                   <CardDescription>
                     {property.descricao && property.descricao.substring(0, 100)}...
                   </CardDescription>
                 </div>
                 {property.reference_code && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs ml-2">
                     {property.reference_code}
                   </Badge>
                 )}
