@@ -43,7 +43,11 @@ export function useWhatsAppMessage() {
     message += `🏠 Imóvel de alto padrão em localização privilegiada!\n\n`;
     
     if (presentationUrl) {
-      message += `Veja mais detalhes: ${presentationUrl}`;
+      // Se for uma URL relativa, converter para URL completa
+      const fullUrl = presentationUrl.startsWith('http') 
+        ? presentationUrl 
+        : `https://www.conectaios.com.br${presentationUrl}`;
+      message += `Veja mais detalhes: ${fullUrl}`;
     }
 
     return message;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -7,11 +7,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/components/ui/use-toast';
-import { Phone, Mail, MessageCircle, MapPin, Clock, Star, Home, Volume2, Search, Filter, Share2, Eye, BedDouble, Bath, Car, DollarSign } from 'lucide-react';
-import { ShareButton } from '@/components/ShareButton';
+import { toast } from '@/hooks/use-toast';
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { formatCurrency } from '@/lib/utils';
+import { 
+  MapPin, 
+  Phone, 
+  Mail, 
+  MessageCircle, 
+  Volume2, 
+  BedDouble, 
+  Bath, 
+  Car, 
+  Home, 
+  Search,
+  Filter,
+  Eye,
+  Star
+} from 'lucide-react';
+import { ShareButton } from '@/components/ShareButton';
+import { PropertyPresentation } from '@/components/PropertyPresentation';
 
 interface MinisiteConfig {
   id: string;
@@ -514,7 +529,7 @@ export default function MinisiteView() {
                     )}
                   </div>
 
-                  {properties.length === 0 ? (
+                  {!properties || properties.length === 0 ? (
                     <div className="text-center py-8">
                       <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-medium mb-2">Nenhum imóvel disponível</h3>
@@ -669,20 +684,13 @@ export default function MinisiteView() {
                                 isAuthorized={true}
                               />
                               <Button
-                                size="sm"
+                                onClick={() => window.open(`/imovel/${property.id}`, '_blank')}
                                 variant="outline"
-                                onClick={() => {
-                                  if (isSpeaking) {
-                                    stop();
-                                  } else {
-                                    const descricao = property.descricao || `Imóvel ${property.titulo} com valor de ${formatCurrency(property.valor)}, ${property.area} metros quadrados, ${property.quartos} quartos, ${property.bathrooms || 0} banheiros e ${property.parking_spots || 0} vagas de garagem.`;
-                                    speak(descricao);
-                                  }
-                                }}
-                                title={isSpeaking ? "Parar reprodução" : "Ouvir descrição"}
+                                size="sm"
+                                className="flex-1"
                               >
-                                <Volume2 className="h-4 w-4 mr-2" />
-                                {isSpeaking ? "Parar" : "Ouvir"}
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
                               </Button>
                             </div>
                           </div>

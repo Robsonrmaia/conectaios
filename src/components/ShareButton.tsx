@@ -44,8 +44,8 @@ export function ShareButton({
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
   const [showExternalTool, setShowExternalTool] = useState(false);
   
-  // Permite visualização para usuários autenticados, mas restringe ações de proprietário
-  const canShare = !!user; // Usuários autenticados podem visualizar
+  // Permite visualização para usuários públicos também
+  const canShare = true; // Permite compartilhamento público no minisite
   const canOwnerActions = isOwner || isAuthorized || (user?.id === property.user_id);
 
   const handleShareModal = async () => {

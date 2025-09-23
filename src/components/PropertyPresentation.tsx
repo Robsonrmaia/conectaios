@@ -110,21 +110,22 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShare = async () => {
-    const propertyUrl = generatePropertyUrl(property.id);
-    const message = generatePropertyMessage(property as any, propertyUrl);
+    // Use a URL da própria apresentação que está aberta
+    const currentUrl = window.location.href;
+    const presentationUrl = currentUrl.includes('/apresentar/') 
+      ? currentUrl 
+      : generatePropertyUrl(property.id);
+    
+    const message = generatePropertyMessage(property as any, presentationUrl);
     
     if (navigator.share) {
       await navigator.share({
         title: property.titulo,
         text: message,
-        url: propertyUrl,
+        url: presentationUrl,
       });
     } else {
-      await copyMessageToClipboard(message);
-      toast({
-        title: "Mensagem copiada!",
-        description: "A mensagem foi copiada para a área de transferência",
-      });
+      shareToWhatsApp(message, displayBroker?.phone);
     }
   };
 
