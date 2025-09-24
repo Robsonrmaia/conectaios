@@ -81,7 +81,7 @@ export function GamificationBadge({
   const badgeContent = (
     <div className="flex items-center gap-1">
       <Badge className={`${tierConfig.color} ${sizeClasses[size]} ${className}`}>
-        <Icon className={`${iconSizes[size]} ${tierConfig.label ? 'mr-1' : ''}`} />
+        <Icon className={`${iconSizes[size]} ${tierConfig.label ? 'mr-1' : ''} transition-transform duration-200`} />
         {tierConfig.label}
       </Badge>
       
