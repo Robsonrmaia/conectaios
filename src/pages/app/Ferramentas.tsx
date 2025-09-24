@@ -29,6 +29,7 @@ import XMLImportExport from "@/components/XMLImportExport";
 import { HelpCenter } from "@/components/HelpCenter";
 import { AsaasTestButton } from "@/components/AsaasTestButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
+import APIDocumentation from "@/components/APIDocumentation";
 
 interface Tool {
   id: string;
@@ -236,10 +237,14 @@ const Ferramentas = () => {
         </motion.div>
 
         <Tabs defaultValue="tools" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm border shadow-lg">
+          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-lg">
             <TabsTrigger value="tools" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Sparkles className="h-4 w-4 mr-2" />
               Ferramentas
+            </TabsTrigger>
+            <TabsTrigger value="api" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Zap className="h-4 w-4 mr-2" />
+              API & Integração
             </TabsTrigger>
             <TabsTrigger value="import-export" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <FileCheck className="h-4 w-4 mr-2" />
@@ -327,6 +332,16 @@ const Ferramentas = () => {
                 </motion.div>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="api" className="mt-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <APIDocumentation />
+            </motion.div>
           </TabsContent>
 
           <TabsContent value="import-export" className="mt-8">
