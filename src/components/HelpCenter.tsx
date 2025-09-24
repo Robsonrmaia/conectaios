@@ -2,16 +2,28 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
-  HelpCircle, 
   Search, 
   ChevronDown, 
   Building2, 
   Users, 
-  MessageSquare, 
+  ShoppingCart,
+  Bot,
+  Trophy,
+  Globe,
   Wrench,
+  CreditCard,
+  Zap,
+  Camera,
+  TrendingUp,
+  Target,
+  MessageCircle,
+  Share2,
+  Smartphone,
+  Mail,
+  Calendar,
+  HelpCircle,
   Lightbulb,
   BookOpen
 } from 'lucide-react';
@@ -19,73 +31,33 @@ import {
 const helpCategories = [
   {
     id: 'imoveis',
-    title: 'Gestão de Imóveis',
+    title: '🏠 Gestão de Imóveis',
     icon: Building2,
     color: 'bg-blue-500',
     faqs: [
       {
-        question: 'Como adicionar um novo imóvel?',
-        answer: 'Vá em "Meus Imóveis" > "Adicionar Imóvel" > Preencha os dados básicos > Adicione fotos > Publique'
+        question: 'Como cadastrar um novo imóvel?',
+        answer: 'Acesse a seção "Imóveis" e clique em "Novo Imóvel". Preencha todas as informações obrigatórias como endereço, tipo, valor e descrição. Use a IA para gerar descrições automáticas e melhorar suas fotos.'
       },
       {
-        question: 'Como melhorar as fotos dos meus imóveis?',
-        answer: 'Use a ferramenta "Photo Enhancer" em Ferramentas para melhorar automaticamente suas fotos com IA'
+        question: 'Como editar informações de um imóvel?',
+        answer: 'Na lista de imóveis, clique no ícone de edição ao lado do imóvel desejado. Você pode alterar qualquer informação e salvar as mudanças. O sistema mantém um histórico de todas as alterações.'
       },
       {
-        question: 'Posso gerar descrições automáticas?',
-        answer: 'Sim! Use a ferramenta "Descrição com IA" para gerar descrições atrativas automaticamente'
+        question: 'Como adicionar fotos aos imóveis?',
+        answer: 'Durante o cadastro ou edição do imóvel, clique em "Adicionar Fotos" e selecione as imagens do seu dispositivo. As fotos são otimizadas automaticamente e você pode usar ferramentas de IA para melhorar a qualidade.'
       }
     ]
   },
   {
     id: 'crm',
-    title: 'Gestão de Clientes (CRM)',
+    title: '👥 CRM e Clientes',
     icon: Users,
     color: 'bg-green-500',
     faqs: [
       {
-        question: 'Como organizar meu pipeline de vendas?',
-        answer: 'Use o CRM para criar etapas personalizadas: Novo Lead > Qualificado > Proposta > Negociação > Fechado'
-      },
-      {
-        question: 'Como fazer match de clientes com imóveis?',
-        answer: 'Vá em "Match" e nossa IA encontrará os melhores imóveis para cada cliente baseado no perfil dele'
-      },
-      {
-        question: 'Como registrar histórico de interações?',
-        answer: 'No perfil do cliente, use a seção "Histórico" para registrar todas as interações e notas'
-      }
-    ]
-  },
-  {
-    id: 'marketplace',
-    title: 'Marketplace e Parcerias',
-    icon: MessageSquare,
-    color: 'bg-purple-500',
-    faqs: [
-      {
-        question: 'Como funciona o Marketplace?',
-        answer: 'Veja imóveis de outros corretores cadastrados e proponha parcerias para fechar negócios'
-      },
-      {
-        question: 'Como fazer uma parceria?',
-        answer: 'Clique em um imóvel do Marketplace > "Propor Parceria" > Defina comissão > Aguarde aprovação'
-      }
-    ]
-  },
-  {
-    id: 'ferramentas',
-    title: 'Ferramentas de IA',
-    icon: Wrench,
-    color: 'bg-orange-500',
-    faqs: [
-      {
-        question: 'Quais ferramentas de IA estão disponíveis?',
-        answer: 'Photo Enhancer, Gerador de Descrições, Virtual Staging, Detector de Móveis e Calculadoras'
-      },
-      {
-        question: 'Como usar o Virtual Staging?',
-        answer: 'Upload uma foto do ambiente vazio e nossa IA adiciona móveis virtuais para melhorar a apresentação'
+        question: 'Como gerenciar leads eficientemente?',
+        answer: 'Use a seção CRM para visualizar todos os seus leads. Classifique por interesse (Frio, Morno, Quente), adicione notas detalhadas e configure lembretes automáticos para follow-up.'
       }
     ]
   }
@@ -93,24 +65,14 @@ const helpCategories = [
 
 const quickTips = [
   {
-    title: 'Use fotos de alta qualidade',
-    description: 'Imóveis com fotos melhores vendem 32% mais rápido',
-    icon: '📸'
+    title: '🔥 Use atalhos do teclado',
+    description: 'Ctrl+N para novo imóvel, Ctrl+B para busca rápida, Ctrl+D para dashboard',
+    icon: Zap
   },
   {
-    title: 'Mantenha seu CRM atualizado',
-    description: 'Clientes bem organizados geram mais oportunidades',
-    icon: '📊'
-  },
-  {
-    title: 'Explore o Marketplace',
-    description: 'Parcerias podem dobrar suas oportunidades de venda',
-    icon: '🤝'
-  },
-  {
-    title: 'Use a IA a seu favor',
-    description: 'Ferramentas automatizadas economizam até 3h por dia',
-    icon: '🤖'
+    title: '📸 Otimize suas fotos com IA',
+    description: 'Use o Photo Enhancer para melhorar automaticamente a qualidade das imagens',
+    icon: Camera
   }
 ];
 
@@ -139,7 +101,6 @@ export function HelpCenter() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -150,7 +111,6 @@ export function HelpCenter() {
             />
           </div>
 
-          {/* Quick Tips */}
           {!searchTerm && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -161,7 +121,7 @@ export function HelpCenter() {
                 {quickTips.map((tip, index) => (
                   <div key={index} className="p-4 bg-gradient-to-r from-primary/5 to-secondary/5 rounded-lg border">
                     <div className="flex items-start gap-3">
-                      <span className="text-2xl">{tip.icon}</span>
+                      <tip.icon className="h-5 w-5 mt-1" />
                       <div>
                         <h4 className="font-medium text-sm">{tip.title}</h4>
                         <p className="text-xs text-muted-foreground mt-1">{tip.description}</p>
@@ -173,20 +133,12 @@ export function HelpCenter() {
             </div>
           )}
 
-          {/* FAQ Categories */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
               Perguntas Frequentes
             </h3>
             
-            {filteredCategories.length === 0 && searchTerm && (
-              <div className="text-center py-8 text-muted-foreground">
-                <Search className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>Nenhum resultado encontrado para "{searchTerm}"</p>
-              </div>
-            )}
-
             {filteredCategories.map((category) => (
               <Collapsible
                 key={category.id}
@@ -222,19 +174,22 @@ export function HelpCenter() {
             ))}
           </div>
 
-          {/* Contact Support */}
-          <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
-            <h4 className="font-medium mb-2">Precisa de mais ajuda?</h4>
-            <p className="text-sm text-muted-foreground mb-3">
-              Entre em contato conosco pelo WhatsApp ou email
-            </p>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline">
-                WhatsApp
-              </Button>
-              <Button size="sm" variant="outline">
-                Email
-              </Button>
+          <div className="space-y-6 mt-8">
+            <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                📞 Contato & Suporte Especializado
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <Button className="justify-start" onClick={() => window.open('https://wa.me/5511999999999?text=Preciso%20de%20ajuda%20com%20o%20sistema', '_blank')}>
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  WhatsApp Suporte
+                </Button>
+                <Button variant="outline" className="justify-start" onClick={() => window.open('mailto:suporte@conecta.com', '_blank')}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Técnico
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>

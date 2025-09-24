@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
   Image, 
@@ -16,20 +15,12 @@ import {
   CheckCircle,
   Crown,
   Zap,
-  Building,
-  Sparkles,
-  TrendingUp,
-  Users2,
-  FileCheck
+  Building
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useBroker } from "@/hooks/useBroker";
 import { ExternalToolModal } from "@/components/ExternalToolModal";
-import XMLImportExport from "@/components/XMLImportExport";
-import { HelpCenter } from "@/components/HelpCenter";
-import { AsaasTestButton } from "@/components/AsaasTestButton";
 import { AnimatedCard } from "@/components/AnimatedCard";
-import APIDocumentation from "@/components/APIDocumentation";
 
 interface Tool {
   id: string;
@@ -236,144 +227,77 @@ const Ferramentas = () => {
           <div className="w-20" /> {/* Spacer for balance */}
         </motion.div>
 
-        <Tabs defaultValue="tools" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-card/50 backdrop-blur-sm border shadow-lg">
-            <TabsTrigger value="tools" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Ferramentas
-            </TabsTrigger>
-            <TabsTrigger value="api" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Zap className="h-4 w-4 mr-2" />
-              API & Integração
-            </TabsTrigger>
-            <TabsTrigger value="import-export" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <FileCheck className="h-4 w-4 mr-2" />
-              Import/Export
-            </TabsTrigger>
-            <TabsTrigger value="help" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Users2 className="h-4 w-4 mr-2" />
-              Central de Ajuda
-            </TabsTrigger>
-            <TabsTrigger value="test" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Teste Asaas
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="tools" className="space-y-8 mt-8">
-            <div className="space-y-12">
-              {Object.entries(toolCategories).map(([categoryKey, category]) => (
-                <motion.div 
-                  key={categoryKey} 
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: categoryKey === 'marketing' ? 0 : 0.1 }}
-                  className="space-y-6"
-                >
-                  <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold">{category.title}</h2>
-                    <p className="text-muted-foreground">{category.description}</p>
-                  </div>
+        <div className="space-y-12">
+          {Object.entries(toolCategories).map(([categoryKey, category]) => (
+            <motion.div 
+              key={categoryKey} 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: categoryKey === 'marketing' ? 0 : 0.1 }}
+              className="space-y-6"
+            >
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold">{category.title}</h2>
+                <p className="text-muted-foreground">{category.description}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {category.tools.map((tool, index) => {
+                  const IconComponent = tool.icon;
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {category.tools.map((tool, index) => {
-                      const IconComponent = tool.icon;
-                      
-                      return (
-                        <motion.div
-                          key={tool.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                          whileHover={{ y: -5 }}
-                        >
-                          <AnimatedCard 
-                            className="group cursor-pointer border-0 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 h-full"
-                            onClick={() => handleToolAccess(tool)}
-                          >
-                            <div className="p-6 space-y-4 h-full flex flex-col">
-                              <div className="flex items-start justify-between">
-                                <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
-                                  <IconComponent className="h-6 w-6 text-white" />
-                                </div>
-                                {tool.planRequired && (
-                                  <Badge 
-                                    variant={tool.planRequired === 'premium' ? 'default' : 'secondary'}
-                                    className="shadow-sm"
-                                  >
-                                    {tool.planRequired === 'premium' && <Crown className="h-3 w-3 mr-1" />}
-                                    {tool.planRequired.toUpperCase()}
-                                  </Badge>
-                                )}
-                              </div>
-                              
-                              <div className="space-y-2 flex-1">
-                                <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
-                                  {tool.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                  {tool.description}
-                                </p>
-                              </div>
-                              
-                              <Button 
-                                className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300"
-                                variant="default"
-                              >
-                                <Zap className="h-4 w-4 mr-2" />
-                                Usar Ferramenta
-                              </Button>
+                  return (
+                    <motion.div
+                      key={tool.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ y: -5 }}
+                    >
+                      <AnimatedCard 
+                        className="group cursor-pointer border-0 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 h-full"
+                        onClick={() => handleToolAccess(tool)}
+                      >
+                        <div className="p-6 space-y-4 h-full flex flex-col">
+                          <div className="flex items-start justify-between">
+                            <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                              <IconComponent className="h-6 w-6 text-white" />
                             </div>
-                          </AnimatedCard>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="api" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <APIDocumentation />
+                            {tool.planRequired && (
+                              <Badge 
+                                variant={tool.planRequired === 'premium' ? 'default' : 'secondary'}
+                                className="shadow-sm"
+                              >
+                                {tool.planRequired === 'premium' && <Crown className="h-3 w-3 mr-1" />}
+                                {tool.planRequired.toUpperCase()}
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          <div className="space-y-2 flex-1">
+                            <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                              {tool.name}
+                            </h3>
+                            <p className="text-sm text-muted-foreground leading-relaxed">
+                              {tool.description}
+                            </p>
+                          </div>
+                          
+                          <Button 
+                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300"
+                            variant="default"
+                          >
+                            <Zap className="h-4 w-4 mr-2" />
+                            Usar Ferramenta
+                          </Button>
+                        </div>
+                      </AnimatedCard>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </motion.div>
-          </TabsContent>
-
-          <TabsContent value="import-export" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <XMLImportExport />
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="help" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <HelpCenter />
-            </motion.div>
-          </TabsContent>
-
-          <TabsContent value="test" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AsaasTestButton />
-            </motion.div>
-          </TabsContent>
-        </Tabs>
+          ))}
+        </div>
 
         {externalTool && (
           <ExternalToolModal

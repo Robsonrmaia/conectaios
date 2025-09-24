@@ -126,9 +126,14 @@ const configItems = [
     external: true,
   },
   {
+    title: 'Central de Ajuda',
+    url: '/app/ajuda',
+    icon: HelpCircle,
+  },
+  {
     title: 'Suporte',
     url: '/app/suporte',
-    icon: HelpCircle,
+    icon: MessageSquare,
   },
 ];
 

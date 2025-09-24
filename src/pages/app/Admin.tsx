@@ -228,6 +228,7 @@ export default function Admin() {
             <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Parceiros</TabsTrigger>
             <TabsTrigger value="sistema" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Sistema</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Config</TabsTrigger>
+            <TabsTrigger value="api" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">API</TabsTrigger>
           </TabsList>
         </ScrollableRow>
 
@@ -409,6 +410,10 @@ export default function Admin() {
               <SecuritySettings />
             </TabsContent>
           </Tabs>
+        </TabsContent>
+
+        <TabsContent value="api" className="space-y-6">
+          <APIDocumentation />
         </TabsContent>
       </Tabs>
     </div>
