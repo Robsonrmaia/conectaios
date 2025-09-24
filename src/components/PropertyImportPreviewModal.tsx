@@ -57,13 +57,18 @@ export function PropertyImportPreviewModal({
 }: PropertyImportPreviewModalProps) {
   
   const handleImport = async () => {
-    if (!submission || !brokerUserId) return;
+    if (!submission || !brokerUserId) {
+      console.error('Missing submission or brokerUserId:', { submission: !!submission, brokerUserId });
+      toast.error('Dados incompletos para importação');
+      return;
+    }
 
     try {
       const propertyData = submission.property_data;
+      console.log('Importing property with data:', { brokerUserId, propertyData });
       
       // Create property record
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('properties')
         .insert({
           user_id: brokerUserId,
@@ -86,13 +91,16 @@ export function PropertyImportPreviewModal({
           fotos: submission.photos,
           is_public: true,
           visibility: 'public_site'
-        });
+        })
+        .select();
 
       if (error) {
         console.error('Error importing property:', error);
-        toast.error('Erro ao importar imóvel');
+        toast.error(`Erro ao importar imóvel: ${error.message}`);
         return;
       }
+
+      console.log('Property imported successfully:', data);
 
       // Update submission status
       await supabase
