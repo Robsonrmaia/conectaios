@@ -35,6 +35,7 @@ import SupportTicketManager from '@/components/admin/SupportTicketManager';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminDataManager from '@/components/admin/AdminDataManager';
 import AuditLogs from '@/pages/app/AuditLogs';
+import { APIDocumentation } from '@/components/APIDocumentation';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();

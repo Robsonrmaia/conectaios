@@ -32,14 +32,15 @@ import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
 import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
+import Suporte from "./pages/app/Suporte";
 import Videos from "./pages/app/Videos";
+import Ajuda from "./pages/app/Ajuda";
 import Indicacoes from "./pages/app/Indicacoes";
 import Patrocinios from "./pages/app/Patrocinios";
 import AIAssistant from "./pages/app/AIAssistant";
 import AuditLogs from "./pages/app/AuditLogs";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
-import Suporte from "./pages/app/Suporte";
 import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
@@ -159,6 +160,7 @@ const App = () => (
                            <Route path="audit-logs" element={<AuditLogs />} />
                            <Route path="admin" element={<Admin />} />
                            <Route path="perfil" element={<Perfil />} />
+                           <Route path="ajuda" element={<Ajuda />} />
                            <Route path="suporte" element={<Suporte />} />
                            <Route path="*" element={<NotFound />} />
                         </Routes>
