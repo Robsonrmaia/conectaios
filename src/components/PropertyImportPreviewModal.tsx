@@ -67,30 +67,41 @@ export function PropertyImportPreviewModal({
       const propertyData = submission.property_data;
       console.log('Importing property with data:', { brokerUserId, propertyData });
       
-      // Create property record
+      // Create property record with corrected field mapping
       const { data, error } = await supabase
         .from('properties')
         .insert({
           user_id: brokerUserId,
           titulo: propertyData.titulo,
           descricao: propertyData.descricao,
-          valor: propertyData.valor,
+          valor: parseFloat(propertyData.valor) || 0,
           listing_type: propertyData.listing_type,
           property_type: propertyData.property_type,
-          area: propertyData.area,
-          quartos: propertyData.quartos,
-          bathrooms: propertyData.banheiros,
-          parking_spots: propertyData.vagas,
-          condominium_fee: propertyData.condominio || 0,
-          iptu: propertyData.iptu || 0,
+          area: parseFloat(propertyData.area) || 0,
+          quartos: parseInt(propertyData.quartos) || 0,
+          bathrooms: parseInt(propertyData.banheiros) || 0,
+          parking_spots: parseInt(propertyData.vagas) || 0,
+          condominium_fee: parseFloat(propertyData.condominio) || null,
+          iptu: parseFloat(propertyData.iptu) || null,
           address: propertyData.endereco,
           neighborhood: propertyData.bairro,
           city: propertyData.cidade,
           state: propertyData.estado,
           zipcode: propertyData.cep,
-          fotos: submission.photos,
+          fotos: submission.photos || [],
           is_public: true,
-          visibility: 'public_site'
+          visibility: 'public_site',
+          broker_minisite_enabled: true,
+          // Legacy mappings for backward compatibility
+          finalidade: propertyData.listing_type || 'venda',
+          tipo: propertyData.property_type,
+          preco: parseFloat(propertyData.valor) || 0,
+          cidade: propertyData.cidade,
+          bairro: propertyData.bairro,
+          endereco: propertyData.endereco,
+          area_total: parseFloat(propertyData.area) || 0,
+          banheiros: parseInt(propertyData.banheiros) || 0,
+          vagas: parseInt(propertyData.vagas) || 0
         })
         .select();
 

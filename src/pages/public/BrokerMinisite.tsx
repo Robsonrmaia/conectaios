@@ -9,12 +9,13 @@ import { toast } from "@/hooks/use-toast";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertySearch, SearchFilters } from "@/components/PropertySearch";
 import { MinisiteDebugPanel } from "@/components/MinisiteDebugPanel";
+import { PropertyDetailModal } from "@/components/PropertyDetailModal";
 
 type Broker = {
   id: string;
   user_id: string;
   username: string;
-  name?: string;
+  name: string;
   avatar_url?: string;
   cover_url?: string;
   bio?: string;
@@ -38,11 +39,23 @@ type Property = {
   neighborhood?: string;
   quartos?: number;
   bathrooms?: number;
+  parking_spots?: number;
   area?: number;
   user_id?: string;
   listing_type?: string;
   property_type?: string;
   descricao?: string;
+  address?: string;
+  state?: string;
+  zipcode?: string;
+  condominium_fee?: number;
+  iptu?: number;
+  reference_code?: string;
+  created_at?: string;
+  furnishing_type?: string;
+  sea_distance?: number;
+  has_sea_view?: boolean;
+  year_built?: number;
 };
 
 type MinisiteConfig = {
@@ -68,6 +81,7 @@ export default function BrokerMinisite() {
   const [loading, setLoading] = useState(true);
   const [errs, setErrs] = useState<string[]>([]);
   const [searchVisible, setSearchVisible] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const debug =
     new URLSearchParams(globalThis.location?.search || "").get("debug") === "1" ||
     globalThis.localStorage?.getItem("minisite_debug") === "1";
@@ -929,6 +943,28 @@ export default function BrokerMinisite() {
           phone={broker.phone}
           message={`Olá! Vi seu minisite e tenho interesse em seus imóveis. Poderia me ajudar?`}
           showOnScroll={true}
+        />
+      )}
+
+      // Property Detail Modal
+      {selectedProperty && (
+        <PropertyDetailModal
+          property={{
+            ...selectedProperty,
+            created_at: selectedProperty.created_at || new Date().toISOString(),
+            valor: selectedProperty.valor || 0,
+            area: selectedProperty.area || 0,
+            quartos: selectedProperty.quartos || 0,
+            fotos: selectedProperty.fotos || [],
+            listing_type: selectedProperty.listing_type || 'venda'
+          }}
+          broker={{
+            ...broker,
+            name: broker.name || broker.username
+          }}
+          open={!!selectedProperty}
+          onOpenChange={(open) => !open && setSelectedProperty(null)}
+          primaryColor={primaryColor}
         />
       )}
 
