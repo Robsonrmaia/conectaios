@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Building2, Bed, Bath, Square, Phone, Mail, MapPin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -104,7 +105,29 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       try {
         const { data, error } = await supabase
           .from('properties')
-          .select('id, titulo, valor, quartos, bathrooms, area, fotos, neighborhood, property_type, listing_type, furnishing_type, sea_distance, has_sea_view, parking_spots')
+          .select(`
+            id,
+            titulo,
+            valor,
+            area,
+            quartos,
+            bathrooms,
+            parking_spots,
+            furnishing_type,
+            sea_distance,
+            has_sea_view,
+            listing_type,
+            property_type,
+            fotos,
+            neighborhood,
+            zipcode,
+            condominium_fee,
+            iptu,
+            descricao,
+            reference_code,
+            verified,
+            created_at
+          `)
           .eq('user_id', broker.user_id)
           .eq('is_public', true)
           .eq('visibility', 'public_site')
@@ -424,73 +447,148 @@ export default function MinisitePreview({ config, broker, properties = [], previ
 
                 {/* Default Grid Layout for other templates */}
                 {!['gallery-premium', 'hero-visual'].includes(templateId) && (
-                  <div className="grid gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {displayProperties.map((property) => (
                       <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
-                        <div className="flex">
+                        <div className="aspect-[4/3] relative">
                           {property.fotos && property.fotos.length > 0 ? (
                             <img
                               src={property.fotos[0]}
                               alt={property.titulo}
-                              className="w-24 h-20 object-cover"
+                              className="w-full h-full object-cover"
+                              loading="lazy"
                             />
                           ) : (
-                            <div className="w-24 h-20 bg-muted flex items-center justify-center">
-                              <Building2 className="h-8 w-8 text-muted-foreground" />
+                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <Building2 className="h-12 w-12 text-gray-400" />
                             </div>
                           )}
-                          <CardContent className="flex-1 p-3">
-                            <h3 className={`font-medium text-sm mb-1 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
+                          
+                          {/* Property badges */}
+                          <div className="absolute top-2 left-2 flex gap-1">
+                            {property.verified && (
+                              <Badge variant="secondary" className="bg-green-600 text-white text-xs">
+                                Verificado
+                              </Badge>
+                            )}
+                            {property.listing_type && (
+                              <Badge variant="outline" className="bg-white/90 text-xs">
+                                {property.listing_type === 'venda' ? 'Venda' : 'Aluguel'}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <CardContent className="p-4">
+                          <div className="space-y-3">
+                            {/* Title */}
+                            <h3 className={`font-semibold text-base leading-tight line-clamp-2 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
                               {property.titulo}
                             </h3>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                              {property.quartos && (
-                                <span className="flex items-center gap-1">
-                                  <Bed className="h-3 w-3" />
-                                  {property.quartos}
-                                </span>
-                              )}
-                              {property.area && (
-                                <span className="flex items-center gap-1">
-                                  <Square className="h-3 w-3" />
-                                  {property.area}m²
-                                </span>
+
+                            {/* Price */}
+                            <div className="flex items-center justify-between">
+                              <p className="text-xl font-bold" style={{ color: primaryColor }}>
+                                {property.valor ? 
+                                  property.valor.toLocaleString('pt-BR', { 
+                                    style: 'currency', 
+                                    currency: 'BRL',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0
+                                  }) : 'Consulte'
+                                }
+                              </p>
+                              {property.reference_code && (
+                                <Badge variant="outline" className="text-xs">
+                                  #{property.reference_code}
+                                </Badge>
                               )}
                             </div>
+
+                            {/* Basic Info */}
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                              {property.quartos > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Bed className="h-4 w-4" />
+                                  <span>{property.quartos}</span>
+                                </div>
+                              )}
+                              {property.bathrooms > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Bath className="h-4 w-4" />
+                                  <span>{property.bathrooms}</span>
+                                </div>
+                              )}
+                              {property.area > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Square className="h-4 w-4" />
+                                  <span>{property.area}m²</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Property Icons */}
                             <PropertyIcons
                               bathrooms={property.bathrooms}
                               parking_spots={property.parking_spots}
                               furnishing_type={property.furnishing_type}
                               sea_distance={property.sea_distance}
-                              className="mb-2"
+                              has_sea_view={property.has_sea_view}
+                              className="justify-start"
                             />
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <p className="text-lg font-bold" style={{ color: primaryColor }}>
-                                  {property.valor ? 
-                                    property.valor.toLocaleString('pt-BR', { 
-                                      style: 'currency', 
-                                      currency: 'BRL',
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0
-                                    }) : 'Consulte'
-                                  }
-                                </p>
-                                {property.neighborhood && (
-                                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <MapPin className="h-3 w-3" />
-                                    {property.neighborhood}
-                                  </p>
+
+                            {/* Location */}
+                            {(property.neighborhood || property.zipcode) && (
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                <span className="truncate">
+                                  {[property.neighborhood, property.zipcode].filter(Boolean).join(', ')}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Additional fees */}
+                            {(property.condominium_fee || property.iptu) && (
+                              <div className="text-xs text-muted-foreground space-y-1">
+                                {property.condominium_fee && (
+                                  <div>Cond.: R$ {property.condominium_fee.toLocaleString('pt-BR')}</div>
+                                )}
+                                {property.iptu && (
+                                  <div>IPTU: R$ {property.iptu.toLocaleString('pt-BR')}</div>
                                 )}
                               </div>
-                              <Button size="sm" variant="outline" className="text-xs">
+                            )}
+
+                            {/* Action buttons */}
+                            <div className="flex gap-2 pt-2">
+                              <Button 
+                                size="sm" 
+                                className="flex-1 text-white" 
+                                style={{ backgroundColor: primaryColor }}
+                              >
                                 Ver Detalhes
                               </Button>
+                              <Button variant="outline" size="sm" className="px-3">
+                                <Phone className="h-4 w-4" />
+                              </Button>
                             </div>
-                          </CardContent>
-                        </div>
+                          </div>
+                        </CardContent>
                       </Card>
                     ))}
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {displayProperties.length === 0 && !loading && (
+                  <div className="text-center py-12">
+                    <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-muted-foreground mb-2">
+                      Nenhum imóvel encontrado
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Esta seção será atualizada quando houver imóveis disponíveis.
+                    </p>
                   </div>
                 )}
               </>

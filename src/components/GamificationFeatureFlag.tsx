@@ -51,6 +51,27 @@ export function GamificationFeatureFlag({ children, fallback = null }: Gamificat
 
       // Enhanced fallback: If no broker profile exists, create it properly
       if (!broker?.id && user?.id && !creatingProfile) {
+        console.log('⚠️ No broker profile found, checking if one exists...');
+        
+        // First check if a broker profile already exists
+        const { data: existingBroker, error: checkError } = await supabase
+          .from('conectaios_brokers')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (checkError) {
+          console.error('❌ Error checking existing broker:', checkError);
+        }
+
+        if (existingBroker) {
+          console.log('✅ Found existing broker profile, using it');
+          setEnabled(true);
+          setDebugInfo({ developmentMode: true, reason: 'Found existing broker', brokerId: existingBroker.id });
+          setLoading(false);
+          return;
+        }
+
         console.log('⚠️ No broker profile found, creating one...');
         setCreatingProfile(true);
         

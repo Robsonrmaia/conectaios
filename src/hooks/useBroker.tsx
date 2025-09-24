@@ -131,6 +131,20 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     if (!user) throw new Error('User not authenticated');
 
     try {
+      // Check if broker profile already exists
+      const { data: existingBroker } = await supabase
+        .from('conectaios_brokers')
+        .select('id, name, email')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingBroker) {
+        console.log('✅ Broker profile already exists, using existing one');
+        setBroker(existingBroker as Broker);
+        await fetchBrokerProfile();
+        return;
+      }
+
       // Get default plan (starter)
       const { data: defaultPlan } = await supabase
         .from('plans')
