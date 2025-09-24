@@ -26,7 +26,7 @@ const propertySubmissionSchema = z.object({
 
   // Property basics
   titulo: z.string().min(5, 'Título deve ter pelo menos 5 caracteres'),
-  descricao: z.string().min(100, 'Descrição deve ter pelo menos 100 caracteres'),
+  descricao: z.string().min(20, 'Descrição deve ter pelo menos 20 caracteres'),
   valor: z.number().min(1, 'Valor é obrigatório'),
   listing_type: z.enum(['venda', 'aluguel', 'temporada']),
   property_type: z.enum(['apartamento', 'casa', 'terreno', 'comercial', 'rural']),
@@ -66,6 +66,7 @@ export default function PropertySubmissionForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submission, setSubmission] = useState<any>(null);
+  const [brokerInfo, setBrokerInfo] = useState<any>(null);
   const { uploadImage, isUploading } = usePropertyImageUpload();
   const [photos, setPhotos] = useState<string[]>([]);
 
@@ -123,6 +124,19 @@ export default function PropertySubmissionForm() {
       }
 
       setSubmission(data);
+
+      // Load broker information
+      if (data.broker_id) {
+        const { data: broker } = await supabase
+          .from('conectaios_brokers')
+          .select('name, creci, phone, avatar_url, bio')
+          .eq('id', data.broker_id)
+          .single();
+        
+        if (broker) {
+          setBrokerInfo(broker);
+        }
+      }
       
       // Load saved data if exists
       if (data.property_data && Object.keys(data.property_data).length > 0) {
@@ -277,6 +291,33 @@ export default function PropertySubmissionForm() {
               </p>
             </div>
           </div>
+          
+          {/* Broker Info */}
+          {brokerInfo && (
+            <div className="mt-4 p-3 bg-muted/30 rounded-lg border">
+              <div className="flex items-center gap-3">
+                {brokerInfo.avatar_url && (
+                  <img 
+                    src={brokerInfo.avatar_url} 
+                    alt={brokerInfo.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-sm">{brokerInfo.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {brokerInfo.creci && `CRECI: ${brokerInfo.creci}`}
+                    {brokerInfo.phone && ` • ${brokerInfo.phone}`}
+                  </p>
+                </div>
+              </div>
+              {brokerInfo.bio && (
+                <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                  {brokerInfo.bio}
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </header>
 

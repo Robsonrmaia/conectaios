@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useBroker } from '@/hooks/useBroker';
+import { PropertyImportPreviewModal } from './PropertyImportPreviewModal';
 import { 
   Eye, 
   Check, 
@@ -12,8 +13,7 @@ import {
   Copy,
   User,
   Calendar,
-  Home,
-  Download
+  Home
 } from 'lucide-react';
 
 interface PropertySubmission {
@@ -40,6 +40,8 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
   const { broker } = useBroker();
   const [submissions, setSubmissions] = useState<PropertySubmission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSubmission, setSelectedSubmission] = useState<PropertySubmission | null>(null);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
 
   useEffect(() => {
     loadSubmissions();
@@ -102,52 +104,14 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
     }
   };
 
-  const importToProperties = async (submission: PropertySubmission) => {
-    try {
-      const propertyData = submission.property_data;
-      
-      // Create property record
-      const { error } = await supabase
-        .from('properties')
-        .insert({
-          user_id: broker?.user_id,
-          titulo: propertyData.titulo,
-          descricao: propertyData.descricao,
-          valor: propertyData.valor,
-          listing_type: propertyData.listing_type,
-          property_type: propertyData.property_type,
-          area: propertyData.area,
-          quartos: propertyData.quartos,
-          bathrooms: propertyData.banheiros,
-          parking_spots: propertyData.vagas,
-          condominium_fee: propertyData.condominio,
-          iptu: propertyData.iptu,
-          address: propertyData.endereco,
-          neighborhood: propertyData.bairro,
-          city: propertyData.cidade,
-          state: propertyData.estado,
-          zipcode: propertyData.cep,
-          fotos: submission.photos,
-          is_public: true,
-          visibility: 'public_site'
-        });
+  const openPreviewModal = (submission: PropertySubmission) => {
+    setSelectedSubmission(submission);
+    setPreviewModalOpen(true);
+  };
 
-      if (error) {
-        console.error('Error importing property:', error);
-        toast.error('Erro ao importar imóvel');
-        return;
-      }
-
-      // Update submission status
-      await updateSubmissionStatus(submission.id, 'imported', 'Importado para Meus Imóveis');
-      
-      toast.success('Imóvel importado com sucesso!');
-      onImport(); // Refresh the properties list
-      
-    } catch (error) {
-      console.error('Error:', error);
-      toast.error('Erro ao importar');
-    }
+  const handleImportComplete = () => {
+    loadSubmissions();
+    onImport();
   };
 
   const copySubmissionLink = (token: string) => {
@@ -192,13 +156,14 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Envios Pendentes ({submissions.length})</h3>
-        <Badge variant="secondary">
-          {submissions.length} pendente{submissions.length !== 1 ? 's' : ''}
-        </Badge>
-      </div>
+    <>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold">Envios Pendentes ({submissions.length})</h3>
+          <Badge variant="secondary">
+            {submissions.length} pendente{submissions.length !== 1 ? 's' : ''}
+          </Badge>
+        </div>
 
       <div className="grid gap-3">
         {submissions.map((submission) => (
@@ -272,11 +237,11 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
 
                 <Button
                   size="sm"
-                  onClick={() => importToProperties(submission)}
-                  className="bg-green-600 hover:bg-green-700 flex items-center gap-1"
+                  onClick={() => openPreviewModal(submission)}
+                  className="bg-blue-600 hover:bg-blue-700 flex items-center gap-1"
                 >
-                  <Download className="w-3 h-3" />
-                  Importar
+                  <Eye className="w-3 h-3" />
+                  Visualizar
                 </Button>
 
                 <Button
@@ -293,6 +258,15 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
           </Card>
         ))}
       </div>
-    </div>
+      </div>
+
+      <PropertyImportPreviewModal
+        submission={selectedSubmission}
+        open={previewModalOpen}
+        onOpenChange={setPreviewModalOpen}
+        onImport={handleImportComplete}
+        brokerUserId={broker?.user_id}
+      />
+    </>
   );
 }
