@@ -36,6 +36,7 @@ import { Tour360Modal } from '@/components/Tour360Modal';
 import { PropertyShareDialog } from '@/components/PropertyShareDialog';
 import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
 import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
+import { PropertyImportModal } from '@/components/PropertyImportModal';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -98,6 +99,7 @@ export default function Imoveis() {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [isAvaliationOpen, setIsAvaliationOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
@@ -703,6 +705,15 @@ export default function Imoveis() {
             >
               <Share2 className="h-4 w-4" />
               Formulário Proprietário
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsImportModalOpen(true)}
+              className="text-xs px-3 py-2 h-11"
+            >
+              <Upload className="w-4 h-4 mr-2" />
+              Importar Av.
             </Button>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
@@ -2131,6 +2142,13 @@ export default function Imoveis() {
       <PropertySubmissionModal 
         open={isSubmissionModalOpen} 
         onOpenChange={setIsSubmissionModalOpen}
+      />
+
+      {/* Property Import Modal */}
+      <PropertyImportModal 
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={() => fetchProperties(pagination.currentPage)}
       />
     </div>
   );

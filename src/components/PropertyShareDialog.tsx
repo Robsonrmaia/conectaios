@@ -44,7 +44,7 @@ export function PropertyShareDialog({ isOpen, onClose, property }: PropertyShare
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share className="h-5 w-5" />
-            Compartilhar Imóvel
+            Enviar Página de Proposta
           </DialogTitle>
         </DialogHeader>
         
@@ -52,7 +52,7 @@ export function PropertyShareDialog({ isOpen, onClose, property }: PropertyShare
           <div className="text-center">
             <h3 className="font-medium">{property?.titulo}</h3>
             <p className="text-sm text-muted-foreground">
-              Gere um link único para compartilhar este imóvel
+              Gere um link único da página de proposta para enviar ao seu cliente
             </p>
           </div>
 
@@ -62,7 +62,7 @@ export function PropertyShareDialog({ isOpen, onClose, property }: PropertyShare
               className="w-full"
             >
               <Share className="h-4 w-4 mr-2" />
-              Gerar Link de Compartilhamento
+              Gerar Página de Proposta
             </Button>
           )}
 
@@ -71,7 +71,7 @@ export function PropertyShareDialog({ isOpen, onClose, property }: PropertyShare
               <div className="text-center">
                 <Loader className="h-8 w-8 animate-spin mx-auto mb-4" />
                 <p className="text-sm text-muted-foreground">
-                  Preparando link único para compartilhamento...
+                  Preparando página de proposta para seu cliente...
                 </p>
               </div>
             </div>

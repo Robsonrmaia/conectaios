@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail, Search } from "lucide-react";
+import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail, Search, Home, Car } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -557,13 +557,13 @@ export default function BrokerMinisite() {
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {(filteredProperties.length > 0 ? filteredProperties : properties).map((property) => (
-                <article key={property.id} className="rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300">
+                <article key={property.id} className="group rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300 cursor-pointer">
                   <div className="relative">
                     {property.fotos && property.fotos.length > 0 ? (
                       <img
                         src={property.fotos[0]}
                         alt={property.titulo}
-                        className="w-full h-56 object-cover"
+                        className="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
                     ) : (
@@ -571,97 +571,135 @@ export default function BrokerMinisite() {
                         <Building2 className="h-16 w-16 text-muted-foreground" />
                       </div>
                     )}
+                    
+                    {/* Badge de tipo no canto superior esquerdo */}
                     <div className="absolute top-3 left-3">
-                      <Badge className="px-3 py-1 text-xs rounded-full bg-white/90 text-gray-800">
-                        {property.listing_type === 'venda' ? 'Venda' : 
-                         property.listing_type === 'locacao' ? 'Locação' : 
-                         property.listing_type || 'Disponível'}
+                      <Badge className="px-3 py-1 text-xs font-medium rounded-md bg-red-500 text-white border-0">
+                        {property.listing_type === 'venda' ? 'VENDA' : 
+                         property.listing_type === 'aluguel' || property.listing_type === 'locacao' ? 'ALUGUEL' : 
+                         'DISPONÍVEL'}
                       </Badge>
                     </div>
-                    
-                    {/* Action buttons overlay */}
-                    <div className="absolute top-3 right-3 flex gap-2 opacity-0 hover:opacity-100 transition-opacity">
-                      <Button
-                        size="sm"
-                        className="h-8 w-8 p-0 bg-white/90 hover:bg-white text-foreground shadow-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          shareOnWhatsApp(property);
-                        }}
-                      >
-                        <MessageCircle className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="h-8 w-8 p-0 bg-white/90 hover:bg-white text-foreground shadow-sm"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          shareProperty(property);
-                        }}
-                      >
-                        <Share2 className="h-3 w-3" />
-                      </Button>
-                    </div>
+
+                    {/* Código do imóvel no canto superior direito */}
+                    {property.reference_code && (
+                      <div className="absolute top-3 right-3">
+                        <Badge className="px-2 py-1 text-xs bg-black/70 text-white border-0">
+                          {property.reference_code}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="p-5">
-                    <Link to={`/imovel/${property.id}`} className="block">
-                      <h3 className="font-semibold text-lg hover:text-blue-700 transition-colors">
+                    {/* Título e localização */}
+                    <div className="mb-3">
+                      <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-2 leading-tight">
                         {property.titulo}
                       </h3>
-                    </Link>
-                    
-                    {property.descricao && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                        {property.descricao}
+                      <p className="text-sm text-gray-600 flex items-center gap-1">
+                        <MapPin className="h-3 w-3 text-gray-400" />
+                        {property.neighborhood && property.city 
+                          ? `${property.neighborhood}, ${property.city}`
+                          : property.city || property.address || 'Localização não informada'
+                        }
                       </p>
-                    )}
-                    
-                    {(property.neighborhood || property.city) && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        {[property.neighborhood, property.city].filter(Boolean).join(', ')}
-                      </p>
-                    )}
-                    
-                    <div className="mt-4 flex items-center justify-between">
-                      {typeof property.valor === 'number' && property.valor > 0 ? (
-                        <span className="font-bold text-blue-700">
-                          {property.valor.toLocaleString('pt-BR', { 
-                            style: 'currency', 
-                            currency: 'BRL',
-                            maximumFractionDigits: 0 
-                          })}
-                        </span>
-                      ) : (
-                        <span className="font-bold text-blue-700">Consulte valor</span>
-                      )}
-                      <Link 
-                        to={`/imovel/${property.id}`} 
-                        className="text-sm inline-flex items-center gap-1 hover:text-blue-700 transition-colors"
-                      >
-                        Detalhes <Share2 className="h-3 w-3" />
-                      </Link>
                     </div>
-
-                    <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
-                      {property.quartos && (
-                        <span className="flex items-center gap-1">
-                          <Bed className="h-3 w-3" />
-                          {property.quartos}
-                        </span>
+                    
+                    {/* Preço */}
+                    <div className="mb-4">
+                      <p className="text-2xl font-bold text-green-600">
+                        R$ {property.valor?.toLocaleString('pt-BR', { minimumFractionDigits: 0 }) || 'Consulte'}
+                      </p>
+                      {/* Taxas adicionais */}
+                      {(property.condominium_fee || property.iptu) && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          {property.condominium_fee && `Cond.: R$ ${property.condominium_fee.toLocaleString('pt-BR')}`}
+                          {property.condominium_fee && property.iptu && ' • '}
+                          {property.iptu && `IPTU: R$ ${property.iptu.toLocaleString('pt-BR')}`}
+                        </div>
                       )}
-                      {property.bathrooms && (
-                        <span className="flex items-center gap-1">
-                          <Bath className="h-3 w-3" />
-                          {property.bathrooms}
-                        </span>
-                      )}
+                    </div>
+                    
+                    {/* Características com ícones */}
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
                       {property.area && (
-                        <span className="flex items-center gap-1">
-                          <Square className="h-3 w-3" />
-                          {property.area}m²
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <div className="w-5 h-5 rounded bg-blue-50 flex items-center justify-center">
+                            <Home className="h-3 w-3 text-blue-600" />
+                          </div>
+                          <span>{property.area}m²</span>
+                        </div>
                       )}
+                      {property.quartos > 0 && (
+                        <div className="flex items-center gap-1">
+                          <div className="w-5 h-5 rounded bg-green-50 flex items-center justify-center">
+                            <Bed className="h-3 w-3 text-green-600" />
+                          </div>
+                          <span>{property.quartos}</span>
+                        </div>
+                      )}
+                      {property.bathrooms > 0 && (
+                        <div className="flex items-center gap-1">
+                          <div className="w-5 h-5 rounded bg-orange-50 flex items-center justify-center">
+                            <Bath className="h-3 w-3 text-orange-600" />
+                          </div>
+                          <span>{property.bathrooms}</span>
+                        </div>
+                      )}
+                      {property.parking_spots > 0 && (
+                        <div className="flex items-center gap-1">
+                          <div className="w-5 h-5 rounded bg-purple-50 flex items-center justify-center">
+                            <Car className="h-3 w-3 text-purple-600" />
+                          </div>
+                          <span>{property.parking_spots}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Rodapé com info do corretor e botões */}
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-100">
+                          {broker.avatar_url ? (
+                            <img src={broker.avatar_url} alt={broker.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white" style={{ backgroundColor: primaryColor }}>
+                              <Building2 className="h-5 w-5" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-xs">
+                          <p className="font-semibold text-gray-900">{broker.name}</p>
+                          <p className="text-gray-500">
+                            {broker.creci ? `CRECI ${broker.creci}` : 'Corretor Profissional'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="text-xs px-3 py-1.5 h-auto border-gray-300 hover:bg-gray-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedProperty(property);
+                          }}
+                        >
+                          Ver Mais
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          className="text-xs px-3 py-1.5 h-auto text-white hover:opacity-90"
+                          style={{ backgroundColor: primaryColor }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            shareOnWhatsApp(property);
+                          }}
+                        >
+                          Contatar
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </article>

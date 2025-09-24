@@ -58,14 +58,19 @@ export function PropertyImportPreviewModal({
   
   const handleImport = async () => {
     if (!submission || !brokerUserId) {
-      console.error('Missing submission or brokerUserId:', { submission: !!submission, brokerUserId });
+      console.error('❌ Missing submission or brokerUserId:', { submission: !!submission, brokerUserId });
       toast.error('Dados incompletos para importação');
       return;
     }
 
     try {
       const propertyData = submission.property_data;
-      console.log('Importing property with data:', { brokerUserId, propertyData });
+      console.log('🚀 Starting property import:', { 
+        brokerUserId, 
+        submissionId: submission.id,
+        propertyTitle: propertyData.titulo,
+        propertyData 
+      });
       
       // Create property record with corrected field mapping
       const { data, error } = await supabase
