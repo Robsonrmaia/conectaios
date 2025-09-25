@@ -104,6 +104,21 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       setLoading(true);
       try {
         console.log('🏠 Fetching minisite properties for broker:', broker.user_id);
+        console.log('🏠 Broker object:', broker);
+        
+        // First, check all properties for this user to debug
+        const { data: allUserProperties, error: allError } = await supabase
+          .from('properties')
+          .select('id, titulo, is_public, visibility, user_id')
+          .eq('user_id', broker.user_id);
+          
+        console.log('🏠 All user properties debug:', { 
+          data: allUserProperties, 
+          error: allError, 
+          count: allUserProperties?.length || 0 
+        });
+        
+        // Now fetch filtered properties for minisite
         const { data, error } = await supabase
           .from('properties')
           .select(`
@@ -135,7 +150,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
           .order('updated_at', { ascending: false })
           .limit(6);
 
-        console.log('🏠 Minisite properties result:', { 
+        console.log('🏠 Minisite filtered properties result:', { 
           data: data, 
           error: error, 
           count: data?.length || 0,
@@ -519,8 +534,17 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                               )}
                             </div>
 
-                            {/* All property icons in one line */}
+                            {/* Property icons using PropertyIcons component */}
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                              <PropertyIcons
+                                bathrooms={property.bathrooms}
+                                parking_spots={property.parking_spots}
+                                furnishing_type={property.furnishing_type}
+                                sea_distance={property.sea_distance}
+                                has_sea_view={property.has_sea_view}
+                                showBasicIcons={true}
+                                className=""
+                              />
                               <div className="flex items-center gap-1">
                                 <Square className="h-3 w-3" />
                                 {property.area || 0}m²
@@ -529,25 +553,11 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                                 <Bed className="h-3 w-3" />
                                 {property.quartos || 0}
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Bath className="h-3 w-3" />
-                                {property.bathrooms || 0}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Car className="h-3 w-3" />
-                                {property.parking_spots || 0}
-                              </div>
-                              <PropertyIcons
-                                furnishing_type={property.furnishing_type}
-                                sea_distance={property.sea_distance}
-                                has_sea_view={property.has_sea_view}
-                                className=""
-                              />
                             </div>
 
                             {/* Location */}
                             {(property.neighborhood || property.zipcode) && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
                                 <MapPin className="h-3 w-3" />
                                 <span className="truncate">
                                   {[property.neighborhood, property.zipcode].filter(Boolean).join(', ')}
@@ -555,9 +565,47 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                               </div>
                             )}
 
+                            {/* Property Description */}
+                            {property.descricao && (
+                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                                {property.descricao}
+                              </p>
+                            )}
+
+                            {/* Property Reference Code */}
+                            {property.reference_code && (
+                              <div className="text-xs text-muted-foreground font-mono mb-3">
+                                Cód: {property.reference_code}
+                              </div>
+                            )}
+
+                            {/* Broker Information */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3 mb-3">
+                              {broker?.avatar_url ? (
+                                <img 
+                                  src={broker.avatar_url} 
+                                  alt={broker.name}
+                                  className="w-6 h-6 rounded-full object-cover border border-slate-200"
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                  }}
+                                />
+                              ) : (
+                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
+                                  {broker?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <span>Corretor: {broker?.name || 'Não informado'}</span>
+                                {broker?.creci && (
+                                  <span className="block text-xs text-muted-foreground/70">CRECI: {broker.creci}</span>
+                                )}
+                              </div>
+                            </div>
+
                             {/* Additional fees */}
                             {(property.condominium_fee || property.iptu) && (
-                              <div className="text-xs text-muted-foreground space-y-1">
+                              <div className="text-xs text-muted-foreground space-y-1 mb-3">
                                 {property.condominium_fee && (
                                   <div>Cond.: R$ {property.condominium_fee.toLocaleString('pt-BR')}</div>
                                 )}
@@ -568,16 +616,21 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                             )}
 
                             {/* Action buttons */}
-                            <div className="flex gap-2 pt-2">
+                            <div className="flex gap-2">
                               <Button 
                                 size="sm" 
-                                className="flex-1 text-white" 
+                                className="flex-1 text-white h-11" 
                                 style={{ backgroundColor: primaryColor }}
                               >
-                                Ver Detalhes
+                                <Phone className="h-4 w-4 mr-2" />
+                                Contatar
                               </Button>
-                              <Button variant="outline" size="sm" className="px-3">
-                                <Phone className="h-4 w-4" />
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="px-3 h-11"
+                              >
+                                Ver Detalhes
                               </Button>
                             </div>
                           </div>
