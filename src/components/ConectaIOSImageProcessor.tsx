@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Wand2, Sparkles, Palette } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface ConectaIOSImageProcessorProps {
   isOpen: boolean;
@@ -134,6 +135,17 @@ export function ConectaIOSImageProcessor({
 
   useEffect(() => {
     if (isOpen) {
+      const typeLabel = getTitle();
+      toast({
+        title: "ConectAIOS Processamento",
+        description: `${typeLabel} carregado. Após processar, a imagem será retornada automaticamente.`,
+        duration: 5000,
+      });
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
       console.log('🎧 Adding message listener for ConectAIOS');
       addDebugInfo('🔄 Initializing communication...');
       
@@ -208,23 +220,6 @@ export function ConectaIOSImageProcessor({
               minHeight: '90vh'
             }}
           />
-        </div>
-        
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground max-w-md">
-          <div className="text-center mb-1">
-            💡 {type === 'enhance' || type === 'staging' || type === 'sketch'
-              ? 'Após processar a imagem, ela será automaticamente aplicada'
-              : 'Após gerar a imagem, faça o download e faça upload manualmente no editor'
-            }
-          </div>
-          {debugInfo.length > 0 && (
-            <div className="text-xs text-gray-500 mt-1 space-y-1">
-              <div className="font-medium">Debug Info:</div>
-              {debugInfo.map((info, index) => (
-                <div key={index} className="truncate">{info}</div>
-              ))}
-            </div>
-          )}
         </div>
       </DialogContent>
     </Dialog>

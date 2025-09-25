@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ExternalLink } from 'lucide-react';
 import { useRef, useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface ExternalToolModalProps {
   isOpen: boolean;
@@ -104,6 +105,18 @@ export function ExternalToolModal({
 
     return () => clearInterval(interval);
   }, [isOpen, propertyData]);
+
+  // Show toast when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      toast({
+        title: "Ferramenta Externa",
+        description: `${toolName} carregado com sucesso. Você pode usar normalmente.`,
+        duration: 4000,
+      });
+    }
+  }, [isOpen, toolName]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
@@ -134,13 +147,6 @@ export function ExternalToolModal({
               })
             }}
           />
-        </div>
-        
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <ExternalLink className="h-4 w-4" />
-            Ferramenta externa integrada - {toolName}
-          </div>
         </div>
       </DialogContent>
     </Dialog>

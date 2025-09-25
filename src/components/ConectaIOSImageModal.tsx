@@ -1,5 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Wand2 } from 'lucide-react';
+import { useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface ConectaIOSImageModalProps {
   isOpen: boolean;
@@ -9,6 +11,18 @@ interface ConectaIOSImageModalProps {
 }
 
 export function ConectaIOSImageModal({ isOpen, onClose, onImageGenerated, type }: ConectaIOSImageModalProps) {
+  // Show toast when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      const typeLabel = type === 'logo' ? 'Logo' : type === 'banner' ? 'Banner' : 'Capa';
+      toast({
+        title: "ConectAIOS Imagens",
+        description: `Gerador de ${typeLabel} carregado. Após gerar, faça download e upload manualmente.`,
+        duration: 5000,
+      });
+    }
+  }, [isOpen, type]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0">
@@ -31,10 +45,6 @@ export function ConectaIOSImageModal({ isOpen, onClose, onImageGenerated, type }
               minHeight: '90vh'
             }}
           />
-        </div>
-        
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
-          💡 Após gerar a imagem, faça o download e faça upload manualmente no editor
         </div>
       </DialogContent>
     </Dialog>

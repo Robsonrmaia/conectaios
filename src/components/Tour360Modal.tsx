@@ -15,6 +15,17 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
   const [isServiceAvailable, setIsServiceAvailable] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   
+  // Show toast when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      toast({
+        title: "Tour 360° Virtual",
+        description: `Gerador de tours virtuais para ${property?.titulo || 'o imóvel'} carregado com sucesso.`,
+        duration: 4000,
+      });
+    }
+  }, [isOpen, property?.titulo]);
+
   // Check service availability when modal opens
   useEffect(() => {
     if (!isOpen) return;
@@ -113,13 +124,6 @@ export function Tour360Modal({ isOpen, onClose, onTourGenerated, property }: Tou
               }}
             />
           )}
-        </div>
-        
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-background/80 backdrop-blur-sm px-4 py-2 rounded-lg text-sm text-muted-foreground">
-          <div className="text-center">
-            <div className="font-medium mb-1">🎯 Tour 360° - {property?.titulo || 'Imóvel'}</div>
-            <div className="text-xs">Foto de capa pré-carregada • Gere o tour virtual do imóvel</div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
