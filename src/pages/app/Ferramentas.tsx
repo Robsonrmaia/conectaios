@@ -15,7 +15,8 @@ import {
   CheckCircle,
   Crown,
   Zap,
-  Building
+  Building,
+  Calculator
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useBroker } from "@/hooks/useBroker";
@@ -71,6 +72,19 @@ const Ferramentas = () => {
           external: true,
           showAddressBar: true,
           gradient: "from-green-500 to-emerald-500"
+        },
+        {
+          id: "commission-calculator",
+          name: "Calculadora de Comissão",
+          description: "Calcule comissões imobiliárias de forma automatizada",
+          icon: Calculator,
+          category: "marketing",
+          planRequired: 'basic' as const,
+          isAvailable: true,
+          url: "https://calculadora-de-comiss-o-imobili-ria-420832656535.us-west1.run.app",
+          external: true,
+          showAddressBar: false,
+          gradient: "from-blue-600 to-purple-600"
         }
       ]
     },
@@ -98,7 +112,10 @@ const Ferramentas = () => {
           icon: BarChart3,
           category: "analysis",
           planRequired: 'pro' as const,
-          isAvailable: false,
+          isAvailable: true,
+          url: "https://an-lise-de-mercado-imobili-rio-com-ia-420832656535.us-west1.run.app",
+          external: true,
+          showAddressBar: false,
           gradient: "from-orange-500 to-red-500"
         },
         {
@@ -153,7 +170,10 @@ const Ferramentas = () => {
           icon: Building2,
           category: "documents",
           planRequired: 'basic' as const,
-          isAvailable: false,
+          isAvailable: true,
+          url: "https://guiadocomprador.gicarneiroimoveis.com.br/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-yellow-500 to-orange-500"
         },
         {
