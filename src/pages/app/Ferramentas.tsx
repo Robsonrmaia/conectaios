@@ -67,6 +67,9 @@ const Ferramentas = () => {
           category: "marketing",
           planRequired: 'pro' as const,
           isAvailable: true,
+          url: "https://portaldeenvios.gicarneiroimoveis.com.br/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-green-500 to-emerald-500"
         }
       ]
@@ -83,6 +86,9 @@ const Ferramentas = () => {
           category: "analysis",
           planRequired: 'basic' as const,
           isAvailable: true,
+          url: "https://guiadebairrosilheus.lovable.app/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-blue-500 to-cyan-500"
         },
         {
@@ -92,7 +98,7 @@ const Ferramentas = () => {
           icon: BarChart3,
           category: "analysis",
           planRequired: 'pro' as const,
-          isAvailable: true,
+          isAvailable: false,
           gradient: "from-orange-500 to-red-500"
         },
         {
@@ -135,6 +141,9 @@ const Ferramentas = () => {
           category: "documents",
           planRequired: 'basic' as const,
           isAvailable: true,
+          url: "https://gerador-contratosconectaios.lovable.app/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-teal-500 to-green-500"
         },
         {
@@ -144,7 +153,7 @@ const Ferramentas = () => {
           icon: Building2,
           category: "documents",
           planRequired: 'basic' as const,
-          isAvailable: true,
+          isAvailable: false,
           gradient: "from-yellow-500 to-orange-500"
         },
         {
@@ -155,6 +164,9 @@ const Ferramentas = () => {
           category: "documents",
           planRequired: 'pro' as const,
           isAvailable: true,
+          url: "https://sistemadevistoria.lovable.app/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-emerald-500 to-teal-500"
         }
       ]
@@ -170,7 +182,10 @@ const Ferramentas = () => {
           icon: Building,
           category: "management",
           planRequired: 'pro' as const,
-          isAvailable: false,
+          isAvailable: true,
+          url: "https://orcamentotemporada.gicarneiroimoveis.com.br/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-rose-500 to-pink-500"
         },
         {
