@@ -164,20 +164,57 @@ export default function PropertySubmissionForm() {
       return;
     }
 
-    const uploadPromises = Array.from(files).map(async (file) => {
+    console.log('📸 Starting photo upload process for', files.length, 'files');
+
+    const uploadPromises = Array.from(files).map(async (file, index) => {
       try {
-        const url = await uploadImage(file, 'property-images');
+        console.log(`📤 Uploading photo ${index + 1}/${files.length}:`, file.name);
+        
+        const url = await uploadImage(file, 'property-images', {
+          submissionToken: token,
+          maxRetries: 3
+        });
+        
+        console.log(`✅ Photo ${index + 1} uploaded successfully:`, url);
         return url;
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast.error(`Erro ao fazer upload de ${file.name}`);
+      } catch (error: any) {
+        console.error(`❌ Upload failed for photo ${index + 1}:`, error);
+        
+        const errorMessage = error.message || 'Erro desconhecido';
+        if (errorMessage.includes('permission denied') || errorMessage.includes('row-level security')) {
+          toast.error(`Erro de permissão ao enviar ${file.name}. Verifique sua conexão.`);
+        } else if (errorMessage.includes('Arquivo muito grande')) {
+          toast.error(`${file.name} é muito grande (máx. 10MB)`);
+        } else if (errorMessage.includes('Tipo de arquivo')) {
+          toast.error(`${file.name} não é um tipo de imagem válido`);
+        } else {
+          toast.error(`Erro ao enviar ${file.name}: ${errorMessage}`);
+        }
+        
         return null;
       }
     });
 
-    const uploadedUrls = await Promise.all(uploadPromises);
-    const validUrls = uploadedUrls.filter(url => url !== null) as string[];
-    setPhotos(prev => [...prev, ...validUrls]);
+    try {
+      const uploadedUrls = await Promise.all(uploadPromises);
+      const validUrls = uploadedUrls.filter(url => url !== null) as string[];
+      
+      if (validUrls.length > 0) {
+        setPhotos(prev => [...prev, ...validUrls]);
+        console.log('✅ All photos processed. Valid uploads:', validUrls.length);
+        
+        if (validUrls.length < files.length) {
+          toast.info(`${validUrls.length} de ${files.length} fotos foram enviadas com sucesso`);
+        } else {
+          toast.success(`${validUrls.length} fotos enviadas com sucesso!`);
+        }
+      } else {
+        toast.error('Nenhuma foto pôde ser enviada. Verifique sua conexão e tente novamente.');
+      }
+    } catch (error) {
+      console.error('Error in photo upload process:', error);
+      toast.error('Erro no processo de upload. Tente novamente.');
+    }
   };
 
   const saveProgress = async (data: PropertySubmissionData) => {
@@ -681,36 +718,55 @@ export default function PropertySubmissionForm() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center relative">
                     <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                     <div className="space-y-2">
                       <p className="text-sm font-medium">
-                        Clique para selecionar fotos ou arraste aqui
+                        {isUploading ? 'Enviando fotos...' : 'Clique para selecionar fotos ou arraste aqui'}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Máximo 20 fotos • JPG, PNG até 10MB cada
+                        Máximo 20 fotos • JPG, PNG, WebP até 10MB cada
                       </p>
+                      {isUploading && (
+                        <div className="flex items-center justify-center gap-2 mt-4">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          <span className="text-sm text-primary">Processando imagens...</span>
+                        </div>
+                      )}
                     </div>
                     <input
                       type="file"
                       multiple
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
                       onChange={(e) => e.target.files && handlePhotoUpload(e.target.files)}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      disabled={isUploading}
                     />
                   </div>
 
                   {photos.length > 0 && (
-                    <div className="grid grid-cols-3 gap-2">
-                      {photos.map((photo, index) => (
-                        <div key={index} className="relative aspect-square">
-                          <img
-                            src={photo}
-                            alt={`Foto ${index + 1}`}
-                            className="w-full h-full object-cover rounded-lg"
-                          />
-                        </div>
-                      ))}
+                    <div className="space-y-2">
+                      <p className="text-sm text-muted-foreground">
+                        {photos.length} foto{photos.length !== 1 ? 's' : ''} adicionada{photos.length !== 1 ? 's' : ''}
+                      </p>
+                      <div className="grid grid-cols-3 gap-2">
+                        {photos.map((photo, index) => (
+                          <div key={index} className="relative aspect-square">
+                            <img
+                              src={photo}
+                              alt={`Foto ${index + 1}`}
+                              className="w-full h-full object-cover rounded-lg border"
+                              onError={(e) => {
+                                console.error('Error loading image:', photo);
+                                (e.target as HTMLImageElement).src = '/placeholder.svg';
+                              }}
+                            />
+                            <div className="absolute top-1 right-1 bg-black/50 text-white text-xs rounded px-1">
+                              {index + 1}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </CardContent>
