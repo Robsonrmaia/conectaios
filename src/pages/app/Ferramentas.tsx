@@ -32,11 +32,12 @@ interface Tool {
   isAvailable?: boolean;
   url?: string;
   external?: boolean;
+  showAddressBar?: boolean;
   gradient: string;
 }
 
 const Ferramentas = () => {
-  const [externalTool, setExternalTool] = useState<{ name: string; url: string } | null>(null);
+  const [externalTool, setExternalTool] = useState<{ name: string; url: string; showAddressBar?: boolean } | null>(null);
   const navigate = useNavigate();
   const { broker } = useBroker();
 
@@ -47,12 +48,15 @@ const Ferramentas = () => {
       tools: [
         {
           id: "image-creator",
-          name: "Criador de Imagens Pró",
+          name: "Imagem Pró",
           description: "Gere imagens profissionais para seus imóveis usando IA",
           icon: Image,
           category: "marketing",
           planRequired: 'pro' as const,
           isAvailable: true,
+          url: "https://imagens-conectaios-420832656535.us-west1.run.app",
+          external: true,
+          showAddressBar: false,
           gradient: "from-purple-500 to-pink-500"
         },
         {
@@ -93,13 +97,29 @@ const Ferramentas = () => {
         },
         {
           id: "property-valuation",
-          name: "Avaliação Imobiliária",
+          name: "Avaliação Inteligente",
           description: "Avalie imóveis usando dados de mercado",
           icon: Home,
           category: "analysis",
           planRequired: 'pro' as const,
           isAvailable: true,
+          url: "https://avaliador-inteligente.lovable.app/",
+          external: true,
+          showAddressBar: true,
           gradient: "from-indigo-500 to-purple-500"
+        },
+        {
+          id: "property-stats-ilheus",
+          name: "Estatísticas de Imóveis Ilhéus",
+          description: "Dados completos do mercado imobiliário de Ilhéus",
+          icon: BarChart3,
+          category: "analysis",
+          planRequired: 'pro' as const,
+          isAvailable: true,
+          url: "https://estatisticas.gicarneiroimoveis.com.br/",
+          external: true,
+          showAddressBar: true,
+          gradient: "from-blue-500 to-indigo-500"
         }
       ]
     },
@@ -150,8 +170,21 @@ const Ferramentas = () => {
           icon: Building,
           category: "management",
           planRequired: 'pro' as const,
-          isAvailable: true,
+          isAvailable: false,
           gradient: "from-rose-500 to-pink-500"
+        },
+        {
+          id: "enterprise-simulator",
+          name: "Simulador de Empreendimentos",
+          description: "Simule rendimentos e viabilidade de empreendimentos",
+          icon: Building2,
+          category: "management",
+          planRequired: 'pro' as const,
+          isAvailable: true,
+          url: "https://simuladororquidario.gicarneiroimoveis.com.br/",
+          external: true,
+          showAddressBar: true,
+          gradient: "from-emerald-500 to-cyan-500"
         }
       ]
     }
@@ -159,7 +192,7 @@ const Ferramentas = () => {
 
   const handleToolAccess = (tool: Tool) => {
     if (tool.external && tool.url) {
-      setExternalTool({ name: tool.name, url: tool.url });
+      setExternalTool({ name: tool.name, url: tool.url, showAddressBar: tool.showAddressBar });
       return;
     }
 
@@ -254,12 +287,20 @@ const Ferramentas = () => {
                       whileHover={{ y: -5 }}
                     >
                       <AnimatedCard 
-                        className="group cursor-pointer border-0 bg-gradient-to-br from-card/80 to-card/40 backdrop-blur-sm hover:shadow-2xl hover:shadow-primary/20 transition-all duration-500 h-full"
+                        className={`group cursor-pointer border-0 backdrop-blur-sm transition-all duration-500 h-full ${
+                          tool.isAvailable 
+                            ? "bg-gradient-to-br from-card/80 to-card/40 hover:shadow-2xl hover:shadow-primary/20" 
+                            : "bg-gradient-to-br from-muted/40 to-muted/20 opacity-75"
+                        }`}
                         onClick={() => handleToolAccess(tool)}
                       >
                         <div className="p-6 space-y-4 h-full flex flex-col">
                           <div className="flex items-start justify-between">
-                            <div className={`p-3 rounded-xl bg-gradient-to-br ${tool.gradient} shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                            <div className={`p-3 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300 ${
+                              tool.isAvailable 
+                                ? `bg-gradient-to-br ${tool.gradient}` 
+                                : "bg-gradient-to-br from-gray-400 to-gray-500"
+                            }`}>
                               <IconComponent className="h-6 w-6 text-white" />
                             </div>
                             {tool.planRequired && (
@@ -274,20 +315,30 @@ const Ferramentas = () => {
                           </div>
                           
                           <div className="space-y-2 flex-1">
-                            <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                            <h3 className={`text-lg font-semibold transition-colors ${
+                              tool.isAvailable ? "group-hover:text-primary" : "text-muted-foreground"
+                            }`}>
                               {tool.name}
                             </h3>
                             <p className="text-sm text-muted-foreground leading-relaxed">
                               {tool.description}
                             </p>
+                            {!tool.isAvailable && (
+                              <p className="text-xs text-muted-foreground/60 font-medium">Em breve</p>
+                            )}
                           </div>
                           
                           <Button 
-                            className="w-full bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary shadow-lg hover:shadow-xl transition-all duration-300"
+                            className={`w-full shadow-lg transition-all duration-300 ${
+                              tool.isAvailable 
+                                ? "bg-gradient-to-r from-primary to-primary-glow hover:from-primary-glow hover:to-primary hover:shadow-xl" 
+                                : "bg-muted text-muted-foreground cursor-not-allowed"
+                            }`}
                             variant="default"
+                            disabled={!tool.isAvailable}
                           >
                             <Zap className="h-4 w-4 mr-2" />
-                            Usar Ferramenta
+                            {tool.isAvailable ? "Usar Ferramenta" : "Em Breve"}
                           </Button>
                         </div>
                       </AnimatedCard>
@@ -305,6 +356,7 @@ const Ferramentas = () => {
             onClose={() => setExternalTool(null)}
             toolName={externalTool.name}
             toolUrl={externalTool.url}
+            showAddressBar={externalTool.showAddressBar}
           />
         )}
       </div>

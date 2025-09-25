@@ -9,6 +9,7 @@ interface ExternalToolModalProps {
   toolName: string;
   toolIcon?: React.ComponentType<{ className?: string }>;
   propertyData?: any;
+  showAddressBar?: boolean;
 }
 
 export function ExternalToolModal({ 
@@ -17,7 +18,8 @@ export function ExternalToolModal({
   toolUrl, 
   toolName, 
   toolIcon: IconComponent,
-  propertyData 
+  propertyData,
+  showAddressBar = true 
 }: ExternalToolModalProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
@@ -118,11 +120,18 @@ export function ExternalToolModal({
             src={toolUrl}
             className="w-full h-full border-0 rounded-lg"
             title={toolName}
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-top-navigation"
+            sandbox={showAddressBar 
+              ? "allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-top-navigation allow-presentation" 
+              : "allow-same-origin allow-scripts allow-forms allow-popups allow-downloads"
+            }
             style={{ 
               border: 'none',
               outline: 'none',
-              minHeight: '90vh'
+              minHeight: '90vh',
+              ...(showAddressBar ? {} : { 
+                position: 'relative',
+                overflow: 'hidden'
+              })
             }}
           />
         </div>

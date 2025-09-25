@@ -410,7 +410,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                   </Card>
                 ))}
               </div>
-            ) : (
+            ) : realProperties.length === 0 && !loading ? (
               <div className="text-center py-12">
                 <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">Nenhum imóvel encontrado</p>
@@ -418,7 +418,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                   Configure a visibilidade dos seus imóveis para exibi-los no minisite
                 </p>
               </div>
-            )}
+            ) : null}
           </section>
         )}
 
