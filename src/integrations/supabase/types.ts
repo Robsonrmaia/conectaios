@@ -1263,135 +1263,6 @@ export type Database = {
         }
         Relationships: []
       }
-      conectaios_properties: {
-        Row: {
-          address: string | null
-          area: number | null
-          banner_type: string | null
-          bathrooms: number | null
-          broker_minisite_enabled: boolean | null
-          city: string | null
-          condominium_fee: number | null
-          coordinates: Json | null
-          created_at: string
-          descricao: string | null
-          features: Json | null
-          finalidade: string | null
-          fotos: string[] | null
-          furnishing_type: string | null
-          has_sea_view: boolean | null
-          id: string
-          iptu: number | null
-          is_featured: boolean | null
-          is_furnished: boolean | null
-          is_public: boolean | null
-          last_viewed_at: string | null
-          listing_type: string | null
-          neighborhood: string | null
-          parking_spots: number | null
-          price_per_m2: number | null
-          property_type: string | null
-          quartos: number | null
-          reference_code: string | null
-          sea_distance: number | null
-          state: string | null
-          titulo: string
-          tour_360_url: string | null
-          updated_at: string
-          user_id: string | null
-          valor: number | null
-          videos: string[] | null
-          views_count: number | null
-          visibility: string | null
-          watermark_enabled: boolean | null
-          zipcode: string | null
-        }
-        Insert: {
-          address?: string | null
-          area?: number | null
-          banner_type?: string | null
-          bathrooms?: number | null
-          broker_minisite_enabled?: boolean | null
-          city?: string | null
-          condominium_fee?: number | null
-          coordinates?: Json | null
-          created_at?: string
-          descricao?: string | null
-          features?: Json | null
-          finalidade?: string | null
-          fotos?: string[] | null
-          furnishing_type?: string | null
-          has_sea_view?: boolean | null
-          id?: string
-          iptu?: number | null
-          is_featured?: boolean | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
-          last_viewed_at?: string | null
-          listing_type?: string | null
-          neighborhood?: string | null
-          parking_spots?: number | null
-          price_per_m2?: number | null
-          property_type?: string | null
-          quartos?: number | null
-          reference_code?: string | null
-          sea_distance?: number | null
-          state?: string | null
-          titulo: string
-          tour_360_url?: string | null
-          updated_at?: string
-          user_id?: string | null
-          valor?: number | null
-          videos?: string[] | null
-          views_count?: number | null
-          visibility?: string | null
-          watermark_enabled?: boolean | null
-          zipcode?: string | null
-        }
-        Update: {
-          address?: string | null
-          area?: number | null
-          banner_type?: string | null
-          bathrooms?: number | null
-          broker_minisite_enabled?: boolean | null
-          city?: string | null
-          condominium_fee?: number | null
-          coordinates?: Json | null
-          created_at?: string
-          descricao?: string | null
-          features?: Json | null
-          finalidade?: string | null
-          fotos?: string[] | null
-          furnishing_type?: string | null
-          has_sea_view?: boolean | null
-          id?: string
-          iptu?: number | null
-          is_featured?: boolean | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
-          last_viewed_at?: string | null
-          listing_type?: string | null
-          neighborhood?: string | null
-          parking_spots?: number | null
-          price_per_m2?: number | null
-          property_type?: string | null
-          quartos?: number | null
-          reference_code?: string | null
-          sea_distance?: number | null
-          state?: string | null
-          titulo?: string
-          tour_360_url?: string | null
-          updated_at?: string
-          user_id?: string | null
-          valor?: number | null
-          videos?: string[] | null
-          views_count?: number | null
-          visibility?: string | null
-          watermark_enabled?: boolean | null
-          zipcode?: string | null
-        }
-        Relationships: []
-      }
       conectaios_sessions: {
         Row: {
           broker_id: string | null
@@ -1563,60 +1434,90 @@ export type Database = {
       }
       contratos: {
         Row: {
+          assinados_count: number | null
           broker_id: string | null
+          clicksign_document_key: string | null
+          clicksign_document_url: string | null
+          clicksign_envelope_id: string | null
           conectaios_client_id: string | null
           conectaios_property_id: string | null
+          contract_html: string | null
           created_at: string | null
           data_inicio: string
           detalhes_garantia: string | null
           html_preview: string | null
           id: string
+          locador_client_id: string | null
+          locatario_client_id: string | null
           observacoes: string | null
+          pdf_generated_url: string | null
           pdf_url: string | null
           prazo_meses: number
           provider_document_id: string | null
+          signature_status: string | null
           status: Database["public"]["Enums"]["contrato_status"] | null
           tipo_garantia: string | null
+          total_signatarios: number | null
           updated_at: string | null
           user_id: string
           valor_aluguel: number
           vencimento_dia: number | null
         }
         Insert: {
+          assinados_count?: number | null
           broker_id?: string | null
+          clicksign_document_key?: string | null
+          clicksign_document_url?: string | null
+          clicksign_envelope_id?: string | null
           conectaios_client_id?: string | null
           conectaios_property_id?: string | null
+          contract_html?: string | null
           created_at?: string | null
           data_inicio: string
           detalhes_garantia?: string | null
           html_preview?: string | null
           id?: string
+          locador_client_id?: string | null
+          locatario_client_id?: string | null
           observacoes?: string | null
+          pdf_generated_url?: string | null
           pdf_url?: string | null
           prazo_meses: number
           provider_document_id?: string | null
+          signature_status?: string | null
           status?: Database["public"]["Enums"]["contrato_status"] | null
           tipo_garantia?: string | null
+          total_signatarios?: number | null
           updated_at?: string | null
           user_id: string
           valor_aluguel: number
           vencimento_dia?: number | null
         }
         Update: {
+          assinados_count?: number | null
           broker_id?: string | null
+          clicksign_document_key?: string | null
+          clicksign_document_url?: string | null
+          clicksign_envelope_id?: string | null
           conectaios_client_id?: string | null
           conectaios_property_id?: string | null
+          contract_html?: string | null
           created_at?: string | null
           data_inicio?: string
           detalhes_garantia?: string | null
           html_preview?: string | null
           id?: string
+          locador_client_id?: string | null
+          locatario_client_id?: string | null
           observacoes?: string | null
+          pdf_generated_url?: string | null
           pdf_url?: string | null
           prazo_meses?: number
           provider_document_id?: string | null
+          signature_status?: string | null
           status?: Database["public"]["Enums"]["contrato_status"] | null
           tipo_garantia?: string | null
+          total_signatarios?: number | null
           updated_at?: string | null
           user_id?: string
           valor_aluguel?: number
@@ -1635,13 +1536,6 @@ export type Database = {
             columns: ["conectaios_client_id"]
             isOneToOne: false
             referencedRelation: "conectaios_clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "contratos_conectaios_property_id_fkey"
-            columns: ["conectaios_property_id"]
-            isOneToOne: false
-            referencedRelation: "conectaios_properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1685,6 +1579,8 @@ export type Database = {
         Row: {
           assinado: boolean | null
           assinado_em: string | null
+          assinatura_ordem: number | null
+          clicksign_signer_key: string | null
           contrato_id: string | null
           cpf: string | null
           created_at: string | null
@@ -1694,10 +1590,13 @@ export type Database = {
           papel: string | null
           provider_signer_id: string | null
           telefone: string | null
+          tipo_signatario: string | null
         }
         Insert: {
           assinado?: boolean | null
           assinado_em?: string | null
+          assinatura_ordem?: number | null
+          clicksign_signer_key?: string | null
           contrato_id?: string | null
           cpf?: string | null
           created_at?: string | null
@@ -1707,10 +1606,13 @@ export type Database = {
           papel?: string | null
           provider_signer_id?: string | null
           telefone?: string | null
+          tipo_signatario?: string | null
         }
         Update: {
           assinado?: boolean | null
           assinado_em?: string | null
+          assinatura_ordem?: number | null
+          clicksign_signer_key?: string | null
           contrato_id?: string | null
           cpf?: string | null
           created_at?: string | null
@@ -1720,6 +1622,7 @@ export type Database = {
           papel?: string | null
           provider_signer_id?: string | null
           telefone?: string | null
+          tipo_signatario?: string | null
         }
         Relationships: [
           {
@@ -4254,7 +4157,13 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "broker"
-      contrato_status: "rascunho" | "em_assinatura" | "assinado" | "cancelado"
+      contrato_status:
+        | "rascunho"
+        | "em_assinatura"
+        | "assinado"
+        | "cancelado"
+        | "enviado_assinatura"
+        | "erro"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4383,7 +4292,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user", "broker"],
-      contrato_status: ["rascunho", "em_assinatura", "assinado", "cancelado"],
+      contrato_status: [
+        "rascunho",
+        "em_assinatura",
+        "assinado",
+        "cancelado",
+        "enviado_assinatura",
+        "erro",
+      ],
     },
   },
 } as const
