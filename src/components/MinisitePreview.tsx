@@ -174,31 +174,12 @@ export default function MinisitePreview({ config, broker, properties = [], previ
     fetchProperties();
   }, [broker?.user_id]);
 
-  // Use real properties or fallback to provided properties or mock
+  // Use real properties or provided properties, no fallback to mock data
   const displayProperties = realProperties.length > 0 
     ? realProperties.slice(0, 3) 
     : properties.length > 0 
     ? properties.slice(0, 3) 
-    : [{
-        id: '1',
-        titulo: 'Apartamento Moderno no Centro',
-        valor: 450000,
-        quartos: 2,
-        bathrooms: 2,
-        area: 75,
-        fotos: [],
-        neighborhood: 'Centro'
-      },
-      {
-        id: '2',
-        titulo: 'Casa com Quintal',
-        valor: 320000,
-        quartos: 3,
-        bathrooms: 2,
-        area: 120,
-        fotos: [],
-        neighborhood: 'Jardim Europa'
-      }];
+    : [];
 
   return (
     <div className={`${getPreviewClasses()} overflow-auto border rounded-lg bg-white shadow-xl`}>
@@ -325,337 +306,118 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 <p className="text-sm text-muted-foreground mt-2">Carregando imóveis...</p>
               </div>
-            ) : (
-              <>
-                {/* Gallery Premium Layout */}
-                {templateId === 'gallery-premium' && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {displayProperties.map((property) => (
-                      <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
-                        <div className="aspect-video relative overflow-hidden">
-                          {property.fotos && property.fotos.length > 0 ? (
-                            <img
-                              src={property.fotos[0]}
-                              alt={property.titulo}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-stone-100 to-amber-50 flex items-center justify-center">
-                              <Building2 className="h-12 w-12 text-stone-400" />
-                            </div>
-                          )}
-                          <div className="absolute top-3 right-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                            Premium
-                          </div>
+            ) : displayProperties.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {displayProperties.map((property) => (
+                  <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
+                    <div className="aspect-video relative overflow-hidden">
+                      {property.fotos && property.fotos.length > 0 ? (
+                        <img
+                          src={property.fotos[0]}
+                          alt={property.titulo}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-blue-100 to-gray-100 flex items-center justify-center">
+                          <Building2 className="h-12 w-12 text-gray-400" />
                         </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-serif font-semibold text-lg mb-2">
-                            {property.titulo}
-                          </h3>
-                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                            {property.quartos && (
-                              <span className="flex items-center gap-1">
-                                <Bed className="h-4 w-4" />
-                                {property.quartos}
-                              </span>
-                            )}
-                            {property.area && (
-                              <span className="flex items-center gap-1">
-                                <Square className="h-4 w-4" />
-                                {property.area}m²
-                              </span>
-                            )}
-                          </div>
-                          <PropertyIcons
-                            bathrooms={property.bathrooms}
-                            parking_spots={property.parking_spots}
-                            furnishing_type={property.furnishing_type}
-                            sea_distance={property.sea_distance}
-                            className="mb-3"
-                          />
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="text-xl font-bold" style={{ color: primaryColor }}>
-                                {property.valor ? 
-                                  property.valor.toLocaleString('pt-BR', { 
-                                    style: 'currency', 
-                                    currency: 'BRL',
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0
-                                  }) : 'Consulte'
-                                }
-                              </p>
-                              {property.neighborhood && (
-                                <p className="text-sm text-muted-foreground flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {property.neighborhood}
-                                </p>
-                              )}
-                            </div>
-                            <Button size="sm" style={{ backgroundColor: primaryColor }} className="text-white">
-                              Ver Detalhes
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {/* Hero Visual Carousel Layout */}
-                {templateId === 'hero-visual' && (
-                  <div className="relative">
-                    <div className="overflow-x-auto pb-4">
-                      <div className="flex gap-4 w-max">
-                        {displayProperties.map((property) => (
-                          <Card key={property.id} className={`w-80 ${templateStyles.cardStyle}`}>
-                            <div className="aspect-video relative overflow-hidden">
-                              {property.fotos && property.fotos.length > 0 ? (
-                                <img
-                                  src={property.fotos[0]}
-                                  alt={property.titulo}
-                                  className="w-full h-full object-cover"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-red-100 to-gray-100 flex items-center justify-center">
-                                  <Building2 className="h-12 w-12 text-gray-400" />
-                                </div>
-                              )}
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                              <div className="absolute bottom-3 left-3 text-white">
-                                <p className="text-lg font-bold">
-                                  {property.valor ? 
-                                    property.valor.toLocaleString('pt-BR', { 
-                                      style: 'currency', 
-                                      currency: 'BRL',
-                                      minimumFractionDigits: 0,
-                                      maximumFractionDigits: 0
-                                    }) : 'Consulte'
-                                  }
-                                </p>
-                              </div>
-                            </div>
-                            <CardContent className="p-4">
-                              <h3 className="font-semibold text-lg mb-2">
-                                {property.titulo}
-                              </h3>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                                <div className="flex items-center gap-1">
-                                  <Square className="h-3 w-3" />
-                                  {property.area || 0}m²
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Bed className="h-3 w-3" />
-                                  {property.quartos || 0}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Bath className="h-3 w-3" />
-                                  {property.bathrooms || 0}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Car className="h-3 w-3" />
-                                  {property.parking_spots || 0}
-                                </div>
-                                <PropertyIcons
-                                  furnishing_type={property.furnishing_type}
-                                  sea_distance={property.sea_distance}
-                                  has_sea_view={property.has_sea_view}
-                                  className=""
-                                />
-                              </div>
-                              <Button size="sm" className="w-full text-white" style={{ backgroundColor: primaryColor }}>
-                                Ver Detalhes
-                              </Button>
-                            </CardContent>
-                          </Card>
-                        ))}
+                      )}
+                      {/* Badge de tipo */}
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="default" className="bg-primary text-primary-foreground">
+                          {property.listing_type === 'venda' ? 'Venda' : property.listing_type === 'aluguel' ? 'Aluguel' : 'Venda'}
+                        </Badge>
                       </div>
                     </div>
-                  </div>
-                )}
+                    <CardContent className="p-4 space-y-3">
+                      <h3 className="font-semibold text-lg leading-tight">
+                        {property.titulo}
+                      </h3>
+                      
+                      {/* Preço destacado */}
+                      <p className="text-2xl font-bold" style={{ color: primaryColor }}>
+                        {property.valor ? 
+                          property.valor.toLocaleString('pt-BR', { 
+                            style: 'currency', 
+                            currency: 'BRL',
+                            minimumFractionDigits: 0,
+                            maximumFractionDigits: 0
+                          }) : 'Consulte'
+                        }
+                      </p>
 
-                {/* Default Grid Layout for other templates */}
-                {!['gallery-premium', 'hero-visual'].includes(templateId) && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {displayProperties.map((property) => (
-                      <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
-                        <div className="aspect-[4/3] relative">
-                          {property.fotos && property.fotos.length > 0 ? (
-                            <img
-                              src={property.fotos[0]}
-                              alt={property.titulo}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                              <Building2 className="h-12 w-12 text-gray-400" />
-                            </div>
-                          )}
-                          
-                          {/* Property badges */}
-                          <div className="absolute top-2 left-2 flex gap-1">
-                            {property.verified && (
-                              <Badge variant="secondary" className="bg-green-600 text-white text-xs">
-                                Verificado
-                              </Badge>
-                            )}
-                            {property.listing_type && (
-                              <Badge variant="outline" className="bg-white/90 text-xs">
-                                {property.listing_type === 'venda' ? 'Venda' : 'Aluguel'}
-                              </Badge>
-                            )}
+                      {/* Localização */}
+                      {property.neighborhood && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          {property.neighborhood}
+                        </p>
+                      )}
+
+                      {/* Ícones de propriedades */}
+                      <PropertyIcons
+                        bathrooms={property.bathrooms}
+                        parking_spots={property.parking_spots}
+                        furnishing_type={property.furnishing_type}
+                        sea_distance={property.sea_distance}
+                        has_sea_view={property.has_sea_view}
+                        showBasicIcons={true}
+                        className="flex-wrap"
+                      />
+
+                      {/* Descrição truncada */}
+                      {property.descricao && (
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {property.descricao}
+                        </p>
+                      )}
+
+                      {/* Código de referência */}
+                      {property.reference_code && (
+                        <p className="text-xs text-muted-foreground">
+                          Cód: {property.reference_code}
+                        </p>
+                      )}
+
+                      {/* Info do corretor */}
+                      <div className="flex items-center gap-2 pt-2 border-t">
+                        {broker?.avatar_url ? (
+                          <img 
+                            src={broker.avatar_url} 
+                            alt="Corretor" 
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Building2 className="h-3 w-3" />
                           </div>
+                        )}
+                        <div className="text-xs text-muted-foreground">
+                          <span className="font-medium">{broker?.name || 'Corretor'}</span>
+                          {broker?.creci && <span> • CRECI {broker.creci}</span>}
                         </div>
+                      </div>
 
-                        <CardContent className="p-4">
-                          <div className="space-y-3">
-                            {/* Title */}
-                            <h3 className={`font-semibold text-base leading-tight line-clamp-2 ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
-                              {property.titulo}
-                            </h3>
-
-                            {/* Price */}
-                            <div className="flex items-center justify-between">
-                              <p className="text-xl font-bold" style={{ color: primaryColor }}>
-                                {property.valor ? 
-                                  property.valor.toLocaleString('pt-BR', { 
-                                    style: 'currency', 
-                                    currency: 'BRL',
-                                    minimumFractionDigits: 0,
-                                    maximumFractionDigits: 0
-                                  }) : 'Consulte'
-                                }
-                              </p>
-                              {property.reference_code && (
-                                <Badge variant="outline" className="text-xs">
-                                  #{property.reference_code}
-                                </Badge>
-                              )}
-                            </div>
-
-                            {/* Property icons using PropertyIcons component */}
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
-                              <PropertyIcons
-                                bathrooms={property.bathrooms}
-                                parking_spots={property.parking_spots}
-                                furnishing_type={property.furnishing_type}
-                                sea_distance={property.sea_distance}
-                                has_sea_view={property.has_sea_view}
-                                showBasicIcons={true}
-                                className=""
-                              />
-                              <div className="flex items-center gap-1">
-                                <Square className="h-3 w-3" />
-                                {property.area || 0}m²
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Bed className="h-3 w-3" />
-                                {property.quartos || 0}
-                              </div>
-                            </div>
-
-                            {/* Location */}
-                            {(property.neighborhood || property.zipcode) && (
-                              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-                                <MapPin className="h-3 w-3" />
-                                <span className="truncate">
-                                  {[property.neighborhood, property.zipcode].filter(Boolean).join(', ')}
-                                </span>
-                              </div>
-                            )}
-
-                            {/* Property Description */}
-                            {property.descricao && (
-                              <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                {property.descricao}
-                              </p>
-                            )}
-
-                            {/* Property Reference Code */}
-                            {property.reference_code && (
-                              <div className="text-xs text-muted-foreground font-mono mb-3">
-                                Cód: {property.reference_code}
-                              </div>
-                            )}
-
-                            {/* Broker Information */}
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3 mb-3">
-                              {broker?.avatar_url ? (
-                                <img 
-                                  src={broker.avatar_url} 
-                                  alt={broker.name}
-                                  className="w-6 h-6 rounded-full object-cover border border-slate-200"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = 'none';
-                                  }}
-                                />
-                              ) : (
-                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
-                                  {broker?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
-                                </div>
-                              )}
-                              <div className="flex-1 min-w-0">
-                                <span>Corretor: {broker?.name || 'Não informado'}</span>
-                                {broker?.creci && (
-                                  <span className="block text-xs text-muted-foreground/70">CRECI: {broker.creci}</span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Additional fees */}
-                            {(property.condominium_fee || property.iptu) && (
-                              <div className="text-xs text-muted-foreground space-y-1 mb-3">
-                                {property.condominium_fee && (
-                                  <div>Cond.: R$ {property.condominium_fee.toLocaleString('pt-BR')}</div>
-                                )}
-                                {property.iptu && (
-                                  <div>IPTU: R$ {property.iptu.toLocaleString('pt-BR')}</div>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Action buttons */}
-                            <div className="flex gap-2">
-                              <Button 
-                                size="sm" 
-                                className="flex-1 text-white h-11" 
-                                style={{ backgroundColor: primaryColor }}
-                              >
-                                <Phone className="h-4 w-4 mr-2" />
-                                Contatar
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="px-3 h-11"
-                              >
-                                Ver Detalhes
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {/* Empty State */}
-        {displayProperties.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-muted-foreground mb-2">
-              Nenhum imóvel disponível
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Adicione imóveis com visibilidade "Site Público" ou "Marketplace" para exibi-los aqui.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Debug: Broker ID {broker?.user_id} - {realProperties.length} propriedades carregadas
-            </p>
-          </div>
-        )}
-              </>
+                      {/* Botão de ação */}
+                      <Button 
+                        size="sm" 
+                        className="w-full text-white font-medium"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        Contatar
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Nenhum imóvel encontrado</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">
+                  Configure a visibilidade dos seus imóveis para exibi-los no minisite
+                </p>
+              </div>
             )}
           </section>
         )}
@@ -670,34 +432,35 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                   <img 
                     src={broker.avatar_url} 
                     alt={broker.name} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover" 
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Building2 className="h-8 w-8 text-muted-foreground" />
+                  <div className="w-full h-full bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-8 w-8 text-primary/50" />
                   </div>
                 )}
               </div>
               <div className="flex-1">
-                <h3 className={`font-semibold text-lg mb-1 ${templateId === 'classic' || templateId === 'luxury' || templateId === 'gallery-premium' ? 'font-serif' : ''}`}>
-                  {broker?.name || 'Corretor Especialista'}
-                </h3>
+                <h3 className="font-semibold text-lg mb-1">{broker?.name || 'Nome do Corretor'}</h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {broker?.bio || config?.description || 'Profissional especializado em imóveis com anos de experiência no mercado.'}
+                  {broker?.creci ? `CRECI: ${broker.creci}` : 'Corretor de Imóveis'}
+                </p>
+                <p className="text-sm leading-relaxed mb-4">
+                  {broker?.bio || config?.description || 'Corretor especializado em imóveis residenciais e comerciais, oferecendo atendimento personalizado e consultoria completa.'}
                 </p>
                 <div className="flex gap-2">
-                  {config?.phone && (
-                    <Button size="sm" style={{ backgroundColor: primaryColor }} className="text-white">
-                      <Phone className="h-3 w-3 mr-1" />
-                      Ligar
-                    </Button>
-                  )}
-                  {config?.email && (
-                    <Button size="sm" variant="outline">
-                      <Mail className="h-3 w-3 mr-1" />
-                      Email
-                    </Button>
-                  )}
+                  <Button 
+                    size="sm" 
+                    className="text-white"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    <Phone className="h-4 w-4 mr-2" />
+                    Contato
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Email
+                  </Button>
                 </div>
               </div>
             </div>
@@ -705,61 +468,47 @@ export default function MinisitePreview({ config, broker, properties = [], previ
         )}
 
         {/* Contact Form Section */}
-        {config?.show_contact_form !== false && (
-          <section className="p-6">
+        {config?.show_contact_form && (
+          <section className="p-6 bg-white">
             <h2 className="text-xl font-bold mb-4">Entre em Contato</h2>
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name" className="text-sm">Nome</Label>
-                  <input 
-                    id="name"
-                    type="text" 
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    placeholder="Seu nome"
-                    disabled
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-sm">Email</Label>
-                  <input 
-                    id="email"
-                    type="email" 
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                    placeholder="seu@email.com"
-                    disabled
-                  />
-                </div>
-              </div>
+            <div className="max-w-md mx-auto space-y-4">
               <div>
-                <Label htmlFor="phone" className="text-sm">Telefone</Label>
+                <Label htmlFor="name">Nome</Label>
                 <input 
-                  id="phone"
-                  type="tel" 
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  placeholder="(11) 99999-9999"
+                  id="name"
+                  type="text" 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-gray-100" 
+                  placeholder="Seu nome" 
                   disabled
                 />
               </div>
               <div>
-                <Label htmlFor="message" className="text-sm">Mensagem</Label>
+                <Label htmlFor="email">Email</Label>
+                <input 
+                  id="email"
+                  type="email" 
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-gray-100" 
+                  placeholder="seu@email.com" 
+                  disabled
+                />
+              </div>
+              <div>
+                <Label htmlFor="message">Mensagem</Label>
                 <textarea 
                   id="message"
-                  rows={3}
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                  placeholder="Como posso ajudá-lo?"
+                  className="w-full mt-1 px-3 py-2 border rounded-md bg-gray-100 h-24" 
+                  placeholder="Sua mensagem..." 
                   disabled
                 />
               </div>
               <Button 
-                type="button" 
-                className="w-full text-white"
-                style={{ backgroundColor: primaryColor }}
+                className="w-full text-white" 
                 disabled
+                style={{ backgroundColor: primaryColor, opacity: 0.6 }}
               >
                 Enviar Mensagem (Preview)
               </Button>
-            </form>
+            </div>
           </section>
         )}
       </div>
