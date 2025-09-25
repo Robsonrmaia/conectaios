@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Building2, Bed, Bath, Square, Phone, Mail, MapPin } from "lucide-react";
+import { Building2, Bed, Bath, Square, Phone, Mail, MapPin, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
 import { PropertyIcons } from "./PropertyIcons";
@@ -103,6 +103,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
       
       setLoading(true);
       try {
+        console.log('🏠 Fetching minisite properties for broker:', broker.user_id);
         const { data, error } = await supabase
           .from('properties')
           .select(`
@@ -130,11 +131,21 @@ export default function MinisitePreview({ config, broker, properties = [], previ
           `)
           .eq('user_id', broker.user_id)
           .eq('is_public', true)
-          .eq('visibility', 'public_site')
+          .in('visibility', ['public_site', 'marketplace'])
           .order('updated_at', { ascending: false })
           .limit(6);
 
-        console.log('Minisite properties query result:', data, 'User ID:', broker.user_id);
+        console.log('🏠 Minisite properties result:', { 
+          data: data, 
+          error: error, 
+          count: data?.length || 0,
+          broker_user_id: broker.user_id,
+          query_filters: {
+            user_id: broker.user_id,
+            is_public: true,
+            visibility: ['public_site', 'marketplace']
+          }
+        });
 
         if (error) throw error;
         setRealProperties(data || []);
@@ -413,27 +424,30 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                               <h3 className="font-semibold text-lg mb-2">
                                 {property.titulo}
                               </h3>
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                                {property.quartos && (
-                                  <span className="flex items-center gap-1">
-                                    <Bed className="h-4 w-4" />
-                                    {property.quartos}
-                                  </span>
-                                )}
-                                {property.area && (
-                                  <span className="flex items-center gap-1">
-                                    <Square className="h-4 w-4" />
-                                    {property.area}m²
-                                  </span>
-                                )}
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                                <div className="flex items-center gap-1">
+                                  <Square className="h-3 w-3" />
+                                  {property.area || 0}m²
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Bed className="h-3 w-3" />
+                                  {property.quartos || 0}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Bath className="h-3 w-3" />
+                                  {property.bathrooms || 0}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Car className="h-3 w-3" />
+                                  {property.parking_spots || 0}
+                                </div>
+                                <PropertyIcons
+                                  furnishing_type={property.furnishing_type}
+                                  sea_distance={property.sea_distance}
+                                  has_sea_view={property.has_sea_view}
+                                  className=""
+                                />
                               </div>
-                              <PropertyIcons
-                                bathrooms={property.bathrooms}
-                                parking_spots={property.parking_spots}
-                                furnishing_type={property.furnishing_type}
-                                sea_distance={property.sea_distance}
-                                className="mb-3"
-                              />
                               <Button size="sm" className="w-full text-white" style={{ backgroundColor: primaryColor }}>
                                 Ver Detalhes
                               </Button>
@@ -505,37 +519,31 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                               )}
                             </div>
 
-                            {/* Basic Info */}
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                              {property.quartos > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <Bed className="h-4 w-4" />
-                                  <span>{property.quartos}</span>
-                                </div>
-                              )}
-                              {property.bathrooms > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <Bath className="h-4 w-4" />
-                                  <span>{property.bathrooms}</span>
-                                </div>
-                              )}
-                              {property.area > 0 && (
-                                <div className="flex items-center gap-1">
-                                  <Square className="h-4 w-4" />
-                                  <span>{property.area}m²</span>
-                                </div>
-                              )}
+                            {/* All property icons in one line */}
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3 flex-wrap">
+                              <div className="flex items-center gap-1">
+                                <Square className="h-3 w-3" />
+                                {property.area || 0}m²
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Bed className="h-3 w-3" />
+                                {property.quartos || 0}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Bath className="h-3 w-3" />
+                                {property.bathrooms || 0}
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Car className="h-3 w-3" />
+                                {property.parking_spots || 0}
+                              </div>
+                              <PropertyIcons
+                                furnishing_type={property.furnishing_type}
+                                sea_distance={property.sea_distance}
+                                has_sea_view={property.has_sea_view}
+                                className=""
+                              />
                             </div>
-
-                            {/* Property Icons */}
-                            <PropertyIcons
-                              bathrooms={property.bathrooms}
-                              parking_spots={property.parking_spots}
-                              furnishing_type={property.furnishing_type}
-                              sea_distance={property.sea_distance}
-                              has_sea_view={property.has_sea_view}
-                              className="justify-start"
-                            />
 
                             {/* Location */}
                             {(property.neighborhood || property.zipcode) && (
@@ -580,17 +588,20 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                 )}
 
                 {/* Empty State */}
-                {displayProperties.length === 0 && !loading && (
-                  <div className="text-center py-12">
-                    <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-muted-foreground mb-2">
-                      Nenhum imóvel encontrado
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Esta seção será atualizada quando houver imóveis disponíveis.
-                    </p>
-                  </div>
-                )}
+        {displayProperties.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-muted-foreground mb-2">
+              Nenhum imóvel disponível
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Adicione imóveis com visibilidade "Site Público" ou "Marketplace" para exibi-los aqui.
+            </p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Debug: Broker ID {broker?.user_id} - {realProperties.length} propriedades carregadas
+            </p>
+          </div>
+        )}
               </>
             )}
           </section>
