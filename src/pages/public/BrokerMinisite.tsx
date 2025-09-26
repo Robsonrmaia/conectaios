@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, MapPin, Bed, Bath, Square, MessageCircle, Share2, Phone, Mail, Search, Home, Car } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
@@ -169,7 +170,7 @@ export default function BrokerMinisite() {
           `)
           .eq("user_id", bq.data.user_id)
           .eq("is_public", true)
-          .eq("visibility", "public_site")
+          .in("visibility", ["public_site", "both"])
           .neq("status", "INATIVO")
           .order("created_at", { ascending: false })
           .limit(50);
@@ -191,10 +192,12 @@ export default function BrokerMinisite() {
             filters: {
               user_id: bq.data.user_id,
               is_public: true,
-              visibility: 'public_site',
+              visibility: ['public_site', 'both'],
               status_not: 'INATIVO'
             }
-          }
+          },
+          // 🔥 Debug crítico - força refresh de cache
+          cache_bypass: Date.now()
         });
 
         if (propsErr) {
@@ -528,6 +531,28 @@ export default function BrokerMinisite() {
               )}
             </div>
 
+            {/* Debug avançado com contador de propriedades */}
+            <div className="mb-6 flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="text-blue-800">
+                <span className="font-semibold">
+                  {(filteredProperties.length > 0 ? filteredProperties : properties).length} imóveis encontrados
+                </span>
+                {filteredProperties.length > 0 && filteredProperties.length !== properties.length && (
+                  <span className="text-blue-600 ml-2">
+                    (filtrados de {properties.length} total)
+                  </span>
+                )}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              >
+                🔄 Forçar Atualização
+              </Button>
+            </div>
+
               {/* Exibir imóveis ou mensagem de fallback */}
               {properties.length === 0 ? (
                 <div className="text-center py-16 bg-gray-50 rounded-2xl">
@@ -557,7 +582,7 @@ export default function BrokerMinisite() {
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {(filteredProperties.length > 0 ? filteredProperties : properties).map((property) => (
-                <article key={property.id} className="group rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300 cursor-pointer">
+                    <AnimatedCard key={property.id} className="group rounded-2xl overflow-hidden border bg-white hover:shadow-xl transition-all duration-300 cursor-pointer">
                   <div className="relative">
                     {property.fotos && property.fotos.length > 0 ? (
                       <img
@@ -702,7 +727,7 @@ export default function BrokerMinisite() {
                       </div>
                     </div>
                   </div>
-                </article>
+                </AnimatedCard>
                   ))}
                 </div>
               )}
