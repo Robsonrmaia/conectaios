@@ -1,4 +1,4 @@
-project_id = "hvbdeyuqcliqrmzvyciq"
+project_id = "paawojkqrggnuvpnnwrc"
 
 [functions.chat-create-or-get-thread]
 verify_jwt = true
