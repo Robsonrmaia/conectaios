@@ -92,21 +92,23 @@ export default function Marketplace() {
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [selectMode, setSelectMode] = useState(false);
 
-  const fetchPublicProperties = useCallback(async (page = 0) => {
+  const fetchPublicProperties = useCallback(async (page = 0, forceRefresh = false) => {
     const cacheKey = `marketplace_properties_${page}`;
     const cacheExpiry = 10 * 60 * 1000; // 10 minutes - aggressive caching
     
     try {
-      // Check cache first for this page
-      const cachedData = localStorage.getItem(cacheKey);
-      if (cachedData && page === 0) {
-        const { data, timestamp } = JSON.parse(cachedData);
-        if (Date.now() - timestamp < cacheExpiry) {
+      // Check cache first for this page (skip if force refresh)
+      if (!forceRefresh) {
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData && page === 0) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          if (Date.now() - timestamp < cacheExpiry) {
           setProperties(data);
           setRecentProperties(data.slice(0, 8));
           setLoading(false);
           return;
         }
+      }
       }
 
       setLoading(true);
@@ -235,7 +237,18 @@ export default function Marketplace() {
   }, []);
 
   useEffect(() => {
-    fetchPublicProperties(0);
+    // Clear marketplace cache on mount to ensure fresh data
+    const clearCache = () => {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('marketplace_properties_')) {
+          localStorage.removeItem(key);
+        }
+      });
+    };
+    
+    clearCache();
+    fetchPublicProperties(0, true); // Force refresh on mount
   }, [fetchPublicProperties]);
 
   const filteredProperties = useMemo(() => {
