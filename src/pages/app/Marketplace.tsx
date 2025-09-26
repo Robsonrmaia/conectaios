@@ -144,7 +144,7 @@ export default function Marketplace() {
           user_id
         `)
         .eq('is_public', true)
-        .eq('visibility', 'public_site')
+        .in('visibility', ['public_site', 'both'])
         .not('user_id', 'is', null)
         .order('created_at', { ascending: false })
         .range(offset, offset + pageSize - 1)
@@ -237,18 +237,19 @@ export default function Marketplace() {
   }, []);
 
   useEffect(() => {
-    // Clear marketplace cache on mount to ensure fresh data
-    const clearCache = () => {
+    // Force clear ALL cached data on mount to ensure fresh visibility updates
+    const clearAllCaches = () => {
+      // Clear marketplace cache
       const keys = Object.keys(localStorage);
       keys.forEach(key => {
-        if (key.startsWith('marketplace_properties_')) {
+        if (key.startsWith('marketplace_properties_') || key.startsWith('minisite_')) {
           localStorage.removeItem(key);
         }
       });
     };
     
-    clearCache();
-    fetchPublicProperties(0, true); // Force refresh on mount
+    clearAllCaches();
+    fetchPublicProperties(0, true); // Force refresh on mount with new visibility rules
   }, [fetchPublicProperties]);
 
   const filteredProperties = useMemo(() => {

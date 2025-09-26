@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/AnimatedCard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -23,7 +24,10 @@ import {
   Search,
   Filter,
   Eye,
-  Star
+  Star,
+  CheckCircle,
+  Square,
+  ImageIcon
 } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { PropertyPresentation } from '@/components/PropertyPresentation';
@@ -200,7 +204,7 @@ export default function MinisiteView() {
               `)
               .eq('user_id', brokerData.user_id)
               .eq('is_public', true)
-              .eq('visibility', 'public_site')
+              .in('visibility', ['public_site', 'both'])
               .order('created_at', { ascending: false })
               .limit(50);
 
@@ -548,27 +552,38 @@ export default function MinisiteView() {
                   ) : (
                     <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
                       {filteredProperties.map((property) => (
-                        <div key={property.id} className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow bg-white">
+                        <AnimatedCard key={property.id} className="overflow-hidden">
                           {/* Property Image */}
-                          {property.fotos?.[0] && (
-                            <div className="relative">
-                              <img 
-                                src={property.fotos[0]} 
+                          <div className="aspect-[4/3] relative bg-gray-200">
+                            {property.fotos && property.fotos.length > 0 ? (
+                              <img
+                                src={property.fotos[0]}
                                 alt={property.titulo}
-                                className="w-full h-48 object-cover"
+                                className="w-full h-full object-cover"
+                                loading="lazy"
                               />
-                              {property.has_sea_view && (
-                                <div className="absolute top-2 left-2 bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
-                                  Vista Mar
-                                </div>
-                              )}
-                              {property.listing_type && (
-                                <div className="absolute top-2 right-2 bg-primary text-white px-2 py-1 rounded text-xs font-medium">
-                                  {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
-                                </div>
-                              )}
+                            ) : (
+                              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                <ImageIcon className="h-12 w-12 text-gray-500" />
+                              </div>
+                            )}
+                            
+                            {/* Badge de tipo */}
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
+                                {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
+                              </span>
                             </div>
-                          )}
+
+                            {/* Badge vista mar */}
+                            {property.has_sea_view && (
+                              <div className="absolute top-2 right-2">
+                                <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                  Vista Mar
+                                </span>
+                              </div>
+                            )}
+                          </div>
                           
                           <div className="p-4">
                             {/* Title and Reference */}
@@ -591,7 +606,15 @@ export default function MinisiteView() {
                               )}
                             </div>
 
-                            {/* Property Details */}
+                            {/* Location */}
+                            <div className="flex items-center gap-1 mb-3">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm text-gray-600">
+                                {property.neighborhood}, {property.city}
+                              </span>
+                            </div>
+
+                            {/* Property Details - Organized icons */}
                             <div className="grid grid-cols-4 gap-2 mb-3 text-sm">
                               <div className="flex items-center gap-1 text-muted-foreground">
                                 <BedDouble className="h-4 w-4" />
@@ -605,7 +628,8 @@ export default function MinisiteView() {
                                 <Car className="h-4 w-4" />
                                 <span>{property.parking_spots || 0}</span>
                               </div>
-                              <div className="text-muted-foreground">
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Square className="h-4 w-4" />
                                 <span>{property.area}m²</span>
                               </div>
                             </div>
@@ -622,31 +646,9 @@ export default function MinisiteView() {
                               </div>
                             )}
 
-                            {/* Location */}
-                            {(property.neighborhood || property.city) && (
-                              <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1">
-                                <MapPin className="h-4 w-4" />
-                                {property.neighborhood}
-                                {property.neighborhood && property.city && ' - '}
-                                {property.city}
-                                {property.state && `, ${property.state}`}
-                              </p>
-                            )}
-
-                            {/* Property Type and Features */}
+                            {/* Features */}
                             <div className="mb-3">
-                              {property.property_type && (
-                                <span className="inline-block bg-muted px-2 py-1 rounded text-xs text-muted-foreground mr-2">
-                                  {property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}
-                                </span>
-                              )}
-                              {property.furnishing_type && property.furnishing_type !== 'none' && (
-                                <span className="inline-block bg-muted px-2 py-1 rounded text-xs text-muted-foreground mr-2">
-                                  {property.furnishing_type === 'furnished' ? 'Mobiliado' : 
-                                   property.furnishing_type === 'semi-furnished' ? 'Semi-mobiliado' : 'Não mobiliado'}
-                                </span>
-                              )}
-                              {property.sea_distance && (
+                              {property.sea_distance && property.sea_distance <= 500 && (
                                 <span className="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs mr-2">
                                   {property.sea_distance}m do mar
                                 </span>
@@ -655,7 +657,7 @@ export default function MinisiteView() {
 
                             {/* Description */}
                             {property.descricao && (
-                              <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                                 {property.descricao}
                               </p>
                             )}
@@ -694,7 +696,7 @@ export default function MinisiteView() {
                               </Button>
                             </div>
                           </div>
-                        </div>
+                        </AnimatedCard>
                       ))}
                     </div>
                   )}

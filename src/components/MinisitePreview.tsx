@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { AnimatedCard } from "@/components/AnimatedCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -146,7 +147,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
           `)
           .eq('user_id', broker.user_id)
           .eq('is_public', true)
-          .in('visibility', ['public_site', 'marketplace'])
+          .in('visibility', ['public_site', 'both'])
           .order('updated_at', { ascending: false })
           .limit(6);
 
@@ -308,8 +309,8 @@ export default function MinisitePreview({ config, broker, properties = [], previ
               </div>
             ) : displayProperties.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {displayProperties.map((property) => (
-                  <Card key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
+                 {displayProperties.map((property) => (
+                  <AnimatedCard key={property.id} className={`overflow-hidden ${templateStyles.cardStyle}`}>
                     <div className="aspect-video relative overflow-hidden">
                       {property.fotos && property.fotos.length > 0 ? (
                         <img
@@ -407,7 +408,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                         Contatar
                       </Button>
                     </CardContent>
-                  </Card>
+                  </AnimatedCard>
                 ))}
               </div>
             ) : realProperties.length === 0 && !loading ? (
