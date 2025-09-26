@@ -85,8 +85,13 @@ export default function Marketplace() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(50); // Aumentado para primeira página
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
+  
+  // Debug and stats states
+  const [showStats, setShowStats] = useState(false);
+  const [brokerStats, setBrokerStats] = useState<{[key: string]: number}>({});
+  const [myPropertiesFirst, setMyPropertiesFirst] = useState(false);
   
   // Selection states
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
@@ -94,7 +99,7 @@ export default function Marketplace() {
 
   const fetchPublicProperties = useCallback(async (page = 0, forceRefresh = false) => {
     const cacheKey = `marketplace_properties_${page}`;
-    const cacheExpiry = 10 * 60 * 1000; // 10 minutes - aggressive caching
+    const cacheExpiry = 5 * 60 * 1000; // 5 minutes - reduzido para melhor atualização
     
     try {
       // Check cache first for this page (skip if force refresh)
@@ -113,41 +118,118 @@ export default function Marketplace() {
 
       setLoading(true);
       
-      // Real pagination with LIMIT/OFFSET for better performance
-      const pageSize = 12;
-      const offset = page * pageSize;
+      // Implementação de ordenação balanceada para primeira página
+      let propertiesData;
+      let propertiesError;
       
-      // Essential fields for marketplace cards
-      const { data: propertiesData, error: propertiesError } = await supabase
-        .from('properties')
-        .select(`
-          id,
-          titulo,
-          valor,
-          area,
-          quartos,
-          bathrooms,
-          parking_spots,
-          furnishing_type,
-          sea_distance,
-          has_sea_view,
-          listing_type,
-          property_type,
-          fotos,
-          neighborhood,
-          zipcode,
-          condominium_fee,
-          iptu,
-          descricao,
-          reference_code,
-          verified,
-          user_id
-        `)
-        .eq('is_public', true)
-        .in('visibility', ['public_site', 'both'])
-        .not('user_id', 'is', null)
-        .order('created_at', { ascending: false })
-        .range(offset, offset + pageSize - 1)
+      if (page === 0) {
+        // Para primeira página: buscar mais dados para implementar round-robin
+        const { data: allProperties, error } = await supabase
+          .from('properties')
+          .select(`
+            id,
+            titulo,
+            valor,
+            area,
+            quartos,
+            bathrooms,
+            parking_spots,
+            furnishing_type,
+            sea_distance,
+            has_sea_view,
+            listing_type,
+            property_type,
+            fotos,
+            neighborhood,
+            zipcode,
+            condominium_fee,
+            iptu,
+            descricao,
+            reference_code,
+            verified,
+            user_id,
+            created_at
+          `)
+          .eq('is_public', true)
+          .in('visibility', ['public_site', 'both'])
+          .not('user_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .limit(200); // Buscar mais para fazer round-robin
+          
+        propertiesData = allProperties;
+        propertiesError = error;
+        
+          // Implementar ordenação balanceada se temos dados
+        if (propertiesData && propertiesData.length > 0) {
+          // Agrupar por user_id
+          const propertyGroups = propertiesData.reduce((acc, prop) => {
+            if (!acc[prop.user_id]) acc[prop.user_id] = [];
+            acc[prop.user_id].push(prop);
+            return acc;
+          }, {} as {[key: string]: any[]});
+          
+          // Round-robin: alternar entre corretores
+          const balancedProperties: any[] = [];
+          const brokerQueues = Object.values(propertyGroups) as any[][];
+          let maxLength = Math.max(...brokerQueues.map((queue: any[]) => queue.length));
+          
+          for (let i = 0; i < maxLength && balancedProperties.length < 50; i++) {
+            for (const queue of brokerQueues) {
+              if (queue[i] && balancedProperties.length < 50) {
+                balancedProperties.push(queue[i]);
+              }
+            }
+          }
+          
+          // Dar boost para imóveis verificados
+          balancedProperties.sort((a, b) => {
+            if (a.verified && !b.verified) return -1;
+            if (!a.verified && b.verified) return 1;
+            return 0;
+          });
+          
+          propertiesData = balancedProperties.slice(0, 50);
+        }
+      } else {
+        // Páginas subsequentes: paginação normal com 12 itens
+        const pageSize = 12;
+        const offset = (page - 1) * 50 + (page - 1) * 12; // Ajustar offset considerando primeira página maior
+        
+        const { data, error } = await supabase
+          .from('properties')
+          .select(`
+            id,
+            titulo,
+            valor,
+            area,
+            quartos,
+            bathrooms,
+            parking_spots,
+            furnishing_type,
+            sea_distance,
+            has_sea_view,
+            listing_type,
+            property_type,
+            fotos,
+            neighborhood,
+            zipcode,
+            condominium_fee,
+            iptu,
+            descricao,
+            reference_code,
+            verified,
+            user_id,
+            created_at
+          `)
+          .eq('is_public', true)
+          .in('visibility', ['public_site', 'both'])
+          .not('user_id', 'is', null)
+          .order('created_at', { ascending: false })
+          .range(offset, offset + pageSize - 1);
+          
+        propertiesData = data;
+        propertiesError = error;
+      }
 
       if (propertiesError) throw propertiesError;
 
@@ -160,7 +242,7 @@ export default function Marketplace() {
       }
 
       // Get unique user IDs and fetch brokers
-      const userIds = [...new Set(propertiesData.map(p => p.user_id).filter(Boolean))];
+      const userIds: string[] = [...new Set(propertiesData.map((p: any) => p.user_id).filter(Boolean))] as string[];
       if (userIds.length === 0) {
         if (page === 0) {
           setProperties([]);
@@ -212,11 +294,22 @@ export default function Marketplace() {
         setProperties(validProperties as Property[]);
         setRecentProperties(validProperties.slice(0, 8) as Property[]);
         
+        // Calculate broker stats para debug
+        const stats = validProperties.reduce((acc, prop) => {
+          const brokerName = prop.conectaios_brokers?.name || 'Sem corretor';
+          acc[brokerName] = (acc[brokerName] || 0) + 1;
+          return acc;
+        }, {} as {[key: string]: number});
+        setBrokerStats(stats);
+        
         // Cache only first page results
         localStorage.setItem(cacheKey, JSON.stringify({
           data: validProperties,
           timestamp: Date.now()
         }));
+        
+        console.log('📊 Marketplace Stats:', stats);
+        console.log('🔄 Properties loaded:', validProperties.length);
       } else {
         // Append to existing properties for pagination
         setProperties(prev => [...prev, ...(validProperties as Property[])]);
@@ -253,7 +346,7 @@ export default function Marketplace() {
   }, [fetchPublicProperties]);
 
   const filteredProperties = useMemo(() => {
-    return properties.filter(property => {
+    let filtered = properties.filter(property => {
       const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -265,16 +358,33 @@ export default function Marketplace() {
 
       return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
     });
-  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
+    
+    // Se "Meus imóveis primeiro" ativado e usuário logado
+    if (myPropertiesFirst && user) {
+      const myProperties = filtered.filter(p => p.user_id === user.id);
+      const otherProperties = filtered.filter(p => p.user_id !== user.id);
+      filtered = [...myProperties, ...otherProperties];
+    }
+    
+    return filtered;
+  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user]);
 
-  // Pagination logic with performance optimization
+  // Pagination logic com primeira página maior
   const totalItems = filteredProperties.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+  const firstPageSize = 50;
+  const subsequentPageSize = 12;
+  
+  const totalPages = Math.ceil(Math.max(0, totalItems - firstPageSize) / subsequentPageSize) + (totalItems > 0 ? 1 : 0);
+  
   const paginatedProperties = useMemo(() => {
-    return filteredProperties.slice(startIndex, endIndex);
-  }, [filteredProperties, startIndex, endIndex]);
+    if (currentPage === 1) {
+      return filteredProperties.slice(0, firstPageSize);
+    } else {
+      const startIndex = firstPageSize + (currentPage - 2) * subsequentPageSize;
+      const endIndex = startIndex + subsequentPageSize;
+      return filteredProperties.slice(startIndex, endIndex);
+    }
+  }, [filteredProperties, currentPage, firstPageSize, subsequentPageSize]);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -403,20 +513,43 @@ export default function Marketplace() {
               Conecte-se com outros corretores e descubra oportunidades exclusivas. 
               Encontre o imóvel perfeito para seus clientes em nossa rede colaborativa.
             </p>
-            <div className="flex gap-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-primary" />
                 <span>{filteredProperties.length} imóveis disponíveis</span>
               </div>
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <span>Rede de corretores</span>
+                <span>Página {currentPage} de {totalPages}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4 text-primary" />
                 <span>Sistema de matches</span>
               </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowStats(!showStats)}
+                className="text-muted-foreground hover:text-primary"
+              >
+                <Target className="h-4 w-4 mr-1" />
+                Ver Estatísticas
+              </Button>
             </div>
+            
+            {showStats && (
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                <h4 className="font-medium mb-2">Imóveis por Corretor:</h4>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  {Object.entries(brokerStats).map(([broker, count]) => (
+                    <div key={broker} className="flex justify-between">
+                      <span className="truncate mr-2">{broker}:</span>
+                      <span className="font-medium">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -847,22 +980,11 @@ export default function Marketplace() {
           <div className="flex items-center justify-between mt-8">
             <div className="flex items-center gap-4">
               <span className="text-sm text-muted-foreground">
-                Mostrando {startIndex + 1}-{Math.min(endIndex, totalItems)} de {totalItems} imóveis
+                Mostrando página {currentPage} de {totalPages} • {totalItems} imóveis encontrados
               </span>
-              <Select value={itemsPerPage.toString()} onValueChange={(value) => {
-                setItemsPerPage(parseInt(value));
-                setCurrentPage(1);
-              }}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10 por página</SelectItem>
-                  <SelectItem value="20">20 por página</SelectItem>
-                  <SelectItem value="40">40 por página</SelectItem>
-                  <SelectItem value="50">50 por página</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="text-sm text-muted-foreground">
+                {currentPage === 1 ? `Até ${Math.min(50, totalItems)} imóveis` : `12 imóveis por página`}
+              </div>
             </div>
             
             <div className="flex flex-wrap justify-center gap-2">

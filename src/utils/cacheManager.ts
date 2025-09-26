@@ -73,4 +73,32 @@ export class CacheManager {
       console.error('Error updating activity:', error);
     }
   }
+
+  static invalidateMarketplaceCache() {
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('marketplace_properties_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      console.log('🔄 Marketplace cache invalidated');
+    } catch (error) {
+      console.error('Error invalidating marketplace cache:', error);
+    }
+  }
+
+  static invalidateMinisiteCache() {
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('minisite_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      console.log('🔄 Minisite cache invalidated');
+    } catch (error) {
+      console.error('Error invalidating minisite cache:', error);
+    }
+  }
 }
