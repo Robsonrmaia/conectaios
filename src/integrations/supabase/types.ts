@@ -3009,14 +3009,17 @@ export type Database = {
           banner_type: string | null
           bathrooms: number | null
           broker_minisite_enabled: boolean | null
+          cep: string | null
           cidade: string | null
           city: string | null
+          condominio_mensal: number | null
           condominium_fee: number | null
           coordinates: Json | null
           created_at: string
           descricao: string | null
           endereco: string | null
           external_id: string | null
+          featured: boolean | null
           features: Json | null
           finalidade: string | null
           fotos: string[] | null
@@ -3026,6 +3029,7 @@ export type Database = {
           id: string
           imported_at: string | null
           iptu: number | null
+          iptu_mensal: number | null
           is_featured: boolean | null
           is_public: boolean | null
           last_viewed_at: string | null
@@ -3048,6 +3052,7 @@ export type Database = {
           source_portal: string | null
           state: string | null
           status: string | null
+          suites: number | null
           thumb_url: string | null
           tipo: string | null
           titulo: string
@@ -3057,6 +3062,7 @@ export type Database = {
           vagas: number | null
           valor: number | null
           verified: boolean | null
+          video_url: string | null
           videos: string[] | null
           views_count: number | null
           visibility: string | null
@@ -3074,14 +3080,17 @@ export type Database = {
           banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
+          cep?: string | null
           cidade?: string | null
           city?: string | null
+          condominio_mensal?: number | null
           condominium_fee?: number | null
           coordinates?: Json | null
           created_at?: string
           descricao?: string | null
           endereco?: string | null
           external_id?: string | null
+          featured?: boolean | null
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
@@ -3091,6 +3100,7 @@ export type Database = {
           id?: string
           imported_at?: string | null
           iptu?: number | null
+          iptu_mensal?: number | null
           is_featured?: boolean | null
           is_public?: boolean | null
           last_viewed_at?: string | null
@@ -3113,6 +3123,7 @@ export type Database = {
           source_portal?: string | null
           state?: string | null
           status?: string | null
+          suites?: number | null
           thumb_url?: string | null
           tipo?: string | null
           titulo: string
@@ -3122,6 +3133,7 @@ export type Database = {
           vagas?: number | null
           valor?: number | null
           verified?: boolean | null
+          video_url?: string | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
@@ -3139,14 +3151,17 @@ export type Database = {
           banner_type?: string | null
           bathrooms?: number | null
           broker_minisite_enabled?: boolean | null
+          cep?: string | null
           cidade?: string | null
           city?: string | null
+          condominio_mensal?: number | null
           condominium_fee?: number | null
           coordinates?: Json | null
           created_at?: string
           descricao?: string | null
           endereco?: string | null
           external_id?: string | null
+          featured?: boolean | null
           features?: Json | null
           finalidade?: string | null
           fotos?: string[] | null
@@ -3156,6 +3171,7 @@ export type Database = {
           id?: string
           imported_at?: string | null
           iptu?: number | null
+          iptu_mensal?: number | null
           is_featured?: boolean | null
           is_public?: boolean | null
           last_viewed_at?: string | null
@@ -3178,6 +3194,7 @@ export type Database = {
           source_portal?: string | null
           state?: string | null
           status?: string | null
+          suites?: number | null
           thumb_url?: string | null
           tipo?: string | null
           titulo?: string
@@ -3187,6 +3204,7 @@ export type Database = {
           vagas?: number | null
           valor?: number | null
           verified?: boolean | null
+          video_url?: string | null
           videos?: string[] | null
           views_count?: number | null
           visibility?: string | null
