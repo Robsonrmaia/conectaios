@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      brokers: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          creci: string | null
+          id: string
+          minisite_slug: string | null
+          updated_at: string | null
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          creci?: string | null
+          id?: string
+          minisite_slug?: string | null
+          updated_at?: string | null
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          creci?: string | null
+          id?: string
+          minisite_slug?: string | null
+          updated_at?: string | null
+          user_id?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conectaios_brokers: {
         Row: {
           bio: string | null
@@ -346,6 +387,218 @@ export type Database = {
           },
         ]
       }
+      imoveis: {
+        Row: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_furnished: boolean | null
+          is_public: boolean | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string
+          parking: number | null
+          price: number | null
+          purpose: string
+          search_vector: unknown | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          zipcode: string | null
+        }
+        Insert: {
+          area_built?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_furnished?: boolean | null
+          is_public?: boolean | null
+          neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
+          owner_id: string
+          parking?: number | null
+          price?: number | null
+          purpose: string
+          search_vector?: unknown | null
+          state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
+          title: string
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+          zipcode?: string | null
+        }
+        Update: {
+          area_built?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_furnished?: boolean | null
+          is_public?: boolean | null
+          neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
+          owner_id?: string
+          parking?: number | null
+          price?: number | null
+          purpose?: string
+          search_vector?: unknown | null
+          state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
+          title?: string
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+          zipcode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_features: {
+        Row: {
+          imovel_id: string
+          key: string
+          value: string | null
+        }
+        Insert: {
+          imovel_id: string
+          key: string
+          value?: string | null
+        }
+        Update: {
+          imovel_id?: string
+          key?: string
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_images: {
+        Row: {
+          created_at: string | null
+          id: string
+          imovel_id: string
+          is_cover: boolean | null
+          position: number | null
+          storage_path: string | null
+          url: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          imovel_id: string
+          is_cover?: boolean | null
+          position?: number | null
+          storage_path?: string | null
+          url: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          imovel_id?: string
+          is_cover?: boolean | null
+          position?: number | null
+          storage_path?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      minisites: {
+        Row: {
+          about_md: string | null
+          created_at: string | null
+          id: string
+          is_public: boolean | null
+          owner_id: string
+          slug: string
+          subtitle: string | null
+          theme: Json | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          about_md?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          owner_id: string
+          slug: string
+          subtitle?: string | null
+          theme?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          about_md?: string | null
+          created_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          owner_id?: string
+          slug?: string
+          subtitle?: string | null
+          theme?: Json | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "minisites_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -384,12 +637,43 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      gtrgm_compress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_decompress: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_in: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      gtrgm_options: {
+        Args: { "": unknown }
+        Returns: undefined
+      }
+      gtrgm_out: {
+        Args: { "": unknown }
+        Returns: unknown
+      }
+      set_limit: {
+        Args: { "": number }
+        Returns: number
+      }
+      show_limit: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      show_trgm: {
+        Args: { "": string }
+        Returns: string[]
+      }
     }
     Enums: {
       property_status: "active" | "sold" | "rented" | "inactive" | "pending"
       property_type: "apartment" | "house" | "commercial" | "land" | "farm"
-      user_role: "admin" | "broker" | "client"
+      user_role: "admin" | "broker" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -519,7 +803,7 @@ export const Constants = {
     Enums: {
       property_status: ["active", "sold", "rented", "inactive", "pending"],
       property_type: ["apartment", "house", "commercial", "land", "farm"],
-      user_role: ["admin", "broker", "client"],
+      user_role: ["admin", "broker", "user"],
     },
   },
 } as const
