@@ -61,7 +61,7 @@ export default function AdminTestimonialManager() {
 
       if (error) throw error;
       
-      const testimonialsWithDefaults = (data || []).map(testimonial => ({
+      const testimonialsWithDefaults = (data || []).map((testimonial: any) => ({
         ...testimonial,
         name: testimonial.name || testimonial.author_name || '',
         testimonial: testimonial.testimonial || testimonial.content || '',

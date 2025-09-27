@@ -67,7 +67,7 @@ export default function AdminPartnerManager() {
 
       if (error) throw error;
       
-      const partnersWithDefaults = (data || []).map(partner => ({
+      const partnersWithDefaults = (data || []).map((partner: any) => ({
         ...partner,
         category: partner.category || 'geral',
         is_active: partner.is_active ?? partner.active ?? true,

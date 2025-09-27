@@ -95,14 +95,34 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
   const fetchClients = async () => {
     try {
       const { data, error } = await supabase
-        .from('conectaios_clients')
+        .from('clients')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setClients(data || []);
-      setFilteredClients(data || []);
+      setClients((data || []).map((c: any) => ({
+        id: c.id,
+        nome: c.nome,
+        telefone: c.telefone,
+        email: c.email,
+        tipo: c.tipo,
+        stage: c.stage,
+        valor: c.valor,
+        score: c.score,
+        historico: c.historico || []
+      })));
+      setFilteredClients((data || []).map((c: any) => ({
+        id: c.id,
+        nome: c.nome,
+        telefone: c.telefone,
+        email: c.email,
+        tipo: c.tipo,
+        stage: c.stage,
+        valor: c.valor,
+        score: c.score,
+        historico: c.historico || []
+      })));
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({

@@ -29,7 +29,7 @@ export function ClientSelect({ value, onValueChange, placeholder = "Selecione um
   const fetchClients = async () => {
     try {
       const { data, error } = await supabase
-        .from('conectaios_clients')
+        .from('clients')
         .select('id, nome, telefone')
         .eq('user_id', user?.id)
         .order('nome');

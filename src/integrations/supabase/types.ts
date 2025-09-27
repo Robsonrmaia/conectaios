@@ -261,6 +261,54 @@ export type Database = {
           },
         ]
       }
+      clients: {
+        Row: {
+          broker_id: string | null
+          created_at: string | null
+          email: string | null
+          historico: Json | null
+          id: string
+          nome: string
+          score: number | null
+          stage: string | null
+          telefone: string | null
+          tipo: string | null
+          updated_at: string | null
+          user_id: string | null
+          valor: number | null
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          historico?: Json | null
+          id?: string
+          nome: string
+          score?: number | null
+          stage?: string | null
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor?: number | null
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          historico?: Json | null
+          id?: string
+          nome?: string
+          score?: number | null
+          stage?: string | null
+          telefone?: string | null
+          tipo?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          valor?: number | null
+        }
+        Relationships: []
+      }
       crm_clients: {
         Row: {
           broker_id: string | null
@@ -538,6 +586,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      deals: {
+        Row: {
+          client_id: string | null
+          commission_amount: number | null
+          created_at: string | null
+          id: string
+          notes: string | null
+          offer_amount: number | null
+          property_id: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          commission_amount?: number | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          offer_amount?: number | null
+          property_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          commission_amount?: number | null
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          offer_amount?: number | null
+          property_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       gam_badges: {
         Row: {
@@ -1346,33 +1433,42 @@ export type Database = {
       partners: {
         Row: {
           active: boolean
+          category: string | null
           created_at: string
           description: string | null
           id: string
+          is_active: boolean | null
           logo_url: string | null
           name: string
+          sort_order: number | null
           updated_at: string
           user_id: string
           website: string | null
         }
         Insert: {
           active?: boolean
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean | null
           logo_url?: string | null
           name: string
+          sort_order?: number | null
           updated_at?: string
           user_id: string
           website?: string | null
         }
         Update: {
           active?: boolean
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          is_active?: boolean | null
           logo_url?: string | null
           name?: string
+          sort_order?: number | null
           updated_at?: string
           user_id?: string
           website?: string | null
