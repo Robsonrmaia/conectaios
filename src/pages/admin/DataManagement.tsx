@@ -271,7 +271,7 @@ export default function DataManagement() {
             <h4 className="font-medium">Upload Manual</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
               <li>• <strong>Imagens</strong>: Através da interface de gestão</li>
-              <li>• <strong>Storage Path</strong>: `imoveis/public/{id}/`</li>
+              <li>• <strong>Storage Path</strong>: `imoveis/public/[property-id]/`</li>
               <li>• <strong>Integração</strong>: Use `src/data/index.ts` para todas as operações</li>
             </ul>
           </div>

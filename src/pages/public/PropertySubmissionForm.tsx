@@ -128,8 +128,8 @@ export default function PropertySubmissionForm() {
       // Load broker information
       if (data.broker_id) {
         const { data: broker } = await supabase
-          .from('conectaios_brokers')
-          .select('name, creci, phone, avatar_url, bio')
+          .from('brokers')
+          .select('id, creci, whatsapp, profiles:user_id(full_name, phone, avatar_url)')
           .eq('id', data.broker_id)
           .single();
         
