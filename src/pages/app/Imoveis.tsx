@@ -49,6 +49,10 @@ interface Property {
   neighborhood: string | null;
   street: string | null;
   zipcode: string | null;
+  suites: number | null;
+  is_furnished: boolean;
+  vista_mar: boolean;
+  distancia_mar: number | null;
   created_at: string;
   is_public: boolean;
 }
@@ -63,9 +67,9 @@ const Imoveis = () => {
   const [typeFilter, setTypeFilterState] = useState('');
   const [statusFilter, setStatusFilterState] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showClientFormModal, setShowClientFormModal] = useState(false);
-  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
-  const [selectedPropertyForForm, setSelectedPropertyForForm] = useState<{ id: string; title: string } | null>(null);
+  const [isClientFormModalOpen, setIsClientFormModalOpen] = useState(false);
+  const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
 
   const setPurposeFilter = (value: string) => {
     setPurposeFilterState(value === "all" ? "" : value);
@@ -390,13 +394,12 @@ const Imoveis = () => {
                             <Button size="sm" variant="outline" title="Editar">
                               <Edit className="h-3 w-3" />
                             </Button>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              title="Enviar Formulário ao Cliente"
+                            <Button
+                              size="sm"
+                              variant="outline"
                               onClick={() => {
-                                setSelectedPropertyForForm({ id: property.id, title: property.title });
-                                setShowClientFormModal(true);
+                                setSelectedProperty(property);
+                                setIsClientFormModalOpen(true);
                               }}
                             >
                               <Send className="h-3 w-3" />
@@ -404,9 +407,10 @@ const Imoveis = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => setShowSubmissionModal(true)}
-                              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
-                              title="Gerar Formulário para Proprietário"
+                              onClick={() => {
+                                setSelectedProperty(property);
+                                setIsSubmissionModalOpen(true);
+                              }}
                             >
                               <LinkIcon className="h-3 w-3" />
                             </Button>
@@ -432,21 +436,21 @@ const Imoveis = () => {
         />
 
         {/* Property Client Form Modal */}
-        {selectedPropertyForForm && broker && (
+        {selectedProperty && broker && (
           <PropertyClientFormModal
-            isOpen={showClientFormModal}
+            isOpen={isClientFormModalOpen}
             onClose={() => {
-              setShowClientFormModal(false);
-              setSelectedPropertyForForm(null);
+              setIsClientFormModalOpen(false);
+              setSelectedProperty(null);
             }}
-            property={selectedPropertyForForm}
+            property={{ id: selectedProperty.id, title: selectedProperty.title }}
             brokerId={broker.id}
           />
         )}
         {/* Property Submission Modal */}
         <PropertySubmissionModal
-          open={showSubmissionModal}
-          onOpenChange={setShowSubmissionModal}
+          open={isSubmissionModalOpen}          
+          onOpenChange={setIsSubmissionModalOpen}
         />
       </div>
     </PageWrapper>

@@ -74,46 +74,48 @@ export default function XMLImportExport() {
     return Array.from(map.values());
   };
 
+  // Force refresh function for brokers list  
+  const refreshBrokers = async () => {
+    if (!isAdmin) {
+      if (user?.id) {
+        setSelectedOwner(user.id);
+      }
+      return;
+    }
+
+    try {
+      // Force refresh by clearing cache and refetching
+      const { data, error } = await supabase
+        .from('brokers')
+        .select(`
+          id, user_id, creci, bio, whatsapp,
+          profiles!inner(name, full_name, email, nome)
+        `);
+
+      if (error) throw error;
+      
+      // Convert to proper broker format with priority for 'nome' field
+      const brokersList = (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        name: item.profiles.nome || item.profiles.full_name || item.profiles.name || item.creci || 'Sem nome',
+        email: item.profiles.email || 'Sem email'
+      }));
+      
+      // Deduplicate by email and keep the one with CRECI when available
+      const uniqueBrokers = uniqueByEmail(brokersList);
+      setBrokers(uniqueBrokers);
+      
+      console.log('Brokers loaded:', uniqueBrokers);
+    } catch (error) {
+      console.error('Error loading brokers:', error);
+      toast.error('Erro ao carregar lista de corretores');
+    }
+  };
+
   // Load brokers if admin
   useEffect(() => {
-    const loadBrokers = async () => {
-      if (!isAdmin) {
-        // If not admin, set current user as selected owner
-        if (user?.id) {
-          setSelectedOwner(user.id);
-        }
-        return;
-      }
-
-      try {
-        // If admin, get all brokers with profile info
-        const { data, error } = await supabase
-          .from('brokers')
-          .select(`
-            id, user_id, creci, bio, whatsapp,
-            profiles!inner(name, full_name, email)
-          `);
-
-        if (error) throw error;
-        
-        // Convert to proper broker format with deduplication
-        const brokersList = (data || []).map(item => ({
-          id: item.id,
-          user_id: item.user_id,
-          name: item.profiles.full_name || item.profiles.name || item.creci || 'Sem nome',
-          email: item.profiles.email || 'Sem email'
-        }));
-        
-        // Deduplicate by email and keep the one with CRECI when available
-        const uniqueBrokers = uniqueByEmail(brokersList);
-        setBrokers(uniqueBrokers);
-      } catch (error) {
-        console.error('Error loading brokers:', error);
-        toast.error('Erro ao carregar lista de corretores');
-      }
-    };
-
-    loadBrokers();
+    refreshBrokers();
   }, [isAdmin, user?.id]);
 
   if (!user) {

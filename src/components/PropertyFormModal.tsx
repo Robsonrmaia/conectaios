@@ -40,6 +40,8 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
     suites: '',
     parking: '',
     is_furnished: false,
+    vista_mar: false,
+    distancia_mar: '',
     street: '',
     number: '',
     neighborhood: '',
@@ -83,6 +85,8 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
           suites: formData.suites ? parseInt(formData.suites) : null,
           parking: formData.parking ? parseInt(formData.parking) : null,
           is_furnished: formData.is_furnished,
+          vista_mar: formData.vista_mar,
+          distancia_mar: formData.distancia_mar ? parseFloat(formData.distancia_mar) : null,
           street: formData.street || null,
           number: formData.number || null,
           neighborhood: formData.neighborhood || null,
@@ -160,6 +164,8 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
       suites: '',
       parking: '',
       is_furnished: false,
+      vista_mar: false,
+      distancia_mar: '',
       street: '',
       number: '',
       neighborhood: '',
@@ -192,6 +198,8 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
       suites: data.suites || prev.suites,
       parking: data.vagas || prev.parking,
       is_furnished: data.mobiliado || prev.is_furnished,
+      vista_mar: data.vista_mar || prev.vista_mar,
+      distancia_mar: data.distancia_mar || prev.distancia_mar,
       street: data.endereco || prev.street,
       neighborhood: data.bairro || prev.neighborhood,
       city: data.cidade || prev.city,
@@ -216,7 +224,7 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="manual" className="flex items-center gap-2">
               <FormInput className="h-4 w-4" />
               Manual
@@ -224,10 +232,6 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
             <TabsTrigger value="flash" className="flex items-center gap-2">
               <Camera className="h-4 w-4" />
               Por Foto
-            </TabsTrigger>
-            <TabsTrigger value="photos" className="flex items-center gap-2">
-              <Images className="h-4 w-4" />
-              Fotos
             </TabsTrigger>
             <TabsTrigger value="whatsapp" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
@@ -365,16 +369,39 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
               </div>
 
               <div className="space-y-2 col-span-2">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    id="is_furnished"
-                    checked={formData.is_furnished}
-                    onChange={(e) => handleInputChange('is_furnished', e.target.checked)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor="is_furnished">Mobiliado</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="is_furnished"
+                      checked={formData.is_furnished}
+                      onChange={(e) => handleInputChange('is_furnished', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor="is_furnished">Mobiliado</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="vista_mar"
+                      checked={formData.vista_mar}
+                      onChange={(e) => handleInputChange('vista_mar', e.target.checked)}
+                      className="rounded border-gray-300"
+                    />
+                    <Label htmlFor="vista_mar">Vista para o Mar</Label>
+                  </div>
                 </div>
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="distancia_mar">Distância do Mar (metros)</Label>
+                <Input
+                  id="distancia_mar"
+                  type="number"
+                  value={formData.distancia_mar}
+                  onChange={(e) => handleInputChange('distancia_mar', e.target.value)}
+                  placeholder="Ex: 100"
+                />
               </div>
             </div>
 
@@ -455,6 +482,35 @@ export function PropertyFormModal({ isOpen, onClose, onSuccess }: PropertyFormMo
                   onChange={(e) => handleInputChange('zipcode', e.target.value)}
                 />
               </div>
+            </div>
+
+            {/* Seção de Upload de Fotos Integrada */}
+            <div className="space-y-4 border-t pt-4">
+              <h3 className="text-lg font-semibold">Upload de Fotos</h3>
+              
+              <PhotoUploader 
+                photos={photos}
+                onPhotosChange={(urls) => setPhotos(urls)}
+              />
+              
+              {photos.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-md font-medium mb-2">Aplicar Marca d'Água</h4>
+                  <EnhancedWatermarkManager
+                    images={photos}
+                    onWatermarkedImages={(watermarkedUrls) => {
+                      console.log('Watermarked images:', watermarkedUrls);
+                      // Extract only the watermarked URLs if it's an array of objects
+                      const urls = Array.isArray(watermarkedUrls) && watermarkedUrls.length > 0 && 
+                                  typeof watermarkedUrls[0] === 'object' 
+                                  ? watermarkedUrls.map((item: any) => item.watermarked || item) 
+                                  : watermarkedUrls;
+                      setPhotos(urls);
+                    }}
+                    defaultWatermarkText="ConectaIOS"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex justify-end gap-2 pt-4">

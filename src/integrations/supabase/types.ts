@@ -631,6 +631,7 @@ export type Database = {
           condo_fee: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -651,6 +652,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
           visibility: string | null
+          vista_mar: boolean | null
           zipcode: string | null
         }
         Insert: {
@@ -662,6 +664,7 @@ export type Database = {
           condo_fee?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           id?: string
           iptu?: number | null
           is_furnished?: boolean | null
@@ -682,6 +685,7 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Update: {
@@ -693,6 +697,7 @@ export type Database = {
           condo_fee?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           id?: string
           iptu?: number | null
           is_furnished?: boolean | null
@@ -713,6 +718,7 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Relationships: [
@@ -1716,6 +1722,7 @@ export type Database = {
           condo_fee: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -1736,6 +1743,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
           visibility: string | null
+          vista_mar: boolean | null
           zipcode: string | null
         }[]
       }
@@ -1755,6 +1763,7 @@ export type Database = {
           condo_fee: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -1775,6 +1784,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
           visibility: string | null
+          vista_mar: boolean | null
           zipcode: string | null
         }[]
       }
@@ -1825,6 +1835,7 @@ export type Database = {
           condo_fee: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -1845,6 +1856,7 @@ export type Database = {
           type: string | null
           updated_at: string | null
           visibility: string | null
+          vista_mar: boolean | null
           zipcode: string | null
         }[]
       }
