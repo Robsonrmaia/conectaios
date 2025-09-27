@@ -5,12 +5,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { testimonialsService, type Testimonial, type CreateTestimonialInput } from '@/data/testimonials';
 import { toast } from '@/hooks/use-toast';
-import { Plus, Star, MessageSquare, Edit, Trash2 } from 'lucide-react';
+import { Plus, MessageSquare, Star, Eye, EyeOff, Edit, Trash2 } from 'lucide-react';
 
 export default function AdminTestimonialsManager() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -19,10 +18,9 @@ export default function AdminTestimonialsManager() {
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [createForm, setCreateForm] = useState<CreateTestimonialInput>({
     author_name: '',
-    rating: 5,
     content: '',
-    source: '',
-    published: true
+    rating: 5,
+    source: ''
   });
 
   useEffect(() => {
@@ -71,7 +69,7 @@ export default function AdminTestimonialsManager() {
         });
       }
 
-      setCreateForm({ author_name: '', rating: 5, content: '', source: '', published: true });
+      setCreateForm({ author_name: '', content: '', rating: 5, source: '' });
       setEditingTestimonial(null);
       setIsCreateDialogOpen(false);
       loadTestimonials();
@@ -85,23 +83,29 @@ export default function AdminTestimonialsManager() {
     }
   };
 
-  const handleEdit = (testimonial: Testimonial) => {
-    setEditingTestimonial(testimonial);
-    setCreateForm({
-      author_name: testimonial.author_name,
-      rating: testimonial.rating,
-      content: testimonial.content,
-      source: testimonial.source || '',
-      published: testimonial.published
-    });
-    setIsCreateDialogOpen(true);
+  const handleTogglePublished = async (testimonial: Testimonial) => {
+    try {
+      await testimonialsService.togglePublished(testimonial.id, !testimonial.published);
+      toast({
+        title: 'Sucesso',
+        description: `Testemunho ${!testimonial.published ? 'publicado' : 'despublicado'} com sucesso`
+      });
+      loadTestimonials();
+    } catch (error) {
+      console.error('Error toggling published status:', error);
+      toast({
+        title: 'Erro',
+        description: 'Falha ao alterar status de publicação',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeleteTestimonial = async (testimonial: Testimonial) => {
     if (!confirm('Tem certeza que deseja excluir este testemunho?')) return;
-
+    
     try {
-      await testimonialsService.remove(id);
+      await testimonialsService.remove(testimonial.id);
       toast({
         title: 'Sucesso',
         description: 'Testemunho excluído com sucesso'
@@ -117,29 +121,22 @@ export default function AdminTestimonialsManager() {
     }
   };
 
-  const handleTogglePublished = async (id: string, published: boolean) => {
-    try {
-      await testimonialsService.togglePublished(id, published);
-      toast({
-        title: 'Sucesso',
-        description: `Testemunho ${published ? 'publicado' : 'despublicado'} com sucesso`
-      });
-      loadTestimonials();
-    } catch (error) {
-      console.error('Error toggling published:', error);
-      toast({
-        title: 'Erro',
-        description: 'Falha ao alterar status de publicação',
-        variant: 'destructive'
-      });
-    }
+  const openEditDialog = (testimonial: Testimonial) => {
+    setEditingTestimonial(testimonial);
+    setCreateForm({
+      author_name: testimonial.author_name,
+      content: testimonial.content,
+      rating: testimonial.rating || 5,
+      source: testimonial.source || ''
+    });
+    setIsCreateDialogOpen(true);
   };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`h-4 w-4 ${i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`}
+        className={`h-4 w-4 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
       />
     ));
   };
@@ -149,13 +146,13 @@ export default function AdminTestimonialsManager() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Gestão de Testemunhos</h2>
-          <p className="text-muted-foreground">Gerencie testemunhos e avaliações de clientes</p>
+          <p className="text-muted-foreground">Gerencie os testemunhos e avaliações dos clientes</p>
         </div>
         <Dialog open={isCreateDialogOpen} onOpenChange={(open) => {
           setIsCreateDialogOpen(open);
           if (!open) {
             setEditingTestimonial(null);
-            setCreateForm({ author_name: '', rating: 5, content: '', source: '', published: true });
+            setCreateForm({ author_name: '', content: '', rating: 5, source: '' });
           }
         }}>
           <DialogTrigger asChild>
@@ -170,12 +167,12 @@ export default function AdminTestimonialsManager() {
                 {editingTestimonial ? 'Editar Testemunho' : 'Criar Novo Testemunho'}
               </DialogTitle>
               <DialogDescription>
-                {editingTestimonial ? 'Edite os dados do testemunho' : 'Adicione um novo testemunho de cliente'}
+                {editingTestimonial ? 'Edite os dados do testemunho' : 'Crie um novo testemunho de cliente'}
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="author_name">Nome do Cliente *</Label>
+                <Label htmlFor="author_name">Nome do Autor *</Label>
                 <Input
                   id="author_name"
                   value={createForm.author_name}
@@ -185,57 +182,47 @@ export default function AdminTestimonialsManager() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="rating">Avaliação</Label>
-                <Select 
-                  value={createForm.rating.toString()} 
-                  onValueChange={(value) => 
-                    setCreateForm({...createForm, rating: parseInt(value)})
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">⭐ (1 estrela)</SelectItem>
-                    <SelectItem value="2">⭐⭐ (2 estrelas)</SelectItem>
-                    <SelectItem value="3">⭐⭐⭐ (3 estrelas)</SelectItem>
-                    <SelectItem value="4">⭐⭐⭐⭐ (4 estrelas)</SelectItem>
-                    <SelectItem value="5">⭐⭐⭐⭐⭐ (5 estrelas)</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center space-x-2">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setCreateForm({...createForm, rating: i + 1})}
+                      className="focus:outline-none"
+                    >
+                      <Star
+                        className={`h-6 w-6 ${i < createForm.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                      />
+                    </button>
+                  ))}
+                  <span className="text-sm text-muted-foreground">({createForm.rating} estrela{createForm.rating !== 1 ? 's' : ''})</span>
+                </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="source">Fonte</Label>
+                <Label htmlFor="source">Fonte (opcional)</Label>
                 <Input
                   id="source"
                   value={createForm.source}
                   onChange={(e) => setCreateForm({...createForm, source: e.target.value})}
-                  placeholder="Ex: Google, Site, Facebook"
+                  placeholder="Ex: Google Reviews, WhatsApp, etc."
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="content">Testemunho *</Label>
+                <Label htmlFor="content">Conteúdo do Testemunho *</Label>
                 <Textarea
                   id="content"
                   value={createForm.content}
                   onChange={(e) => setCreateForm({...createForm, content: e.target.value})}
-                  placeholder="Escreva o testemunho do cliente"
+                  placeholder="Digite o testemunho completo do cliente"
                   rows={4}
                 />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="published"
-                  checked={createForm.published}
-                  onCheckedChange={(checked) => setCreateForm({...createForm, published: checked})}
-                />
-                <Label htmlFor="published">Publicado</Label>
               </div>
               <div className="flex justify-end space-x-2">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancelar
                 </Button>
                 <Button onClick={handleCreateTestimonial}>
-                  {editingTestimonial ? 'Atualizar' : 'Criar'} Testemunho
+                  {editingTestimonial ? 'Salvar Alterações' : 'Criar Testemunho'}
                 </Button>
               </div>
             </div>
@@ -250,7 +237,7 @@ export default function AdminTestimonialsManager() {
           <CardContent className="text-center py-8">
             <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">Nenhum testemunho encontrado</h3>
-            <p className="text-muted-foreground">Adicione seu primeiro testemunho de cliente.</p>
+            <p className="text-muted-foreground">Crie seu primeiro testemunho de cliente.</p>
           </CardContent>
         </Card>
       ) : (
@@ -261,50 +248,52 @@ export default function AdminTestimonialsManager() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-lg">{testimonial.author_name}</CardTitle>
-                    <div className="flex items-center space-x-1 mt-1">
-                      {renderStars(testimonial.rating)}
+                    <div className="flex items-center space-x-2 mt-1">
+                      <div className="flex items-center">
+                        {renderStars(testimonial.rating || 5)}
+                      </div>
+                      {testimonial.source && (
+                        <Badge variant="outline" className="text-xs">
+                          {testimonial.source}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    {testimonial.source && (
-                      <Badge variant="outline">{testimonial.source}</Badge>
-                    )}
-                    <Badge variant={testimonial.published ? "default" : "secondary"}>
-                      {testimonial.published ? 'Publicado' : 'Rascunho'}
-                    </Badge>
-                    <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(testimonial)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(testimonial.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={testimonial.published}
+                        onCheckedChange={() => handleTogglePublished(testimonial)}
+                      />
+                      {testimonial.published ? (
+                        <Eye className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      )}
                     </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEditDialog(testimonial)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDeleteTestimonial(testimonial)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
                 <CardDescription>
                   Criado em {new Date(testimonial.created_at).toLocaleDateString('pt-BR')}
+                  {testimonial.published ? ' • Publicado' : ' • Rascunho'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-sm mb-4">{testimonial.content}</p>
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={testimonial.published}
-                    onCheckedChange={(checked) => handleTogglePublished(testimonial.id, checked)}
-                  />
-                  <Label className="text-sm">
-                    {testimonial.published ? 'Publicado' : 'Rascunho'}
-                  </Label>
-                </div>
+                <p className="text-sm text-muted-foreground italic">"{testimonial.content}"</p>
               </CardContent>
             </Card>
           ))}

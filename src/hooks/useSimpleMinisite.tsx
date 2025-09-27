@@ -59,7 +59,7 @@ export function SimplifiedMinisiteProvider({ children }: { children: ReactNode }
         .from('minisite_configs')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (data) {
         setConfig({
