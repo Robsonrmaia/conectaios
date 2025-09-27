@@ -18,7 +18,8 @@ import {
   Bed,
   Bath,
   Car,
-  Send
+  Send,
+  Link as LinkIcon
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -29,6 +30,7 @@ import { ptBR } from 'date-fns/locale';
 import PageWrapper from '@/components/PageWrapper';
 import { PropertyFormModal } from '@/components/PropertyFormModal';
 import { PropertyClientFormModal } from '@/components/PropertyClientFormModal';
+import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
 
 interface Property {
   id: string;
@@ -62,6 +64,7 @@ const Imoveis = () => {
   const [statusFilter, setStatusFilterState] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showClientFormModal, setShowClientFormModal] = useState(false);
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [selectedPropertyForForm, setSelectedPropertyForForm] = useState<{ id: string; title: string } | null>(null);
 
   const setPurposeFilter = (value: string) => {
@@ -398,6 +401,15 @@ const Imoveis = () => {
                             >
                               <Send className="h-3 w-3" />
                             </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setShowSubmissionModal(true)}
+                              className="bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-200"
+                              title="Gerar Formulário para Proprietário"
+                            >
+                              <LinkIcon className="h-3 w-3" />
+                            </Button>
                             <Button size="sm" variant="destructive" title="Excluir">
                               <Trash2 className="h-3 w-3" />
                             </Button>
@@ -431,6 +443,11 @@ const Imoveis = () => {
             brokerId={broker.id}
           />
         )}
+        {/* Property Submission Modal */}
+        <PropertySubmissionModal
+          open={showSubmissionModal}
+          onOpenChange={setShowSubmissionModal}
+        />
       </div>
     </PageWrapper>
   );

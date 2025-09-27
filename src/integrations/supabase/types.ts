@@ -632,6 +632,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
           neighborhood: string | null
@@ -662,6 +663,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          iptu?: number | null
           is_furnished?: boolean | null
           is_public?: boolean | null
           neighborhood?: string | null
@@ -692,6 +694,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          iptu?: number | null
           is_furnished?: boolean | null
           is_public?: boolean | null
           neighborhood?: string | null
@@ -1308,6 +1311,175 @@ export type Database = {
           },
         ]
       }
+      social_banners: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          is_active: boolean
+          link_url: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          is_active?: boolean
+          link_url?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          link_url?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_group_invites: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          invited_by_id: string
+          invited_user_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          invited_by_id: string
+          invited_user_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          invited_by_id?: string
+          invited_user_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_group_invites_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "social_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "social_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_groups: {
+        Row: {
+          admin_id: string
+          categoria: string
+          cidade: string | null
+          created_at: string
+          descricao: string | null
+          estado: string | null
+          id: string
+          imagem_url: string | null
+          is_visible: boolean
+          nome: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id: string
+          categoria: string
+          cidade?: string | null
+          created_at?: string
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          imagem_url?: string | null
+          is_visible?: boolean
+          nome: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string
+          categoria?: string
+          cidade?: string | null
+          created_at?: string
+          descricao?: string | null
+          estado?: string | null
+          id?: string
+          imagem_url?: string | null
+          is_visible?: boolean
+          nome?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_presence: {
+        Row: {
+          id: string
+          last_seen_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_seen_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_seen_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           created_at: string | null
@@ -1545,6 +1717,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
           neighborhood: string | null
@@ -1583,6 +1756,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
           neighborhood: string | null
@@ -1652,6 +1826,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           id: string
+          iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
           neighborhood: string | null
