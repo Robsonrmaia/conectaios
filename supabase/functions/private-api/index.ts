@@ -643,9 +643,9 @@ serve(async (req) => {
           elite: "5000 requests/hour"
         },
         examples: {
-          curl: `curl -H "x-api-key: YOUR_API_KEY" https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/private-api/properties`,
+          curl: `curl -H "x-api-key: YOUR_API_KEY" https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/private-api/properties`,
           javascript: `
-fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/private-api/properties', {
+fetch('https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/private-api/properties', {
   headers: {
     'x-api-key': 'YOUR_API_KEY',
     'Content-Type': 'application/json'
