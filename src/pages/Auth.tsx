@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 
-import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
+import { Building2, Mail, Lock, User, Phone, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import ConectaLogo from '@/components/ConectaLogo';
 import { useHealthCheck } from '@/hooks/useHealthCheck';
@@ -17,10 +17,13 @@ import { useHealthCheck } from '@/hooks/useHealthCheck';
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { result: healthCheck } = useHealthCheck();
@@ -31,9 +34,37 @@ const Auth = () => {
     }
   }, [user, navigate]);
 
+  // Validação de força da senha
+  const getPasswordStrength = (pwd: string) => {
+    let score = 0;
+    if (pwd.length >= 8) score++;
+    if (/[A-Z]/.test(pwd)) score++;
+    if (/[a-z]/.test(pwd)) score++;
+    if (/[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    return score;
+  };
+
+  const passwordStrength = getPasswordStrength(password);
+  const isPasswordStrong = passwordStrength >= 3;
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Validações client-side
+    if (password !== confirmPassword) {
+      toast.error('As senhas não conferem');
+      setLoading(false);
+      return;
+    }
+
+    if (!isPasswordStrong) {
+      toast.error('Senha deve ter pelo menos 8 caracteres, incluindo maiúscula e número');
+      setLoading(false);
+      return;
+    }
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -57,7 +88,7 @@ const Auth = () => {
         } else if (error.message.includes('rate_limit')) {
           toast.error('Muitas tentativas. Tente novamente em instantes.');
         } else if (error.message.includes('weak_password')) {
-          toast.error('Senha muito fraca. Use pelo menos 6 caracteres.');
+          toast.error('Senha muito fraca. Use pelo menos 8 caracteres.');
         } else {
           toast.error(error.message);
         }
@@ -69,6 +100,7 @@ const Auth = () => {
         setPhone('');
         setEmail('');
         setPassword('');
+        setConfirmPassword('');
         // Switch to signin tab
         const signinTab = document.querySelector('[value="signin"]') as HTMLElement;
         signinTab?.click();
@@ -159,13 +191,20 @@ const Auth = () => {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signin-password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 pr-10"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </div>
 
@@ -251,15 +290,80 @@ const Auth = () => {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-password"
-                        type="password"
+                        type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10"
+                        className="pl-10 pr-10"
                         required
-                        minLength={6}
+                        minLength={8}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
+                    {password && (
+                      <div className="text-xs space-y-1">
+                        <div className="flex items-center gap-2">
+                          {isPasswordStrong ? (
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <AlertCircle className="h-3 w-3 text-orange-500" />
+                          )}
+                          <span className={isPasswordStrong ? "text-green-600" : "text-orange-600"}>
+                            {passwordStrength < 2 && "Senha fraca"}
+                            {passwordStrength === 2 && "Senha razoável"}
+                            {passwordStrength >= 3 && "Senha forte"}
+                          </span>
+                        </div>
+                        <div className="text-muted-foreground">
+                          Use pelo menos 8 caracteres, incluindo maiúscula e número
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="signup-confirm-password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="pl-10 pr-10"
+                        required
+                        minLength={8}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {confirmPassword && (
+                      <div className="text-xs flex items-center gap-2">
+                        {passwordsMatch ? (
+                          <>
+                            <CheckCircle className="h-3 w-3 text-green-500" />
+                            <span className="text-green-600">Senhas conferem</span>
+                          </>
+                        ) : (
+                          <>
+                            <AlertCircle className="h-3 w-3 text-red-500" />
+                            <span className="text-red-600">Senhas não conferem</span>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <Button
