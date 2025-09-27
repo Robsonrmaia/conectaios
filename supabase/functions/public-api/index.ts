@@ -125,10 +125,10 @@ serve(async (req) => {
         state: prop.state,
         fotos: prop.fotos || [],
         broker: {
-          name: Array.isArray(prop.conectaios_brokers) ? prop.conectaios_brokers[0]?.name || '' : prop.conectaios_brokers?.name || '',
-          phone: Array.isArray(prop.conectaios_brokers) ? prop.conectaios_brokers[0]?.phone || '' : prop.conectaios_brokers?.phone || '',
-          email: Array.isArray(prop.conectaios_brokers) ? prop.conectaios_brokers[0]?.email || '' : prop.conectaios_brokers?.email || '',
-          username: Array.isArray(prop.conectaios_brokers) ? prop.conectaios_brokers[0]?.username || '' : prop.conectaios_brokers?.username || ''
+          name: (prop.conectaios_brokers as any)?.name || '',
+          phone: (prop.conectaios_brokers as any)?.phone || '',
+          email: (prop.conectaios_brokers as any)?.email || '',
+          username: (prop.conectaios_brokers as any)?.username || ''
         }
       })) || [];
 
