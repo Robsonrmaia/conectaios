@@ -130,8 +130,8 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
         try {
           const { supabase } = await import('@/integrations/supabase/client');
           await supabase
-            .from('properties')
-            .update({ descricao: response })
+            .from('imoveis')
+            .update({ description: response })
             .eq('id', property.id);
           
           console.log('✅ Descrição salva automaticamente no banco');

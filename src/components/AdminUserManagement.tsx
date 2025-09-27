@@ -84,17 +84,25 @@ export default function AdminUserManagement() {
 
       // Merge profiles with broker data
       const usersWithBrokerData = profilesData?.map(profile => {
-        const broker = brokersData?.find(b => b.user_id === profile.user_id);
+        const broker = brokersData?.find(b => b.user_id === profile.id);
         return {
           ...profile,
-          email: broker?.email,
-          phone: broker?.phone,
+          user_id: profile.id,
+          email: broker?.email || profile.email,
+          phone: broker?.phone || profile.phone,
           status: broker?.status || 'inactive'
         };
       }) || [];
 
+      const brokersWithDefaults = brokersData?.map(broker => ({
+        ...broker,
+        name: broker.name || '',
+        email: broker.email || '',
+        status: broker.status || 'active'
+      })) || [];
+
       setUsers(usersWithBrokerData);
-      setBrokers(brokersData || []);
+      setBrokers(brokersWithDefaults);
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -153,8 +161,8 @@ export default function AdminUserManagement() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole })
-        .eq('user_id', userId);
+        .update({ role: newRole as 'admin' | 'broker' | 'user' })
+        .eq('id', userId);
 
       if (error) throw error;
 

@@ -83,6 +83,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       chat_messages: {
@@ -239,6 +246,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "client_searches_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "client_searches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -305,10 +319,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "conectaios_clients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "crm_clients_broker_fk"
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_clients_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
         ]
@@ -366,6 +394,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "crm_deals_property_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -378,6 +413,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -419,6 +461,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conectaios_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "crm_notes_client_fk"
@@ -473,6 +522,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conectaios_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "crm_tasks_client_fk"
@@ -730,11 +786,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -793,10 +863,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_features_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -838,10 +922,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_images_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -958,10 +1056,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1003,8 +1115,29 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "matches_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "matches_requester_id_fkey"
             columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_responder_id_fkey"
+            columns: ["responder_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1013,8 +1146,8 @@ export type Database = {
             foreignKeyName: "matches_responder_id_fkey"
             columns: ["responder_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1054,6 +1187,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1148,11 +1288,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "minisites_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "minisites_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "minisites_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1315,6 +1469,13 @@ export type Database = {
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "property_submissions_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
         ]
       }
       social_banners: {
@@ -1347,6 +1508,54 @@ export type Database = {
           sort_order?: number
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      social_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_follows: {
+        Row: {
+          created_at: string
+          follower_user_id: string
+          id: string
+          target_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_user_id: string
+          id?: string
+          target_user_id: string
+        }
+        Update: {
+          created_at?: string
+          follower_user_id?: string
+          id?: string
+          target_user_id?: string
         }
         Relationships: []
       }
@@ -1462,6 +1671,45 @@ export type Database = {
         }
         Relationships: []
       }
+      social_posts: {
+        Row: {
+          author_user_id: string
+          content: string | null
+          created_at: string
+          id: string
+          imovel_id: string | null
+          media: Json | null
+          published_at: string | null
+          status: string
+          updated_at: string
+          visibility: string
+        }
+        Insert: {
+          author_user_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          imovel_id?: string | null
+          media?: Json | null
+          published_at?: string | null
+          status?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Update: {
+          author_user_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          imovel_id?: string | null
+          media?: Json | null
+          published_at?: string | null
+          status?: string
+          updated_at?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
       social_presence: {
         Row: {
           id: string
@@ -1482,6 +1730,30 @@ export type Database = {
           last_seen_at?: string
           status?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          post_id?: string
           user_id?: string
         }
         Relationships: []
@@ -1527,6 +1799,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1576,10 +1855,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "support_tickets_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
             foreignKeyName: "support_tickets_broker_id_fkey"
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
           {
@@ -1588,6 +1881,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1680,6 +1980,139 @@ export type Database = {
       }
     }
     Views: {
+      conectaios_brokers: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          creci: string | null
+          email: string | null
+          id: string | null
+          name: string | null
+          phone: string | null
+          plan_id: string | null
+          referral_code: string | null
+          region_id: string | null
+          status: string | null
+          subscription_expires_at: string | null
+          subscription_status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      properties: {
+        Row: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_public: boolean | null
+          neighborhood: string | null
+          owner_id: string | null
+          price: number | null
+          purpose: string | null
+          status: string | null
+          thumb_url: string | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+        }
+        Insert: {
+          area_built?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          neighborhood?: string | null
+          owner_id?: string | null
+          price?: number | null
+          purpose?: string | null
+          status?: string | null
+          thumb_url?: never
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          area_built?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_public?: boolean | null
+          neighborhood?: string | null
+          owner_id?: string | null
+          price?: number | null
+          purpose?: string | null
+          status?: string | null
+          thumb_url?: never
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       property_features: {
         Row: {
           key: string | null
@@ -1705,10 +2138,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_features_imovel_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
             referencedColumns: ["id"]
           },
         ]
@@ -1750,13 +2197,41 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_images_imovel_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      v_social_broker_card: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          creci: string | null
+          email: string | null
+          name: string | null
+          phone: string | null
+          user_id: string | null
+          whatsapp: string | null
+        }
+        Relationships: []
       }
     }
     Functions: {
@@ -1937,6 +2412,48 @@ export type Database = {
           zipcode: string | null
         }[]
       }
+      search_properties: {
+        Args: {
+          city_filter?: string
+          limit_rows?: number
+          offset_rows?: number
+          purpose_filter?: string
+          q?: string
+        }
+        Returns: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          created_at: string | null
+          description: string | null
+          distancia_mar: number | null
+          id: string
+          iptu: number | null
+          is_furnished: boolean | null
+          is_public: boolean | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string
+          parking: number | null
+          price: number | null
+          purpose: string
+          search_vector: unknown | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          vista_mar: boolean | null
+          zipcode: string | null
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
@@ -1948,6 +2465,44 @@ export type Database = {
       show_trgm: {
         Args: { "": string }
         Returns: string[]
+      }
+      social_get_public_posts: {
+        Args: { p_limit?: number; p_offset?: number }
+        Returns: {
+          author_avatar: string
+          author_creci: string
+          author_name: string
+          author_user_id: string
+          comments_count: number
+          content: string
+          imovel_cover_url: string
+          imovel_id: string
+          imovel_price: number
+          imovel_title: string
+          likes_count: number
+          marketplace_url: string
+          media: Json
+          post_id: string
+          published_at: string
+          user_liked: boolean
+        }[]
+      }
+      social_list_my_properties: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cover_url: string
+          imovel_id: string
+          price: number
+          title: string
+        }[]
+      }
+      social_marketplace_url: {
+        Args: { p_imovel_id: string }
+        Returns: string
+      }
+      social_publish_post: {
+        Args: { p_post_id: string }
+        Returns: boolean
       }
     }
     Enums: {

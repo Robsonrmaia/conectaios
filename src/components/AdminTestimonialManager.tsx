@@ -60,7 +60,16 @@ export default function AdminTestimonialManager() {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setTestimonials(data || []);
+      
+      const testimonialsWithDefaults = (data || []).map(testimonial => ({
+        ...testimonial,
+        name: testimonial.name || testimonial.author_name || '',
+        testimonial: testimonial.testimonial || testimonial.content || '',
+        is_active: testimonial.is_active ?? testimonial.published ?? true,
+        sort_order: testimonial.sort_order || 0
+      }));
+      
+      setTestimonials(testimonialsWithDefaults);
     } catch (error) {
       console.error('Error fetching testimonials:', error);
       toast.error('Erro ao carregar testemunhos');

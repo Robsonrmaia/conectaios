@@ -66,7 +66,15 @@ export default function AdminPartnerManager() {
         .order('sort_order', { ascending: true });
 
       if (error) throw error;
-      setPartners(data || []);
+      
+      const partnersWithDefaults = (data || []).map(partner => ({
+        ...partner,
+        category: partner.category || 'geral',
+        is_active: partner.is_active ?? partner.active ?? true,
+        sort_order: partner.sort_order || 0
+      }));
+      
+      setPartners(partnersWithDefaults);
     } catch (error) {
       console.error('Error fetching partners:', error);
       toast.error('Erro ao carregar parceiros');
