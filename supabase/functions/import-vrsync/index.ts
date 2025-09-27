@@ -310,7 +310,6 @@ serve(async (req) => {
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,
           visibility: publishOnImport ? 'public_site' : 'hidden',
-          status: 'ATIVO',
           // New fields for broker assignment
           user_id: userId || null,
           site_id: siteIdParam || null

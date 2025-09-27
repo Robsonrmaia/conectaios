@@ -1,265 +1,259 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useBroker } from '@/hooks/useBroker';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/hooks/useAuth';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, AlertTriangle, CheckCircle2, XCircle, Users, Trophy, Star } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-interface GamificationFeatureFlagProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+// Tipos para gamificação
+interface GamificationStats {
+  total_users: number;
+  active_brokers: number;
+  monthly_points: number;
+  total_achievements: number;
 }
 
-export function GamificationFeatureFlag({ children, fallback = null }: GamificationFeatureFlagProps) {
-  const { broker, loading: brokerLoading, createBrokerProfile } = useBroker();
-  const { user } = useAuth();
-  const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [debugInfo, setDebugInfo] = useState<any>({});
-  const [retryCount, setRetryCount] = useState(0);
-  const [creatingProfile, setCreatingProfile] = useState(false);
+interface GamificationConfig {
+  enabled: boolean;
+  point_multiplier: number;
+  achievement_system: boolean;
+  leaderboard_visible: boolean;
+}
 
-  // Retry mechanism
-  const retryCheck = useCallback(() => {
-    if (retryCount < 3) {
-      console.log(`🔄 Retrying gamification check (attempt ${retryCount + 1})`);
-      setRetryCount(prev => prev + 1);
-      setTimeout(() => checkGamificationAccess(), 1000 * (retryCount + 1));
-    }
-  }, [retryCount]);
+export default function GamificationFeatureFlag() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [stats, setStats] = useState<GamificationStats | null>(null);
+  const [config, setConfig] = useState<GamificationConfig | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Reset retry count when broker changes
-    if (broker?.id) {
-      setRetryCount(0);
+    if (user) {
+      checkGamificationStatus();
+    } else {
+      setLoading(false);
     }
-    
-    // Wait for auth and broker to load before checking access
-    if (user && !brokerLoading) {
-      checkGamificationAccess();
-    }
-  }, [user?.id, broker?.id, brokerLoading]);
+  }, [user]);
 
-  const checkGamificationAccess = async () => {
+  const checkGamificationStatus = async () => {
     try {
-      console.log('🎮 Checking gamification access...', {
-        brokerId: broker?.id,
-        brokerStatus: broker?.status,
-        userId: user?.id,
-        brokerLoading,
-        retryCount
-      });
+      setLoading(true);
+      setError(null);
 
-      // Enhanced fallback: If no broker profile exists, create it properly
-      if (!broker?.id && user?.id && !creatingProfile) {
-        console.log('⚠️ No broker profile found, checking if one exists...');
-        
-        // Check if broker profile exists using correct table
-        const { data: existingBroker, error: checkError } = await supabase
-          .from('brokers')
-          .select('id')
-          .eq('user_id', user.id)
-          .maybeSingle();
+      // Verificar se é admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user?.id)
+        .maybeSingle();
 
-        if (checkError) {
-          console.error('❌ Error checking existing broker:', checkError);
-        }
+      const adminStatus = profile?.role === 'admin';
+      setIsAdmin(adminStatus);
 
-        if (existingBroker) {
-          console.log('✅ Found existing broker profile, using it');
-          setEnabled(true);
-          setDebugInfo({ developmentMode: true, reason: 'Found existing broker', brokerId: existingBroker.id });
-          setLoading(false);
-          return;
-        }
-
-        console.log('⚠️ No broker profile found, creating one...');
-        setCreatingProfile(true);
-        
-        try {
-          // Use the proper broker hook to create profile
-          await createBrokerProfile({
-            name: user.email?.split('@')[0] || 'Usuário',
-            email: user.email || '',
-          });
-          
-          console.log('✅ Broker profile creation initiated');
-          
-          // Ensure gamification data exists
-          const { data: brokerData } = await supabase
-            .from('conectaios_brokers')
-            .select('id')
-            .eq('user_id', user.id)
-            .single();
-
-          if (brokerData?.id) {
-            // Initialize gamification data if it doesn't exist
-            const { error: gamError } = await supabase
-              .from('gam_user_monthly')
-              .upsert({
-                usuario_id: brokerData.id,
-                ano: new Date().getFullYear(),
-                mes: new Date().getMonth() + 1,
-                pontos: 0,
-                tier: 'Sem Desconto',
-                desconto_percent: 0,
-                badges: []
-              });
-
-            if (gamError) {
-              console.warn('Warning creating gamification data:', gamError);
-            } else {
-              console.log('✅ Gamification data initialized');
-            }
-          }
-          
-          // Allow access immediately after creation
-          setEnabled(true);
-          setDebugInfo({ developmentMode: true, reason: 'Profile created', brokerId: brokerData?.id });
-          setLoading(false);
-          setCreatingProfile(false);
-          return;
-          
-        } catch (createError) {
-          console.error('❌ Error creating broker profile:', createError);
-          setCreatingProfile(false);
-          
-          // If profile creation fails, retry the check
-          if (retryCount < 2) {
-            retryCheck();
-            return;
-          } else {
-            // After retries, still allow access for development
-            console.log('🚧 Allowing access despite profile creation failure (dev mode)');
-            setEnabled(true);
-            setDebugInfo({ developmentMode: true, reason: 'Profile creation failed but allowing access' });
-            setLoading(false);
-            return;
-          }
-        }
-      }
-
-      // If we still don't have a broker after creation attempts, retry or fail gracefully
-      if (!broker?.id && user?.id && !creatingProfile) {
-        if (retryCount < 2) {
-          console.log('⏳ Broker still loading, retrying...');
-          retryCheck();
-          return;
-        } else {
-          console.log('🚧 Allowing access despite missing broker (dev mode)');
-          setEnabled(true);
-          setDebugInfo({ developmentMode: true, reason: 'Missing broker after retries' });
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Proceed with normal access checks if we have a broker
-      if (!broker?.id) {
-        setEnabled(false);
-        setDebugInfo({ reason: 'No broker profile and not authenticated' });
+      if (!adminStatus) {
         setLoading(false);
         return;
       }
 
-      // Get gamification settings
-      const { data: settings } = await supabase
-        .from('system_settings')
-        .select('key, value')
-        .in('key', ['gamification_enabled', 'gamification_rollout_phase', 'gamification_beta_brokers', 'gamification_pilot_brokers']);
+      // Mock: Buscar estatísticas básicas dos brokers existentes
+      const { data: brokers } = await supabase
+        .from('brokers')
+        .select('id')
+        .limit(100);
 
-      const settingsMap = (settings || []).reduce((acc, setting) => {
-        acc[setting.key] = setting.value;
-        return acc;
-      }, {} as Record<string, any>);
-
-      console.log('⚙️ Gamification settings:', settingsMap);
-
-      // Check if gamification is globally enabled  
-      const globallyEnabled = settingsMap.gamification_enabled === true || settingsMap.gamification_enabled === 'true';
-      if (!globallyEnabled) {
-        console.log('❌ Gamification globally disabled, enabling for development');
-        // Force enable in development/demo mode
-        setEnabled(true);
-        setDebugInfo({ globallyEnabled: false, developmentOverride: true });
-        setLoading(false);
-        return;
+      if (brokers) {
+        setStats({
+          total_users: 0, // Será implementado quando tabelas de gamificação existirem
+          active_brokers: brokers.length || 0,
+          monthly_points: 0,
+          total_achievements: 0
+        });
       }
 
-      // Check rollout phase
-      const rolloutPhase = settingsMap.gamification_rollout_phase || 'general';
-      const betaBrokers = settingsMap.gamification_beta_brokers || [];
-      const pilotBrokers = settingsMap.gamification_pilot_brokers || [];
-
-      let hasAccess = false;
-      let accessReason = '';
-
-      switch (rolloutPhase) {
-        case 'beta':
-          hasAccess = betaBrokers.includes(broker.id);
-          accessReason = hasAccess ? 'Beta user' : 'Not in beta list';
-          break;
-        case 'pilot':
-          hasAccess = betaBrokers.includes(broker.id) || pilotBrokers.includes(broker.id);
-          accessReason = hasAccess ? 'Pilot user' : 'Not in pilot list';
-          break;
-        case 'general':
-        default:
-          hasAccess = true;
-          accessReason = 'General rollout';
-          break;
-      }
-
-      console.log('🎯 Access check result:', {
-        rolloutPhase,
-        hasAccess,
-        accessReason,
-        brokerId: broker.id
+      // Mock de configuração padrão
+      setConfig({
+        enabled: false,
+        point_multiplier: 1.0,
+        achievement_system: true,
+        leaderboard_visible: true
       });
 
-      setEnabled(hasAccess);
-      setDebugInfo({
-        rolloutPhase,
-        hasAccess,
-        accessReason,
-        brokerId: broker.id,
-        globallyEnabled
-      });
-    } catch (error) {
-      console.error('❌ Error checking gamification access:', error);
-      
-      // On error, retry if possible, otherwise fail gracefully
-      if (retryCount < 2) {
-        retryCheck();
-        return;
-      }
-      
-      setEnabled(false);
-      setDebugInfo({ error: error.message, retryCount });
+    } catch (err: any) {
+      console.error('Erro ao verificar gamificação:', err);
+      setError(err.message || 'Erro ao carregar status da gamificação');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading || brokerLoading || creatingProfile) {
+  const toggleGamification = async () => {
+    if (!isAdmin) return;
+
+    try {
+      setLoading(true);
+      
+      // TODO: Implementar quando tabela system_settings for criada
+      setIsEnabled(!isEnabled);
+      
+      // Atualizar stats após mudança
+      await checkGamificationStatus();
+      
+    } catch (err: any) {
+      setError(err.message || 'Erro ao alterar configuração');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center p-8 space-y-4">
-        <div className="space-y-3 w-full max-w-md">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-4 w-48" />
-          <Skeleton className="h-32 w-full" />
-          {creatingProfile && (
-            <div className="text-center text-sm text-muted-foreground mt-4">
-              Configurando perfil de corretor...
-            </div>
-          )}
-        </div>
-      </div>
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="ml-2">Carregando sistema de gamificação...</span>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🎮 GamificationFeatureFlag debug:', debugInfo);
+  if (!user) {
+    return (
+      <Alert>
+        <AlertTriangle className="h-4 w-4" />
+        <AlertDescription>
+          Faça login para acessar as configurações de gamificação.
+        </AlertDescription>
+      </Alert>
+    );
   }
 
-  return enabled ? <>{children}</> : <>{fallback}</>;
+  if (!isAdmin) {
+    return (
+      <Alert>
+        <XCircle className="h-4 w-4" />
+        <AlertDescription>
+          Apenas administradores podem gerenciar o sistema de gamificação.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                Sistema de Gamificação
+              </CardTitle>
+              <CardDescription>
+                Ative e gerencie o sistema de pontos e conquistas para os corretores
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-3">
+              <Badge variant={isEnabled ? 'default' : 'secondary'} className="font-medium">
+                {isEnabled ? (
+                  <>
+                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                    Ativo
+                  </>
+                ) : (
+                  <>
+                    <XCircle className="h-3 w-3 mr-1" />
+                    Inativo
+                  </>
+                )}
+              </Badge>
+              <Switch
+                checked={isEnabled}
+                onCheckedChange={toggleGamification}
+                disabled={loading}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Users className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-2xl font-bold">{stats?.active_brokers || 0}</h3>
+              <p className="text-sm text-muted-foreground">Corretores Ativos</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Star className="h-8 w-8 text-yellow-500" />
+              </div>
+              <h3 className="text-2xl font-bold">{stats?.monthly_points || 0}</h3>
+              <p className="text-sm text-muted-foreground">Pontos do Mês</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Trophy className="h-8 w-8 text-orange-500" />
+              </div>
+              <h3 className="text-2xl font-bold">{stats?.total_achievements || 0}</h3>
+              <p className="text-sm text-muted-foreground">Conquistas</p>
+            </div>
+            <div className="text-center">
+              <div className="flex items-center justify-center mb-2">
+                <CheckCircle2 className="h-8 w-8 text-green-500" />
+              </div>
+              <h3 className="text-2xl font-bold">{config?.point_multiplier || 1}x</h3>
+              <p className="text-sm text-muted-foreground">Multiplicador</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {isEnabled && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Configurações Avançadas</CardTitle>
+            <CardDescription>
+              Configure o comportamento do sistema de gamificação
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Sistema de Conquistas</h4>
+                <p className="text-sm text-muted-foreground">Ativar badges e conquistas especiais</p>
+              </div>
+              <Switch
+                checked={config?.achievement_system || false}
+                disabled={true} // TODO: Implementar quando tabelas existirem
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Ranking Público</h4>
+                <p className="text-sm text-muted-foreground">Mostrar leaderboard para todos os usuários</p>
+              </div>
+              <Switch
+                checked={config?.leaderboard_visible || false}
+                disabled={true} // TODO: Implementar quando tabelas existirem
+              />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
 }

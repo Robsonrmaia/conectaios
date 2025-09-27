@@ -1,4 +1,4 @@
-// FASE 2: Sistema de limpeza controlada
+// Sistema de segurança para limpeza controlada de dados
 export const allowSamplePurge = import.meta.env.VITE_ALLOW_SAMPLE_PURGE === 'true';
 
 export const SAFETY_FLAGS = {

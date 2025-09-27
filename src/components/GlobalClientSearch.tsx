@@ -15,33 +15,27 @@ import { Search, User, Phone, Mail, Calendar, Edit, Save, X, Plus, History } fro
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 interface Client {
   id: string;
   nome: string;
   telefone: string;
   email?: string;
-  data_nascimento?: string;
   tipo: string;
   stage: string;
   classificacao: string;
   valor: number;
-  photo?: string;
   created_at: string;
   score: number;
-  last_contact_at?: string;
-  pipeline_id?: string;
   updated_at: string;
-  documents?: string[];
 }
 
 interface ClientHistory {
   id: string;
-  action: string;
+  type: string;
   description: string;
   created_at: string;
+  actor: string;
 }
 
 interface GlobalClientSearchProps {
@@ -58,12 +52,12 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
   const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const [editFormData, setEditFormData] = useState({
     nome: '',
     telefone: '',
     email: '',
-    data_nascimento: '',
     tipo: 'comprador',
     valor: ''
   });
@@ -93,36 +87,34 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
   }, [searchTerm, clients]);
 
   const fetchClients = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('crm_clients')
-        .select('id, name, phone, email')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
+    if (!user?.id) return;
 
-      if (error) throw error;
-      setClients(data?.map(client => ({
-        id: client.id,
-        nome: client.name,
-        telefone: client.phone || '',
-        email: client.email || '',
-        tipo: 'individual',
-        stage: 'new',
-        interesse: '',
-        orcamento: 0,
-        preferencias: {}
-      })) || []);
-      setFilteredClients(data?.map(client => ({
-        id: client.id,
-        nome: client.name,
-        telefone: client.phone || '',
-        email: client.email || '',
-        tipo: 'individual',
-        stage: 'new',
-        interesse: '',
-        orcamento: 0,
-        preferencias: {}
-      })) || []);
+    try {
+      // Buscar clientes reais do CRM
+      const { data: crmClients, error } = await supabase
+        .from('crm_clients')
+        .select('*')
+        .ilike('name', `%${searchTerm}%`)
+        .limit(10);
+
+      if (!error && crmClients) {
+        const formattedClients = crmClients.map(client => ({
+          id: client.id,
+          nome: client.name,
+          telefone: client.phone || '',
+          email: client.email || '',
+          tipo: 'Cliente CRM',
+          stage: 'Ativo',
+          classificacao: 'A',
+          valor: 0,
+          created_at: client.created_at,
+          score: 100,
+          updated_at: client.updated_at
+        }));
+        
+        setClients(formattedClients);
+        setFilteredClients(formattedClients);
+      }
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({
@@ -137,16 +129,44 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
   const fetchClientHistory = async (clientId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('client_history')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false });
+      setLoadingHistory(true);
+      
+      // Buscar histórico através das tabelas CRM existentes
+      const [notesResult, tasksResult, dealsResult] = await Promise.all([
+        supabase.from('crm_notes').select('*').eq('client_id', clientId),
+        supabase.from('crm_tasks').select('*').eq('client_id', clientId), 
+        supabase.from('crm_deals').select('*').eq('client_id', clientId)
+      ]);
 
-      if (error) throw error;
-      setClientHistory(data || []);
-    } catch (error) {
-      console.error('Error fetching client history:', error);
+      const history: ClientHistory[] = [
+        ...(notesResult.data?.map(note => ({
+          id: note.id,
+          type: 'note',
+          description: note.content || 'Nota adicionada',
+          created_at: note.created_at,
+          actor: 'Sistema'
+        })) || []),
+        ...(tasksResult.data?.map(task => ({
+          id: task.id,
+          type: 'task', 
+          description: `Tarefa: ${task.title}`,
+          created_at: task.created_at,
+          actor: 'Sistema'
+        })) || []),
+        ...(dealsResult.data?.map(deal => ({
+          id: deal.id,
+          type: 'deal',
+          description: `Negócio: ${deal.status}`,
+          created_at: deal.created_at,
+          actor: 'Sistema'
+        })) || [])
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+      setClientHistory(history);
+    } catch (err) {
+      console.error('Erro ao buscar histórico:', err);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -156,7 +176,6 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
       nome: client.nome,
       telefone: client.telefone,
       email: client.email || '',
-      data_nascimento: client.data_nascimento || '',
       tipo: client.tipo,
       valor: client.valor.toString()
     });
@@ -168,14 +187,11 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
     try {
       const { error } = await supabase
-        .from('conectaios_clients')
+        .from('crm_clients')
         .update({
-          nome: editFormData.nome,
-          telefone: editFormData.telefone,
+          name: editFormData.nome,
+          phone: editFormData.telefone,
           email: editFormData.email,
-          data_nascimento: editFormData.data_nascimento || null,
-          tipo: editFormData.tipo,
-          valor: parseFloat(editFormData.valor) || 0,
           updated_at: new Date().toISOString()
         })
         .eq('id', selectedClient.id);
@@ -193,7 +209,9 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
       // Update selected client
       const updatedClient = {
         ...selectedClient,
-        ...editFormData,
+        nome: editFormData.nome,
+        telefone: editFormData.telefone,
+        email: editFormData.email,
         valor: parseFloat(editFormData.valor) || 0
       };
       setSelectedClient(updatedClient);
@@ -213,21 +231,14 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
     try {
       const { error } = await supabase
-        .from('client_history')
+        .from('crm_notes')
         .insert({
           client_id: selectedClient.id,
-          action: historyFormData.action,
-          description: historyFormData.description,
+          content: `${historyFormData.action}: ${historyFormData.description}`,
           user_id: user.id
         });
 
       if (error) throw error;
-
-      // Update last contact
-      await supabase
-        .from('conectaios_clients')
-        .update({ last_contact_at: new Date().toISOString() })
-        .eq('id', selectedClient.id);
 
       toast({
         title: "Sucesso",
@@ -236,7 +247,6 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
       setHistoryFormData({ action: 'ligacao', description: '' });
       fetchClientHistory(selectedClient.id);
-      fetchClients();
 
     } catch (error) {
       console.error('Error adding history:', error);
@@ -250,12 +260,13 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
   const getActionIcon = (action: string) => {
     const icons: { [key: string]: any } = {
+      'note': User,
+      'task': Calendar,
+      'deal': Mail,
       'ligacao': Phone,
       'email': Mail,
       'reuniao': Calendar,
-      'visita': User,
-      'proposta': User,
-      'contrato': User
+      'visita': User
     };
     return icons[action] || User;
   };
@@ -302,7 +313,6 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={client.photo || undefined} />
                             <AvatarFallback>
                               <User className="h-4 w-4" />
                             </AvatarFallback>
@@ -379,52 +389,6 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
                         <p className="text-sm p-2 bg-muted rounded">{selectedClient.email || 'Não informado'}</p>
                       )}
                     </div>
-                    <div>
-                      <Label>Data de Nascimento</Label>
-                      {isEditing ? (
-                        <Input
-                          type="date"
-                          value={editFormData.data_nascimento}
-                          onChange={(e) => setEditFormData(prev => ({ ...prev, data_nascimento: e.target.value }))}
-                        />
-                      ) : (
-                        <p className="text-sm p-2 bg-muted rounded">
-                          {selectedClient.data_nascimento || 'Não informado'}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Tipo</Label>
-                      {isEditing ? (
-                        <Select value={editFormData.tipo} onValueChange={(value) => setEditFormData(prev => ({ ...prev, tipo: value }))}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="comprador">Comprador</SelectItem>
-                            <SelectItem value="vendedor">Vendedor</SelectItem>
-                            <SelectItem value="locatario">Locatário</SelectItem>
-                            <SelectItem value="locador">Locador</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      ) : (
-                        <p className="text-sm p-2 bg-muted rounded">{selectedClient.tipo}</p>
-                      )}
-                    </div>
-                    <div>
-                      <Label>Valor de Interesse</Label>
-                      {isEditing ? (
-                        <Input
-                          type="number"
-                          value={editFormData.valor}
-                          onChange={(e) => setEditFormData(prev => ({ ...prev, valor: e.target.value }))}
-                        />
-                      ) : (
-                        <p className="text-sm p-2 bg-muted rounded">
-                          R$ {selectedClient.valor.toLocaleString('pt-BR')}
-                        </p>
-                      )}
-                    </div>
                   </div>
 
                   {isEditing && (
@@ -473,30 +437,29 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
                   <ScrollArea className="flex-1">
                     <div className="space-y-3">
-                      {clientHistory.length === 0 ? (
+                      {loadingHistory ? (
+                        <div className="text-center py-4">Carregando histórico...</div>
+                      ) : clientHistory.length === 0 ? (
                         <div className="text-center py-8 text-muted-foreground">
                           <History className="h-8 w-8 mx-auto mb-2" />
                           Nenhum histórico encontrado
                         </div>
                       ) : (
-                        clientHistory.map((item) => {
-                          const IconComponent = getActionIcon(item.action);
+                        clientHistory.map((entry) => {
+                          const Icon = getActionIcon(entry.type);
                           return (
-                            <div key={item.id} className="flex gap-3 p-3 bg-muted/50 rounded-lg">
-                              <IconComponent className="h-4 w-4 mt-1 text-muted-foreground" />
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between">
-                                  <Badge variant="outline" className="text-xs">
-                                    {item.action}
-                                  </Badge>
-                                  <span className="text-xs text-muted-foreground">
-                                    {formatDistanceToNow(new Date(item.created_at), { 
-                                      addSuffix: true, 
-                                      locale: ptBR 
-                                    })}
-                                  </span>
+                            <div key={entry.id} className="flex gap-3 p-3 bg-muted/30 rounded-lg">
+                              <div className="flex-shrink-0">
+                                <div className="p-2 bg-primary/10 rounded-full">
+                                  <Icon className="h-4 w-4 text-primary" />
                                 </div>
-                                <p className="text-sm mt-1">{item.description}</p>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium">{entry.type}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{entry.description}</p>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Por {entry.actor} • {new Date(entry.created_at).toLocaleString('pt-BR')}
+                                </p>
                               </div>
                             </div>
                           );
@@ -509,7 +472,7 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
             ) : (
               <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <div className="text-center">
-                  <Search className="h-12 w-12 mx-auto mb-4" />
+                  <Search className="h-8 w-8 mx-auto mb-2" />
                   <p>Selecione um cliente para ver os detalhes</p>
                 </div>
               </div>

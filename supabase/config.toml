@@ -2,3 +2,6 @@ project_id = "paawojkqrggnuvpnnwrc"
 
 [functions.images-delete]
 verify_jwt = true
+
+[functions.storage-purge]
+verify_jwt = false
