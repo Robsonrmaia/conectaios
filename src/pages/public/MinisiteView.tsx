@@ -23,11 +23,6 @@ interface MinisiteConfig {
   show_contact: boolean;
   show_about: boolean;
   custom_domain?: string;
-  description?: string;
-  phone?: string;
-  email?: string;
-  custom_message?: string;
-  generated_url?: string;
   is_active?: boolean;
 }
 
@@ -91,29 +86,32 @@ export default function MinisiteView() {
       let urlToFind = `https://conectaios.lovableproject.com/minisite/${username}`;
       console.log('Looking for URL:', urlToFind);
       
-      // Fetch minisite config first with basic columns only
+      // Simple minisite query to avoid type issues
       const { data: configData, error: configError } = await supabase
         .from('minisite_configs')
-        .select('id, user_id, title, primary_color, secondary_color, show_properties, show_contact, show_about, custom_domain, phone, email, custom_message, generated_url, is_active')
-        .eq('generated_url', urlToFind)
-        .eq('is_active', true)
-        .maybeSingle();
+        .select('*')
+        .ilike('title', `%${username}%`)
+        .limit(1)
+        .single();
 
-      console.log('Config data:', configData);
-      console.log('Config error:', configError);
-
-      if (configError) {
-        console.error('Error fetching minisite config:', configError);
-      }
-
-      if (!configData) {
+      if (configError || !configData) {
         console.log('Minisite not found for username:', username);
         setNotFound(true);
         setLoading(false);
         return;
       }
 
-      setConfig(configData);
+      setConfig({
+        id: configData.id,
+        user_id: configData.user_id,
+        title: configData.title,
+        primary_color: configData.primary_color,
+        secondary_color: configData.secondary_color,
+        show_properties: configData.show_properties,
+        show_contact: configData.show_contact,
+        show_about: configData.show_about,
+        custom_domain: configData.custom_domain
+      });
 
       // Fetch broker data separately using correct schema
       const { data: brokerData, error: brokerError } = await supabase
@@ -319,9 +317,6 @@ export default function MinisiteView() {
               )}
               <div>
                 <h1 className="text-2xl font-bold text-foreground">{config.title}</h1>
-                {config.description && (
-                  <p className="text-muted-foreground">{config.description}</p>
-                )}
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -514,14 +509,7 @@ export default function MinisiteView() {
               </div>
             )}
 
-            {/* Custom Message */}
-            {config.custom_message && (
-              <Card>
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground">{config.custom_message}</p>
-                </CardContent>
-              </Card>
-            )}
+            {/* Custom Message - Removed as not in database schema */}
           </div>
 
           {/* Sidebar */}
@@ -532,22 +520,6 @@ export default function MinisiteView() {
                 <CardContent className="p-6">
                   <h3 className="font-bold mb-4">Contato</h3>
                   <div className="space-y-3">
-                    {config.phone && (
-                      <div className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4 text-primary" />
-                        <a href={`tel:${config.phone}`} className="text-sm hover:underline">
-                          {config.phone}
-                        </a>
-                      </div>
-                    )}
-                    {config.email && (
-                      <div className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4 text-primary" />
-                        <a href={`mailto:${config.email}`} className="text-sm hover:underline">
-                          {config.email}
-                        </a>
-                      </div>
-                    )}
                     {broker?.whatsapp && (
                       <WhatsAppButton
                         phone={broker.whatsapp}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import logonovaImg from '@/assets/logonova.png';
+import { useLogo } from '@/providers/BrandingProvider';
 
 interface ConectaLogoProps {
   className?: string;
@@ -17,9 +17,10 @@ export default function ConectaLogo({
   vertical = false
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
+  const logoUrl = useLogo();
 
-  if (imageError) {
-    // Fallback para texto se a imagem não carregar
+  // Fallback if no logo URL or image fails to load
+  if (imageError || !logoUrl) {
     return (
       <div className={`flex ${vertical ? 'flex-col' : 'items-center'} justify-center font-bold text-primary ${className}`}>
         ConectaIOS
@@ -28,17 +29,17 @@ export default function ConectaLogo({
   }
 
   return (
-    <div className={`flex ${vertical ? 'flex-col items-center gap-1' : 'items-center gap-2'} ${className}`}>
-      <img
-        src={logonovaImg}
-        alt={alt}
-        width={width}
-        height={height}
-        onError={() => setImageError(true)}
-        loading="lazy"
-        className="object-contain"
-      />
-      <span className="font-bold text-primary">ConectaIOS</span>
-    </div>
+    <img
+      src={logoUrl}
+      alt={alt}
+      width={width}
+      height={height}
+      className={`object-contain ${className}`}
+      onError={() => setImageError(true)}
+      style={{
+        maxWidth: width,
+        maxHeight: height
+      }}
+    />
   );
 }

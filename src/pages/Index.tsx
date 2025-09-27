@@ -20,15 +20,15 @@ import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-const garotonectaImg = 'https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
-import logoconectaiosImg from '@/assets/logoconectaios.png';
-import logoSvg from '@/assets/logo.svg';
+import { useHeroImage, useLogo } from '@/providers/BrandingProvider';
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [banners, setBanners] = useState<any[]>([]);
   const [partnerships, setPartnerships] = useState<any[]>([]);
+  const heroUrl = useHeroImage();
+  const logoUrl = useLogo();
 
   // Removido redirecionamento automático para permitir visualização da página inicial
 
@@ -69,7 +69,7 @@ const Index = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <img 
-                src={logoconectaiosImg} 
+                src={logoUrl || '/logoconectaios.png'} 
                 alt="ConectaIOS" 
                 className="h-10 w-auto object-contain" 
               />
@@ -223,7 +223,7 @@ const Index = () => {
 
                 <div className="relative z-10">
                   <img 
-                    src={garotonectaImg} 
+                    src={heroUrl || '/logoconectaios.png'} 
                     alt="Profissional ConectaIOS" 
                     className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain drop-shadow-2xl"
                   />
@@ -318,7 +318,7 @@ const Index = () => {
               </div>
 
               <img 
-                src={garotonectaImg} 
+                src={heroUrl || '/logoconectaios.png'} 
                 alt="Profissional ConectaIOS" 
                 className="max-w-[280px] h-auto object-contain drop-shadow-xl relative z-10"
               />
@@ -1132,7 +1132,7 @@ const Index = () => {
           
           {/* Info Principal */}
           <div className="flex items-center justify-center space-x-2 mb-2">
-            <img src={logoconectaiosImg} alt="ConectaIOS" className="h-6 w-6 rounded-full" />
+            <img src={logoUrl || '/logoconectaios.png'} alt="ConectaIOS" className="h-6 w-6 rounded-full" />
             <span className="text-lg font-semibold">ConectaIOS</span>
             <span className="text-sm text-slate-300">• Ilhéus</span>
           </div>

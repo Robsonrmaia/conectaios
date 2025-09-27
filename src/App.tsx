@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { useBroker } from "@/hooks/useBroker";
+import { BrandingProvider } from '@/providers/BrandingProvider';
 import { MinisiteProvider } from "@/hooks/useMinisite";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -121,8 +122,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AuthProvider>
-          <MinisiteProvider>
-              <BrowserRouter>
+          <BrandingProvider>
+            <MinisiteProvider>
+                <BrowserRouter>
                 <MaintenanceCheck>
                   <Routes>
                    <Route path="/" element={<Index />} />
@@ -177,8 +179,9 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                   </Routes>
                 </MaintenanceCheck>
-              </BrowserRouter>
-            </MinisiteProvider>
+                </BrowserRouter>
+              </MinisiteProvider>
+            </BrandingProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
