@@ -87,10 +87,73 @@ Sistema implementado para remoção segura de dados de demonstração:
    - Ative RLS em todas as tabelas
    - Garanta que imóveis têm `is_public=true` e `visibility='public_site'` para aparecer em minisites
 
-5. **Inicie o desenvolvimento**:
+5. **Bootstrap Inicial do Administrador**:
+   ```powershell
+   # Criar usuário admin inicial
+   $headers = @{
+     'Authorization' = "Bearer YOUR_SERVICE_ROLE_KEY"
+     'Content-Type' = 'application/json'
+     'apikey' = 'YOUR_ANON_KEY'
+   }
+   
+   $body = @{} | ConvertTo-Json
+   
+   Invoke-RestMethod -Uri "https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/admin-create-user" -Method POST -Headers $headers -Body $body
+   
+   # Login: admin@conectaios.com.br / senha gerada será retornada
+   ```
+
+6. **Inicie o desenvolvimento**:
    ```bash
    npm run dev
    ```
+
+## 📁 Arquitetura de Dados
+
+### ⚠️ Uso Obrigatório da Camada Unificada
+
+**SEMPRE** use `src/data/index.ts` para operações de banco:
+
+```tsx
+// ✅ CORRETO
+import { Properties, CRM, ClientSearches } from '@/data';
+const imoveis = await Properties.list();
+
+// ❌ PROIBIDO (exceto admin/monitoramento)
+import { supabase } from '@/integrations/supabase/client';
+const { data } = await supabase.from('imoveis')...
+```
+
+**Exceções permitidas**: Componentes de sistema/admin para monitoramento (`SystemStatus`, `SystemAlerts`, `SystemLogs`).
+
+### Importação de Dados VRSync
+
+Para importar feeds externos via Edge Function:
+
+```powershell
+# PowerShell para import VRSync
+$headers = @{
+  'Authorization' = "Bearer YOUR_SERVICE_ROLE_KEY"
+  'Content-Type' = 'application/json'
+  'apikey' = 'YOUR_ANON_KEY'
+}
+
+$body = @{
+  'source' = 'vrsync'
+  'broker_id' = 'uuid-do-corretor'
+  'validate_only' = $false
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/import-vrsync" -Method POST -Headers $headers -Body $body
+```
+
+### Sistema de Branding Dinâmico
+
+URLs de logo e hero são carregadas de `system_settings`:
+- Logo: https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/Logo.png
+- Hero: https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/iagohero.png
+
+Atualizações via admin não requerem deploy de código.
 
 ## 🌐 Minisites - Configuração Especial
 
@@ -294,6 +357,39 @@ Certifique-se de configurar:
 3. Faça o deploy do diretório `dist/`
 4. Configure o domínio no Supabase Auth
 
+## ✅ Checklist de Aceite - ConectaIOS SaaS
+
+### Autenticação e Permissões
+- [ ] Login com `admin@conectaios.com` funciona
+- [ ] Profile do admin é criado automaticamente via trigger
+- [ ] RLS policies ativas em todas as tabelas
+- [ ] Usuário admin pode acessar área administrativa
+
+### Sistema de Imagens e Branding
+- [ ] Logo carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/Logo.png`
+- [ ] Hero carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/iagohero.png`
+- [ ] Branding salvo em `system_settings` (verificar no SQL)
+- [ ] Imagens aparecem na navbar e página inicial
+
+### CRM e Dados
+- [ ] CRUD de clientes funcionando via `CRM.clients`
+- [ ] CRUD de negócios funcionando via `CRM.deals`
+- [ ] CRUD de imóveis funcionando via `Properties`
+- [ ] Busca Full-Text (FTS) operacional
+- [ ] Matches inteligentes entre buscas e imóveis
+
+### Camada de Dados
+- [ ] Zero uso direto de `supabase.from()` (exceto admin/monitoramento)
+- [ ] Todas as operações passam por `src/data/index.ts`
+- [ ] Import VRSync disponível via Edge Function
+- [ ] Storage bucket `assets` público e `imoveis` privado
+
+### Performance e Responsividade
+- [ ] App carrega em menos de 3 segundos
+- [ ] Responsivo em 320px, 768px, 1024px+
+- [ ] Sem overflow horizontal em dispositivos móveis
+- [ ] Touch targets de pelo menos 44px
+
 ## 🤝 Contribuição
 
 1. Fork o projeto
@@ -306,8 +402,9 @@ Certifique-se de configurar:
 
 - Use TypeScript strict mode
 - Siga as regras do ESLint configuradas
-- Mantenha cobertura de testes acima de 80%
+- Utilize apenas `src/data/index.ts` para operações de banco
 - Documente funções complexas
+- Mantenha responsividade mobile-first
 
 ## 📝 Licença
 
