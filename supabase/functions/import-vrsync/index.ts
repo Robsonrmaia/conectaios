@@ -303,7 +303,6 @@ serve(async (req) => {
           bairro: getElementValue(imovel, ['Address.Neighborhood', 'bairro']) || '',
           cidade: getElementValue(imovel, ['Address.City', 'cidade']) || '',
           fotos: photos,
-          thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
           finalidade: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])), // Compatibility
           tipo: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])), // Compatibility
           raw_vrsync: xmlToObject(imovel),

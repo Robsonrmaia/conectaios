@@ -75,26 +75,35 @@ export default function AdminUserManagement() {
 
       if (profilesError) throw profilesError;
 
-      const { data: brokersData, error: brokersError } = await supabase
-        .from('conectaios_brokers')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const { data: brokersData, error: brokersError } = await supabase
+      .from('brokers')
+      .select(`
+        *,
+        profiles!inner(*)
+      `);
 
-      if (brokersError) throw brokersError;
+    if (brokersError) throw brokersError;
 
-      // Merge profiles with broker data
-      const usersWithBrokerData = profilesData?.map(profile => {
-        const broker = brokersData?.find(b => b.user_id === profile.user_id);
-        return {
-          ...profile,
-          email: broker?.email,
-          phone: broker?.phone,
-          status: broker?.status || 'inactive'
-        };
-      }) || [];
+    // Merge profiles with broker data
+    const usersWithBrokerData = profilesData?.map(profile => {
+      const broker = brokersData?.find(b => b.user_id === profile.id);
+      return {
+        user_id: profile.id,
+        nome: profile.full_name || profile.email || 'Sem nome',
+        email: profile.email,
+        phone: profile.phone,
+        status: broker ? 'active' : 'inactive',
+        id: profile.id,
+        avatar_url: profile.avatar_url,
+        created_at: profile.created_at,
+        full_name: profile.full_name,
+        role: profile.role,
+        updated_at: profile.updated_at
+      };
+    }) || [];
 
-      setUsers(usersWithBrokerData);
-      setBrokers(brokersData || []);
+    setUsers(usersWithBrokerData);
+    setBrokers(brokersData || []);
     } catch (error: any) {
       toast({
         title: 'Erro',

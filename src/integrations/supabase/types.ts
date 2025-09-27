@@ -85,53 +85,6 @@ export type Database = {
           },
         ]
       }
-      brokers_legacy: {
-        Row: {
-          bio: string | null
-          commission_rate: number | null
-          company_name: string | null
-          company_phone: string | null
-          created_at: string | null
-          creci: string | null
-          id: string
-          updated_at: string | null
-          user_id: string | null
-          website: string | null
-        }
-        Insert: {
-          bio?: string | null
-          commission_rate?: number | null
-          company_name?: string | null
-          company_phone?: string | null
-          created_at?: string | null
-          creci?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id?: string | null
-          website?: string | null
-        }
-        Update: {
-          bio?: string | null
-          commission_rate?: number | null
-          company_name?: string | null
-          company_phone?: string | null
-          created_at?: string | null
-          creci?: string | null
-          id?: string
-          updated_at?: string | null
-          user_id?: string | null
-          website?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conectaios_brokers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       crm_clients: {
         Row: {
           budget_max: number | null
@@ -228,13 +181,6 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "crm_clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "deals_property_id_fkey"
-            columns: ["property_id"]
-            isOneToOne: false
-            referencedRelation: "properties_legacy"
             referencedColumns: ["id"]
           },
           {
@@ -717,95 +663,6 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
-      }
-      properties_legacy: {
-        Row: {
-          address: string | null
-          area: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          condominium_fee: number | null
-          created_at: string | null
-          description: string | null
-          id: string
-          iptu: number | null
-          latitude: number | null
-          longitude: number | null
-          parking_spots: number | null
-          photos: string[] | null
-          price: number | null
-          property_type: Database["public"]["Enums"]["property_type"] | null
-          state: string | null
-          status: Database["public"]["Enums"]["property_status"] | null
-          title: string
-          tour_360_url: string | null
-          updated_at: string | null
-          user_id: string | null
-          video_url: string | null
-          zipcode: string | null
-        }
-        Insert: {
-          address?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          iptu?: number | null
-          latitude?: number | null
-          longitude?: number | null
-          parking_spots?: number | null
-          photos?: string[] | null
-          price?: number | null
-          property_type?: Database["public"]["Enums"]["property_type"] | null
-          state?: string | null
-          status?: Database["public"]["Enums"]["property_status"] | null
-          title: string
-          tour_360_url?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_url?: string | null
-          zipcode?: string | null
-        }
-        Update: {
-          address?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          iptu?: number | null
-          latitude?: number | null
-          longitude?: number | null
-          parking_spots?: number | null
-          photos?: string[] | null
-          price?: number | null
-          property_type?: Database["public"]["Enums"]["property_type"] | null
-          state?: string | null
-          status?: Database["public"]["Enums"]["property_status"] | null
-          title?: string
-          tour_360_url?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_url?: string | null
-          zipcode?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conectaios_properties_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       subscriptions: {
         Row: {
