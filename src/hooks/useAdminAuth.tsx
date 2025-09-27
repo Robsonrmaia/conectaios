@@ -15,11 +15,18 @@ export function useAdminAuth() {
         return;
       }
 
+      // Only allow social.conectaios@gmail.com as admin
+      if (user.email !== 'social.conectaios@gmail.com') {
+        setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
       try {
         const { data, error } = await supabase
           .from('profiles')
           .select('role')
-          .eq('user_id', user.id)
+          .eq('id', user.id)
           .single();
 
         if (error) {
