@@ -206,6 +206,41 @@ export type Database = {
         }
         Relationships: []
       }
+      client_history: {
+        Row: {
+          action: string
+          client_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          client_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_history_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       client_searches: {
         Row: {
           broker_id: string | null
@@ -1164,6 +1199,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      market_stats: {
+        Row: {
+          avg_days_on_market: number | null
+          avg_price: number | null
+          created_at: string | null
+          id: string
+          listing_type: string | null
+          period_end: string
+          period_start: string
+          price_per_sqm: number | null
+          property_type: string | null
+          region: string | null
+          total_listings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          avg_days_on_market?: number | null
+          avg_price?: number | null
+          created_at?: string | null
+          id?: string
+          listing_type?: string | null
+          period_end: string
+          period_start: string
+          price_per_sqm?: number | null
+          property_type?: string | null
+          region?: string | null
+          total_listings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          avg_days_on_market?: number | null
+          avg_price?: number | null
+          created_at?: string | null
+          id?: string
+          listing_type?: string | null
+          period_end?: string
+          period_start?: string
+          price_per_sqm?: number | null
+          property_type?: string | null
+          region?: string | null
+          total_listings?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       matches: {
         Row: {

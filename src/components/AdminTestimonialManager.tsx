@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Trash2, Edit3, Plus, Star, MessageSquare, User } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 interface Testimonial {
@@ -37,6 +38,7 @@ interface TestimonialForm {
 }
 
 export default function AdminTestimonialManager() {
+  const { user } = useAuth();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -93,9 +95,17 @@ export default function AdminTestimonialManager() {
         if (error) throw error;
         toast.success('Testemunho atualizado com sucesso!');
       } else {
+        const testimonialData = {
+          author_name: formData.name, // Map name to author_name
+          content: formData.testimonial, // Map testimonial to content
+          rating: formData.rating,
+          published: formData.is_active, // Map is_active to published
+          user_id: user?.id // Add required user_id field
+        };
+        
         const { error } = await supabase
           .from('testimonials')
-          .insert(formData);
+          .insert([testimonialData]); // Wrap in array for insert
 
         if (error) throw error;
         toast.success('Testemunho criado com sucesso!');

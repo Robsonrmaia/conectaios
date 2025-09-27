@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Trash2, Edit3, Plus, Building, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 
 interface Partner {
@@ -44,6 +45,7 @@ const categories = [
 ];
 
 export default function AdminPartnerManager() {
+  const { user } = useAuth();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -103,9 +105,14 @@ export default function AdminPartnerManager() {
         if (error) throw error;
         toast.success('Parceiro atualizado com sucesso!');
       } else {
+        const partnerData = {
+          ...formData,
+          user_id: user?.id // Add required user_id field
+        };
+        
         const { error } = await supabase
           .from('partners')
-          .insert(formData);
+          .insert([partnerData]); // Wrap in array for insert
 
         if (error) throw error;
         toast.success('Parceiro criado com sucesso!');

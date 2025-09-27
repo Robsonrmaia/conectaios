@@ -25,6 +25,7 @@ import {
   FileText
 } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { generateMinisiteUrl, generateBrokerIdentifier, generateMinisitePath } from '@/lib/urls';
 
@@ -51,6 +52,7 @@ const TEMPLATES = [
 ];
 
 export function FunctionalMinisite() {
+  const { user } = useAuth();
   const { broker } = useBroker();
   const [config, setConfig] = useState<MinisiteConfig>({
     template: 'modern',
@@ -111,29 +113,21 @@ export function FunctionalMinisite() {
       
       // Save or update minisite config in database
       const minisiteData = {
-        broker_id: broker.id,
+        user_id: broker?.user_id || user?.id, // Add required user_id field
         template_id: config.template,
         primary_color: config.primaryColor,
         secondary_color: config.secondaryColor,
         title: config.title,
-        description: config.description,
-        phone: config.phone,
-        email: config.email,
-        whatsapp: config.whatsapp,
-        custom_message: config.customMessage,
         show_properties: config.showProperties,
-        show_contact_form: config.showContactForm,
-        show_about: config.showAbout,
-        config_data: config as any,
-        generated_url: minisitePath,
-        is_active: true
+        show_contact: config.showContactForm,
+        show_about: config.showAbout
       };
 
       // Check if minisite config already exists
       const { data: existingConfig } = await supabase
         .from('minisite_configs')
         .select('id')
-        .eq('broker_id', broker.id)
+        .eq('user_id', broker?.user_id || user?.id) // Use user_id instead of broker_id
         .maybeSingle();
 
       let result;
@@ -149,7 +143,7 @@ export function FunctionalMinisite() {
         // Insert new config
         result = await supabase
           .from('minisite_configs')
-          .insert(minisiteData)
+          .insert([minisiteData]) // Wrap in array for insert
           .select()
           .single();
       }

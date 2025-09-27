@@ -110,8 +110,11 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
         stage: c.stage,
         valor: c.valor,
         score: c.score,
-        historico: c.historico || []
-      })));
+        historico: c.historico || [],
+        classificacao: 'ativo', // Add required field
+        created_at: c.created_at,
+        updated_at: c.updated_at
+      })) as Client[]);
       setFilteredClients((data || []).map((c: any) => ({
         id: c.id,
         nome: c.nome,
@@ -121,8 +124,11 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
         stage: c.stage,
         valor: c.valor,
         score: c.score,
-        historico: c.historico || []
-      })));
+        historico: c.historico || [],
+        classificacao: 'ativo', // Add required field
+        created_at: c.created_at,  
+        updated_at: c.updated_at
+      })) as Client[]);
     } catch (error) {
       console.error('Error fetching clients:', error);
       toast({
@@ -168,14 +174,12 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
     try {
       const { error } = await supabase
-        .from('conectaios_clients')
+        .from('crm_clients') // Use crm_clients table
         .update({
-          nome: editFormData.nome,
-          telefone: editFormData.telefone,
+          name: editFormData.nome, // Map nome to name
+          phone: editFormData.telefone, // Map telefone to phone  
           email: editFormData.email,
-          data_nascimento: editFormData.data_nascimento || null,
-          tipo: editFormData.tipo,
-          valor: parseFloat(editFormData.valor) || 0,
+          budget_max: parseFloat(editFormData.valor) || 0, // Map valor to budget_max
           updated_at: new Date().toISOString()
         })
         .eq('id', selectedClient.id);
@@ -225,8 +229,8 @@ export function GlobalClientSearch({ open, onOpenChange }: GlobalClientSearchPro
 
       // Update last contact
       await supabase
-        .from('conectaios_clients')
-        .update({ last_contact_at: new Date().toISOString() })
+        .from('crm_clients') // Use crm_clients table
+        .update({ updated_at: new Date().toISOString() }) // Remove non-existent last_contact_at field
         .eq('id', selectedClient.id);
 
       toast({

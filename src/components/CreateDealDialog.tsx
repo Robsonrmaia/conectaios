@@ -64,12 +64,18 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
     try {
       // Fetch properties
       const { data: propertiesData } = await supabase
-        .from('properties')
-        .select('id, titulo, valor')
-        .eq('user_id', user?.id)
+        .from('imoveis') // Use imoveis instead of properties
+        .select('id, title, price') // Use title and price instead of titulo/valor
+        .eq('owner_id', user?.id)
         .order('created_at', { ascending: false });
 
-      setProperties(propertiesData || []);
+      if (propertiesData) {
+        setProperties(propertiesData.map(item => ({
+          id: item.id,
+          titulo: item.title, // Map title to titulo for compatibility
+          valor: item.price || 0 // Map price to valor for compatibility
+        })) as Property[]);
+      }
 
       // Fetch clients
       const { data: clientsData } = await supabase

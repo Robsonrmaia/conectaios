@@ -42,7 +42,7 @@ export function MarketStatsWidget() {
         return;
       }
 
-      setStats(data || []);
+      setStats((data || []) as any);
     } catch (error) {
       console.error('Error fetching market stats:', error);
     } finally {

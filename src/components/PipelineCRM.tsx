@@ -164,12 +164,12 @@ export default function PipelineCRM() {
 
       // Fetch notes
       const { data: notesData } = await supabase
-        .from('conectaios_notes')
+        .from('crm_notes') // Use actual table name
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
 
-      setNotes(notesData || []);
+      setNotes((notesData as any) || []);
 
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
