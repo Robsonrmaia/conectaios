@@ -903,6 +903,45 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      search_imoveis: {
+        Args: {
+          city_filter?: string
+          limit_rows?: number
+          offset_rows?: number
+          purpose_filter?: string
+          q?: string
+        }
+        Returns: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_furnished: boolean | null
+          is_public: boolean | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string
+          parking: number | null
+          price: number | null
+          purpose: string
+          search_vector: unknown | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          zipcode: string | null
+        }[]
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
