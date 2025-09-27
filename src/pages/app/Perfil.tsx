@@ -10,10 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
-import BrokerSetup from '@/components/BrokerSetup';
+import BrokerSetupFixed from '@/components/BrokerSetupFixed';
 import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
 import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { 
   User, 
   Mail, 
@@ -73,7 +73,7 @@ export default function Perfil() {
 
   // If no broker profile exists, show the setup form
   if (!broker) {
-    return <BrokerSetup />;
+    return <BrokerSetupFixed />;
   }
 
   const [notifications, setNotifications] = useState({
