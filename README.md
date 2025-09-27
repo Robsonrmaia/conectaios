@@ -1,26 +1,52 @@
-# ConectaIOS - Plataforma Imobiliária Completa
+# ConectaIOS SaaS - Plataforma Imobiliária
 
-Uma plataforma moderna e segura para corretores de imóveis, com recursos avançados de CRM, gestão de propriedades, inteligência artificial e automação.
+Sistema completo para corretores de imóveis com gestão de propriedades, CRM, minisites e ferramentas de IA.
 
-## 🚀 Funcionalidades
+## 🚀 Funcionalidades Principais
 
-- **CRM Inteligente**: Gestão completa de clientes e leads
-- **Catálogo de Imóveis**: Sistema robusto de propriedades com fotos, vídeos e tours 360°
-- **IA Integrada**: Assistente virtual, geração de conteúdo e matching inteligente
-- **Marketplace**: Conecte-se com outros corretores e amplie sua rede
-- **Sistema de Deals**: Negociações transparentes e contratos digitais
-- **Minisites**: Páginas personalizadas para cada corretor
-- **Automações**: WhatsApp, e-mail e notificações inteligentes
+- **Gestão de Imóveis**: Upload, edição e visualização de propriedades
+- **CRM Completo**: Pipeline drag-and-drop, clientes, tarefas e histórico
+- **Minisites**: Páginas personalizadas para corretores
+- **Sistema de Imagens**: Upload, marcação de capa e remoção segura
+- **Ferramentas de IA**: Descrições automáticas, análise de imagens
+- **Analytics**: Estatísticas de mercado e performance
 
 ## 🛠️ Tecnologias
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Backend**: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
-- **Autenticação**: Supabase Auth com RLS
-- **Integração IA**: OpenAI, Gemini, Hugging Face, ElevenLabs
-- **Pagamentos**: Asaas (PIX, cartão, boleto)
-- **Deploy**: Vercel/Netlify
+- **Frontend**: React + Vite + TypeScript + Tailwind CSS
+- **Backend**: Supabase (PostgreSQL + Edge Functions + Storage)
+- **Autenticação**: Supabase Auth
+- **UI Components**: Shadcn/ui + Radix UI
+
+## 🗄️ Gestão de Dados
+
+### ⚠️ Limpeza Controlada de Dados de Exemplo
+
+Sistema implementado para remoção segura de dados de demonstração:
+
+#### Processo de Limpeza (Apenas Administradores)
+
+1. **Habilitar temporariamente**: `VITE_ALLOW_SAMPLE_PURGE=true`
+2. **Executar**: `db/maintenance/001_purge_demo.sql`
+3. **Limpar Storage**: Edge Function `storage-purge`
+4. **Verificar**: `db/maintenance/check_clean.sql`
+5. **Desabilitar**: `VITE_ALLOW_SAMPLE_PURGE=false`
+
+#### Importação de Dados Reais
+
+- **Feeds**: CNM, OLX, VRSync automatizados
+- **Upload Manual**: Via interface administrativa
+- **Imagens**: `imoveis/public/{imovel_id}/arquivo.ext`
+- **Camada Unificada**: Use `src/data/index.ts` para todas as operações
+
+## 📊 Estrutura do Banco
+
+### Tabelas Padronizadas
+- `imoveis` - Propriedades com FTS e triggers
+- `imovel_images` - Imagens com storage integration
+- `crm_clients/deals/notes/tasks` - CRM completo
+- `brokers/profiles` - Usuários e permissões
+- Foreign Keys e índices implementados
 
 ## 📋 Pré-requisitos
 

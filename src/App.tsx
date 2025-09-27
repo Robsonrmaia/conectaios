@@ -31,6 +31,8 @@ import CRM from "./pages/app/CRM";
 import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
+import DataManagement from "./pages/admin/DataManagement";
+import AdminRoute from "./components/AdminRoute";
 import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
 import Suporte from "./pages/app/Suporte";
 import Videos from "./pages/app/Videos";
@@ -158,7 +160,12 @@ const App = () => (
                           <Route path="patrocinios" element={<Patrocinios />} />
                            <Route path="ai-assistant" element={<AIAssistant />} />
                            <Route path="audit-logs" element={<AuditLogs />} />
-                           <Route path="admin" element={<Admin />} />
+            <Route path="admin" element={<Admin />} />
+            <Route path="admin/data-management" element={
+              <AdminRoute>
+                <DataManagement />
+              </AdminRoute>
+            } />
                            <Route path="perfil" element={<Perfil />} />
                            <Route path="ajuda" element={<Ajuda />} />
                            <Route path="suporte" element={<Suporte />} />
