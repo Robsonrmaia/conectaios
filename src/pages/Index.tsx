@@ -20,7 +20,7 @@ import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-const garotonectaImg = 'https://hvbdeyuqcliqrmzvyciq.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
+const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 import logoSvg from '@/assets/logo.svg';
 

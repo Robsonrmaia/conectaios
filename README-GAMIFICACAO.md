@@ -16,8 +16,8 @@ Sistema completo de gamificação implementado com:
 - **Sidebar**: Item "Gamificação" no menu Ferramentas
 
 ### Edge Functions
-- **Eventos de Gamificação**: `https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/gamification-events`
-- **Webhooks Sociais**: `https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/social-webhooks`
+- **Eventos de Gamificação**: `https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/gamification-events`
+- **Webhooks Sociais**: `https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/social-webhooks`
 
 ## 📊 Sistema de Pontos (Implementado)
 

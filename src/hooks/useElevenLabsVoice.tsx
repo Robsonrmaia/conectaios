@@ -120,7 +120,7 @@ export const useElevenLabsVoice = () => {
         setTimeout(() => reject(new Error('Timeout na geração de áudio - Tente novamente')), 10000)
       );
       
-      const fetchPromise = fetch('https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/text-to-speech', {
+      const fetchPromise = fetch('https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/text-to-speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

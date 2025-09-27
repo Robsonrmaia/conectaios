@@ -40,7 +40,7 @@ export const APIDocumentation = () => {
   const testAPI = async () => {
     try {
       const response = await fetch(
-        `https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/private-api${testEndpoint}`,
+        `https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/private-api${testEndpoint}`,
         {
           headers: {
             'x-api-key': broker?.referral_code || '',
@@ -57,7 +57,7 @@ export const APIDocumentation = () => {
     }
   };
 
-  const baseUrl = 'https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/private-api';
+  const baseUrl = 'https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/private-api';
 
   if (!broker?.referral_code) {
     return (

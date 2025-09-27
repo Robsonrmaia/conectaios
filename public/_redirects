@@ -1,6 +1,6 @@
 # Feeds XML Proxy Routes
-/feeds/chavesnamao.xml https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/feeds-cnm?token=:token 200
-/feeds/olx.xml https://hvbdeyuqcliqrmzvyciq.supabase.co/functions/v1/feeds-olx?token=:token 200
+/feeds/chavesnamao.xml https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/feeds-cnm?token=:token 200
+/feeds/olx.xml https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/feeds-olx?token=:token 200
 
 # Existing routes
 /@:username /broker/:username 301
