@@ -1180,13 +1180,52 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
           created_at: string | null
           email: string | null
           full_name: string | null
           id: string
+          name: string | null
           nome: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"] | null
@@ -1194,10 +1233,13 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
           id: string
+          name?: string | null
           nome?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -1205,10 +1247,13 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
+          name?: string | null
           nome?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
@@ -1392,6 +1437,42 @@ export type Database = {
         }
         Relationships: []
       }
+      testimonials: {
+        Row: {
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          published: boolean
+          rating: number | null
+          source: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name: string
+          content: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          rating?: number | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          published?: boolean
+          rating?: number | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           at: string | null
@@ -1434,6 +1515,14 @@ export type Database = {
           p_usuario_id: string
         }
         Returns: undefined
+      }
+      ensure_broker_for_user: {
+        Args: { p_user: string }
+        Returns: string
+      }
+      ensure_minisite_for_user: {
+        Args: { p_user: string }
+        Returns: string
       }
       find_existing_one_to_one_thread: {
         Args: { user_a: string; user_b: string }

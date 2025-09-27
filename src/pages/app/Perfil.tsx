@@ -50,11 +50,6 @@ export default function Perfil() {
     specialties: ''
   });
 
-  // If no broker profile exists, show the setup form
-  if (!broker) {
-    return <BrokerSetup />;
-  }
-
   // Update profile data when broker data changes
   useEffect(() => {
     if (broker) {
@@ -75,6 +70,11 @@ export default function Perfil() {
         });
     }
   }, [broker]);
+
+  // If no broker profile exists, show the setup form
+  if (!broker) {
+    return <BrokerSetup />;
+  }
 
   const [notifications, setNotifications] = useState({
     emailLeads: true,

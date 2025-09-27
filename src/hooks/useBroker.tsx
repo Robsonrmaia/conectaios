@@ -1,23 +1,13 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { brokerService, type BrokerData } from '@/data/broker';
 
-export interface Broker {
-  id: string;
-  user_id: string;
-  name?: string;
-  email?: string;
+export interface Broker extends BrokerData {
   status?: string;
   subscription_status?: string;
-  creci?: string;
-  phone?: string;
-  avatar_url?: string;
-  cover_url?: string;
-  username?: string;
-  bio?: string;
-  whatsapp?: string;
   cpf_cnpj?: string;
   referral_code?: string;
+  username?: string;
 }
 
 export interface Plan {
@@ -49,19 +39,10 @@ export const useBroker = () => {
     try {
       setLoading(true);
       
-      // Use brokers table with simplified data
-      const { data: brokerData } = await supabase
-        .from('brokers')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
+      const brokerData = await brokerService.getCurrent();
       if (brokerData) {
         setBroker({
-          id: brokerData.id,
-          user_id: brokerData.user_id,
-          name: brokerData.creci || 'Corretor',
-          email: user.email || '',
+          ...brokerData,
           status: 'active',
           subscription_status: 'trial'
         });
@@ -89,30 +70,20 @@ export const useBroker = () => {
     if (!user) throw new Error('User not authenticated');
 
     try {
-      const { data: newBroker, error } = await supabase
-        .from('brokers')
-        .insert({
-          user_id: user.id,
-          creci: data.creci || '',
-          bio: data.bio || '',
-          whatsapp: data.whatsapp || '',
-          minisite_slug: data.minisite_slug || ''
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
+      const updatedData = await brokerService.update({
+        creci: data.creci || '',
+        bio: data.bio || '',
+        whatsapp: data.whatsapp || '',
+        minisite_slug: data.minisite_slug || ''
+      });
 
       setBroker({
-        id: newBroker.id,
-        user_id: newBroker.user_id,
-        name: newBroker.creci || 'Corretor',
-        email: user.email || '',
+        ...updatedData,
         status: 'active',
         subscription_status: 'trial'
       });
 
-      return newBroker;
+      return updatedData;
     } catch (error) {
       console.error('Error creating broker:', error);
       throw error;
@@ -123,17 +94,9 @@ export const useBroker = () => {
     if (!broker) throw new Error('No broker profile found');
 
     try {
-      const { data, error } = await supabase
-        .from('brokers')
-        .update(updates)
-        .eq('id', broker.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setBroker(prev => prev ? { ...prev, ...updates } : null);
-      return data;
+      const updatedData = await brokerService.update(updates);
+      setBroker(prev => prev ? { ...prev, ...updatedData } : null);
+      return updatedData;
     } catch (error) {
       console.error('Error updating broker:', error);
       throw error;
