@@ -17,15 +17,18 @@ import {
   Home,
   Bed,
   Bath,
-  Car
+  Car,
+  Send
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useBroker } from '@/hooks/useBroker';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageWrapper from '@/components/PageWrapper';
 import { PropertyFormModal } from '@/components/PropertyFormModal';
+import { PropertyClientFormModal } from '@/components/PropertyClientFormModal';
 
 interface Property {
   id: string;
@@ -50,6 +53,7 @@ interface Property {
 
 const Imoveis = () => {
   const { user } = useAuth();
+  const { broker } = useBroker();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -57,6 +61,8 @@ const Imoveis = () => {
   const [typeFilter, setTypeFilterState] = useState('');
   const [statusFilter, setStatusFilterState] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showClientFormModal, setShowClientFormModal] = useState(false);
+  const [selectedPropertyForForm, setSelectedPropertyForForm] = useState<{ id: string; title: string } | null>(null);
 
   const setPurposeFilter = (value: string) => {
     setPurposeFilterState(value === "all" ? "" : value);
@@ -375,13 +381,24 @@ const Imoveis = () => {
                         
                         <TableCell>
                           <div className="flex gap-1">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" title="Visualizar">
                               <Eye className="h-3 w-3" />
                             </Button>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" title="Editar">
                               <Edit className="h-3 w-3" />
                             </Button>
-                            <Button size="sm" variant="destructive">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              title="Enviar Formulário ao Cliente"
+                              onClick={() => {
+                                setSelectedPropertyForForm({ id: property.id, title: property.title });
+                                setShowClientFormModal(true);
+                              }}
+                            >
+                              <Send className="h-3 w-3" />
+                            </Button>
+                            <Button size="sm" variant="destructive" title="Excluir">
                               <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
@@ -401,6 +418,19 @@ const Imoveis = () => {
           onClose={() => setShowAddModal(false)}
           onSuccess={fetchProperties}
         />
+
+        {/* Property Client Form Modal */}
+        {selectedPropertyForForm && broker && (
+          <PropertyClientFormModal
+            isOpen={showClientFormModal}
+            onClose={() => {
+              setShowClientFormModal(false);
+              setSelectedPropertyForForm(null);
+            }}
+            property={selectedPropertyForForm}
+            brokerId={broker.id}
+          />
+        )}
       </div>
     </PageWrapper>
   );
