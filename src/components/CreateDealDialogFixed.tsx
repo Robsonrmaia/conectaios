@@ -1,44 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { Properties, CRM, Property, Client, Deal } from '@/data';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Plus } from 'lucide-react';
-
-interface Broker {
-  id: string;
-  name: string;
-  email: string;
-  user_id: string;
-  status: string;
-}
+import { CRM, Properties, imovelToProperty, type Property, type Client, type Deal } from '@/data';
+import { useAuth } from '@/hooks/useAuth';
+import { useBroker } from '@/hooks/useBroker';
 
 interface CreateDealDialogProps {
-  propertyId?: string;
-  onDealCreated?: (deal: any) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onDealCreated?: () => void;
 }
 
-export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialogProps) {
-  const [open, setOpen] = useState(false);
+export function CreateDealDialog({ open, onOpenChange, onDealCreated }: CreateDealDialogProps) {
+  const { user } = useAuth();
+  const { broker } = useBroker();
+  const { toast } = useToast();
+  
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
-  const [brokers, setBrokers] = useState<Broker[]>([]);
+  const [brokers, setBrokers] = useState<any[]>([]);
   
   const [formData, setFormData] = useState({
-    propertyId: propertyId || '',
-    clientId: '',
-    offerAmount: '',
-    associatedBrokers: [] as string[],
-    commissionSplit: '',
-    notes: ''
+    property_id: '',
+    client_id: '',
+    offer_amount: 0,
+    status: 'lead',
+    user_id: user?.id || ''
   });
 
-  const { toast } = useToast();
+  useEffect(() => {
+    if (open && user) {
+      fetchData();
+    }
+  }, [open, user]);
 
   const fetchData = async () => {
     try {
@@ -49,7 +48,7 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
         CRM.brokers.list()
       ]);
 
-        const transformedProperties = imoveis.map(imovel => imovelToProperty(imovel));
+      const transformedProperties = imoveis.map(imovel => imovelToProperty(imovel));
       setProperties(transformedProperties);
       setClients(crmClients);
       
@@ -58,11 +57,10 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
         id: b.id,
         name: b.user_id, // Will need profile join for real name
         email: '', // Will need profile join for real email
-        user_id: b.user_id,
-        status: 'active'
+        user_id: b.user_id
       }));
       setBrokers(transformedBrokers);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error fetching data:', error);
       toast({
         title: "Erro",
@@ -72,51 +70,44 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
     }
   };
 
-  useEffect(() => {
-    if (open) {
-      fetchData();
-    }
-  }, [open]);
-
-  const handleSubmit = async () => {
-    if (!formData.clientId || !formData.propertyId) {
-      toast({
-        title: "Erro",
-        description: "Cliente e propriedade são obrigatórios",
-        variant: "destructive",
-      });
-      return;
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broker?.id) return;
 
     setLoading(true);
     try {
-      const newDeal = await CRM.deals.create({
-        client_id: formData.clientId,
-        property_id: formData.propertyId,
-        offer_amount: parseFloat(formData.offerAmount) || 0,
-        status: 'negotiating',
-        user_id: 'current-user' // Replace with actual user ID
+      const deal = await CRM.deals.create({
+        client_id: formData.client_id,
+        property_id: formData.property_id,
+        offer_amount: formData.offer_amount,
+        status: formData.status,
+        user_id: formData.user_id,
+        commission_amount: 0,
+        notes: ''
       });
+
+      if (!deal) throw new Error('Failed to create deal');
 
       toast({
         title: "Sucesso",
-        description: "Deal criado com sucesso",
+        description: "Negócio criado com sucesso",
       });
 
-      onDealCreated?.(newDeal);
-      setOpen(false);
+      onDealCreated?.();
+      onOpenChange(false);
+      
+      // Reset form
       setFormData({
-        propertyId: propertyId || '',
-        clientId: '',
-        offerAmount: '',
-        associatedBrokers: [],
-        commissionSplit: '',
-        notes: ''
+        property_id: '',
+        client_id: '',
+        offer_amount: 0,
+        status: 'lead',
+        user_id: user?.id || ''
       });
     } catch (error: any) {
       toast({
         title: "Erro",
-        description: error.message || "Erro ao criar deal",
+        description: error.message || "Erro ao criar negócio",
         variant: "destructive",
       });
     } finally {
@@ -125,87 +116,90 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Criar Deal
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Criar Novo Deal</DialogTitle>
+          <DialogTitle>Criar Novo Negócio</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Propriedade</Label>
-              <Select 
-                value={formData.propertyId} 
-                onValueChange={(value) => setFormData({...formData, propertyId: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a propriedade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {properties.map(property => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.titulo}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Cliente</Label>
-              <Select 
-                value={formData.clientId} 
-                onValueChange={(value) => setFormData({...formData, clientId: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione o cliente" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map(client => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Label htmlFor="property">Imóvel</Label>
+            <Select 
+              value={formData.property_id} 
+              onValueChange={(value) => setFormData({ ...formData, property_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um imóvel" />
+              </SelectTrigger>
+              <SelectContent>
+                {properties.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.titulo} - R$ {property.valor?.toLocaleString()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <Label>Valor da Oferta (R$)</Label>
+            <Label htmlFor="client">Cliente</Label>
+            <Select 
+              value={formData.client_id} 
+              onValueChange={(value) => setFormData({ ...formData, client_id: value })}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="offer_amount">Valor da Proposta</Label>
             <Input
+              id="offer_amount"
               type="number"
-              value={formData.offerAmount}
-              onChange={(e) => setFormData({...formData, offerAmount: e.target.value})}
-              placeholder="500000"
+              value={formData.offer_amount}
+              onChange={(e) => setFormData({ ...formData, offer_amount: Number(e.target.value) })}
+              placeholder="0"
             />
           </div>
 
           <div>
-            <Label>Observações</Label>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              placeholder="Detalhes adicionais sobre o deal..."
-            />
+            <Label htmlFor="status">Status</Label>
+            <Select 
+              value={formData.status} 
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lead">Lead</SelectItem>
+                <SelectItem value="qualified">Qualificado</SelectItem>
+                <SelectItem value="proposal">Proposta</SelectItem>
+                <SelectItem value="won">Ganho</SelectItem>
+                <SelectItem value="lost">Perdido</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
-              {loading ? 'Criando...' : 'Criar Deal'}
+            <Button type="submit" disabled={loading}>
+              {loading ? 'Criando...' : 'Criar Negócio'}
             </Button>
           </div>
-        </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

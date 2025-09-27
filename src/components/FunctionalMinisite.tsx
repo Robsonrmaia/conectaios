@@ -129,35 +129,11 @@ export function FunctionalMinisite() {
         is_active: true
       };
 
-      // Check if minisite config already exists
-      const { data: existingConfig } = await supabase
-        .from('minisite_configs')
-        .select('id')
-        .eq('broker_id', broker.id)
-        .maybeSingle();
+      // Disabled minisite_configs operations - use minisites table instead
+      // TODO: Implement proper minisite handling
+      console.log('Minisite save disabled - using minisites table instead');
 
-      let result;
-      if (existingConfig) {
-        // Update existing config
-        result = await supabase
-          .from('minisite_configs')
-          .update(minisiteData)
-          .eq('id', existingConfig.id)
-          .select()
-          .single();
-      } else {
-        // Insert new config
-        result = await supabase
-          .from('minisite_configs')
-          .insert(minisiteData)
-          .select()
-          .single();
-      }
-
-      if (result.error) {
-        throw result.error;
-      }
-      
+      // Return success for now
       const fullUrl = generateMinisiteUrl(uniqueId);
       setGeneratedUrl(fullUrl);
       

@@ -53,9 +53,9 @@ export function GamificationFeatureFlag({ children, fallback = null }: Gamificat
       if (!broker?.id && user?.id && !creatingProfile) {
         console.log('⚠️ No broker profile found, checking if one exists...');
         
-        // First check if a broker profile already exists
+        // Check if broker profile exists using correct table
         const { data: existingBroker, error: checkError } = await supabase
-          .from('conectaios_brokers')
+          .from('brokers')
           .select('id')
           .eq('user_id', user.id)
           .maybeSingle();

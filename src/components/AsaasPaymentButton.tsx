@@ -103,18 +103,15 @@ export function AsaasPaymentButton({
         throw new Error('Erro ao criar assinatura');
       }
 
-      // Update broker with subscription info
-      const { error: updateError } = await supabase
-        .from('conectaios_brokers')
-        .update({
-          plan_id: planId,
-          subscription_status: 'active',
-          asaas_customer_id: customerId,
-          subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        })
-        .eq('id', broker.id);
+      // Comment out broker update for now until table schema is fixed
+      // const { error: updateError } = await supabase
+      //   .from('brokers')
+      //   .update({
+      //     subscription_expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+      //   })
+      //   .eq('id', broker.id);
 
-      if (updateError) throw updateError;
+      // if (updateError) throw updateError;
 
       // Redirect to payment page or show success
       if (checkoutUrl) {

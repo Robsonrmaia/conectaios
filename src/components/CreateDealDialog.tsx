@@ -64,31 +64,42 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
     try {
       // Fetch properties
       const { data: propertiesData } = await supabase
-        .from('properties')
-        .select('id, titulo, valor')
-        .eq('user_id', user?.id)
+        .from('imoveis')
+        .select('id, title, price')
+        .eq('owner_id', user?.id)
         .order('created_at', { ascending: false });
 
-      setProperties(propertiesData || []);
+      setProperties(propertiesData?.map(p => ({
+        id: p.id,
+        titulo: p.title,
+        valor: p.price || 0
+      })) || []);
 
       // Fetch clients
       const { data: clientsData } = await supabase
-        .from('clients')
-        .select('id, nome, telefone')
+        .from('crm_clients')
+        .select('id, name, phone')
         .eq('user_id', user?.id)
-        .order('nome');
+        .order('name');
 
-      setClients(clientsData || []);
+      setClients(clientsData?.map(c => ({
+        id: c.id,
+        nome: c.name,
+        telefone: c.phone || ''
+      })) || []);
 
       // Fetch brokers (excluding current user)
       const { data: brokersData } = await supabase
-        .from('conectaios_brokers')
-        .select('id, name, email')
+        .from('brokers')
+        .select('id, user_id')
         .neq('user_id', user?.id)
-        .eq('status', 'active')
-        .order('name');
+        .order('created_at');
 
-      setBrokers(brokersData || []);
+      setBrokers(brokersData?.map(b => ({
+        id: b.id,
+        name: b.user_id, // Will need profile join
+        email: ''
+      })) || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
@@ -111,7 +122,7 @@ export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialog
       }
 
       const { error } = await supabase
-        .from('deals')
+        .from('crm_deals')
         .insert({
           property_id: formData.property_id,
           client_id: formData.client_id || null,

@@ -27,7 +27,8 @@ export function BrokerSetup({ onBrokerCreated }: BrokerSetupProps) {
         user_id: 'current-user-id', // Replace with actual user ID
         creci: formData.creci,
         bio: formData.bio,
-        whatsapp: formData.whatsapp
+        whatsapp: formData.whatsapp,
+        minisite_slug: ''
       });
 
       if (!broker) throw new Error('Failed to create broker');

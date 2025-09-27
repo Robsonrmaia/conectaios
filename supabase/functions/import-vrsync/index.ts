@@ -306,7 +306,6 @@ serve(async (req) => {
         // Campos mapeados corretamente para PropertyData
         // title é removido pois não existe no tipo PropertyData
         // Campos básicos válidos para PropertyData (removendo campos inexistentes)
-        description: getElementValue(imovel, ['Description', 'Descricao', 'descricao']) || '',
           raw_vrsync: xmlToObject(imovel),
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,

@@ -53,7 +53,7 @@ export default function BrokerSetup() {
         try {
           // Buscar o ID do corretor recém-criado
           const { data: brokerData } = await supabase
-            .from('conectaios_brokers')
+            .from('brokers')
             .select('id')
             .eq('user_id', user?.id)
             .single();
