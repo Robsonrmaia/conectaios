@@ -498,6 +498,144 @@ export type Database = {
           },
         ]
       }
+      gam_badges: {
+        Row: {
+          ativo: boolean
+          cor: string | null
+          created_at: string
+          descricao: string | null
+          icone: string | null
+          id: string
+          label: string
+          prioridade: number | null
+          slug: string
+        }
+        Insert: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          label: string
+          prioridade?: number | null
+          slug: string
+        }
+        Update: {
+          ativo?: boolean
+          cor?: string | null
+          created_at?: string
+          descricao?: string | null
+          icone?: string | null
+          id?: string
+          label?: string
+          prioridade?: number | null
+          slug?: string
+        }
+        Relationships: []
+      }
+      gam_events: {
+        Row: {
+          created_at: string
+          id: string
+          meta: Json | null
+          pontos: number
+          ref_id: string | null
+          ref_tipo: string | null
+          rule_key: string
+          usuario_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          pontos?: number
+          ref_id?: string | null
+          ref_tipo?: string | null
+          rule_key: string
+          usuario_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          pontos?: number
+          ref_id?: string | null
+          ref_tipo?: string | null
+          rule_key?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
+      gam_points_rules: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          key: string
+          label: string
+          pontos: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          key: string
+          label: string
+          pontos?: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          key?: string
+          label?: string
+          pontos?: number
+        }
+        Relationships: []
+      }
+      gam_user_monthly: {
+        Row: {
+          ano: number
+          badges: Json | null
+          created_at: string
+          desconto_percent: number | null
+          id: string
+          mes: number
+          pontos: number
+          tier: string | null
+          updated_at: string
+          usuario_id: string
+        }
+        Insert: {
+          ano: number
+          badges?: Json | null
+          created_at?: string
+          desconto_percent?: number | null
+          id?: string
+          mes: number
+          pontos?: number
+          tier?: string | null
+          updated_at?: string
+          usuario_id: string
+        }
+        Update: {
+          ano?: number
+          badges?: Json | null
+          created_at?: string
+          desconto_percent?: number | null
+          id?: string
+          mes?: number
+          pontos?: number
+          tier?: string | null
+          updated_at?: string
+          usuario_id?: string
+        }
+        Relationships: []
+      }
       imoveis: {
         Row: {
           area_built: number | null
@@ -605,6 +743,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      imoveis_quality: {
+        Row: {
+          corretor_id: string
+          created_at: string
+          id: string
+          imovel_id: string
+          percentual: number
+          tem_8_fotos: boolean
+          updated_at: string
+        }
+        Insert: {
+          corretor_id: string
+          created_at?: string
+          id?: string
+          imovel_id: string
+          percentual?: number
+          tem_8_fotos?: boolean
+          updated_at?: string
+        }
+        Update: {
+          corretor_id?: string
+          created_at?: string
+          id?: string
+          imovel_id?: string
+          percentual?: number
+          tem_8_fotos?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       imovel_features: {
         Row: {
@@ -888,6 +1056,51 @@ export type Database = {
           },
         ]
       }
+      minisite_configs: {
+        Row: {
+          created_at: string
+          custom_domain: string | null
+          id: string
+          primary_color: string | null
+          secondary_color: string | null
+          show_about: boolean | null
+          show_contact: boolean | null
+          show_properties: boolean | null
+          template_id: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          custom_domain?: string | null
+          id?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          show_about?: boolean | null
+          show_contact?: boolean | null
+          show_properties?: boolean | null
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          custom_domain?: string | null
+          id?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          show_about?: boolean | null
+          show_contact?: boolean | null
+          show_properties?: boolean | null
+          template_id?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       minisites: {
         Row: {
           about_md: string | null
@@ -1094,6 +1307,30 @@ export type Database = {
           },
         ]
       }
+      system_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           at: string | null
@@ -1126,6 +1363,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_points: {
+        Args: {
+          p_meta?: Json
+          p_pontos: number
+          p_ref_id?: string
+          p_ref_tipo?: string
+          p_rule_key: string
+          p_usuario_id: string
+        }
+        Returns: undefined
+      }
       find_existing_one_to_one_thread: {
         Args: { user_a: string; user_b: string }
         Returns: string

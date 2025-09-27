@@ -1,104 +1,163 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
-interface SimpleLead {
+interface PropertySubmission {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  message: string;
+  phone?: string;
+  message?: string;
   status: string;
   created_at: string;
+  property_data?: any;
 }
 
-export default function SimplifiedPropertySubmissionsList() {
-  const [leads, setLeads] = useState<SimpleLead[]>([]);
+export function SimplifiedPropertySubmissionsList() {
+  const [submissions, setSubmissions] = useState<PropertySubmission[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  useEffect(() => {
-    fetchLeads();
-  }, []);
-
-  const fetchLeads = async () => {
+  const fetchSubmissions = async () => {
     try {
       const { data, error } = await supabase
-        .from('leads')
+        .from('property_submissions')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLeads(data || []);
-    } catch (error: any) {
+      
+      setSubmissions(data || []);
+    } catch (error) {
+      console.error('Error fetching submissions:', error);
       toast({
-        title: "Erro ao carregar leads",
-        description: error.message,
-        variant: "destructive"
+        title: 'Erro',
+        description: 'Não foi possível carregar as submissões',
+        variant: 'destructive'
       });
     } finally {
       setLoading(false);
     }
   };
 
-  const updateLeadStatus = async (id: string, status: string) => {
+  const updateSubmissionStatus = async (id: string, status: string) => {
     try {
       const { error } = await supabase
-        .from('leads')
+        .from('property_submissions')
         .update({ status })
         .eq('id', id);
 
       if (error) throw error;
 
-      setLeads(prev => 
-        prev.map(lead => 
-          lead.id === id ? { ...lead, status } : lead
-        )
+      setSubmissions(prev => 
+        prev.map(sub => sub.id === id ? { ...sub, status } : sub)
       );
 
       toast({
-        title: "Status atualizado",
-        description: "Status do lead foi alterado."
+        title: 'Sucesso',
+        description: 'Status atualizado com sucesso'
       });
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error updating status:', error);
       toast({
-        title: "Erro",
-        description: error.message,
-        variant: "destructive"
+        title: 'Erro',
+        description: 'Não foi possível atualizar o status',
+        variant: 'destructive'
       });
     }
   };
 
-  if (loading) return <div>Carregando...</div>;
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
+
+  if (loading) {
+    return <div className="p-4">Carregando submissões...</div>;
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'approved': return 'bg-green-100 text-green-800';
+      case 'rejected': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'pending': return 'Pendente';
+      case 'approved': return 'Aprovado';
+      case 'rejected': return 'Rejeitado';
+      default: return status;
+    }
+  };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Leads de Propriedades</h1>
-      {leads.map((lead) => (
-        <Card key={lead.id}>
-          <CardHeader>
-            <CardTitle>{lead.name}</CardTitle>
-            <CardDescription>{lead.email}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <p><strong>Telefone:</strong> {lead.phone}</p>
-              <p><strong>Mensagem:</strong> {lead.message}</p>
-              <Badge>{lead.status}</Badge>
-              <div className="flex gap-2">
-                <Button onClick={() => updateLeadStatus(lead.id, 'approved')} size="sm">
-                  Aprovar
-                </Button>
-                <Button onClick={() => updateLeadStatus(lead.id, 'rejected')} size="sm" variant="outline">
-                  Rejeitar
-                </Button>
-              </div>
-            </div>
+    <div className="space-y-4">
+      <h2 className="text-2xl font-bold">Submissões de Imóveis</h2>
+      
+      {submissions.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <p className="text-muted-foreground">Nenhuma submissão encontrada</p>
           </CardContent>
         </Card>
-      ))}
+      ) : (
+        submissions.map((submission) => (
+          <Card key={submission.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <CardTitle className="text-lg">{submission.name}</CardTitle>
+                <Badge className={getStatusColor(submission.status)}>
+                  {getStatusLabel(submission.status)}
+                </Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div>
+                  <strong>Email:</strong> {submission.email}
+                </div>
+                {submission.phone && (
+                  <div>
+                    <strong>Telefone:</strong> {submission.phone}
+                  </div>
+                )}
+                {submission.message && (
+                  <div>
+                    <strong>Mensagem:</strong> {submission.message}
+                  </div>
+                )}
+                <div>
+                  <strong>Data:</strong> {new Date(submission.created_at).toLocaleDateString('pt-BR')}
+                </div>
+              </div>
+              
+              {submission.status === 'pending' && (
+                <div className="flex gap-2 mt-4">
+                  <Button 
+                    size="sm" 
+                    onClick={() => updateSubmissionStatus(submission.id, 'approved')}
+                  >
+                    Aprovar
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="destructive"
+                    onClick={() => updateSubmissionStatus(submission.id, 'rejected')}
+                  >
+                    Rejeitar
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))
+      )}
     </div>
   );
 }

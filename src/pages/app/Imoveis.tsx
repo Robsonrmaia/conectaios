@@ -35,7 +35,7 @@ import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor'
 import { Tour360Modal } from '@/components/Tour360Modal';
 import { PropertyShareDialog } from '@/components/PropertyShareDialog';
 import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
-import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
+import { SimplifiedPropertySubmissionsList as PropertySubmissionsList } from '@/components/SimplifiedPropertySubmissionsList';
 import { PropertyImportModal } from '@/components/PropertyImportModal';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
