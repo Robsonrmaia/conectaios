@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string | null
+          actor: string | null
+          at: string | null
+          entity: string | null
+          entity_id: string | null
+          id: number
+          meta: Json | null
+        }
+        Insert: {
+          action?: string | null
+          actor?: string | null
+          at?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: number
+          meta?: Json | null
+        }
+        Update: {
+          action?: string | null
+          actor?: string | null
+          at?: string | null
+          entity?: string | null
+          entity_id?: string | null
+          id?: number
+          meta?: Json | null
+        }
+        Relationships: []
+      }
       brokers: {
         Row: {
           bio: string | null
@@ -552,6 +582,151 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          broker_id: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          imovel_id: string | null
+          message: string | null
+          name: string | null
+          phone: string | null
+          source: string | null
+          status: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          imovel_id?: string | null
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          imovel_id?: string | null
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+          source?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          created_at: string | null
+          id: string
+          imovel_id: string
+          requester_id: string
+          responder_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          imovel_id: string
+          requester_id: string
+          responder_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          imovel_id?: string
+          requester_id?: string
+          responder_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_responder_id_fkey"
+            columns: ["responder_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string | null
+          id: string
+          match_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string | null
+          id?: string
+          match_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string | null
+          id?: string
+          match_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       minisites: {
         Row: {
           about_md: string | null
@@ -629,6 +804,77 @@ export type Database = {
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string | null
+          current_period_end: string | null
+          external_customer_id: string | null
+          external_subscription_id: string | null
+          id: string
+          plan: string | null
+          profile_id: string
+          provider: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_period_end?: string | null
+          external_customer_id?: string | null
+          external_subscription_id?: string | null
+          id?: string
+          plan?: string | null
+          profile_id: string
+          provider?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_period_end?: string | null
+          external_customer_id?: string | null
+          external_subscription_id?: string | null
+          id?: string
+          plan?: string | null
+          profile_id?: string
+          provider?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_logs: {
+        Row: {
+          at: string | null
+          error: string | null
+          id: number
+          payload: Json | null
+          source: string | null
+          status: number | null
+        }
+        Insert: {
+          at?: string | null
+          error?: string | null
+          id?: number
+          payload?: Json | null
+          source?: string | null
+          status?: number | null
+        }
+        Update: {
+          at?: string | null
+          error?: string | null
+          id?: number
+          payload?: Json | null
+          source?: string | null
+          status?: number | null
         }
         Relationships: []
       }
