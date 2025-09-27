@@ -165,9 +165,9 @@ export function AppSidebar() {
           <div className="flex items-center justify-center">
             <ConectaLogo 
               variant="header"
-              height={32} 
-              width={120}
-              className="h-8 w-auto" 
+              height={64} 
+              width={240}
+              className="h-16 w-auto" 
             />
           </div>
         </div>

@@ -81,9 +81,10 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                 Visualização de como seu minisite aparece para os visitantes
               </CardDescription>
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="whitespace-nowrap">
               <ExternalLink className="h-4 w-4 mr-2" />
-              Abrir Minisite
+              <span className="hidden sm:inline">Abrir Minisite</span>
+              <span className="sm:hidden">Abrir</span>
             </Button>
           </div>
         </CardHeader>
@@ -109,7 +110,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
               <p className="text-sm">Adicione imóveis ao seu portfólio para exibi-los aqui</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {mockProperties.map((property) => (
                 <Card key={property.id} className="overflow-hidden">
                   <CardContent className="p-4">
