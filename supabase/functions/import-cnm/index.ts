@@ -346,7 +346,7 @@ serve(async (req) => {
           parking_spots: vagas, // Map to table field
           condominium_fee: condominio > 0 ? condominio : undefined,
           iptu: iptu_value > 0 ? iptu_value : undefined,
-          year_built: ano_construcao,
+          year_built: ano_construcao || undefined,
           furnishing_type: detectFurnishingType(imovel.descritivo || ''),
           descricao: imovel.descritivo || imovel.descricao || imovel.observacoes || '',
           endereco: endereco_completo,
@@ -419,7 +419,7 @@ serve(async (req) => {
 
       } catch (error) {
         console.error(`❌ Error processing property ${i + 1}:`, error);
-        result.errors.push(`Property ${i + 1}: ${error.message}`);
+        result.errors.push(`Property ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -438,12 +438,12 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 Import failed:', error);
     return new Response(JSON.stringify({
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       fetched_count: 0,
       created_count: 0,
       updated_count: 0,
       ignored_count: 0,
-      errors: [error.message],
+      errors: [error instanceof Error ? error.message : 'Unknown error'],
       dryRun: false
     }), {
       status: 500,

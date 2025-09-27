@@ -366,7 +366,7 @@ serve(async (req) => {
 
       } catch (error) {
         console.error(`❌ Error processing property ${i + 1}:`, error);
-        result.errors.push(`Property ${i + 1}: ${error.message}`);
+        result.errors.push(`Property ${i + 1}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -385,12 +385,12 @@ serve(async (req) => {
   } catch (error) {
     console.error('💥 Import failed:', error);
     return new Response(JSON.stringify({
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       fetched_count: 0,
       created_count: 0,
       updated_count: 0,
       ignored_count: 0,
-      errors: [error.message],
+      errors: [error instanceof Error ? error.message : 'Unknown error'],
       dryRun: false
     }), {
       status: 500,
