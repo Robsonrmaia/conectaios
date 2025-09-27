@@ -1,5 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// Export supabase for use in components
+export { supabase };
+
 export type ImovelImage = {
   id: string;
   imovel_id: string;

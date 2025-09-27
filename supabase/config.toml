@@ -1,1 +1,4 @@
 project_id = "paawojkqrggnuvpnnwrc"
+
+[functions.images-delete]
+verify_jwt = true
