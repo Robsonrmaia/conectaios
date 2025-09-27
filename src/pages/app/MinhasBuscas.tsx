@@ -182,7 +182,7 @@ export default function MinhasBuscas() {
               <Select
                 value={newSearchFilters.city}
                 onValueChange={(value) =>
-                  setNewSearchFilters(prev => ({ ...prev, city: value }))
+                  setNewSearchFilters(prev => ({ ...prev, city: value === "all" ? "" : value }))
                 }
               >
                 <SelectTrigger>
@@ -199,7 +199,7 @@ export default function MinhasBuscas() {
               <Select
                 value={newSearchFilters.purpose}
                 onValueChange={(value) =>
-                  setNewSearchFilters(prev => ({ ...prev, purpose: value }))
+                  setNewSearchFilters(prev => ({ ...prev, purpose: value === "all" ? "" : value }))
                 }
               >
                 <SelectTrigger>

@@ -3,7 +3,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useGamification } from '@/hooks/useGamification';
 import { GamificationBadge } from '@/components/GamificationBadge';
 import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
-import logoconectaiosImg from '@/assets/logoconectaios.png';
+import ConectaLogo from '@/components/ConectaLogo';
 import {
   Sidebar,
   SidebarContent,
@@ -163,10 +163,11 @@ export function AppSidebar() {
       <SidebarContent>
         <div className="p-4 border-b">
           <div className="flex items-center justify-center">
-            <img 
-              src={logoconectaiosImg} 
-              alt="ConectaIOS" 
-              className="h-8 w-auto object-contain" 
+            <ConectaLogo 
+              variant="header"
+              height={32} 
+              width={120}
+              className="h-8 w-auto" 
             />
           </div>
         </div>

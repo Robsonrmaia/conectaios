@@ -52,9 +52,21 @@ const Imoveis = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [purposeFilter, setPurposeFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [purposeFilter, setPurposeFilterState] = useState('');
+  const [typeFilter, setTypeFilterState] = useState('');
+  const [statusFilter, setStatusFilterState] = useState('');
+
+  const setPurposeFilter = (value: string) => {
+    setPurposeFilterState(value === "all" ? "" : value);
+  };
+
+  const setTypeFilter = (value: string) => {
+    setTypeFilterState(value === "all" ? "" : value);
+  };
+
+  const setStatusFilter = (value: string) => {
+    setStatusFilterState(value === "all" ? "" : value);
+  };
 
   useEffect(() => {
     if (user) {
@@ -212,7 +224,7 @@ const Imoveis = () => {
                 />
               </div>
               
-              <Select value={purposeFilter} onValueChange={setPurposeFilter}>
+              <Select value={purposeFilter || "all"} onValueChange={setPurposeFilter}>
                 <SelectTrigger className="w-full md:w-[200px]">
                   <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Finalidade" />
@@ -224,7 +236,7 @@ const Imoveis = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <Select value={typeFilter || "all"} onValueChange={setTypeFilter}>
                 <SelectTrigger className="w-full md:w-[200px]">
                   <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
@@ -236,7 +248,7 @@ const Imoveis = () => {
                 </SelectContent>
               </Select>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter || "all"} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-full md:w-[200px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>

@@ -14,9 +14,17 @@ export default function Marketplace() {
   const [properties, setProperties] = useState<Imovel[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [cityFilter, setCityFilter] = useState<string>("");
-  const [purposeFilter, setPurposeFilter] = useState<string>("");
+  const [cityFilter, setCityFilterState] = useState<string>("");
+  const [purposeFilter, setPurposeFilterState] = useState<string>("");
   const navigate = useNavigate();
+
+  const setCityFilter = (value: string) => {
+    setCityFilterState(value === "all" ? "" : value);
+  };
+
+  const setPurposeFilter = (value: string) => {
+    setPurposeFilterState(value === "all" ? "" : value);
+  };
 
   useEffect(() => {
     loadProperties();
@@ -88,7 +96,7 @@ export default function Marketplace() {
               className="md:col-span-2"
             />
             
-            <Select value={cityFilter} onValueChange={setCityFilter}>
+            <Select value={cityFilter || "all"} onValueChange={setCityFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
@@ -100,7 +108,7 @@ export default function Marketplace() {
               </SelectContent>
             </Select>
 
-            <Select value={purposeFilter} onValueChange={setPurposeFilter}>
+            <Select value={purposeFilter || "all"} onValueChange={setPurposeFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Finalidade" />
               </SelectTrigger>
