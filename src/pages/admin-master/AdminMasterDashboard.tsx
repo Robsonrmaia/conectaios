@@ -31,7 +31,6 @@ interface User {
   nome: string;
   role: string;
   created_at: string;
-  user_id: string;
   email?: string;
 }
 
@@ -68,25 +67,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
 
       if (error) throw error;
 
-      // Get auth users emails
-      const usersWithEmails = await Promise.all(
-        profiles.map(async (profile) => {
-          try {
-            const { data: authData } = await supabase.auth.admin.getUserById(profile.user_id);
-            return {
-              ...profile,
-              email: authData.user?.email || 'N/A'
-            };
-          } catch {
-            return {
-              ...profile,
-              email: 'N/A'
-            };
-          }
-        })
-      );
-
-      setUsers(usersWithEmails);
+      setUsers(profiles || []);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Erro ao carregar usuários');
@@ -108,7 +89,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
 
       // Count properties
       const { data: properties } = await supabase
-        .from('properties')
+        .from('imoveis')
         .select('id');
 
       setStats({
@@ -168,10 +149,10 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
-      const { error } = await supabase.rpc('admin_change_user_role', {
-        target_user_id: userId,
-        new_role: newRole
-      });
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole as any })
+        .eq('id', userId);
 
       if (error) throw error;
 
@@ -401,7 +382,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
                             size="sm"
                             variant="outline"
                             onClick={() => handleRoleChange(
-                              user.user_id, 
+                              user.id, 
                               user.role === 'admin' ? 'user' : 'admin'
                             )}
                           >
@@ -410,7 +391,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
                           <Button
                             size="sm"
                             variant="destructive"
-                            onClick={() => handleDeleteUser(user.user_id)}
+                            onClick={() => handleDeleteUser(user.id)}
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>

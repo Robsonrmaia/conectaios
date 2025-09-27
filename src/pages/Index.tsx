@@ -41,13 +41,8 @@ const Index = () => {
   }, []);
 
   const fetchBanners = async () => {
-    const { data } = await supabase
-      .from('banners')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    
-    if (data) setBanners(data);
+    // Banners table não existe no novo schema - usando mock data
+    setBanners([]);
   };
 
   const fetchPartnerships = async () => {
