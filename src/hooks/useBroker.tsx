@@ -140,8 +140,16 @@ export const useBroker = () => {
         if (profileError) throw profileError;
       }
 
-      // Recarregar dados atualizados
+      // Recarregar dados atualizados e forçar atualização do estado
       await fetchBroker();
+      
+      // Forçar refresh dos dados se foi uma atualização de imagem
+      if (updates.avatar_url || updates.cover_url) {
+        setTimeout(() => {
+          fetchBroker();
+        }, 500);
+      }
+      
       return data;
     } catch (err) {
       console.error('Error updating broker:', err);

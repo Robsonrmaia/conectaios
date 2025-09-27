@@ -47,7 +47,7 @@ import Admin from "./pages/app/Admin";
 import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
-import PropertySubmissionForm from "@/pages/public/PropertySubmissionForm";
+import PropertySubmissionFormComplete from "@/pages/public/PropertySubmissionFormComplete";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
 import PublicProbe from "@/pages/PublicProbe";
 
@@ -134,7 +134,7 @@ const App = () => (
                    <Route path="/broker" element={<BrokerRedirect />} />
                    <Route path="/broker/:username" element={<BrokerMinisite />} />
                    <Route path="/imovel/:id" element={<PropertyDetail />} />
-                   <Route path="/formulario-imovel/:token" element={<PropertySubmissionForm />} />
+                   <Route path="/formulario-imovel/:token" element={<PropertySubmissionFormComplete />} />
                    <Route path="/public-test" element={<PublicProbe />} />
                   <Route path="/app/*" element={
                     <ProtectedRoute>

@@ -91,7 +91,7 @@ export default function XMLImportExport() {
           .from('brokers')
           .select(`
             id, user_id, creci, bio, whatsapp,
-            profiles!inner(name, email)
+            profiles!inner(name, full_name, email)
           `);
 
         if (error) throw error;
@@ -100,7 +100,7 @@ export default function XMLImportExport() {
         const brokersList = (data || []).map(item => ({
           id: item.id,
           user_id: item.user_id,
-          name: item.profiles.name || item.creci || 'Sem nome',
+          name: item.profiles.full_name || item.profiles.name || item.creci || 'Sem nome',
           email: item.profiles.email || 'Sem email'
         }));
         
