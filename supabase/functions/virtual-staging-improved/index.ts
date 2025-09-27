@@ -166,7 +166,7 @@ serve(async (req) => {
         JSON.stringify({ 
           success: false,
           error: 'Erro ao processar virtual staging melhorado',
-          details: replicateError.message,
+          details: replicateError instanceof Error ? replicateError.message : 'Replicate API error',
           timestamp: new Date().toISOString()
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
