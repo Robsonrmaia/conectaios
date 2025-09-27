@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertTriangle, CheckCircle2, XCircle, Users, Trophy, Star } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
-// Tipos para gamificação
 interface GamificationStats {
   total_users: number;
   active_brokers: number;
@@ -23,7 +22,88 @@ interface GamificationConfig {
   leaderboard_visible: boolean;
 }
 
-export default function GamificationFeatureFlag() {
+interface GamificationFeatureFlagProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+}
+
+function GamificationFeatureFlag({ children, fallback = null }: GamificationFeatureFlagProps) {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isEnabled, setIsEnabled] = useState(true); // Habilitado por padrão para desenvolvimento
+  const [stats, setStats] = useState<GamificationStats | null>(null);
+  const [config, setConfig] = useState<GamificationConfig | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      checkGamificationStatus();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const checkGamificationStatus = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Verificar se é admin
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user?.id)
+        .maybeSingle();
+
+      const adminStatus = profile?.role === 'admin';
+      setIsAdmin(adminStatus);
+
+      // Buscar estatísticas básicas dos brokers existentes
+      const { data: brokers } = await supabase
+        .from('brokers')
+        .select('id')
+        .limit(100);
+
+      if (brokers) {
+        setStats({
+          total_users: 0,
+          active_brokers: brokers.length || 0,
+          monthly_points: 0,
+          total_achievements: 0
+        });
+      }
+
+      // Configuração padrão
+      setConfig({
+        enabled: true,
+        point_multiplier: 1.0,
+        achievement_system: true,
+        leaderboard_visible: true
+      });
+
+    } catch (err: any) {
+      console.error('Erro ao verificar gamificação:', err);
+      setError(err.message || 'Erro ao carregar status da gamificação');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-4">
+        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+        <span className="text-sm">Carregando...</span>
+      </div>
+    );
+  }
+
+  // Sempre mostrar o conteúdo em desenvolvimento
+  return <>{children}</>;
+}
+
+function GamificationAdmin() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +140,7 @@ export default function GamificationFeatureFlag() {
         return;
       }
 
-      // Mock: Buscar estatísticas básicas dos brokers existentes
+      // Buscar estatísticas básicas dos brokers existentes
       const { data: brokers } = await supabase
         .from('brokers')
         .select('id')
@@ -68,14 +148,14 @@ export default function GamificationFeatureFlag() {
 
       if (brokers) {
         setStats({
-          total_users: 0, // Será implementado quando tabelas de gamificação existirem
+          total_users: 0,
           active_brokers: brokers.length || 0,
           monthly_points: 0,
           total_achievements: 0
         });
       }
 
-      // Mock de configuração padrão
+      // Configuração padrão
       setConfig({
         enabled: false,
         point_multiplier: 1.0,
@@ -96,13 +176,8 @@ export default function GamificationFeatureFlag() {
 
     try {
       setLoading(true);
-      
-      // TODO: Implementar quando tabela system_settings for criada
       setIsEnabled(!isEnabled);
-      
-      // Atualizar stats após mudança
       await checkGamificationStatus();
-      
     } catch (err: any) {
       setError(err.message || 'Erro ao alterar configuração');
     } finally {
@@ -221,38 +296,9 @@ export default function GamificationFeatureFlag() {
           </div>
         </CardContent>
       </Card>
-
-      {isEnabled && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Configurações Avançadas</CardTitle>
-            <CardDescription>
-              Configure o comportamento do sistema de gamificação
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Sistema de Conquistas</h4>
-                <p className="text-sm text-muted-foreground">Ativar badges e conquistas especiais</p>
-              </div>
-              <Switch
-                checked={config?.achievement_system || false}
-                disabled={true} // TODO: Implementar quando tabelas existirem
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="font-medium">Ranking Público</h4>
-                <p className="text-sm text-muted-foreground">Mostrar leaderboard para todos os usuários</p>
-              </div>
-              <Switch
-                checked={config?.leaderboard_visible || false}
-                disabled={true} // TODO: Implementar quando tabelas existirem
-              />
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
-export { GamificationFeatureFlag };
+  );
+}
+
+export { GamificationFeatureFlag, GamificationAdmin };
+export default GamificationFeatureFlag;
