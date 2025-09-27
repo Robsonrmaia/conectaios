@@ -199,68 +199,53 @@ export type Database = {
         }
         Relationships: []
       }
-      conectaios_brokers: {
+      client_searches: {
         Row: {
-          avatar_url: string | null
-          bio: string | null
-          cover_url: string | null
-          cpf_cnpj: string | null
-          created_at: string | null
-          creci: string | null
-          email: string | null
+          broker_id: string | null
+          client_id: string | null
+          created_at: string
+          filters: Json
           id: string
-          minisite_slug: string | null
-          name: string | null
-          phone: string | null
-          referral_code: string | null
-          status: string | null
-          subscription_status: string | null
-          updated_at: string | null
-          user_id: string
-          username: string | null
-          whatsapp: string | null
+          is_active: boolean
+          name: string
+          updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string | null
-          creci?: string | null
-          email?: string | null
+          broker_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          filters?: Json
           id?: string
-          minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          referral_code?: string | null
-          status?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id: string
-          username?: string | null
-          whatsapp?: string | null
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string | null
-          creci?: string | null
-          email?: string | null
+          broker_id?: string | null
+          client_id?: string | null
+          created_at?: string
+          filters?: Json
           id?: string
-          minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          referral_code?: string | null
-          status?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id?: string
-          username?: string | null
-          whatsapp?: string | null
+          is_active?: boolean
+          name?: string
+          updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "client_searches_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_searches_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_clients: {
         Row: {
@@ -1268,7 +1253,15 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "property_submissions_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
@@ -1308,6 +1301,67 @@ export type Database = {
           {
             foreignKeyName: "subscriptions_profile_id_fkey"
             columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assignee_id: string | null
+          body: string
+          broker_id: string | null
+          created_at: string
+          id: string
+          priority: string
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assignee_id?: string | null
+          body: string
+          broker_id?: string | null
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assignee_id?: string | null
+          body?: string
+          broker_id?: string | null
+          created_at?: string
+          id?: string
+          priority?: string
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1384,6 +1438,82 @@ export type Database = {
       find_existing_one_to_one_thread: {
         Args: { user_a: string; user_b: string }
         Returns: string
+      }
+      find_intelligent_property_matches: {
+        Args: {
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+          p_query?: string
+        }
+        Returns: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_furnished: boolean | null
+          is_public: boolean | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string
+          parking: number | null
+          price: number | null
+          purpose: string
+          search_vector: unknown | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          zipcode: string | null
+        }[]
+      }
+      find_property_matches: {
+        Args: {
+          p_broker_id: string
+          p_filters?: Json
+          p_limit?: number
+          p_offset?: number
+        }
+        Returns: {
+          area_built: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_furnished: boolean | null
+          is_public: boolean | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string
+          parking: number | null
+          price: number | null
+          purpose: string
+          search_vector: unknown | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          zipcode: string | null
+        }[]
       }
       gtrgm_compress: {
         Args: { "": unknown }

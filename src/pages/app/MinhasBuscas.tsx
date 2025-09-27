@@ -1,565 +1,359 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { toast } from '@/hooks/use-toast';
-import { Search, Plus, Eye, Trash2, Users, Building2, MapPin, DollarSign } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { formatCurrency } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Search, Plus, Eye, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
+import { ClientSearches, Properties } from "@/data";
+import type { Imovel } from "@/data";
+import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ClientSearch {
   id: string;
-  title: string;
-  client_name?: string;
-  client_phone?: string;
-  client_email?: string;
-  property_type: string;
-  listing_type: string;
-  max_price: number;
-  min_price?: number;
-  min_bedrooms?: number;
-  max_bedrooms?: number;
-  neighborhood?: string;
-  city?: string;
-  state?: string;
-  min_area?: number;
-  max_area?: number;
+  name: string;
+  filters: any;
   is_active: boolean;
-  last_match_at?: string;
-  match_count: number;
   created_at: string;
   updated_at: string;
 }
 
-interface PropertyMatch {
-  property_id: string;
-  match_score: number;
-  match_reasons: string[];
-  property_data: {
-    id: string;
-    titulo: string;
-    valor: number;
-    quartos: number;
-    area: number;
-    neighborhood: string;
-    city: string;
-    property_type: string;
-    listing_type: string;
-    fotos?: string[];
-  };
-}
-
-interface Property {
-  id: string;
-  titulo: string;
-  valor: number;
-  quartos: number;
-  area: number;
-  neighborhood: string;
-  city: string;
-  property_type: string;
-  listing_type: string;
-  match_score?: number;
-  match_reasons?: string[];
-}
-
 export default function MinhasBuscas() {
-  const { user } = useAuth();
   const [searches, setSearches] = useState<ClientSearch[]>([]);
-  const [matches, setMatches] = useState<Property[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [matches, setMatches] = useState<Imovel[]>([]);
   const [selectedSearch, setSelectedSearch] = useState<ClientSearch | null>(null);
-  const [newSearch, setNewSearch] = useState({
-    title: '',
-    property_type: 'apartamento',
-    listing_type: 'venda',
-    max_price: '',
-    min_bedrooms: '',
-    neighborhood: '',
-    city: '',
-    min_area: ''
+  const [loading, setLoading] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newSearchName, setNewSearchName] = useState("");
+  const [newSearchFilters, setNewSearchFilters] = useState({
+    query: "",
+    city: "",
+    purpose: "",
+    min_price: "",
+    max_price: ""
   });
+  const { user } = useAuth();
 
   useEffect(() => {
-    fetchSearches();
+    loadSearches();
   }, []);
 
-  const fetchSearches = async () => {
+  const loadSearches = async () => {
     try {
-      const { data: searchData, error } = await supabase
-        .from('client_searches')
-        .select('*')
-        .eq('user_id', user?.id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      setSearches(searchData || []);
+      const data = await ClientSearches.list(user?.id);
+      setSearches(data);
     } catch (error) {
-      console.error('Error fetching searches:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao carregar buscas',
-        variant: 'destructive'
+      console.error("Error loading searches:", error);
+      toast.error("Erro ao carregar buscas salvas");
+    }
+  };
+
+  const createSearch = async () => {
+    if (!newSearchName.trim()) {
+      toast.error("Nome da busca é obrigatório");
+      return;
+    }
+
+    try {
+      await ClientSearches.create({
+        name: newSearchName,
+        filters: newSearchFilters,
+        broker_id: user?.id
       });
+
+      setNewSearchName("");
+      setNewSearchFilters({
+        query: "",
+        city: "",
+        purpose: "",
+        min_price: "",
+        max_price: ""
+      });
+      setShowCreateDialog(false);
+      loadSearches();
+      toast.success("Busca salva com sucesso!");
+    } catch (error) {
+      console.error("Error creating search:", error);
+      toast.error("Erro ao salvar busca");
+    }
+  };
+
+  const runSearch = async (search: ClientSearch) => {
+    try {
+      setLoading(true);
+      setSelectedSearch(search);
+
+      const filters = search.filters;
+      const matchData = await Properties.findIntelligentMatches(
+        filters.query || "",
+        filters.city || null
+      );
+
+      setMatches(matchData);
+      
+      // Update match count
+      await ClientSearches.update(search.id, {
+        ...search,
+        updated_at: new Date().toISOString()
+      });
+
+      toast.success(`${matchData.length} imóveis encontrados`);
+    } catch (error) {
+      console.error("Error running search:", error);
+      toast.error("Erro ao executar busca");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddSearch = async () => {
-    if (!newSearch.title || !newSearch.max_price) {
-      toast({
-        title: 'Erro',
-        description: 'Preencha os campos obrigatórios',
-        variant: 'destructive'
-      });
-      return;
-    }
-
+  const toggleSearch = async (search: ClientSearch) => {
     try {
-      const { data: searchData, error } = await supabase
-        .from('client_searches')
-        .insert({
-          user_id: user?.id,
-          title: newSearch.title,
-          property_type: newSearch.property_type,
-          listing_type: newSearch.listing_type,
-          max_price: parseFloat(newSearch.max_price.replace(/\./g, '').replace(',', '.')),
-          min_bedrooms: parseInt(newSearch.min_bedrooms) || null,
-          neighborhood: newSearch.neighborhood || null,
-          city: newSearch.city || null,
-          min_area: parseFloat(newSearch.min_area) || null,
-          is_active: true,
-          match_count: 0
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      setSearches([searchData, ...searches]);
-      setNewSearch({
-        title: '',
-        property_type: 'apartamento',
-        listing_type: 'venda',
-        max_price: '',
-        min_bedrooms: '',
-        neighborhood: '',
-        city: '',
-        min_area: ''
+      await ClientSearches.update(search.id, {
+        ...search,
+        is_active: !search.is_active
       });
-      setShowAddForm(false);
-      
-      toast({
-        title: 'Sucesso',
-        description: 'Busca criada com sucesso!'
-      });
+      loadSearches();
+      toast.success(
+        search.is_active ? "Busca desativada" : "Busca ativada"
+      );
     } catch (error) {
-      console.error('Error adding search:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao criar busca',
-        variant: 'destructive'
-      });
+      console.error("Error toggling search:", error);
+      toast.error("Erro ao alterar status da busca");
     }
   };
 
-  const searchMatches = async (search: ClientSearch) => {
+  const deleteSearch = async (search: ClientSearch) => {
     try {
-      setSelectedSearch(search);
-      
-      // Use intelligent property matching function
-      const { data: matchResults, error } = await supabase
-        .rpc('find_intelligent_property_matches', { search_id: search.id });
-
-      if (error) {
-        console.error('Search error:', error);
-        // Fallback to broader search if intelligent matching fails
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('properties')
-          .select('*')
-          .eq('listing_type', search.listing_type)
-          .lte('valor', search.max_price * 1.5) // 50% tolerance
-          .eq('is_public', true)
-          .limit(20);
-        
-        if (fallbackError) throw fallbackError;
-        
-        const transformedFallback: Property[] = (fallbackData || []).map((prop: any) => ({
-          ...prop,
-          match_score: 50,
-          match_reasons: ['Busca ampliada - critérios flexíveis']
-        }));
-        
-        setMatches(transformedFallback);
-        toast({
-          title: "Busca",
-          description: `Encontrados ${transformedFallback.length} imóveis com critérios ampliados`
-        });
-        return;
-      }
-
-      // Transform match results to Property format
-      const transformedMatches: Property[] = (matchResults || []).map((match: any) => ({
-        ...match.property_data,
-        match_score: match.match_score,
-        match_reasons: match.match_reasons?.filter(Boolean) || []
-      }));
-      
-      // If no matches found, suggest alternatives
-      if (transformedMatches.length === 0) {
-        toast({
-          title: "Nenhum resultado",
-          description: "Nenhum match encontrado. Sugestão: amplie o orçamento ou revise os critérios."
-        });
-      }
-      
-      // Update match count in the search record
-      await supabase
-        .from('client_searches')
-        .update({ 
-          match_count: transformedMatches.length,
-          last_match_at: new Date().toISOString()
-        })
-        .eq('id', search.id);
-
-      // Update local state
-      setSearches(prev => prev.map(s => 
-        s.id === search.id 
-          ? { ...s, match_count: transformedMatches.length, last_match_at: new Date().toISOString() }
-          : s
-      ));
-      
-      setMatches(transformedMatches);
-      
-      toast({
-        title: 'Busca realizada',
-        description: `Encontrados ${transformedMatches.length} imóveis compatíveis com pontuação inteligente`
-      });
+      await ClientSearches.delete(search.id);
+      loadSearches();
+      toast.success("Busca excluída com sucesso");
     } catch (error) {
-      console.error('Error searching matches:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao buscar matches',
-        variant: 'destructive'
-      });
+      console.error("Error deleting search:", error);
+      toast.error("Erro ao excluir busca");
     }
   };
 
-  const deleteSearch = async (searchId: string) => {
-    try {
-      const { error } = await supabase
-        .from('client_searches')
-        .delete()
-        .eq('id', searchId)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setSearches(searches.filter(s => s.id !== searchId));
-      toast({
-        title: 'Sucesso',
-        description: 'Busca removida com sucesso'
-      });
-    } catch (error) {
-      console.error('Error deleting search:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao remover busca',
-        variant: 'destructive'
-      });
-    }
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL"
+    }).format(price);
   };
-
-  if (loading) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse">
-          <div className="h-8 bg-muted rounded w-1/4 mb-4"></div>
-          <div className="space-y-3">
-            <div className="h-24 bg-muted rounded"></div>
-            <div className="h-24 bg-muted rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Minhas Buscas</h1>
           <p className="text-muted-foreground">
-            Gerencie as buscas dos seus clientes e encontre matches automáticos
+            Gerencie suas buscas salvas e monitore automaticamente o mercado
           </p>
         </div>
-        
-        <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
+
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
           <DialogTrigger asChild>
-            <Button className="px-3 sm:px-4 py-2 text-sm sm:text-base w-full sm:w-auto">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
               Nova Busca
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-[95vw] sm:max-w-md">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>Nova Busca de Cliente</DialogTitle>
-              <DialogDescription>
-                Crie uma busca personalizada para seu cliente
-              </DialogDescription>
+              <DialogTitle>Criar Nova Busca</DialogTitle>
             </DialogHeader>
-            
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="title">Título da Busca *</Label>
+              <Input
+                placeholder="Nome da busca"
+                value={newSearchName}
+                onChange={(e) => setNewSearchName(e.target.value)}
+              />
+              
+              <Input
+                placeholder="Palavras-chave"
+                value={newSearchFilters.query}
+                onChange={(e) =>
+                  setNewSearchFilters(prev => ({ ...prev, query: e.target.value }))
+                }
+              />
+
+              <Select
+                value={newSearchFilters.city}
+                onValueChange={(value) =>
+                  setNewSearchFilters(prev => ({ ...prev, city: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Cidade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="São Paulo">São Paulo</SelectItem>
+                  <SelectItem value="Rio de Janeiro">Rio de Janeiro</SelectItem>
+                  <SelectItem value="Belo Horizonte">Belo Horizonte</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select
+                value={newSearchFilters.purpose}
+                onValueChange={(value) =>
+                  setNewSearchFilters(prev => ({ ...prev, purpose: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Finalidade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="sale">Venda</SelectItem>
+                  <SelectItem value="rent">Aluguel</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="grid grid-cols-2 gap-2">
                 <Input
-                  id="title"
-                  placeholder="Ex: Casa para João - até R$ 300k"
-                  value={newSearch.title}
-                  onChange={(e) => setNewSearch({ ...newSearch, title: e.target.value })}
-                />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="property_type">Tipo de Imóvel</Label>
-                  <Select value={newSearch.property_type} onValueChange={(value) => setNewSearch({ ...newSearch, property_type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="apartamento">Apartamento</SelectItem>
-                      <SelectItem value="casa">Casa</SelectItem>
-                      <SelectItem value="terreno">Terreno</SelectItem>
-                      <SelectItem value="comercial">Comercial</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label htmlFor="listing_type">Finalidade</Label>
-                  <Select value={newSearch.listing_type} onValueChange={(value) => setNewSearch({ ...newSearch, listing_type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="venda">Venda</SelectItem>
-                      <SelectItem value="aluguel">Aluguel</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="max_price">Valor Máximo *</Label>
-                  <Input
-                    id="max_price"
-                    type="number"
-                    placeholder="300000"
-                    value={newSearch.max_price}
-                    onChange={(e) => setNewSearch({ ...newSearch, max_price: e.target.value })}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="min_bedrooms">Min. Quartos</Label>
-                  <Input
-                    id="min_bedrooms"
-                    type="number"
-                    placeholder="3"
-                    value={newSearch.min_bedrooms}
-                    onChange={(e) => setNewSearch({ ...newSearch, min_bedrooms: e.target.value })}
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="neighborhood">Bairro</Label>
-                  <Input
-                    id="neighborhood"
-                    placeholder="Centro"
-                    value={newSearch.neighborhood}
-                    onChange={(e) => setNewSearch({ ...newSearch, neighborhood: e.target.value })}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="city">Cidade</Label>
-                  <Input
-                    id="city"
-                    placeholder="Ilhéus"
-                    value={newSearch.city}
-                    onChange={(e) => setNewSearch({ ...newSearch, city: e.target.value })}
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <Label htmlFor="min_area">Área Mínima (m²)</Label>
-                <Input
-                  id="min_area"
+                  placeholder="Preço mínimo"
                   type="number"
-                  placeholder="80"
-                  value={newSearch.min_area}
-                  onChange={(e) => setNewSearch({ ...newSearch, min_area: e.target.value })}
+                  value={newSearchFilters.min_price}
+                  onChange={(e) =>
+                    setNewSearchFilters(prev => ({ ...prev, min_price: e.target.value }))
+                  }
+                />
+                <Input
+                  placeholder="Preço máximo"
+                  type="number"
+                  value={newSearchFilters.max_price}
+                  onChange={(e) =>
+                    setNewSearchFilters(prev => ({ ...prev, max_price: e.target.value }))
+                  }
                 />
               </div>
-              
-              <div className="flex gap-3">
-                <Button onClick={handleAddSearch} className="flex-1">
-                  Criar Busca
-                </Button>
-                <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                  Cancelar
-                </Button>
-              </div>
+
+              <Button onClick={createSearch} className="w-full">
+                Salvar Busca
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
       </div>
 
-      {searches.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Search className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Nenhuma busca criada</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Crie buscas personalizadas para seus clientes e encontre imóveis compatíveis automaticamente
-            </p>
-            <Button onClick={() => setShowAddForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeira Busca
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-4">
-          {searches.map((search) => (
-            <Card key={search.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg">{search.title}</CardTitle>
-                    <CardDescription className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm">
-                      <span className="flex items-center gap-1">
-                        <Building2 className="h-4 w-4" />
-                        {search.property_type} - {search.listing_type}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <DollarSign className="h-4 w-4" />
-                        até {formatCurrency(search.max_price)}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {search.min_bedrooms}+ quartos
-                      </span>
-                      {search.neighborhood && (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          {search.neighborhood}
-                        </span>
-                      )}
-                    </CardDescription>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">
-                      {search.match_count} matches
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
+      {/* Searches Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {searches.map((search) => (
+          <Card key={search.id}>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span>{search.name}</span>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    size="sm" 
-                    onClick={() => searchMatches(search)}
+                  <Badge variant={search.is_active ? "default" : "secondary"}>
+                    {search.is_active ? "Ativa" : "Inativa"}
+                  </Badge>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="text-sm text-muted-foreground">
+                  <p><strong>Palavras-chave:</strong> {search.filters.query || "Nenhuma"}</p>
+                  <p><strong>Cidade:</strong> {search.filters.city || "Todas"}</p>
+                  <p><strong>Finalidade:</strong> {search.filters.purpose === 'sale' ? 'Venda' : search.filters.purpose === 'rent' ? 'Aluguel' : 'Todas'}</p>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => runSearch(search)}
+                    disabled={loading}
                     className="flex-1"
                   >
                     <Search className="h-4 w-4 mr-2" />
-                    Buscar Matches
+                    Executar
                   </Button>
-                  <Button 
-                    size="sm" 
+                  
+                  <Button
+                    size="sm"
                     variant="outline"
-                    onClick={() => deleteSearch(search.id)}
+                    onClick={() => toggleSearch(search)}
+                  >
+                    {search.is_active ? (
+                      <ToggleRight className="h-4 w-4" />
+                    ) : (
+                      <ToggleLeft className="h-4 w-4" />
+                    )}
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteSearch(search)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {searches.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Nenhuma busca salva</h3>
+            <p className="text-muted-foreground mb-4">
+              Crie buscas personalizadas para monitorar o mercado automaticamente
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Matches Results */}
-      {selectedSearch && matches.length > 0 && (
+      {selectedSearch && (
         <Card>
           <CardHeader>
-            <CardTitle>Matches Encontrados</CardTitle>
-            <CardDescription>
-              Imóveis compatíveis com a busca: {selectedSearch.title}
-            </CardDescription>
+            <CardTitle>Resultados para "{selectedSearch.name}"</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4">
-              {matches.map((property) => (
-                <div key={property.id} className="p-4 border rounded-lg">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{property.titulo}</h4>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                        <span>{property.quartos} quartos</span>
-                        <span>{property.area}m²</span>
-                        <span>{property.neighborhood}, {property.city}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-lg text-primary">
-                        {formatCurrency(property.valor)}
-                      </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline">
-                          {property.property_type}
-                        </Badge>
-                        {property.match_score && (
-                          <Badge 
-                            variant={property.match_score >= 80 ? "default" : property.match_score >= 60 ? "secondary" : "outline"}
-                            className="text-xs"
-                          >
-                            {property.match_score}% compatível
-                          </Badge>
+            {matches.length === 0 ? (
+              <div className="text-center py-8">
+                <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">
+                  Nenhum imóvel encontrado para esta busca
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {matches.map((property) => (
+                  <Card key={property.id} className="border">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <h3 className="font-semibold line-clamp-2">{property.title}</h3>
+                        
+                        {property.price && (
+                          <p className="text-lg font-bold text-primary">
+                            {formatPrice(Number(property.price))}
+                          </p>
                         )}
+
+                        <div className="text-sm text-muted-foreground">
+                          {[property.neighborhood, property.city]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </div>
+
+                        <Button size="sm" variant="outline" className="w-full">
+                          <Eye className="h-4 w-4 mr-2" />
+                          Ver Detalhes
+                        </Button>
                       </div>
-                    </div>
-                  </div>
-                  
-                  {property.match_reasons && property.match_reasons.length > 0 && (
-                    <div className="mt-3 pt-3 border-t">
-                      <p className="text-sm font-medium text-muted-foreground mb-2">Motivos da compatibilidade:</p>
-                      <div className="flex flex-wrap gap-1">
-                        {property.match_reasons.filter(reason => reason).map((reason, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {reason}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       )}

@@ -359,5 +359,121 @@ export const CRM = {
   }
 };
 
-// Legacy compatibility - Export individual functions for old components
-export { supabase };
+// Export all data access objects and types
+export { 
+  Properties, 
+  CRM,
+  supabase 
+};
+
+// Export types for components
+export type { 
+  Imovel, 
+  ImovelInsert, 
+  ImovelUpdate,
+  CRMClient, 
+  CRMDeal, 
+  CRMNote, 
+  CRMTask,
+  BrokerWithProfile, 
+  CRMClientExtended, 
+  CRMDealExtended,
+  Property, 
+  Client, 
+  Deal 
+};
+
+// Client Searches functionality
+export const ClientSearches = {
+  async list(brokerId?: string) {
+    const query = supabase.from('client_searches').select('*').order('created_at', { ascending: false });
+    if (brokerId) query.eq('broker_id', brokerId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  async create(search: { name: string; filters: any; broker_id?: string }) {
+    const { data, error } = await supabase.from('client_searches').insert(search).select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async update(id: string, updates: any) {
+    const { data, error } = await supabase.from('client_searches').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async delete(id: string) {
+    const { error } = await supabase.from('client_searches').delete().eq('id', id);
+    if (error) throw error;
+  }
+};
+
+// Support Tickets functionality  
+export const SupportTickets = {
+  async list(userId?: string) {
+    let query = supabase.from('support_tickets').select('*').order('created_at', { ascending: false });
+    if (userId) query = query.eq('user_id', userId);
+    const { data, error } = await query;
+    if (error) throw error;
+    return data || [];
+  },
+
+  async create(ticket: { subject: string; body: string; user_id?: string; priority?: string }) {
+    const { data, error } = await supabase.from('support_tickets').insert(ticket).select().single();
+    if (error) throw error;
+    return data;
+  },
+
+  async updateStatus(id: string, status: string) {
+    const { data, error } = await supabase.from('support_tickets')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  }
+};
+
+// Enhanced Properties with search functionality
+const EnhancedProperties = {
+  ...Properties,
+  
+  async search(params: { query?: string; city?: string; purpose?: string; limit?: number } = {}) {
+    const { data, error } = await supabase.rpc('search_imoveis', {
+      q: params.query || '',
+      city_filter: params.city || null,
+      purpose_filter: params.purpose || null,
+      limit_rows: params.limit || 50,
+      offset_rows: 0
+    });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async findMatches(brokerId: string, filters: any = {}) {
+    const { data, error } = await supabase.rpc('find_property_matches', {
+      p_broker_id: brokerId,
+      p_filters: filters,
+      p_limit: 50,
+      p_offset: 0
+    });
+    if (error) throw error;
+    return data || [];
+  },
+
+  async findIntelligentMatches(query: string = '', city: string | null = null) {
+    const { data, error } = await supabase.rpc('find_intelligent_property_matches', {
+      p_query: query,
+      p_city: city,
+      p_limit: 50,
+      p_offset: 0
+    });
+    if (error) throw error;
+    return data || [];
+  }
+};
+
+// Override Properties export
+export { EnhancedProperties as Properties };
