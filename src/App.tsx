@@ -23,7 +23,7 @@ import Imoveis from "./pages/app/Imoveis";
 import Marketplace from "./pages/app/Marketplace";
 import Minisite from "./pages/app/Minisite";
 import Gamificacao from "./pages/app/Gamificacao";
-import { GamificationFeatureFlag } from "@/components/GamificationFeatureFlag";
+import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";

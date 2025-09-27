@@ -255,5 +255,4 @@ export default function GamificationFeatureFlag() {
         </Card>
       )}
     </div>
-  );
-}
+export { GamificationFeatureFlag };

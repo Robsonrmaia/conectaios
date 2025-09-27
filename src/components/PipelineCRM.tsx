@@ -1,46 +1,50 @@
 import { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic } from 'lucide-react';
-import { GlobalClientSearch } from './GlobalClientSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Plus, User, Calendar, MessageCircle, CheckSquare } from 'lucide-react';
+import { CRM } from '@/data';
 import { toast } from '@/hooks/use-toast';
-import { formatDistanceToNow } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
-import { VoiceClientRecorder } from '@/components/VoiceClientRecorder';
 
 interface Client {
   id: string;
   nome: string;
   telefone: string;
-  email?: string;
-  data_nascimento?: string;
+  email: string;
   tipo: string;
   stage: string;
-  classificacao: string;
   valor: number;
-  photo?: string;
   created_at: string;
-  score: number;
-  last_contact_at?: string;
-  pipeline_id?: string;
-  historico?: any[];
-  opp?: string;
-  responsavel?: string;
   updated_at: string;
-  documents?: string[];
+}
+
+interface Deal {
+  id: string;
+  client_id: string;
+  amount: number;
+  stage: string;
+  created_at: string;
+}
+
+interface Task {
+  id: string;
+  client_id: string;
+  txt: string;
+  done: boolean;
+  created_at: string;
+}
+
+interface Note {
+  id: string;
+  client_id: string;
+  txt: string;
+  created_at: string;
 }
 
 interface ClientHistory {
@@ -48,6 +52,15 @@ interface ClientHistory {
   action: string;
   description: string;
   created_at: string;
+}
+
+export default function PipelineCRM() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [loading, setLoading] = useState(true);
 }
 
 interface Task {

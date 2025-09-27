@@ -1,24 +1,19 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingUp, TrendingDown, Home, MapPin, Calendar } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { Skeleton } from '@/components/ui/skeleton';
+import { TrendingUp, TrendingDown, Home, Users, DollarSign } from 'lucide-react';
 
 interface MarketStat {
-  id: string;
   period_start: string;
   period_end: string;
-  property_type: string | null;
-  listing_type: string | null;
-  city: string | null;
-  neighborhood: string | null;
-  total_count: number;
-  sold_count: number;
-  rented_count: number;
-  avg_price: number | null;
-  avg_days_to_sell: number | null;
+  property_type: string;
+  listing_type: string;
+  avg_price: number;
+  total_listings: number;
+  avg_days_on_market: number;
+  price_change_percent: number;
+  total_sales: number;
+  avg_sale_price: number;
+  market_velocity: number;
 }
 
 export function MarketStatsWidget() {
@@ -31,18 +26,39 @@ export function MarketStatsWidget() {
 
   const fetchMarketStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('market_stats')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(20);
+      setLoading(true);
+      
+      // Mock data until market_stats table is implemented
+      const mockStats: MarketStat[] = [
+        {
+          period_start: '2024-01-01',
+          period_end: '2024-01-31',
+          property_type: 'apartment',
+          listing_type: 'sale',
+          avg_price: 450000,
+          total_listings: 1250,
+          avg_days_on_market: 45,
+          price_change_percent: 3.2,
+          total_sales: 180,
+          avg_sale_price: 435000,
+          market_velocity: 0.85
+        },
+        {
+          period_start: '2024-01-01',
+          period_end: '2024-01-31',
+          property_type: 'house',
+          listing_type: 'sale',
+          avg_price: 750000,
+          total_listings: 890,
+          avg_days_on_market: 62,
+          price_change_percent: 1.8,
+          total_sales: 120,
+          avg_sale_price: 720000,
+          market_velocity: 0.72
+        }
+      ];
 
-      if (error) {
-        console.error('Error fetching market stats:', error);
-        return;
-      }
-
-      setStats(data || []);
+      setStats(mockStats);
     } catch (error) {
       console.error('Error fetching market stats:', error);
     } finally {
