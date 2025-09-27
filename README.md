@@ -87,26 +87,47 @@ Sistema implementado para remoção segura de dados de demonstração:
    - Ative RLS em todas as tabelas
    - Garanta que imóveis têm `is_public=true` e `visibility='public_site'` para aparecer em minisites
 
-5. **Bootstrap Inicial do Administrador**:
-   ```powershell
-   # Criar usuário admin inicial
-   $headers = @{
-     'Authorization' = "Bearer YOUR_SERVICE_ROLE_KEY"
-     'Content-Type' = 'application/json'
-     'apikey' = 'YOUR_ANON_KEY'
-   }
-   
-   $body = @{} | ConvertTo-Json
-   
-   Invoke-RestMethod -Uri "https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/admin-create-user" -Method POST -Headers $headers -Body $body
-   
-   # Login: admin@conectaios.com.br / senha gerada será retornada
-   ```
+5. **Crie o primeiro admin**:
+   - Acesse `/auth` no aplicativo
+   - Faça o primeiro cadastro (será automaticamente promovido a admin)
+   - Recomendado: `admin@conectaios.com.br` com senha segura
+   - O sistema aplicará role='admin' automaticamente via trigger
 
 6. **Inicie o desenvolvimento**:
    ```bash
    npm run dev
    ```
+
+## 🔐 Autenticação e Primeiro Admin
+
+### Configuração do Supabase Auth
+
+1. **No Dashboard Supabase** → Authentication:
+   - **Providers** → Email: `Enable email signups = ON`
+   - **URL Configuration**: Configure Site URL e Redirect URLs
+   - **Settings**: `Block signups = OFF` (permitir cadastros)
+   - **SMTP** (opcional): Configure para ativar `Confirm email = ON`
+
+2. **Primeiro Admin Automático**:
+   - O primeiro usuário que se cadastrar no app será automaticamente promovido a admin
+   - Use: `admin@conectaios.com.br` com senha segura
+   - Depois altere a senha no painel administrativo
+
+3. **Fluxo de Cadastro**:
+   ```bash
+   # 1. Acesse /auth
+   # 2. Aba "Criar Conta"
+   # 3. Preencha os dados
+   # 4. Login automático ou verificação de email (se SMTP ativo)
+   ```
+
+### Configuração SMTP (Recomendado)
+
+Para ativar confirmação por email:
+
+1. Configure SMTP no Supabase Dashboard
+2. Ative `Confirm email = ON` em Authentication Settings
+3. Usuários receberão email de confirmação após cadastro
 
 ## 📁 Arquitetura de Dados
 
@@ -360,16 +381,18 @@ Certifique-se de configurar:
 ## ✅ Checklist de Aceite - ConectaIOS SaaS
 
 ### Autenticação e Permissões
-- [ ] Login com `admin@conectaios.com` funciona
-- [ ] Profile do admin é criado automaticamente via trigger
+- [ ] Cadastro funciona (SignUp + SignIn) na página `/auth`
+- [ ] Primeiro usuário cadastrado automaticamente vira `admin`
+- [ ] Profile é criado automaticamente via trigger
+- [ ] Mensagens de erro específicas (credenciais inválidas, email já existe, etc.)
 - [ ] RLS policies ativas em todas as tabelas
-- [ ] Usuário admin pode acessar área administrativa
+- [ ] Health check em dev mostra project ID correto
 
 ### Sistema de Imagens e Branding
-- [ ] Logo carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/Logo.png`
+- [ ] Logo carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/logonova.png`
 - [ ] Hero carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/iagohero.png`
 - [ ] Branding salvo em `system_settings` (verificar no SQL)
-- [ ] Imagens aparecem na navbar e página inicial
+- [ ] Imagens aparecem na navbar, página inicial e loading states
 
 ### CRM e Dados
 - [ ] CRUD de clientes funcionando via `CRM.clients`

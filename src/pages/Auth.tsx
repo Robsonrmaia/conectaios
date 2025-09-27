@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import ConectaLogo from '@/components/ConectaLogo';
+import { useHealthCheck } from '@/hooks/useHealthCheck';
 
 
 const Auth = () => {
@@ -22,6 +23,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { result: healthCheck } = useHealthCheck();
 
   useEffect(() => {
     if (user) {
@@ -40,6 +42,7 @@ const Auth = () => {
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
+            full_name: name,
             name,
             username,
             phone,
@@ -48,9 +51,27 @@ const Auth = () => {
       });
 
       if (error) {
-        toast.error(error.message);
+        // Handle specific error types
+        if (error.message.includes('already registered')) {
+          toast.error('E-mail já cadastrado. Tente fazer login.');
+        } else if (error.message.includes('rate_limit')) {
+          toast.error('Muitas tentativas. Tente novamente em instantes.');
+        } else if (error.message.includes('weak_password')) {
+          toast.error('Senha muito fraca. Use pelo menos 6 caracteres.');
+        } else {
+          toast.error(error.message);
+        }
       } else {
-        toast.success('Conta criada! Verifique seu email para ativar sua conta.');
+        toast.success('Conta criada com sucesso! Faça login para continuar.');
+        // Clear form
+        setName('');
+        setUsername('');
+        setPhone('');
+        setEmail('');
+        setPassword('');
+        // Switch to signin tab
+        const signinTab = document.querySelector('[value="signin"]') as HTMLElement;
+        signinTab?.click();
       }
     } catch (error: any) {
       toast.error('Erro ao criar conta');
@@ -70,7 +91,18 @@ const Auth = () => {
       });
 
       if (error) {
-        toast.error('Credenciais inválidas');
+        // Handle specific error types
+        if (error.message.includes('invalid_credentials')) {
+          toast.error('E-mail ou senha incorretos');
+        } else if (error.message.includes('email_not_confirmed')) {
+          toast.error('Verifique seu e-mail para confirmar a conta');
+        } else if (error.message.includes('rate_limit')) {
+          toast.error('Muitas tentativas. Tente novamente em instantes.');
+        } else {
+          toast.error('Erro ao fazer login: ' + error.message);
+        }
+      } else {
+        toast.success('Login realizado com sucesso!');
       }
     } catch (error: any) {
       toast.error('Erro ao fazer login');
