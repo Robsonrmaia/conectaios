@@ -172,8 +172,8 @@ export function PropertyStatusManager({ property, onStatusUpdate }: PropertyStat
           onClick={async () => {
             // Cancel auto-deletion
             try {
-              const { error } = await supabase
-                .from('properties')
+      const { error } = await supabase
+        .from('imoveis')
                 .update({
                   sale_status: 'available',
                   auto_delete_at: null,

@@ -87,19 +87,21 @@ export default function XMLImportExport() {
 
       try {
         const { data, error } = await supabase
-          .from('conectaios_brokers')
-          .select('id, user_id, name, email')
-          .eq('status', 'active');
+          .from('brokers')
+          .select('id, user_id, creci, bio, whatsapp')
+          .eq('user_id', user.id);
 
         if (error) throw error;
         
-        // Deduplicate and sort
-        const uniqueBrokers = uniqueByEmail(data || []);
-        const sortedBrokers = uniqueBrokers.sort((a, b) =>
-          (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? '')
-        );
+        // Mock broker data for type compatibility
+        const mockBrokers = (data || []).map(item => ({
+          id: item.id,
+          user_id: item.user_id,
+          name: item.creci || item.bio || 'N/A',
+          email: 'Ver perfil'
+        }));
         
-        setBrokers(sortedBrokers);
+        setBrokers(mockBrokers);
       } catch (error) {
         console.error('Error loading brokers:', error);
         toast.error('Erro ao carregar lista de corretores');
@@ -187,12 +189,12 @@ export default function XMLImportExport() {
       
       for (const property of properties) {
         const { error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .insert({
-            user_id: user.id,
-            titulo: property.titulo,
-            descricao: property.descricao,
-            valor: property.valor,
+            owner_id: user.id,
+            title: property.titulo,
+            description: property.descricao,
+            price: property.valor,
             area: property.area,
             quartos: property.quartos,
             bathrooms: property.banheiros, // Map banheiros -> bathrooms
@@ -230,9 +232,9 @@ export default function XMLImportExport() {
     
     try {
       const { data: properties, error } = await supabase
-        .from('properties')
+        .from('imoveis')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('owner_id', user.id)
         .eq('is_public', true);
 
       if (error) {

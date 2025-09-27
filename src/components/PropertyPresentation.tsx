@@ -83,7 +83,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       setIsLoadingBroker(true);
       try {
         const { data, error } = await supabase
-          .from('conectaios_brokers')
+          .from('brokers')
           .select('*')
           .eq('user_id', property.user_id)
           .single();
