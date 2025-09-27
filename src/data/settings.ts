@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Branding {
   logoUrl: string;
   heroUrl: string;
+  headerLogoUrl?: string;
 }
 
 // In-memory cache to avoid repeated database calls
@@ -24,7 +25,7 @@ export async function getBranding(): Promise<Branding> {
     const { data, error } = await supabase
       .from('system_settings')
       .select('key, value')
-      .in('key', ['site_logo_url', 'site_hero_url']);
+      .in('key', ['site_logo_url', 'site_hero_url', 'site_header_logo_url']);
 
     if (error) {
       console.error('getBranding error:', error);
@@ -45,7 +46,8 @@ export async function getBranding(): Promise<Branding> {
 
     const branding: Branding = {
       logoUrl: getValue('site_logo_url'),
-      heroUrl: getValue('site_hero_url')
+      heroUrl: getValue('site_hero_url'),
+      headerLogoUrl: getValue('site_header_logo_url') || getValue('site_logo_url')
     };
 
     // Update cache
@@ -63,7 +65,8 @@ export async function getBranding(): Promise<Branding> {
 function getFallbackBranding(): Branding {
   return {
     logoUrl: '',
-    heroUrl: ''
+    heroUrl: '',
+    headerLogoUrl: ''
   };
 }
 
@@ -84,6 +87,10 @@ export async function updateBranding(branding: Branding): Promise<boolean> {
       {
         key: 'site_hero_url', 
         value: { url: branding.heroUrl }
+      },
+      {
+        key: 'site_header_logo_url',
+        value: { url: branding.headerLogoUrl || branding.logoUrl }
       }
     ];
 

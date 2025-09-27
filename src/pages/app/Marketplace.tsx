@@ -93,7 +93,7 @@ export default function Marketplace() {
                 <SelectValue placeholder="Todas as cidades" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas as cidades</SelectItem>
+                <SelectItem value="all">Todas as cidades</SelectItem>
                 <SelectItem value="São Paulo">São Paulo</SelectItem>
                 <SelectItem value="Rio de Janeiro">Rio de Janeiro</SelectItem>
                 <SelectItem value="Belo Horizonte">Belo Horizonte</SelectItem>
@@ -105,7 +105,7 @@ export default function Marketplace() {
                 <SelectValue placeholder="Finalidade" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Todas</SelectItem>
+                <SelectItem value="all">Todas</SelectItem>
                 <SelectItem value="sale">Venda</SelectItem>
                 <SelectItem value="rent">Aluguel</SelectItem>
               </SelectContent>

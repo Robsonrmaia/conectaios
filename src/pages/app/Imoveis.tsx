@@ -218,7 +218,7 @@ const Imoveis = () => {
                   <SelectValue placeholder="Finalidade" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas</SelectItem>
+                  <SelectItem value="all">Todas</SelectItem>
                   <SelectItem value="sale">Venda</SelectItem>
                   <SelectItem value="rent">Aluguel</SelectItem>
                 </SelectContent>
@@ -229,7 +229,7 @@ const Imoveis = () => {
                   <SelectValue placeholder="Tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="house">Casa</SelectItem>
                   <SelectItem value="apartment">Apartamento</SelectItem>
                   <SelectItem value="commercial">Comercial</SelectItem>
@@ -241,7 +241,7 @@ const Imoveis = () => {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todos</SelectItem>
+                  <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="available">Disponível</SelectItem>
                   <SelectItem value="sold">Vendido</SelectItem>
                   <SelectItem value="rented">Alugado</SelectItem>

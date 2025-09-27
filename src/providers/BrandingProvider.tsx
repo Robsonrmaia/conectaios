@@ -88,6 +88,11 @@ export function useLogo(): string {
   return branding.logoUrl;
 }
 
+export function useHeaderLogo(): string {
+  const { branding } = useBranding();
+  return branding.headerLogoUrl || branding.logoUrl;
+}
+
 export function useHeroImage(): string {
   const { branding } = useBranding();
   return branding.heroUrl;

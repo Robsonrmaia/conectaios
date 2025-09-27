@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLogo } from '@/providers/BrandingProvider';
+import { useLogo, useHeaderLogo } from '@/providers/BrandingProvider';
 
 interface ConectaLogoProps {
   className?: string;
@@ -7,6 +7,7 @@ interface ConectaLogoProps {
   width?: number;
   height?: number;
   vertical?: boolean;
+  variant?: 'auth' | 'header';
 }
 
 export default function ConectaLogo({ 
@@ -14,10 +15,13 @@ export default function ConectaLogo({
   alt = "ConectaIOS", 
   width = 60, 
   height = 20,
-  vertical = false
+  vertical = false,
+  variant = 'auth'
 }: ConectaLogoProps) {
   const [imageError, setImageError] = useState(false);
-  const logoUrl = useLogo();
+  const authLogo = useLogo();
+  const headerLogo = useHeaderLogo();
+  const logoUrl = variant === 'header' ? headerLogo : authLogo;
 
   // Fallback if no logo URL or image fails to load
   if (imageError || !logoUrl) {
