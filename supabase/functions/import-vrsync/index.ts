@@ -303,8 +303,10 @@ serve(async (req) => {
           bairro: getElementValue(imovel, ['Address.Neighborhood', 'bairro']) || '',
           cidade: getElementValue(imovel, ['Address.City', 'cidade']) || '',
           fotos: photos,
-          finalidade: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])), // Compatibility
-          tipo: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])), // Compatibility
+        // Campos mapeados corretamente para PropertyData
+        // title é removido pois não existe no tipo PropertyData
+        // Campos básicos válidos para PropertyData (removendo campos inexistentes)
+        description: getElementValue(imovel, ['Description', 'Descricao', 'descricao']) || '',
           raw_vrsync: xmlToObject(imovel),
           imported_at: new Date().toISOString(),
           is_public: publishOnImport,

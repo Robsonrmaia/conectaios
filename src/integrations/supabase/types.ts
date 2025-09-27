@@ -87,6 +87,7 @@ export type Database = {
       }
       crm_clients: {
         Row: {
+          broker_id: string | null
           budget_max: number | null
           budget_min: number | null
           created_at: string | null
@@ -101,6 +102,7 @@ export type Database = {
           whatsapp: string | null
         }
         Insert: {
+          broker_id?: string | null
           budget_max?: number | null
           budget_min?: number | null
           created_at?: string | null
@@ -115,6 +117,7 @@ export type Database = {
           whatsapp?: string | null
         }
         Update: {
+          broker_id?: string | null
           budget_max?: number | null
           budget_min?: number | null
           created_at?: string | null
@@ -134,6 +137,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_clients_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
         ]
@@ -177,6 +187,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "crm_deals_client_fk"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_property_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -194,6 +218,7 @@ export type Database = {
       }
       crm_notes: {
         Row: {
+          client_id: string | null
           content: string
           created_at: string | null
           id: string
@@ -203,6 +228,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          client_id?: string | null
           content: string
           created_at?: string | null
           id?: string
@@ -212,6 +238,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          client_id?: string | null
           content?: string
           created_at?: string | null
           id?: string
@@ -228,10 +255,18 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "crm_notes_client_fk"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
         ]
       }
       crm_tasks: {
         Row: {
+          client_id: string | null
           created_at: string | null
           description: string | null
           due_date: string | null
@@ -243,6 +278,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string | null
           description?: string | null
           due_date?: string | null
@@ -254,6 +290,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string | null
           description?: string | null
           due_date?: string | null
@@ -270,6 +307,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_client_fk"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "crm_clients"
             referencedColumns: ["id"]
           },
         ]
@@ -366,6 +410,13 @@ export type Database = {
           zipcode?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
@@ -623,6 +674,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "minisites_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "minisites_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
@@ -759,6 +817,16 @@ export type Database = {
       gtrgm_out: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      log_audit_event: {
+        Args: {
+          _action: string
+          _new_values?: Json
+          _old_values?: Json
+          _resource_id?: string
+          _resource_type: string
+        }
+        Returns: undefined
       }
       search_imoveis: {
         Args: {
