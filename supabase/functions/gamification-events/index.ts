@@ -63,7 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error('Error in gamification events:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }
@@ -406,7 +406,7 @@ async function getUserStats(supabaseClient: any, body: GamificationEventRequest)
 
   let userRank = 0;
   if (rankData) {
-    userRank = rankData.findIndex(user => user.usuario_id === usuario_id) + 1;
+    userRank = rankData.findIndex((user: any) => user.usuario_id === usuario_id) + 1;
   }
 
   return new Response(
@@ -488,7 +488,7 @@ async function processPropertyEventHandler(supabaseClient: any, body: Gamificati
   } catch (error) {
     console.error('Error processing property event:', error);
     return new Response(
-      JSON.stringify({ error: 'Failed to process property event', details: error.message }),
+      JSON.stringify({ error: 'Failed to process property event', details: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }

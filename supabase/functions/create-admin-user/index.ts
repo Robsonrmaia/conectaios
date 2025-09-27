@@ -97,7 +97,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in create-admin-user function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message || 'Erro interno do servidor' 
+      error: error instanceof Error ? error.message : 'Erro interno do servidor' 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

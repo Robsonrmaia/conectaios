@@ -344,8 +344,8 @@ serve(async (req) => {
           bathrooms: banheiros, // Map to table field
           vagas: vagas,
           parking_spots: vagas, // Map to table field
-          condominium_fee: condominio > 0 ? condominio : null,
-          iptu: iptu_value > 0 ? iptu_value : null,
+          condominium_fee: condominio > 0 ? condominio : undefined,
+          iptu: iptu_value > 0 ? iptu_value : undefined,
           year_built: ano_construcao,
           furnishing_type: detectFurnishingType(imovel.descritivo || ''),
           descricao: imovel.descritivo || imovel.descricao || imovel.observacoes || '',
