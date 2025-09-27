@@ -88,7 +88,8 @@ const UserInfo = () => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const { shouldShowTour, completeTour, loading } = useOnboarding();
+  const onboarding = useOnboarding();
+  const shouldShowTour = !onboarding.tour_completed;
 
   // Don't block the UI for onboarding loading - make it non-blocking
   return (
@@ -106,8 +107,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
       {/* Onboarding is now non-blocking and loads asynchronously */}
-      {!loading && shouldShowTour && (
-        <OnboardingTour onComplete={completeTour} />
+      {shouldShowTour && (
+        <OnboardingTour onComplete={onboarding.completeTour} />
       )}
     </SidebarProvider>
   );

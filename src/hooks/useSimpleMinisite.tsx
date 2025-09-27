@@ -10,8 +10,16 @@ interface MinisiteConfig {
   template_id: string;
   show_properties: boolean;
   show_contact: boolean;
+  show_contact_form?: boolean;
   show_about: boolean;
   custom_domain?: string;
+  phone?: string;
+  email?: string;
+  custom_message?: string;
+  description?: string;
+  generated_url?: string;
+  is_active?: boolean;
+  config_data?: any;
 }
 
 interface MinisiteContextType {
@@ -31,7 +39,10 @@ const defaultConfig: MinisiteConfig = {
   template_id: 'default',
   show_properties: true,
   show_contact: true,
-  show_about: true
+  show_contact_form: true,
+  show_about: true,
+  is_active: true,
+  config_data: {}
 };
 
 export function SimplifiedMinisiteProvider({ children }: { children: ReactNode }) {
@@ -59,8 +70,11 @@ export function SimplifiedMinisiteProvider({ children }: { children: ReactNode }
           template_id: data.template_id || defaultConfig.template_id,
           show_properties: data.show_properties ?? defaultConfig.show_properties,
           show_contact: data.show_contact ?? defaultConfig.show_contact,
+          show_contact_form: data.show_contact ?? defaultConfig.show_contact_form,
           show_about: data.show_about ?? defaultConfig.show_about,
-          custom_domain: data.custom_domain || undefined
+          custom_domain: data.custom_domain || undefined,
+          is_active: true,
+          config_data: {}
         });
       }
     } catch (error) {

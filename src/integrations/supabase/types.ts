@@ -837,6 +837,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_images_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false

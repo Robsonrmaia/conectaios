@@ -6,6 +6,8 @@ interface GamificationStats {
   tier: string;
   desconto_percent: number;
   badges: string[];
+  current_rank?: number;
+  total_users?: number;
 }
 
 interface GamificationEvent {
@@ -155,9 +157,14 @@ export function useSimpleGamification(brokerId?: string) {
     fetchUserStats,
     fetchLeaderboard,
     addPoints,
-    // Funções utilitárias
-    getTierInfo: (tier: string) => ({ name: tier, color: '#3B82F6' }),
-    getBadgeInfo: (badge: string) => ({ name: badge, icon: 'medal', color: '#FFD700' }),
-    getProgressToNextTier: () => ({ current: stats.pontos, needed: 100, percentage: 0 })
+    getTierInfo: (tier: string) => ({ name: tier, color: '#3B82F6', description: 'Nível de corretor' }),
+    getBadgeInfo: (badge: string) => ({ name: badge, icon: 'medal', color: '#FFD700', label: badge, descricao: 'Badge conquistado' }),
+    getProgressToNextTier: () => ({ 
+      current: stats.pontos, 
+      needed: 100, 
+      percentage: 0,
+      nextTier: 'Próximo Nível',
+      pointsNeeded: 100 - stats.pontos
+    })
   };
 }

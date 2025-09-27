@@ -127,9 +127,14 @@ export function useSimplePropertyQuality() {
     }
   }, [calculateQuality]);
 
+  const calculateQualityAnalysis = useCallback(async (imovelId: string) => {
+    return await calculateQuality(imovelId);
+  }, [calculateQuality]);
+
   return {
     calculateQuality,
     updateQualityRecord,
+    calculateQualityAnalysis,
     loading
   };
 }
