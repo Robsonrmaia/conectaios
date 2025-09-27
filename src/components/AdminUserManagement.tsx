@@ -99,13 +99,13 @@ export default function AdminUserManagement() {
 
   const fetchBrokers = async () => {
     try {
-      const brokersWithProfiles = await CRM.brokers.listWithProfiles();
+      const brokersWithProfiles = await CRM.brokers.list();
       
       // Map para interface esperada
       const mappedBrokers: Broker[] = brokersWithProfiles.map(broker => ({
         id: broker.id,
-        name: broker.profile?.full_name || broker.profile?.email || 'Nome não disponível',
-        email: broker.profile?.email || '',
+        name: broker.profiles?.full_name || broker.profiles?.email || 'Nome não disponível',
+        email: broker.profiles?.email || '',
         status: 'active',
         user_id: broker.user_id
       }));

@@ -19,7 +19,7 @@ export function ClientSelect({ onClientSelect, value }: ClientSelectProps) {
         setLoading(true);
         
         // Use CRM layer with legacy compatibility
-        const clients = await CRM.clients.listAsLegacy();
+        const clients = await CRM.clients.listLegacy();
         setClients(clients);
       } catch (error: any) {
         console.error('Error fetching clients:', error);
@@ -51,7 +51,7 @@ export function ClientSelect({ onClientSelect, value }: ClientSelectProps) {
       <SelectContent>
         {clients.map(client => (
           <SelectItem key={client.id} value={client.id}>
-            {client.nome}
+            {client.name}
           </SelectItem>
         ))}
       </SelectContent>

@@ -62,6 +62,9 @@ export default function Match() {
         client_id: selectedClient.id,
         property_id: propertyId,
         status: 'negotiating',
+        offer_amount: 0,
+        commission_amount: 0,
+        user_id: user.id,
         notes: `Match gerado automaticamente para ${selectedClient.name}`
       });
       toast.success("Deal criado com sucesso!");

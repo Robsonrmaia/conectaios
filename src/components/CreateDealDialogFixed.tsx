@@ -44,7 +44,7 @@ export function CreateDealDialog({ open, onOpenChange, onDealCreated }: CreateDe
       // Fetch all data using unified data layer
       const [imoveis, crmClients, crmBrokers] = await Promise.all([
         Properties.list(),
-        CRM.clients.listAsLegacy(), 
+        CRM.clients.listLegacy(), 
         CRM.brokers.list()
       ]);
 
@@ -135,7 +135,7 @@ export function CreateDealDialog({ open, onOpenChange, onDealCreated }: CreateDe
               <SelectContent>
                 {properties.map((property) => (
                   <SelectItem key={property.id} value={property.id}>
-                    {property.titulo} - R$ {property.valor?.toLocaleString()}
+                    {property.title} - R$ {property.price?.toLocaleString()}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -154,7 +154,7 @@ export function CreateDealDialog({ open, onOpenChange, onDealCreated }: CreateDe
               <SelectContent>
                 {clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
-                    {client.nome}
+                    {client.name}
                   </SelectItem>
                 ))}
               </SelectContent>
