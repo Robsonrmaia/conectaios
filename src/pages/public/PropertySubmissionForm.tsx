@@ -138,18 +138,20 @@ export default function PropertySubmissionForm() {
         }
       }
       
-      // Load saved data if exists
+      // Load saved data if exists - using property_data JSON field
       if (data.property_data && Object.keys(data.property_data).length > 0) {
         const savedData = data.property_data as any;
         form.reset({
           ...savedData,
-          marketing_consent: data.marketing_consent,
-          exclusivity_type: data.exclusivity_type
+          marketing_consent: savedData.marketing_consent || false,
+          exclusivity_type: savedData.exclusivity_type || 'non_exclusive'
         });
       }
 
-      if (data.photos && data.photos.length > 0) {
-        setPhotos(data.photos);
+      // Extract photos from property_data JSON
+      const propertyData = data.property_data as any;
+      if (propertyData?.photos && propertyData.photos.length > 0) {
+        setPhotos(propertyData.photos);
       }
 
     } catch (error) {

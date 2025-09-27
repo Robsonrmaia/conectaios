@@ -9,12 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { ShareButton } from '@/components/ShareButton';
 import { MapPin, Bed, Bath, Square, Phone, Mail, MessageCircle, Share, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
-import { Properties } from '@/data';
 
-// Data structures
+// Simple data structures to avoid type recursion
 interface MinisiteConfig {
   id: string;
   user_id: string;
@@ -42,7 +40,7 @@ interface BrokerData {
   whatsapp?: string;
 }
 
-interface Property {
+interface SimpleProperty {
   id: string;
   titulo: string;
   valor?: number;
@@ -63,8 +61,8 @@ export default function MinisiteView() {
   const { username } = useParams<{ username: string }>();
   const [config, setConfig] = useState<MinisiteConfig | null>(null);
   const [broker, setBroker] = useState<BrokerData | null>(null);
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [properties, setProperties] = useState<SimpleProperty[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<SimpleProperty[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
@@ -93,10 +91,10 @@ export default function MinisiteView() {
       let urlToFind = `https://conectaios.lovableproject.com/minisite/${username}`;
       console.log('Looking for URL:', urlToFind);
       
-      // Fetch minisite config first
+      // Fetch minisite config first with basic columns only
       const { data: configData, error: configError } = await supabase
         .from('minisite_configs')
-        .select('*')
+        .select('id, user_id, title, primary_color, secondary_color, show_properties, show_contact, show_about, custom_domain, phone, email, custom_message, generated_url, is_active')
         .eq('generated_url', urlToFind)
         .eq('is_active', true)
         .maybeSingle();
@@ -117,20 +115,10 @@ export default function MinisiteView() {
 
       setConfig(configData);
 
-      // Fetch broker data separately
+      // Fetch broker data separately using correct schema
       const { data: brokerData, error: brokerError } = await supabase
         .from('brokers')
-        .select(`
-          id,
-          creci,
-          bio,
-          whatsapp,
-          profiles:user_id (
-            full_name,
-            email,
-            avatar_url
-          )
-        `)
+        .select('id, creci, bio, whatsapp')
         .eq('user_id', configData.user_id)
         .maybeSingle();
 
@@ -138,52 +126,61 @@ export default function MinisiteView() {
         console.error('Error fetching broker:', brokerError);
       }
 
-      if (brokerData) {
+      // Fetch profile data
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('full_name, email, avatar_url')
+        .eq('id', configData.user_id)
+        .maybeSingle();
+
+      if (brokerData && profileData) {
         setBroker({
           id: brokerData.id,
-          name: brokerData.profiles?.full_name,
+          name: profileData.full_name,
           bio: brokerData.bio,
-          avatar_url: brokerData.profiles?.avatar_url,
+          avatar_url: profileData.avatar_url,
           creci: brokerData.creci,
           whatsapp: brokerData.whatsapp
         });
       }
 
-      // Fetch properties using the unified data layer
+      // Fetch properties using direct Supabase call to avoid type complexity
       if (configData?.user_id) {
         try {
-          const propertiesData = await Properties.list({
-            limit: 50,
-            offset: 0
-          });
+          const { data: propertiesData, error: propertiesError } = await supabase
+            .from('imoveis')
+            .select('id, title, price, bedrooms, bathrooms, area_total, city, neighborhood, type, purpose, is_public, visibility')
+            .eq('owner_id', configData.user_id)
+            .eq('is_public', true)
+            .eq('visibility', 'public_site')
+            .limit(50);
 
-          // Filter to show only public properties from this broker
-          const publicProperties = propertiesData.filter(property => 
-            property.owner_id === configData.user_id && 
-            property.is_public === true && 
-            property.visibility === 'public_site'
-          );
+          if (propertiesError) {
+            console.error('Error fetching properties:', propertiesError);
+            setProperties([]);
+            setFilteredProperties([]);
+          } else {
+            // Transform to match expected Property interface
+            const transformedProperties: SimpleProperty[] = (propertiesData || []).map(property => ({
+              id: property.id,
+              titulo: property.title,
+              valor: property.price ? Number(property.price) : undefined,
+              quartos: property.bedrooms,
+              banheiros: property.bathrooms,
+              area_total: property.area_total ? Number(property.area_total) : undefined,
+              cidade: property.city,
+              bairro: property.neighborhood,
+              tipo: property.type,
+              finalidade: property.purpose,
+              is_public: property.is_public,
+              visibility: property.visibility,
+              fotos: [],
+              capa: undefined
+            }));
 
-          // Transform to match expected Property interface
-          const transformedProperties = publicProperties.map(property => ({
-            id: property.id,
-            titulo: property.title,
-            valor: property.price ? Number(property.price) : undefined,
-            quartos: property.bedrooms,
-            banheiros: property.bathrooms,
-            area_total: property.area_total ? Number(property.area_total) : undefined,
-            cidade: property.city,
-            bairro: property.neighborhood,
-            tipo: property.type,
-            finalidade: property.purpose,
-            is_public: property.is_public,
-            visibility: property.visibility,
-            fotos: [],
-            capa: undefined
-          }));
-
-          setProperties(transformedProperties);
-          setFilteredProperties(transformedProperties);
+            setProperties(transformedProperties);
+            setFilteredProperties(transformedProperties);
+          }
         } catch (propertiesError) {
           console.error('Error fetching properties:', propertiesError);
           setProperties([]);
