@@ -280,11 +280,11 @@ serve(async (req) => {
 
         // Extract and map data with improved field mapping
         const photos = extractVrSyncPhotos(imovel);
-        const valor = parseFloat(String(
+        const priceFromApi = parseFloat(String(
           getElementValue(imovel, ['Price', 'PricingInfos.Price', 'PricingInfos.RentalTotalPrice', 'valor', 'preco']) || '0'
         ).replace(/[^\d.-]/g, '')) || 0;
         
-        console.log(`💰 Property value extracted: ${valor} from raw: ${getElementValue(imovel, ['Price', 'PricingInfos.Price', 'valor', 'preco'])}`);
+        console.log(`💰 Property value extracted: ${priceFromApi} from raw: ${getElementValue(imovel, ['Price', 'PricingInfos.Price', 'valor', 'preco'])}`);
         
         const propertyData: PropertyData = {
           reference_code,
@@ -293,8 +293,7 @@ serve(async (req) => {
           titulo: String(imovel.Title || imovel.titulo || `${mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo']))} ${imovel.ListingID || 'Sem ID'}`).substring(0, 255),
           listing_type: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])),
           property_type: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])),
-          valor: valor,
-          preco: valor, // Compatibility field
+          valor: priceFromApi,
           area: parseFloat(String(getElementValue(imovel, ['LivingArea', 'area', 'AreaUtil', 'area_util']) || '0').replace(/[^\d.-]/g, '')) || 0,
           quartos: parseInt(String(getElementValue(imovel, ['Bedrooms', 'quartos', 'dormitorios']) || '0')) || 0,
           banheiros: parseInt(String(getElementValue(imovel, ['Bathrooms', 'banheiros', 'suites']) || '0')) || 0,
@@ -303,10 +302,7 @@ serve(async (req) => {
           endereco: getElementValue(imovel, ['Address.Street', 'endereco', 'logradouro']) || '',
           bairro: getElementValue(imovel, ['Address.Neighborhood', 'bairro']) || '',
           cidade: getElementValue(imovel, ['Address.City', 'cidade']) || '',
-          state: getElementValue(imovel, ['Address.State', 'uf', 'estado']) || '',
-          zipcode: getElementValue(imovel, ['Address.ZipCode', 'cep']) || '',
           fotos: photos,
-          galeria_urls: photos, // Array of photo URLs
           thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
           finalidade: mapListingType(getElementValue(imovel, ['ListingType', 'TipoNegocio', 'finalidade', 'transacao'])), // Compatibility
           tipo: mapPropertyType(getElementValue(imovel, ['PropertyType', 'TipoImovel', 'tipo'])), // Compatibility

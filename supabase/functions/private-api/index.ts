@@ -562,7 +562,7 @@ serve(async (req) => {
             total_contacts: analytics?.reduce((sum, item) => sum + (item.contacts_count || 0), 0) || 0,
             total_matches: analytics?.reduce((sum, item) => sum + (item.matches_count || 0), 0) || 0,
             avg_value: analytics?.length ? 
-              analytics.properties.reduce((sum, item) => sum + (item.valor || 0), 0) / analytics.properties.length : 0
+              analytics.reduce((sum: number, item: any) => sum + (item.valor || 0), 0) / analytics.length : 0
           }
 
           return new Response(

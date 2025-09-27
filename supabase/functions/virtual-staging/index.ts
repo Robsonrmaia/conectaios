@@ -149,15 +149,15 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('=== Virtual Staging Function Error ===');
-    console.error('Error type:', error.constructor.name);
-    console.error('Error message:', error.message);
-    console.error('Error stack:', error.stack);
+    console.error('Error type:', error instanceof Error ? error.constructor.name : 'Unknown');
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     
     return new Response(
       JSON.stringify({ 
         success: false,
         error: 'Erro interno do servidor ao processar virtual staging',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

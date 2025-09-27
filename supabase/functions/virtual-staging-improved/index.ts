@@ -175,13 +175,13 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('=== Improved Virtual Staging Function Error ===');
-    console.error('Error:', error.message);
+    console.error('Error:', error instanceof Error ? error.message : 'Unknown error');
     
     return new Response(
       JSON.stringify({ 
         success: false,
         error: 'Erro interno do servidor ao processar virtual staging melhorado',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

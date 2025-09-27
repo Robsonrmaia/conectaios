@@ -85,7 +85,7 @@ export type Database = {
           },
         ]
       }
-      conectaios_brokers: {
+      brokers_legacy: {
         Row: {
           bio: string | null
           commission_rate: number | null
@@ -132,7 +132,7 @@ export type Database = {
           },
         ]
       }
-      conectaios_clients: {
+      crm_clients: {
         Row: {
           budget_max: number | null
           budget_min: number | null
@@ -185,178 +185,7 @@ export type Database = {
           },
         ]
       }
-      conectaios_notes: {
-        Row: {
-          content: string
-          created_at: string | null
-          id: string
-          tags: string[] | null
-          title: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          content: string
-          created_at?: string | null
-          id?: string
-          tags?: string[] | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          content?: string
-          created_at?: string | null
-          id?: string
-          tags?: string[] | null
-          title?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conectaios_notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      conectaios_properties: {
-        Row: {
-          address: string | null
-          area: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          condominium_fee: number | null
-          created_at: string | null
-          description: string | null
-          id: string
-          iptu: number | null
-          latitude: number | null
-          longitude: number | null
-          parking_spots: number | null
-          photos: string[] | null
-          price: number | null
-          property_type: Database["public"]["Enums"]["property_type"] | null
-          state: string | null
-          status: Database["public"]["Enums"]["property_status"] | null
-          title: string
-          tour_360_url: string | null
-          updated_at: string | null
-          user_id: string | null
-          video_url: string | null
-          zipcode: string | null
-        }
-        Insert: {
-          address?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          iptu?: number | null
-          latitude?: number | null
-          longitude?: number | null
-          parking_spots?: number | null
-          photos?: string[] | null
-          price?: number | null
-          property_type?: Database["public"]["Enums"]["property_type"] | null
-          state?: string | null
-          status?: Database["public"]["Enums"]["property_status"] | null
-          title: string
-          tour_360_url?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_url?: string | null
-          zipcode?: string | null
-        }
-        Update: {
-          address?: string | null
-          area?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          iptu?: number | null
-          latitude?: number | null
-          longitude?: number | null
-          parking_spots?: number | null
-          photos?: string[] | null
-          price?: number | null
-          property_type?: Database["public"]["Enums"]["property_type"] | null
-          state?: string | null
-          status?: Database["public"]["Enums"]["property_status"] | null
-          title?: string
-          tour_360_url?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          video_url?: string | null
-          zipcode?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conectaios_properties_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      conectaios_tasks: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          due_date: string | null
-          id: string
-          priority: string | null
-          status: string | null
-          title: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          status?: string | null
-          title: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          due_date?: string | null
-          id?: string
-          priority?: string | null
-          status?: string | null
-          title?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "conectaios_tasks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      deals: {
+      crm_deals: {
         Row: {
           client_id: string | null
           commission_amount: number | null
@@ -398,18 +227,100 @@ export type Database = {
             foreignKeyName: "deals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
-            referencedRelation: "conectaios_clients"
+            referencedRelation: "crm_clients"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "deals_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
-            referencedRelation: "conectaios_properties"
+            referencedRelation: "properties_legacy"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "deals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_notes: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conectaios_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_tasks: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conectaios_tasks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -806,6 +717,95 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      properties_legacy: {
+        Row: {
+          address: string | null
+          area: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condominium_fee: number | null
+          created_at: string | null
+          description: string | null
+          id: string
+          iptu: number | null
+          latitude: number | null
+          longitude: number | null
+          parking_spots: number | null
+          photos: string[] | null
+          price: number | null
+          property_type: Database["public"]["Enums"]["property_type"] | null
+          state: string | null
+          status: Database["public"]["Enums"]["property_status"] | null
+          title: string
+          tour_360_url: string | null
+          updated_at: string | null
+          user_id: string | null
+          video_url: string | null
+          zipcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condominium_fee?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          iptu?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          parking_spots?: number | null
+          photos?: string[] | null
+          price?: number | null
+          property_type?: Database["public"]["Enums"]["property_type"] | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["property_status"] | null
+          title: string
+          tour_360_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          zipcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          area?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condominium_fee?: number | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          iptu?: number | null
+          latitude?: number | null
+          longitude?: number | null
+          parking_spots?: number | null
+          photos?: string[] | null
+          price?: number | null
+          property_type?: Database["public"]["Enums"]["property_type"] | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["property_status"] | null
+          title?: string
+          tour_360_url?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          video_url?: string | null
+          zipcode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conectaios_properties_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
