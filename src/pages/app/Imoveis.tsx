@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import PageWrapper from '@/components/PageWrapper';
+import { PropertyFormModal } from '@/components/PropertyFormModal';
 
 interface Property {
   id: string;
@@ -55,6 +56,7 @@ const Imoveis = () => {
   const [purposeFilter, setPurposeFilterState] = useState('');
   const [typeFilter, setTypeFilterState] = useState('');
   const [statusFilter, setStatusFilterState] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
 
   const setPurposeFilter = (value: string) => {
     setPurposeFilterState(value === "all" ? "" : value);
@@ -147,7 +149,7 @@ const Imoveis = () => {
               Gerencie seu portfólio de imóveis
             </p>
           </div>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowAddModal(true)}>
             <Plus className="h-4 w-4" />
             Adicionar Imóvel
           </Button>
@@ -392,6 +394,13 @@ const Imoveis = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Property Form Modal */}
+        <PropertyFormModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onSuccess={fetchProperties}
+        />
       </div>
     </PageWrapper>
   );

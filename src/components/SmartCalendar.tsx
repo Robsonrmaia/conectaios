@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Plus, Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, Clock, Mic } from 'lucide-react';
 import { CRM } from '@/data';
 import { toast } from '@/hooks/use-toast';
+import { VoiceTaskRecorder } from '@/components/VoiceTaskRecorder';
 
 interface CalendarTask {
   id: string;
@@ -24,6 +25,7 @@ export default function SmartCalendar() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [tasks, setTasks] = useState<CalendarTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
   
   const [newTask, setNewTask] = useState({
     title: '',
@@ -96,6 +98,38 @@ export default function SmartCalendar() {
     }
   };
 
+  const handleVoiceTaskData = async (taskData: any) => {
+    try {
+      const taskDate = taskData.data && taskData.hora 
+        ? `${taskData.data}T${taskData.hora}:00`
+        : new Date().toISOString();
+
+      await CRM.tasks.create({
+        title: taskData.titulo || taskData.title || 'Tarefa por Voz',
+        description: taskData.descricao || taskData.description || null,
+        due_date: taskDate,
+        user_id: null,
+        client_id: null,
+        priority: taskData.prioridade || 'medium',
+        status: 'pending'
+      });
+
+      fetchTasks();
+      
+      toast({
+        title: "Tarefa adicionada!",
+        description: "Tarefa criada com sucesso através da gravação de voz.",
+      });
+    } catch (error) {
+      console.error('Error adding voice task:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao adicionar tarefa por voz",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getTasksForDate = (date: Date) => {
     return tasks.filter(task => {
       const taskDate = new Date(task.due_date);
@@ -113,49 +147,59 @@ export default function SmartCalendar() {
           <p className="text-muted-foreground">Gerencie suas tarefas e compromissos</p>
         </div>
         
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nova Tarefa
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Nova Tarefa</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Título *</Label>
-                <Input
-                  value={newTask.title}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Título da tarefa"
-                />
-              </div>
-              <div>
-                <Label>Descrição</Label>
-                <Textarea
-                  value={newTask.description}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Descrição da tarefa"
-                  rows={3}
-                />
-              </div>
-              <div>
-                <Label>Data de Vencimento *</Label>
-                <Input
-                  type="datetime-local"
-                  value={newTask.due_date}
-                  onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value }))}
-                />
-              </div>
-              <Button onClick={handleAddTask} className="w-full">
-                Adicionar Tarefa
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Nova Tarefa
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Nova Tarefa</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>Título *</Label>
+                  <Input
+                    value={newTask.title}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Título da tarefa"
+                  />
+                </div>
+                <div>
+                  <Label>Descrição</Label>
+                  <Textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Descrição da tarefa"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <Label>Data de Vencimento *</Label>
+                  <Input
+                    type="datetime-local"
+                    value={newTask.due_date}
+                    onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value }))}
+                  />
+                </div>
+                <Button onClick={handleAddTask} className="w-full">
+                  Adicionar Tarefa
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Button 
+            variant="outline"
+            onClick={() => setShowVoiceRecorder(true)}
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Por Voz
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -225,6 +269,13 @@ export default function SmartCalendar() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Voice Task Recorder */}
+      <VoiceTaskRecorder
+        isOpen={showVoiceRecorder}
+        onClose={() => setShowVoiceRecorder(false)}
+        onTaskData={handleVoiceTaskData}
+      />
     </div>
   );
 }

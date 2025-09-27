@@ -1,117 +1,168 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { brokerService, type BrokerData } from '@/data/broker';
-
-export interface Broker extends BrokerData {
-  status?: string;
-  subscription_status?: string;
-  cpf_cnpj?: string;
-  referral_code?: string;
-  username?: string;
-}
-
-export interface Plan {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  property_limit: number;
-  minisite_enabled: boolean;
-  whatsapp_integration: boolean;
-  ai_features: boolean;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { BrokerData } from '@/data/broker';
 
 export const useBroker = () => {
   const { user } = useAuth();
-  const [broker, setBroker] = useState<Broker | null>(null);
-  const [plan, setPlan] = useState<Plan | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<BrokerData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
-      fetchBrokerProfile();
+      fetchBroker();
+    } else {
+      setData(null);
+      setError(null);
     }
   }, [user]);
 
-  const fetchBrokerProfile = async () => {
-    if (!user) return;
+  const fetchBroker = async () => {
+    if (!user) {
+      setData(null);
+      setError(null);
+      return;
+    }
 
     try {
-      setLoading(true);
+      setIsLoading(true);
+      setError(null);
       
-      const brokerData = await brokerService.getCurrent();
-      if (brokerData) {
-        setBroker({
-          ...brokerData,
-          status: 'active',
-          subscription_status: 'trial'
-        });
+      // Primeiro, tentar buscar broker existente
+      const { data: existingBroker, error: brokerError } = await supabase
+        .from('brokers')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
 
-        // Mock plan data
-        setPlan({
-          id: 'trial',
-          name: 'Plano Trial',
-          slug: 'trial',
-          price: 0,
-          property_limit: 10,
-          minisite_enabled: true,
-          whatsapp_integration: false,
-          ai_features: false
-        });
+      if (existingBroker) {
+        // Buscar dados do profile
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+
+        const brokerData = {
+          ...existingBroker,
+          name: profileData?.name || profileData?.nome || 'Corretor',
+          email: profileData?.email || user.email,
+          avatar_url: profileData?.avatar_url,
+          cover_url: profileData?.cover_url,
+          referral_code: `REF${user.id.slice(-8).toUpperCase()}`
+        };
+        
+        setData(brokerData);
+        return;
       }
-    } catch (error) {
-      console.error('Error fetching broker:', error);
+
+      if (brokerError && brokerError.code !== 'PGRST116') {
+        throw brokerError;
+      }
+
+      // Se não existe broker, criar um novo
+      const { data: newBroker, error: createError } = await supabase
+        .from('brokers')
+        .insert({
+          user_id: user.id,
+          creci: null,
+          bio: null,
+          whatsapp: null,
+          minisite_slug: null
+        })
+        .select()
+        .single();
+
+      if (createError) throw createError;
+
+      // Buscar dados do profile
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+
+      const brokerData = {
+        ...newBroker,
+        name: profileData?.name || profileData?.nome || 'Corretor',
+        email: profileData?.email || user.email,
+        avatar_url: profileData?.avatar_url,
+        cover_url: profileData?.cover_url,
+        referral_code: `REF${user.id.slice(-8).toUpperCase()}`
+      };
+      
+      setData(brokerData);
+    } catch (err) {
+      console.error('Error fetching broker:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar corretor');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
-  const createBrokerProfile = async (data: any) => {
-    if (!user) throw new Error('User not authenticated');
+  const update = async (updates: Partial<BrokerData>) => {
+    if (!user || !data) return null;
 
     try {
-      const updatedData = await brokerService.update({
-        creci: data.creci || '',
-        bio: data.bio || '',
-        whatsapp: data.whatsapp || '',
-        minisite_slug: data.minisite_slug || ''
+      setError(null);
+      
+      // Separar atualizações para broker e profile
+      const brokerUpdates: any = {};
+      const profileUpdates: any = {};
+
+      Object.keys(updates).forEach(key => {
+        if (['creci', 'bio', 'whatsapp', 'minisite_slug'].includes(key)) {
+          brokerUpdates[key] = updates[key as keyof BrokerData];
+        } else if (['name', 'avatar_url', 'cover_url', 'email'].includes(key)) {
+          if (key === 'name') profileUpdates.nome = updates[key as keyof BrokerData];
+          else profileUpdates[key] = updates[key as keyof BrokerData];
+        }
       });
 
-      setBroker({
-        ...updatedData,
-        status: 'active',
-        subscription_status: 'trial'
-      });
+      // Atualizar broker se necessário
+      if (Object.keys(brokerUpdates).length > 0) {
+        const { error: brokerError } = await supabase
+          .from('brokers')
+          .update(brokerUpdates)
+          .eq('id', data.id);
+        
+        if (brokerError) throw brokerError;
+      }
 
-      return updatedData;
-    } catch (error) {
-      console.error('Error creating broker:', error);
-      throw error;
-    }
-  };
+      // Atualizar profile se necessário
+      if (Object.keys(profileUpdates).length > 0) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update(profileUpdates)
+          .eq('id', user.id);
+        
+        if (profileError) throw profileError;
+      }
 
-  const updateBrokerProfile = async (updates: any) => {
-    if (!broker) throw new Error('No broker profile found');
-
-    try {
-      const updatedData = await brokerService.update(updates);
-      setBroker(prev => prev ? { ...prev, ...updatedData } : null);
-      return updatedData;
-    } catch (error) {
-      console.error('Error updating broker:', error);
-      throw error;
+      // Recarregar dados atualizados
+      await fetchBroker();
+      return data;
+    } catch (err) {
+      console.error('Error updating broker:', err);
+      setError(err instanceof Error ? err.message : 'Erro ao atualizar corretor');
+      throw err;
     }
   };
 
   return {
-    broker,
-    plan,
-    loading,
-    fetchBrokerProfile,
-    createBrokerProfile,
-    updateBrokerProfile,
-    // Legacy exports for compatibility
-    createBrokerUser: createBrokerProfile,
-    updateBroker: updateBrokerProfile
+    data,
+    isLoading,
+    error,
+    update,
+    refresh: fetchBroker,
+    // Legacy compatibility
+    broker: data,
+    loading: isLoading,
+    updateBrokerProfile: update,
+    fetchBrokerProfile: fetchBroker,
+    createBrokerProfile: update,
+    updateBroker: update,
+    createBrokerUser: update
   };
 };

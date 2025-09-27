@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, User, Calendar, MessageCircle, CheckSquare } from 'lucide-react';
+import { Plus, User, Calendar, MessageCircle, CheckSquare, Mic } from 'lucide-react';
 import { CRM } from '@/data';
 import { toast } from '@/hooks/use-toast';
+import { VoiceClientRecorder } from '@/components/VoiceClientRecorder';
 
 interface Client {
   id: string;
@@ -61,6 +62,7 @@ export default function PipelineCRM() {
   const [clientHistory, setClientHistory] = useState<ClientHistory[]>([]);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showVoiceRecorder, setShowVoiceRecorder] = useState(false);
 
   const [newClient, setNewClient] = useState({
     nome: '',
@@ -204,6 +206,38 @@ export default function PipelineCRM() {
     }
   };
 
+  const handleVoiceClientData = async (clientData: any) => {
+    try {
+      await CRM.clients.create({
+        name: clientData.nome || clientData.name || 'Cliente por Voz',
+        phone: clientData.telefone || clientData.phone || '',
+        email: clientData.email || null,
+        broker_id: null,
+        user_id: null,
+        budget_max: clientData.orcamento || null,
+        budget_min: null,
+        notes: clientData.descricao || null,
+        preferred_locations: null,
+        whatsapp: clientData.telefone || clientData.phone || null,
+        indication_id: null
+      });
+
+      fetchData();
+      
+      toast({
+        title: "Cliente adicionado!",
+        description: "Cliente criado com sucesso através da gravação de voz.",
+      });
+    } catch (error) {
+      console.error('Error adding voice client:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao adicionar cliente por voz",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddTask = async () => {
     if (!newTask.txt || !newTask.client_id) return;
 
@@ -279,48 +313,58 @@ export default function PipelineCRM() {
           <p className="text-muted-foreground">Gerencie seus clientes e oportunidades</p>
         </div>
         
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Cliente
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Adicionar Novo Cliente</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Nome *</Label>
-                <Input
-                  value={newClient.nome}
-                  onChange={(e) => setNewClient(prev => ({ ...prev, nome: e.target.value }))}
-                  placeholder="Nome do cliente"
-                />
-              </div>
-              <div>
-                <Label>Telefone *</Label>
-                <Input
-                  value={newClient.telefone}
-                  onChange={(e) => setNewClient(prev => ({ ...prev, telefone: e.target.value }))}
-                  placeholder="(11) 99999-9999"
-                />
-              </div>
-              <div>
-                <Label>Email</Label>
-                <Input
-                  value={newClient.email}
-                  onChange={(e) => setNewClient(prev => ({ ...prev, email: e.target.value }))}
-                  placeholder="email@exemplo.com"
-                />
-              </div>
-              <Button onClick={handleAddClient} className="w-full">
-                Adicionar Cliente
+        <div className="flex gap-2">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Novo Cliente
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Adicionar Novo Cliente</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>Nome *</Label>
+                  <Input
+                    value={newClient.nome}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, nome: e.target.value }))}
+                    placeholder="Nome do cliente"
+                  />
+                </div>
+                <div>
+                  <Label>Telefone *</Label>
+                  <Input
+                    value={newClient.telefone}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, telefone: e.target.value }))}
+                    placeholder="(11) 99999-9999"
+                  />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input
+                    value={newClient.email}
+                    onChange={(e) => setNewClient(prev => ({ ...prev, email: e.target.value }))}
+                    placeholder="email@exemplo.com"
+                  />
+                </div>
+                <Button onClick={handleAddClient} className="w-full">
+                  Adicionar Cliente
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Button 
+            variant="outline"
+            onClick={() => setShowVoiceRecorder(true)}
+          >
+            <Mic className="h-4 w-4 mr-2" />
+            Por Voz
+          </Button>
+        </div>
       </div>
 
       {/* Pipeline Stages */}
@@ -469,6 +513,13 @@ export default function PipelineCRM() {
           </CardContent>
         </Card>
       )}
+
+      {/* Voice Client Recorder */}
+      <VoiceClientRecorder
+        isOpen={showVoiceRecorder}
+        onClose={() => setShowVoiceRecorder(false)}
+        onClientData={handleVoiceClientData}
+      />
     </div>
   );
 }

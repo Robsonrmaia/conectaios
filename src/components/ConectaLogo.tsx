@@ -13,8 +13,8 @@ interface ConectaLogoProps {
 export default function ConectaLogo({ 
   className = "", 
   alt = "ConectaIOS", 
-  width = 60, 
-  height = 20,
+  width = 120, 
+  height = 40,
   vertical = false,
   variant = 'auth'
 }: ConectaLogoProps) {

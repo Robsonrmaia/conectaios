@@ -13,6 +13,12 @@ export interface BrokerData {
   whatsapp?: string;
   minisite_slug?: string;
   username?: string;
+  referral_code?: string;
+  cpf_cnpj?: string;
+  status?: string;
+  subscription_status?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const brokerService = {
