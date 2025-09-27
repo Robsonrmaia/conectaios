@@ -36,9 +36,9 @@ export const useUsernameGenerator = () => {
   const isUsernameTaken = async (username: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
-        .from('brokers')
-        .select('minisite_slug')
-        .eq('minisite_slug', username)
+        .from('conectaios_brokers')
+        .select('username')
+        .eq('username', username)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned

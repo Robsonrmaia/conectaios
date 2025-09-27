@@ -81,14 +81,14 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('=== Get Hugging Face Token Function Error ===');
-    console.error('Error type:', error instanceof Error ? error.constructor.name : 'Unknown');
-    console.error('Error message:', error instanceof Error ? error.message : String(error));
-    console.error('Error stack:', error instanceof Error ? error.stack : 'Unknown stack');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
-        details: error instanceof Error ? error.message : String(error),
+        details: error.message,
         timestamp: new Date().toISOString()
       }),
       { 

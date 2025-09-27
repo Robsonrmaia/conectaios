@@ -141,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error) {
     console.error('Error in social webhook:', error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      JSON.stringify({ error: error.message }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }

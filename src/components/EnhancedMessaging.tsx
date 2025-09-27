@@ -69,19 +69,20 @@ export function EnhancedMessaging() {
   const fetchAvailableBrokers = async () => {
     try {
       const { data: brokersData, error } = await supabase
-        .from('brokers')
-        .select('id, user_id, creci, whatsapp')
+        .from('conectaios_brokers')
+        .select('id, name, email, creci, avatar_url, user_id')
+        .eq('status', 'active')
         .neq('user_id', user?.id)
-        .order('created_at');
+        .order('name');
 
       if (error) throw error;
       
-      const uniqueBrokers = brokersData?.map(broker => ({
-        id: broker.id,
-        name: broker.user_id, // Will need profile join for real name
-        email: '', // Will need profile join for real email  
-        user_id: broker.user_id
-      })) || [];
+      const uniqueBrokers = brokersData?.reduce((acc: Broker[], broker) => {
+        if (!acc.some(b => b.email === broker.email)) {
+          acc.push(broker);
+        }
+        return acc;
+      }, []) || [];
       
       setAvailableBrokers(uniqueBrokers);
     } catch (error) {

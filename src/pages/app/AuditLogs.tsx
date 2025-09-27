@@ -46,17 +46,20 @@ const AuditLogs = () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from('audit_log')
+        .from('audit_logs')
         .select(`
           id,
           action,
-          entity,
-          entity_id,
-          meta,
-          actor,
-          at
+          resource_type,
+          resource_id,
+          old_values,
+          new_values,
+          ip_address,
+          user_agent,
+          created_at,
+          user_id
         `)
-        .order('at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(100);
 
       if (error) throw error;

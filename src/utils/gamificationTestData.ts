@@ -116,8 +116,15 @@ export async function resetGamificationData(brokerId: string) {
       console.error('Error deleting monthly data:', monthlyError);
     }
 
-    // Delete from non-existent table - skip this step
-    console.log('Skipping visibility boost cleanup - table not found');
+    // Delete visibility boost
+    const { error: boostError } = await supabase
+      .from('gam_visibility_boost')
+      .delete()
+      .eq('usuario_id', brokerId);
+
+    if (boostError) {
+      console.error('Error deleting visibility boost:', boostError);
+    }
 
     console.log('Gamification data reset successfully!');
     return true;

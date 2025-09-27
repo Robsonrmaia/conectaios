@@ -47,16 +47,16 @@ export default function SecureAdminUserManagement() {
       // Get user profiles with proper admin verification
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, role, created_at')
+        .select('user_id, nome, role, created_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
-      // Create user array from profiles
+      // Create user array from profiles (auth.admin.listUsers not available in client)
       const combinedUsers = profiles?.map(profile => ({
-        id: profile.id || '',
-        email: 'Ver detalhes',
-        nome: profile.full_name || 'N/A',
+        id: profile.user_id || '',
+        email: 'Ver detalhes', // Email will be shown in detail view for security
+        nome: profile.nome || 'N/A',
         role: (profile.role as 'user' | 'admin') || 'user',
         created_at: profile.created_at || new Date().toISOString()
       })) || [];
@@ -129,22 +129,27 @@ export default function SecureAdminUserManagement() {
     try {
       setLoading(true);
       
-      // Use direct update
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', selectedUser.id);
+      const { data, error } = await supabase.rpc('admin_change_user_role', {
+        target_user_id: selectedUser.id,
+        new_role: newRole
+      });
 
       if (error) throw error;
 
+      // Parse the JSON response
+      const result = typeof data === 'string' ? JSON.parse(data) : data;
       
-      toast.success('Papel do usuário atualizado com sucesso!');
-      setSelectedUser(null);
-      setRoleChangeOpen(false);
-      fetchUsers();
+      if (result?.success) {
+        toast.success('Role alterado com sucesso!');
+        setRoleChangeOpen(false);
+        setSelectedUser(null);
+        fetchUsers();
+      } else {
+        throw new Error(result?.error || 'Erro ao alterar role');
+      }
     } catch (error: any) {
       console.error('Error changing role:', error);
-      toast.error(error.message || 'Erro ao alterar papel');
+      toast.error(error.message || 'Erro ao alterar role');
     } finally {
       setLoading(false);
     }

@@ -62,9 +62,9 @@ serve(async (req) => {
     );
   } catch (error) {
     console.error('Error generating logo:', error);
-    console.error('Error stack:', error instanceof Error ? error.stack : 'Unknown stack');
+    console.error('Error stack:', error.stack);
     return new Response(
-      JSON.stringify({ error: 'Failed to generate logo', details: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({ error: 'Failed to generate logo', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     );
   }

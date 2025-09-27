@@ -74,48 +74,39 @@ export default function XMLImportExport() {
     return Array.from(map.values());
   };
 
-  // Force refresh function for brokers list  
-  const refreshBrokers = async () => {
-    if (!isAdmin) {
-      if (user?.id) {
-        setSelectedOwner(user.id);
-      }
-      return;
-    }
-
-    try {
-      // Force refresh by clearing cache and refetching
-      const { data, error } = await supabase
-        .from('brokers')
-        .select(`
-          id, user_id, creci, bio, whatsapp,
-          profiles!inner(name, full_name, email, nome)
-        `);
-
-      if (error) throw error;
-      
-      // Convert to proper broker format with priority for 'nome' field
-      const brokersList = (data || []).map(item => ({
-        id: item.id,
-        user_id: item.user_id,
-        name: item.profiles.nome || item.profiles.full_name || item.profiles.name || item.creci || 'Sem nome',
-        email: item.profiles.email || 'Sem email'
-      }));
-      
-      // Deduplicate by email and keep the one with CRECI when available
-      const uniqueBrokers = uniqueByEmail(brokersList);
-      setBrokers(uniqueBrokers);
-      
-      console.log('Brokers loaded:', uniqueBrokers);
-    } catch (error) {
-      console.error('Error loading brokers:', error);
-      toast.error('Erro ao carregar lista de corretores');
-    }
-  };
-
   // Load brokers if admin
   useEffect(() => {
-    refreshBrokers();
+    const loadBrokers = async () => {
+      if (!isAdmin) {
+        // If not admin, set current user as selected owner
+        if (user?.id) {
+          setSelectedOwner(user.id);
+        }
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('conectaios_brokers')
+          .select('id, user_id, name, email')
+          .eq('status', 'active');
+
+        if (error) throw error;
+        
+        // Deduplicate and sort
+        const uniqueBrokers = uniqueByEmail(data || []);
+        const sortedBrokers = uniqueBrokers.sort((a, b) =>
+          (a.name ?? a.email ?? '').localeCompare(b.name ?? b.email ?? '')
+        );
+        
+        setBrokers(sortedBrokers);
+      } catch (error) {
+        console.error('Error loading brokers:', error);
+        toast.error('Erro ao carregar lista de corretores');
+      }
+    };
+
+    loadBrokers();
   }, [isAdmin, user?.id]);
 
   if (!user) {
@@ -196,22 +187,23 @@ export default function XMLImportExport() {
       
       for (const property of properties) {
         const { error } = await supabase
-          .from('imoveis')
+          .from('properties')
           .insert({
-            owner_id: user.id,
-            title: property.titulo,
-            description: property.descricao,
-            price: property.valor,
-            area_total: property.area,
-            bedrooms: property.quartos,
-            bathrooms: property.banheiros,
-            parking: property.vagas,
-            street: property.endereco,
+            user_id: user.id,
+            titulo: property.titulo,
+            descricao: property.descricao,
+            valor: property.valor,
+            area: property.area,
+            quartos: property.quartos,
+            bathrooms: property.banheiros, // Map banheiros -> bathrooms
+            parking_spots: property.vagas, // Map vagas -> parking_spots  
+            address: property.endereco, // Map endereco -> address
             city: property.city,
             state: property.state,
-            zipcode: property.cep,
-            type: property.property_type,
-            purpose: property.transaction_type === 'venda' ? 'sale' : 'rent',
+            zipcode: property.cep, // Map cep -> zipcode
+            property_type: property.property_type,
+            listing_type: property.transaction_type, // Map transaction_type -> listing_type
+            fotos: property.photos || [], // Map photos -> fotos
             visibility: 'public_site',
             is_public: true
           });
@@ -238,9 +230,9 @@ export default function XMLImportExport() {
     
     try {
       const { data: properties, error } = await supabase
-        .from('imoveis')
+        .from('properties')
         .select('*')
-        .eq('owner_id', user.id)
+        .eq('user_id', user.id)
         .eq('is_public', true);
 
       if (error) {

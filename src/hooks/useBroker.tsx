@@ -1,176 +1,259 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { BrokerData } from '@/data/broker';
+import { useAuth } from './useAuth';
+import { useUsernameGenerator } from './useUsernameGenerator';
 
-export const useBroker = () => {
+interface Broker {
+  id: string;
+  user_id: string;
+  region_id?: string;
+  plan_id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  creci?: string;
+  username?: string;
+  bio?: string;
+  avatar_url?: string;
+  cover_url?: string;
+  status: string;
+  subscription_status: string;
+  subscription_expires_at?: string;
+  referral_code?: string;
+  cpf_cnpj?: string;
+}
+
+interface Plan {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  property_limit: number;
+  match_limit: number;
+  thread_limit: number;
+  features: any; // Use any to handle Json type from Supabase
+}
+
+interface BrokerContextType {
+  broker: Broker | null;
+  plan: Plan | null;
+  loading: boolean;
+  createBrokerProfile: (data: Partial<Broker>) => Promise<void>;
+  updateBrokerProfile: (data: Partial<Broker>) => Promise<void>;
+}
+
+const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
+
+export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [data, setData] = useState<BrokerData | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { generateUsername } = useUsernameGenerator();
+  const [broker, setBroker] = useState<Broker | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      fetchBroker();
+      // Add timeout to prevent infinite loading
+      const timeout = setTimeout(() => {
+        if (loading) {
+          console.warn('⚠️ Broker profile loading timeout - proceeding without broker');
+          setLoading(false);
+        }
+      }, 3000);
+
+      fetchBrokerProfile().finally(() => {
+        clearTimeout(timeout);
+      });
+
+      return () => clearTimeout(timeout);
     } else {
-      setData(null);
-      setError(null);
+      setBroker(null);
+      setPlan(null);
+      setLoading(false);
     }
   }, [user]);
 
-  const fetchBroker = async () => {
-    if (!user) {
-      setData(null);
-      setError(null);
-      return;
-    }
+  const fetchBrokerProfile = async () => {
+    if (!user) return;
 
     try {
-      setIsLoading(true);
-      setError(null);
+      setLoading(true);
+      console.log('🔄 Fetching broker profile for user:', user.id);
       
-      // Primeiro, tentar buscar broker existente
-      const { data: existingBroker, error: brokerError } = await supabase
-        .from('brokers')
+      // Fetch broker profile with ORDER BY to handle any potential duplicates
+      const { data: brokerData, error: brokerError } = await supabase
+        .from('conectaios_brokers')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-      if (existingBroker) {
-        // Buscar dados do profile
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        const brokerData = {
-          ...existingBroker,
-          name: profileData?.name || profileData?.nome || 'Corretor',
-          email: profileData?.email || user.email,
-          avatar_url: profileData?.avatar_url,
-          cover_url: profileData?.cover_url,
-          referral_code: `REF${user.id.slice(-8).toUpperCase()}`
-        };
-        
-        setData(brokerData);
-        return;
-      }
-
-      if (brokerError && brokerError.code !== 'PGRST116') {
+      if (brokerError) {
+        console.error('❌ Error fetching broker profile:', brokerError);
         throw brokerError;
       }
 
-      // Se não existe broker, criar um novo
-      const { data: newBroker, error: createError } = await supabase
-        .from('brokers')
-        .insert({
-          user_id: user.id,
-          creci: null,
-          bio: null,
-          whatsapp: null,
-          minisite_slug: null
-        })
+      if (brokerData) {
+        console.log('✅ Broker profile loaded:', brokerData.id);
+        setBroker(brokerData);
+
+        // Fetch plan details if broker has plan_id
+        if (brokerData.plan_id) {
+          const { data: planData, error: planError } = await supabase
+            .from('plans')
+            .select('*')
+            .eq('id', brokerData.plan_id)
+            .maybeSingle();
+
+          if (planError) {
+            console.error('⚠️ Error fetching plan:', planError);
+          } else if (planData) {
+            console.log('✅ Plan loaded:', planData.name);
+            setPlan(planData);
+          }
+        }
+      } else {
+        console.log('ℹ️ No broker profile found for user');
+        setBroker(null);
+      }
+    } catch (error) {
+      console.error('❌ Error in fetchBrokerProfile:', error);
+      // Set broker to null on error to prevent infinite loading
+      setBroker(null);
+      setPlan(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createBrokerProfile = async (data: Partial<Broker>) => {
+    if (!user) throw new Error('User not authenticated');
+
+    try {
+      // Check if broker profile already exists
+      const { data: existingBroker } = await supabase
+        .from('conectaios_brokers')
+        .select('id, name, email')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingBroker) {
+        console.log('✅ Broker profile already exists, using existing one');
+        setBroker(existingBroker as Broker);
+        await fetchBrokerProfile();
+        return;
+      }
+
+      // Get default plan (starter)
+      const { data: defaultPlan } = await supabase
+        .from('plans')
+        .select('id')
+        .eq('slug', 'starter')
+        .maybeSingle();
+
+      // Generate username automatically if not provided
+      let username = data.username;
+      if (!username && data.name) {
+        try {
+          username = await generateUsername(data.name);
+          console.log('✅ Generated username:', username);
+        } catch (error) {
+          console.error('❌ Error generating username:', error);
+          // Fallback to email-based username
+          username = user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user';
+        }
+      }
+
+      // Validate region_id if provided
+      const profileData: any = {
+        user_id: user.id,
+        name: data.name || user.email?.split('@')[0] || 'Corretor',
+        email: user.email!,
+        plan_id: defaultPlan?.id,
+        referral_code: await generateReferralCode(),
+        phone: data.phone || null,
+        creci: data.creci || null,
+        username: username || null,
+        bio: data.bio || null,
+        status: 'active'
+      };
+
+      // Only add region_id if it's provided and not empty
+      if (data.region_id && data.region_id.trim() !== '') {
+        profileData.region_id = data.region_id;
+      }
+
+      const { data: brokerData, error } = await supabase
+        .from('conectaios_brokers')
+        .insert(profileData)
         .select()
         .single();
 
-      if (createError) throw createError;
-
-      // Buscar dados do profile
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      const brokerData = {
-        ...newBroker,
-        name: profileData?.name || profileData?.nome || 'Corretor',
-        email: profileData?.email || user.email,
-        avatar_url: profileData?.avatar_url,
-        cover_url: profileData?.cover_url,
-        referral_code: `REF${user.id.slice(-8).toUpperCase()}`
-      };
-      
-      setData(brokerData);
-    } catch (err) {
-      console.error('Error fetching broker:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao carregar corretor');
-    } finally {
-      setIsLoading(false);
+      if (error) throw error;
+      setBroker(brokerData);
+      await fetchBrokerProfile(); // Refresh to get plan data
+    } catch (error) {
+      console.error('Error creating broker profile:', error);
+      throw error;
     }
   };
 
-  const update = async (updates: Partial<BrokerData>) => {
-    if (!user || !data) return null;
+  const updateBrokerProfile = async (data: Partial<Broker>) => {
+    if (!broker) throw new Error('No broker profile found');
 
     try {
-      setError(null);
+      const { data: updatedBroker, error } = await supabase
+        .from('conectaios_brokers')
+        .update(data)
+        .eq('id', broker.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      setBroker(updatedBroker);
       
-      // Separar atualizações para broker e profile
-      const brokerUpdates: any = {};
-      const profileUpdates: any = {};
-
-      Object.keys(updates).forEach(key => {
-        if (['creci', 'bio', 'whatsapp', 'minisite_slug'].includes(key)) {
-          brokerUpdates[key] = updates[key as keyof BrokerData];
-        } else if (['name', 'avatar_url', 'cover_url', 'email'].includes(key)) {
-          if (key === 'name') profileUpdates.nome = updates[key as keyof BrokerData];
-          else profileUpdates[key] = updates[key as keyof BrokerData];
-        }
-      });
-
-      // Atualizar broker se necessário
-      if (Object.keys(brokerUpdates).length > 0) {
-        const { error: brokerError } = await supabase
-          .from('brokers')
-          .update(brokerUpdates)
-          .eq('id', data.id);
-        
-        if (brokerError) throw brokerError;
-      }
-
-      // Atualizar profile se necessário
-      if (Object.keys(profileUpdates).length > 0) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update(profileUpdates)
-          .eq('id', user.id);
-        
-        if (profileError) throw profileError;
-      }
-
-      // Recarregar dados atualizados e forçar atualização do estado
-      await fetchBroker();
-      
-      // Forçar refresh dos dados se foi uma atualização de imagem
-      if (updates.avatar_url || updates.cover_url) {
-        setTimeout(() => {
-          fetchBroker();
-        }, 500);
-      }
-      
-      return data;
-    } catch (err) {
-      console.error('Error updating broker:', err);
-      setError(err instanceof Error ? err.message : 'Erro ao atualizar corretor');
-      throw err;
+      // Refresh broker profile to ensure we have the latest data
+      await fetchBrokerProfile();
+    } catch (error) {
+      console.error('Error updating broker profile:', error);
+      throw error;
     }
   };
 
-  return {
-    data,
-    isLoading,
-    error,
-    update,
-    refresh: fetchBroker,
-    // Legacy compatibility
-    broker: data,
-    loading: isLoading,
-    updateBrokerProfile: update,
-    fetchBrokerProfile: fetchBroker,
-    createBrokerProfile: update,
-    updateBroker: update,
-    createBrokerUser: update
+  const generateReferralCode = async () => {
+    try {
+      const { data, error } = await supabase.rpc('generate_referral_code');
+      if (error) {
+        // Fallback: generate a simple referral code
+        return Math.random().toString(36).substring(2, 10).toUpperCase();
+      }
+      return data;
+    } catch (error) {
+      // Fallback: generate a simple referral code  
+      return Math.random().toString(36).substring(2, 10).toUpperCase();
+    }
   };
-};
+
+  return (
+    <BrokerContext.Provider 
+      value={{ 
+        broker, 
+        plan, 
+        loading, 
+        createBrokerProfile, 
+        updateBrokerProfile 
+      }}
+    >
+      {children}
+    </BrokerContext.Provider>
+  );
+}
+
+export function useBroker() {
+  const context = useContext(BrokerContext);
+  if (context === undefined) {
+    throw new Error('useBroker must be used within a BrokerProvider');
+  }
+  return context;
+}

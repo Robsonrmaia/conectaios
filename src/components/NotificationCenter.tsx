@@ -11,12 +11,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useNotifications } from '@/hooks/useNotifications';
-import { SimpleNotification } from '@/hooks/useSimpleNotifications';
+import { useNotifications, type Notification } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const getNotificationIcon = (type: string) => {
+const getNotificationIcon = (type: Notification['type']) => {
   switch (type) {
     case 'warning':
       return <AlertTriangle className="h-4 w-4 text-amber-500" />;
@@ -29,7 +28,7 @@ const getNotificationIcon = (type: string) => {
   }
 };
 
-const getNotificationBorderColor = (type: string) => {
+const getNotificationBorderColor = (type: Notification['type']) => {
   switch (type) {
     case 'warning':
       return 'border-l-amber-500';
@@ -43,26 +42,18 @@ const getNotificationBorderColor = (type: string) => {
 };
 
 export function NotificationCenter() {
-  const { notifications, loading, unreadCount, markAsRead } = useNotifications();
-  
-  // Funções mockadas para compatibilidade
-  const markAllAsRead = () => {
-    notifications.forEach(n => !n.read && markAsRead(n.id));
-  };
-  const deleteNotification = (id: string) => {
-    console.log('Delete notification:', id);
-  };
+  const { notifications, loading, unreadCount, markAsRead, markAllAsRead, deleteNotification } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleNotificationClick = (notification: SimpleNotification) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.read) {
       markAsRead(notification.id);
     }
     
-    // Handle specific notification actions based on meta
-    if (notification.meta?.property_id) {
+    // Handle specific notification actions based on data
+    if (notification.data?.property_id) {
       // Could navigate to property page
-      console.log('Navigate to property:', notification.meta.property_id);
+      console.log('Navigate to property:', notification.data.property_id);
     }
   };
 
@@ -151,7 +142,7 @@ export function NotificationCenter() {
                   </div>
                   
                   <p className="text-xs text-muted-foreground whitespace-pre-wrap line-clamp-3 mb-2">
-                    {notification.body}
+                    {notification.message}
                   </p>
                   
                   <div className="flex items-center justify-between w-full">

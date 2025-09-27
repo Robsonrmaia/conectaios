@@ -6,8 +6,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { useBroker } from "@/hooks/useBroker";
-import { BrandingProvider } from '@/providers/BrandingProvider';
+import { BrokerProvider, useBroker } from "@/hooks/useBroker";
 import { MinisiteProvider } from "@/hooks/useMinisite";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -24,7 +23,7 @@ import Imoveis from "./pages/app/Imoveis";
 import Marketplace from "./pages/app/Marketplace";
 import Minisite from "./pages/app/Minisite";
 import Gamificacao from "./pages/app/Gamificacao";
-import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
+import { GamificationFeatureFlag } from "@/components/GamificationFeatureFlag";
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
 import Inbox from "./pages/app/Inbox";
@@ -32,8 +31,6 @@ import CRM from "./pages/app/CRM";
 import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
-import DataManagement from "./pages/admin/DataManagement";
-import AdminRoute from "./components/AdminRoute";
 import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
 import Suporte from "./pages/app/Suporte";
 import Videos from "./pages/app/Videos";
@@ -47,7 +44,7 @@ import Admin from "./pages/app/Admin";
 import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
-import PropertySubmissionFormComplete from "@/pages/public/PropertySubmissionFormComplete";
+import PropertySubmissionForm from "@/pages/public/PropertySubmissionForm";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
 import PublicProbe from "@/pages/PublicProbe";
 
@@ -89,8 +86,7 @@ const UserInfo = () => {
 };
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const onboarding = useOnboarding();
-  const shouldShowTour = !onboarding.tour_completed;
+  const { shouldShowTour, completeTour, loading } = useOnboarding();
 
   // Don't block the UI for onboarding loading - make it non-blocking
   return (
@@ -108,8 +104,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
       {/* Onboarding is now non-blocking and loads asynchronously */}
-      {shouldShowTour && (
-        <OnboardingTour onComplete={onboarding.completeTour} />
+      {!loading && shouldShowTour && (
+        <OnboardingTour onComplete={completeTour} />
       )}
     </SidebarProvider>
   );
@@ -122,9 +118,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AuthProvider>
-          <BrandingProvider>
+          <BrokerProvider>
             <MinisiteProvider>
-                <BrowserRouter>
+              <BrowserRouter>
                 <MaintenanceCheck>
                   <Routes>
                    <Route path="/" element={<Index />} />
@@ -134,7 +130,7 @@ const App = () => (
                    <Route path="/broker" element={<BrokerRedirect />} />
                    <Route path="/broker/:username" element={<BrokerMinisite />} />
                    <Route path="/imovel/:id" element={<PropertyDetail />} />
-                   <Route path="/formulario-imovel/:token" element={<PropertySubmissionFormComplete />} />
+                   <Route path="/formulario-imovel/:token" element={<PropertySubmissionForm />} />
                    <Route path="/public-test" element={<PublicProbe />} />
                   <Route path="/app/*" element={
                     <ProtectedRoute>
@@ -162,12 +158,7 @@ const App = () => (
                           <Route path="patrocinios" element={<Patrocinios />} />
                            <Route path="ai-assistant" element={<AIAssistant />} />
                            <Route path="audit-logs" element={<AuditLogs />} />
-            <Route path="admin" element={<Admin />} />
-            <Route path="admin/data-management" element={
-              <AdminRoute>
-                <DataManagement />
-              </AdminRoute>
-            } />
+                           <Route path="admin" element={<Admin />} />
                            <Route path="perfil" element={<Perfil />} />
                            <Route path="ajuda" element={<Ajuda />} />
                            <Route path="suporte" element={<Suporte />} />
@@ -179,9 +170,9 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                   </Routes>
                 </MaintenanceCheck>
-                </BrowserRouter>
-              </MinisiteProvider>
-            </BrandingProvider>
+              </BrowserRouter>
+            </MinisiteProvider>
+          </BrokerProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

@@ -89,11 +89,11 @@ serve(async (req) => {
     let savedCount = 0;
     for (const [key, stat] of stats) {
       const avg_price = stat.prices.length > 0 
-        ? stat.prices.reduce((a: number, b: number) => a + b, 0) / stat.prices.length 
+        ? stat.prices.reduce((a, b) => a + b, 0) / stat.prices.length 
         : null;
         
       const avg_days_to_sell = stat.days_to_sell.length > 0
-        ? Math.round(stat.days_to_sell.reduce((a: number, b: number) => a + b, 0) / stat.days_to_sell.length)
+        ? Math.round(stat.days_to_sell.reduce((a, b) => a + b, 0) / stat.days_to_sell.length)
         : null;
 
       // Only save if we have meaningful data
@@ -136,7 +136,7 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Error in market analytics:', error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }), {
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

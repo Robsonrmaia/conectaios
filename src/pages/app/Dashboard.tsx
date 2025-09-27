@@ -76,21 +76,21 @@ const Dashboard = () => {
     try {
       // Fetch properties with details for insights
       const { data: properties, count: propertiesCount } = await supabase
-        .from('imoveis')
-        .select('type, price, visibility', { count: 'exact' })
-        .eq('owner_id', user?.id);
+        .from('properties')
+        .select('property_type, valor, visibility', { count: 'exact' })
+        .eq('user_id', user?.id);
 
       // Fetch clients count
       const { count: clientsCount } = await supabase
-        .from('crm_clients')
+        .from('clients')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user?.id);
 
       // Fetch deals count
       const { count: dealsCount } = await supabase
-        .from('crm_deals')
+        .from('deals')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user?.id);
+        .or(`buyer_broker_id.eq.${user?.id},seller_broker_id.eq.${user?.id},listing_broker_id.eq.${user?.id}`);
 
       setStats({
         properties: propertiesCount || 0,

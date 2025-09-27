@@ -125,10 +125,10 @@ serve(async (req) => {
         state: prop.state,
         fotos: prop.fotos || [],
         broker: {
-          name: (prop.conectaios_brokers as any)?.name || '',
-          phone: (prop.conectaios_brokers as any)?.phone || '',
-          email: (prop.conectaios_brokers as any)?.email || '',
-          username: (prop.conectaios_brokers as any)?.username || ''
+          name: prop.conectaios_brokers?.name || '',
+          phone: prop.conectaios_brokers?.phone || '',
+          email: prop.conectaios_brokers?.email || '',
+          username: prop.conectaios_brokers?.username || ''
         }
       })) || [];
 
@@ -370,7 +370,7 @@ serve(async (req) => {
     console.error('Error in public-api function:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error instanceof Error ? error.message : 'Internal server error'
+      error: error.message || 'Internal server error'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

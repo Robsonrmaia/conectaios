@@ -72,28 +72,41 @@ export function PropertyImportPreviewModal({
         propertyData 
       });
       
-      // Create property record using imoveis table
+      // Create property record with corrected field mapping
       const { data, error } = await supabase
-        .from('imoveis')
+        .from('properties')
         .insert({
-          owner_id: brokerUserId,
-          title: propertyData.titulo,
-          description: propertyData.descricao,
-          price: parseFloat(propertyData.valor) || 0,
-          purpose: propertyData.listing_type || 'sale',
-          type: propertyData.property_type || 'house',
-          area_total: parseFloat(propertyData.area) || 0,
-          bedrooms: parseInt(propertyData.quartos) || 0,
+          user_id: brokerUserId,
+          titulo: propertyData.titulo,
+          descricao: propertyData.descricao,
+          valor: parseFloat(propertyData.valor) || 0,
+          listing_type: propertyData.listing_type,
+          property_type: propertyData.property_type,
+          area: parseFloat(propertyData.area) || 0,
+          quartos: parseInt(propertyData.quartos) || 0,
           bathrooms: parseInt(propertyData.banheiros) || 0,
-          parking: parseInt(propertyData.vagas) || 0,
-          condo_fee: parseFloat(propertyData.condominio) || null,
-          street: propertyData.endereco,
+          parking_spots: parseInt(propertyData.vagas) || 0,
+          condominium_fee: parseFloat(propertyData.condominio) || null,
+          iptu: parseFloat(propertyData.iptu) || null,
+          address: propertyData.endereco,
           neighborhood: propertyData.bairro,
           city: propertyData.cidade,
           state: propertyData.estado,
           zipcode: propertyData.cep,
+          fotos: submission.photos || [],
           is_public: true,
-          visibility: 'public_site'
+          visibility: 'public_site',
+          broker_minisite_enabled: true,
+          // Legacy mappings for backward compatibility
+          finalidade: propertyData.listing_type || 'venda',
+          tipo: propertyData.property_type,
+          preco: parseFloat(propertyData.valor) || 0,
+          cidade: propertyData.cidade,
+          bairro: propertyData.bairro,
+          endereco: propertyData.endereco,
+          area_total: parseFloat(propertyData.area) || 0,
+          banheiros: parseInt(propertyData.banheiros) || 0,
+          vagas: parseInt(propertyData.vagas) || 0
         })
         .select();
 
@@ -105,9 +118,9 @@ export function PropertyImportPreviewModal({
 
       console.log('Property imported successfully:', data);
 
-      // Update lead status instead
+      // Update submission status
       await supabase
-        .from('leads')
+        .from('property_submissions')
         .update({
           status: 'imported',
           notes: 'Importado para Meus Imóveis',
@@ -130,7 +143,7 @@ export function PropertyImportPreviewModal({
 
     try {
       await supabase
-        .from('leads')
+        .from('property_submissions')
         .update({
           status: 'rejected',
           reviewed_at: new Date().toISOString()

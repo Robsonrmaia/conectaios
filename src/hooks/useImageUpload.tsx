@@ -20,15 +20,15 @@ export function useImageUpload() {
       
       // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('assets')
-        .upload(`profiles/${fileName}`, file);
+        .from('property-images')
+        .upload(`${type}s/${fileName}`, file);
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('assets')
-        .getPublicUrl(`profiles/${fileName}`);
+        .from('property-images')
+        .getPublicUrl(`${type}s/${fileName}`);
 
       // Update broker profile based on image type
       const updateData: any = {};

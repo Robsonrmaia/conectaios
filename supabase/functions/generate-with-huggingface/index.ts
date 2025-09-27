@@ -58,7 +58,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in generate-with-huggingface:', error)
     return new Response(
-      JSON.stringify({ error: 'Erro ao gerar imagem', details: error instanceof Error ? error.message : String(error) }),
+      JSON.stringify({ error: 'Erro ao gerar imagem', details: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

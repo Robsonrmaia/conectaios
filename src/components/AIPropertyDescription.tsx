@@ -9,19 +9,19 @@ import { toast } from '@/hooks/use-toast';
 
 interface Property {
   id: string;
-  title: string;
-  price: number;
-  area_total: number;
-  bedrooms: number;
+  titulo: string;
+  valor: number;
+  area: number;
+  quartos: number;
   bathrooms: number;
-  parking: number;
-  purpose: string;
-  type: string;
-  description: string;
-  street?: string;
+  parking_spots: number;
+  listing_type: string;
+  property_type: string;
+  descricao: string;
+  address?: string;
   neighborhood?: string;
   city?: string;
-  condo_fee?: number;
+  condominium_fee?: number;
   iptu?: number;
 }
 
@@ -47,18 +47,21 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
       return;
     }
 
-    const prompt = targetAudience === 'brokers' 
-      ? `🏢 DESCRIÇÃO PROFISSIONAL PARA CORRETORES 
+    const brokerPrompt = `
+      Como especialista imobiliário, crie uma descrição técnica e comercial para este imóvel direcionada a OUTROS CORRETORES:
       
-      Imóvel: ${property.type || 'Não especificado'} para ${property.purpose || 'Não especificado'}
-      Valor: R$ ${property.price ? property.price.toLocaleString('pt-BR') : 'Não informado'}
-      • Área: ${property.area_total ? `${property.area_total}m²` : 'Não informada'}
-      • Quartos: ${property.bedrooms || 'Não informado'}
-      • Banheiros: ${property.bathrooms || 'Não informado'}
-      • Vagas: ${property.parking || 'Não informado'}
+      🏠 DADOS DO IMÓVEL:
+      • Título: ${property.titulo}
+      • Tipo: ${property.property_type}
+      • Finalidade: ${property.listing_type} 
+      • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
+      • Área: ${property.area}m²
+      • Quartos: ${property.quartos}
+      • Banheiros: ${property.bathrooms}
+      • Vagas: ${property.parking_spots}
       ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
-      ${property.street ? `• Endereço: ${property.street}` : ''}
-      ${property.condo_fee ? `• Condomínio: R$ ${property.condo_fee.toLocaleString('pt-BR')}` : ''}
+      ${property.address ? `• Endereço: ${property.address}` : ''}
+      ${property.condominium_fee ? `• Condomínio: R$ ${property.condominium_fee.toLocaleString('pt-BR')}` : ''}
       ${property.iptu ? `• IPTU: R$ ${property.iptu.toLocaleString('pt-BR')}` : ''}
       
       🎯 FOQUE EM ASPECTOS RELEVANTES PARA CORRETORES:
@@ -75,37 +78,47 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
       2. Esta descrição será lida por outros profissionais imobiliários
       3. Destaque o potencial comercial do imóvel
       4. Mencione características da região de Ilhéus quando relevante
-      5. RETORNE APENAS o texto da descrição, sem formatação markdown
-      6. Máximo 180 palavras, seja conciso e impactante`
-
-      : `🏡 DESCRIÇÃO ATRATIVA PARA CLIENTES FINAIS
-
-      Imóvel: ${property.type || 'Não especificado'} para ${property.purpose || 'Não especificado'}
-      Valor: R$ ${property.price ? property.price.toLocaleString('pt-BR') : 'Consulte'}
-      • Área: ${property.area_total ? `${property.area_total}m²` : 'Não informada'}
-      • Quartos: ${property.bedrooms || 'Não informado'}
-      • Banheiros: ${property.bathrooms || 'Não informado'}
-      • Vagas: ${property.parking || 'Não informado'}
-      ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
-      ${property.street ? `• Endereço: ${property.street}` : ''}
-      ${property.condo_fee ? `• Condomínio: R$ ${property.condo_fee.toLocaleString('pt-BR')}` : ''}
+      5. Máximo 200 palavras
+      6. NÃO use emojis, asteriscos (*) ou caracteres especiais
+      7. Use apenas texto limpo e profissional
       
-      💫 CRIE UMA DESCRIÇÃO ENVOLVENTE QUE:
-      • Desperte emoção e desejo pelo imóvel
-      • Destaque o estilo de vida que o imóvel proporciona
-      • Use linguagem calorosa e acolhedora
-      • Mencione benefícios práticos do dia a dia
-      • Crie conexão emocional com o futuro morador
-      • Destaque características únicas e diferenciais
-      • Mencione a beleza e charme de Ilhéus quando relevante
+      Gere apenas a descrição, sem explicações adicionais.`;
+
+    const clientPrompt = `
+      Como especialista em marketing imobiliário, crie uma descrição atrativa e emocional para este imóvel direcionada aos CLIENTES FINAIS:
+      
+      🏠 DADOS DO IMÓVEL:
+      • Título: ${property.titulo}
+      • Tipo: ${property.property_type}
+      • Finalidade: ${property.listing_type} 
+      • Valor: R$ ${property.valor?.toLocaleString('pt-BR')}
+      • Área: ${property.area}m²
+      • Quartos: ${property.quartos}
+      • Banheiros: ${property.bathrooms}
+      • Vagas: ${property.parking_spots}
+      ${property.neighborhood ? `• Bairro: ${property.neighborhood}` : ''}
+      ${property.address ? `• Endereço: ${property.address}` : ''}
+      
+      🎯 FOQUE EM ASPECTOS QUE EMOCIONAM CLIENTES:
+      • Como será a vida neste imóvel (lifestyle)
+      • Conforto e comodidade para a família
+      • Localização privilegiada e conveniência
+      • Sensação de segurança e bem-estar
+      • Valorização e bom investimento
+      • Características únicas e especiais
       
       INSTRUÇÕES:
-      1. Use linguagem persuasiva e emocional
-      2. Esta descrição será lida por potenciais compradores/inquilinos
-      3. Foque na experiência de morar no imóvel
-      4. Seja acolhedor e inspirador
-      5. RETORNE APENAS o texto da descrição, sem formatação markdown
-      6. Máximo 180 palavras, seja envolvente e cativante`;
+      1. Use linguagem emocional e persuasiva para clientes finais
+      2. Destaque o sonho de morar no imóvel
+      3. Fale sobre qualidade de vida e realizações
+      4. Mencione benefícios para a família
+      5. Máximo 150 palavras
+      6. Use linguagem calorosa mas profissional
+      7. NÃO use emojis, asteriscos (*) ou caracteres especiais
+      
+      Gere apenas a descrição, sem explicações adicionais.`;
+
+    const prompt = targetAudience === 'clients' ? clientPrompt : brokerPrompt;
 
     try {
       const response = await sendMessage(prompt);
@@ -117,8 +130,8 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
         try {
           const { supabase } = await import('@/integrations/supabase/client');
           await supabase
-            .from('imoveis')
-            .update({ description: response })
+            .from('properties')
+            .update({ descricao: response })
             .eq('id', property.id);
           
           console.log('✅ Descrição salva automaticamente no banco');
@@ -128,59 +141,67 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
       }
 
       toast({
-        title: "Descrição gerada com sucesso!",
-        description: `Descrição ${targetAudience === 'brokers' ? 'para corretores' : 'para clientes'} criada pela IA.`
+        title: "Descrição gerada!",
+        description: `Descrição criada para ${targetAudience === 'clients' ? 'clientes' : 'corretores'}. Você pode editá-la antes de usar.`,
       });
     } catch (error) {
-      console.error('Erro ao gerar descrição:', error);
       toast({
-        title: "Erro ao gerar descrição",
-        description: "Tente novamente em alguns instantes.",
-        variant: "destructive"
+        title: "Erro",
+        description: "Não foi possível gerar a descrição. Tente novamente.",
+        variant: "destructive",
       });
     }
   };
 
   const copyToClipboard = async () => {
-    await navigator.clipboard.writeText(generatedDescription);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast({
-      title: "Copiado!",
-      description: "Descrição copiada para a área de transferência."
-    });
+    try {
+      await navigator.clipboard.writeText(generatedDescription);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({
+        title: "Copiado!",
+        description: "Descrição copiada para a área de transferência.",
+      });
+    } catch (error) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível copiar a descrição.",
+        variant: "destructive",
+      });
+    }
   };
 
   const useDescription = () => {
     onDescriptionGenerated(generatedDescription);
-    onClose();
     toast({
       title: "Descrição aplicada!",
-      description: "A descrição foi aplicada ao imóvel."
+      description: "A descrição foi aplicada ao imóvel.",
     });
+    onClose();
   };
 
   return (
     <Card className="w-full max-w-2xl">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Wand2 className="h-5 w-5" />
-          Descrição com IA
+          <Wand2 className="h-5 w-5 text-primary" />
+          Gerar Descrição com IA
         </CardTitle>
         <CardDescription>
-          Gere uma descrição {targetAudience === 'brokers' ? 'profissional para corretores' : 'atrativa para clientes'} usando inteligência artificial
+          Crie uma descrição {targetAudience === 'clients' ? 'emocional para clientes' : 'técnica para corretores'} para: <strong>{property.titulo}</strong>
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {!hasGenerated ? (
-          <div className="text-center py-8 space-y-4">
-            <p className="text-muted-foreground">
-              Clique no botão abaixo para gerar uma descrição personalizada para este imóvel
+        {!generatedDescription ? (
+          <div className="text-center py-8">
+            <Wand2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground mb-4">
+              Nossa IA criará uma descrição personalizada baseada nas informações do imóvel
             </p>
             <Button 
               onClick={generateDescription} 
               disabled={loading}
-              size="lg"
+              className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90"
             >
               {loading ? (
                 <>
@@ -200,40 +221,72 @@ export function AIPropertyDescription({ property, onDescriptionGenerated, onClos
             <Textarea
               value={generatedDescription}
               onChange={(e) => setGeneratedDescription(e.target.value)}
+              rows={8}
               placeholder="Descrição gerada aparecerá aqui..."
-              className="min-h-[200px] resize-none"
+              className="resize-none"
             />
             
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={copyToClipboard} variant="outline" size="sm">
-                {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                {copied ? 'Copiado!' : 'Copiar'}
-              </Button>
+            <div className="flex gap-2 justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={copyToClipboard}
+                  className="flex items-center gap-2"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="h-4 w-4 text-green-600" />
+                      Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copiar
+                    </>
+                  )}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const audioId = `ai-description-${property.id}`;
+                    if (isCurrentlySpeaking(audioId)) {
+                      stop();
+                    } else {
+                      speak(generatedDescription, audioId);
+                    }
+                  }}
+                  className="flex items-center gap-2"
+                  disabled={!generatedDescription.trim()}
+                >
+                  <Volume2 className="h-4 w-4" />
+                  {isCurrentlySpeaking(`ai-description-${property.id}`) ? 'Parar' : 'Ouvir'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  onClick={generateDescription}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Gerar Nova"
+                  )}
+                </Button>
+              </div>
               
-              <Button
-                onClick={() => {
-                  if (isCurrentlySpeaking) {
-                    stop();
-                  } else {
-                    speak(generatedDescription);
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                disabled={isSpeaking}
-              >
-                <Volume2 className="h-4 w-4 mr-2" />
-                {isCurrentlySpeaking ? 'Parar' : 'Ouvir'}
-              </Button>
-              
-              <Button onClick={generateDescription} variant="outline" size="sm" disabled={loading}>
-                {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Wand2 className="h-4 w-4 mr-2" />}
-                Nova Descrição
-              </Button>
-              
-              <Button onClick={useDescription} className="ml-auto">
-                Usar Esta Descrição
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="ghost" onClick={onClose}>
+                  Cancelar
+                </Button>
+                <Button 
+                  onClick={useDescription}
+                  className="bg-primary hover:bg-primary/90 text-white"
+                >
+                  Usar Descrição
+                </Button>
+              </div>
             </div>
           </div>
         )}

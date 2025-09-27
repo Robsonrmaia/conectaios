@@ -1,243 +1,308 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/AnimatedCard';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { WhatsAppButton } from '@/components/WhatsAppButton';
-import { MapPin, Bed, Bath, Square, Phone, Mail, MessageCircle, Share, ExternalLink } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
+import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
+import { formatCurrency } from '@/lib/utils';
+import { 
+  MapPin, 
+  Phone, 
+  Mail, 
+  MessageCircle, 
+  Volume2, 
+  BedDouble, 
+  Bath, 
+  Car, 
+  Home, 
+  Search,
+  Filter,
+  Eye,
+  Star,
+  CheckCircle,
+  Square,
+  ImageIcon
+} from 'lucide-react';
+import { ShareButton } from '@/components/ShareButton';
+import { PropertyPresentation } from '@/components/PropertyPresentation';
 
-// Simple data structures to avoid type recursion
 interface MinisiteConfig {
   id: string;
-  user_id: string;
-  title: string;
+  broker_id: string;
+  template_id: string;
   primary_color: string;
   secondary_color: string;
+  title: string;
+  description: string;
+  phone: string;
+  email: string;
+  whatsapp: string;
+  custom_message: string;
   show_properties: boolean;
-  show_contact: boolean;
+  show_contact_form: boolean;
   show_about: boolean;
-  custom_domain?: string;
-  is_active?: boolean;
+  config_data: any;
+  generated_url: string;
+  broker?: {
+    name: string;
+    bio: string;
+    avatar_url: string;
+    creci: string;
+  };
 }
 
-interface BrokerData {
-  id: string;
-  name?: string;
-  bio?: string;
-  avatar_url?: string;
-  creci?: string;
-  whatsapp?: string;
-}
-
-interface SimpleProperty {
+interface Property {
   id: string;
   titulo: string;
-  valor?: number;
-  quartos?: number;
-  banheiros?: number;
-  area_total?: number;
-  cidade?: string;
-  bairro?: string;
-  tipo?: string;
-  finalidade: string;
-  is_public: boolean;
-  visibility: string;
-  fotos?: string[];
-  capa?: string;
+  valor: number;
+  quartos: number;
+  area: number;
+  fotos: string[];
+  neighborhood: string;
+  city: string;
+  descricao: string;
+  bathrooms: number;
+  parking_spots: number;
+  listing_type: string;
+  property_type: string;
+  address: string;
+  state: string;
+  features: any;
+  reference_code?: string;
+  furnishing_type?: string;
+  condominium_fee?: number;
+  iptu?: number;
+  price_per_m2?: number;
+  has_sea_view?: boolean;
+  sea_distance?: number;
+  year_built?: number;
+  zipcode?: string;
 }
 
 export default function MinisiteView() {
-  const { username } = useParams<{ username: string }>();
+  const { username } = useParams();
+  const { speak, stop, isSpeaking } = useElevenLabsVoice();
   const [config, setConfig] = useState<MinisiteConfig | null>(null);
-  const [broker, setBroker] = useState<BrokerData | null>(null);
-  const [properties, setProperties] = useState<SimpleProperty[]>([]);
-  const [filteredProperties, setFilteredProperties] = useState<SimpleProperty[]>([]);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [contactForm, setContactForm] = useState({
+    nome: '',
+    email: '',
+    telefone: '',
+    mensagem: ''
+  });
   
-  // Filter states
+  // Search and filter states
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedListingType, setSelectedListingType] = useState('all');
+  const [selectedType, setSelectedType] = useState('todos');
+  const [selectedListingType, setSelectedListingType] = useState('todos');
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
-  const [selectedBedrooms, setSelectedBedrooms] = useState('all');
-  
-  // Contact form states
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactPhone, setContactPhone] = useState('');
-  const [contactMessage, setContactMessage] = useState('');
-  const [contactLoading, setContactLoading] = useState(false);
+  const [selectedBedrooms, setSelectedBedrooms] = useState('todos');
+
+  useEffect(() => {
+    if (username) {
+      fetchMinisiteData();
+    }
+  }, [username]);
 
   const fetchMinisiteData = async () => {
-    if (!username) return;
-
-    setLoading(true);
-    console.log('Fetching minisite for username:', username);
-
     try {
-      let urlToFind = `https://conectaios.lovableproject.com/minisite/${username}`;
+      console.log('Fetching minisite for username:', username);
+      const urlToFind = username?.startsWith('@') ? username : `@${username}`;
       console.log('Looking for URL:', urlToFind);
       
-      // Simple minisite query to avoid type issues
+      // First, let's check what minisites exist in the database
+      const { data: allMinisites, error: allError } = await supabase
+        .from('minisite_configs')
+        .select('generated_url, is_active, broker_id');
+      
+      console.log('All minisites in database:', allMinisites);
+      console.log('All minisites error:', allError);
+      
+      // Fetch minisite config with broker data
       const { data: configData, error: configError } = await supabase
         .from('minisite_configs')
-        .select('*')
-        .ilike('title', `%${username}%`)
-        .limit(1)
-        .single();
-
-      if (configError || !configData) {
-        console.log('Minisite not found for username:', username);
-        setNotFound(true);
-        setLoading(false);
-        return;
-      }
-
-      setConfig({
-        id: configData.id,
-        user_id: configData.user_id,
-        title: configData.title,
-        primary_color: configData.primary_color,
-        secondary_color: configData.secondary_color,
-        show_properties: configData.show_properties,
-        show_contact: configData.show_contact,
-        show_about: configData.show_about,
-        custom_domain: configData.custom_domain
-      });
-
-      // Fetch broker data separately using correct schema
-      const { data: brokerData, error: brokerError } = await supabase
-        .from('brokers')
-        .select('id, creci, bio, whatsapp')
-        .eq('user_id', configData.user_id)
+        .select(`
+          *,
+          broker:conectaios_brokers(name, bio, avatar_url, creci)
+        `)
+        .eq('generated_url', urlToFind)
+        .eq('is_active', true)
         .maybeSingle();
 
-      if (brokerError) {
-        console.error('Error fetching broker:', brokerError);
+      console.log('Config data:', configData);
+      console.log('Config error:', configError);
+
+      if (configError) throw configError;
+      
+      if (!configData) {
+        // Try alternative search without @ prefix
+        const altUrlToFind = username?.startsWith('@') ? username.substring(1) : username;
+        console.log('Trying alternative URL:', altUrlToFind);
+        
+        const { data: altConfigData, error: altConfigError } = await supabase
+          .from('minisite_configs')
+          .select(`
+            *,
+            broker:conectaios_brokers(name, bio, avatar_url, creci)
+          `)
+          .eq('generated_url', altUrlToFind)
+          .eq('is_active', true)
+          .maybeSingle();
+        
+        console.log('Alternative config data:', altConfigData);
+        
+        if (altConfigData) {
+          setConfig(altConfigData);
+        } else {
+          throw new Error('Minisite não encontrado');
+        }
+      } else {
+        setConfig(configData);
       }
 
-      // Fetch profile data
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('full_name, email, avatar_url')
-        .eq('id', configData.user_id)
-        .maybeSingle();
-
-      if (brokerData && profileData) {
-        setBroker({
-          id: brokerData.id,
-          name: profileData.full_name,
-          bio: brokerData.bio,
-          avatar_url: profileData.avatar_url,
-          creci: brokerData.creci,
-          whatsapp: brokerData.whatsapp
-        });
-      }
-
-      // Fetch properties using direct Supabase call to avoid type complexity
-      if (configData?.user_id) {
+      // Fetch broker's properties if show_properties is enabled
+      const finalConfig = configData || (configData === null ? null : configData);
+      
+      if (finalConfig?.show_properties && finalConfig.broker_id) {
+        console.log('🏠 Fetching properties for broker_id:', finalConfig.broker_id);
+        
         try {
-          const { data: propertiesData, error: propertiesError } = await supabase
-            .from('imoveis')
-            .select('id, title, price, bedrooms, bathrooms, area_total, city, neighborhood, type, purpose, is_public, visibility')
-            .eq('owner_id', configData.user_id)
-            .eq('is_public', true)
-            .eq('visibility', 'public_site')
-            .limit(50);
+          // First get broker info to find the correct user_id
+          const { data: brokerData, error: brokerError } = await supabase
+            .from('conectaios_brokers')
+            .select('user_id')
+            .eq('id', finalConfig.broker_id)
+            .single();
 
-          if (propertiesError) {
-            console.error('Error fetching properties:', propertiesError);
+          console.log('👤 Broker data result:', { brokerData, brokerError });
+
+          if (brokerError) {
+            console.error('❌ Error fetching broker data:', brokerError);
             setProperties([]);
             setFilteredProperties([]);
-          } else {
-            // Transform to match expected Property interface
-            const transformedProperties: SimpleProperty[] = (propertiesData || []).map(property => ({
-              id: property.id,
-              titulo: property.title,
-              valor: property.price ? Number(property.price) : undefined,
-              quartos: property.bedrooms,
-              banheiros: property.bathrooms,
-              area_total: property.area_total ? Number(property.area_total) : undefined,
-              cidade: property.city,
-              bairro: property.neighborhood,
-              tipo: property.type,
-              finalidade: property.purpose,
-              is_public: property.is_public,
-              visibility: property.visibility,
-              fotos: [],
-              capa: undefined
-            }));
+          } else if (brokerData?.user_id) {
+            console.log('🔍 Fetching properties for user_id:', brokerData.user_id);
+            
+            // Query properties with comprehensive error handling
+            const { data: propertiesData, error: propertiesError } = await supabase
+              .from('properties')
+              .select(`
+                id, titulo, valor, quartos, area, fotos, neighborhood, city, 
+                descricao, bathrooms, parking_spots, listing_type, property_type,
+                address, state, features, created_at, updated_at, reference_code,
+                furnishing_type, condominium_fee, iptu, price_per_m2, has_sea_view,
+                sea_distance, year_built, zipcode, is_public, visibility
+              `)
+              .eq('user_id', brokerData.user_id)
+              .eq('is_public', true)
+              .in('visibility', ['public_site', 'both'])
+              .order('created_at', { ascending: false })
+              .limit(50);
 
-            setProperties(transformedProperties);
-            setFilteredProperties(transformedProperties);
+            console.log('🎯 MinisiteView Properties query completed:', {
+              found: propertiesData?.length || 0,
+              error: propertiesError,
+              user_id: brokerData.user_id,
+              broker_id: finalConfig.broker_id,
+              firstProperty: propertiesData?.[0] ? {
+                id: propertiesData[0].id,
+                titulo: propertiesData[0].titulo,
+                is_public: propertiesData[0].is_public,
+                visibility: propertiesData[0].visibility
+              } : null,
+              query_details: {
+                table: 'properties',
+                filters: {
+                  user_id: brokerData.user_id,
+                  is_public: true,
+                  visibility: 'public_site'
+                }
+              }
+            });
+
+            if (propertiesError) {
+              console.error('❌ Error fetching properties:', propertiesError);
+              setProperties([]);
+              setFilteredProperties([]);
+            } else {
+              console.log('✅ Properties fetched successfully:', propertiesData?.length || 0);
+              const validProperties = propertiesData || [];
+              setProperties(validProperties);
+              setFilteredProperties(validProperties);
+            }
+          } else {
+            console.warn('⚠️ No user_id found for broker');
+            setProperties([]);
+            setFilteredProperties([]);
           }
-        } catch (propertiesError) {
-          console.error('Error fetching properties:', propertiesError);
+        } catch (error) {
+          console.error('💥 Error in properties fetch process:', error);
           setProperties([]);
           setFilteredProperties([]);
         }
+      } else {
+        console.log('🚫 Properties disabled or no broker_id:', {
+          show_properties: finalConfig?.show_properties,
+          broker_id: finalConfig?.broker_id
+        });
+        setProperties([]);
+        setFilteredProperties([]);
       }
-
     } catch (error) {
-      console.error('Error in fetchMinisiteData:', error);
-      setNotFound(true);
+      console.error('Error fetching minisite data:', error);
+      toast({
+        title: "Erro",
+        description: "Minisite não encontrado ou inativo",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  // Filter properties based on search criteria
   useEffect(() => {
-    fetchMinisiteData();
-  }, [username]);
+    let filtered = [...properties];
 
-  // Filter properties based on search and filter criteria
-  useEffect(() => {
-    let filtered = properties;
-
-    // Search filter
+    // Text search
     if (searchTerm) {
       filtered = filtered.filter(property =>
         property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.cidade?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        property.bairro?.toLowerCase().includes(searchTerm.toLowerCase())
+        property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        property.city?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Type filter
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(property => property.tipo === selectedType);
+    // Property type filter
+    if (selectedType !== 'todos') {
+      filtered = filtered.filter(property => property.property_type === selectedType);
     }
 
     // Listing type filter
-    if (selectedListingType !== 'all') {
-      filtered = filtered.filter(property => property.finalidade === selectedListingType);
+    if (selectedListingType !== 'todos') {
+      filtered = filtered.filter(property => property.listing_type === selectedListingType);
     }
 
-    // Price filters
+    // Price range filter
     if (minPrice) {
-      filtered = filtered.filter(property => {
-        const price = property.valor || 0;
-        return price >= parseInt(minPrice);
-      });
+      filtered = filtered.filter(property => property.valor >= parseFloat(minPrice));
     }
-
     if (maxPrice) {
-      filtered = filtered.filter(property => {
-        const price = property.valor || 0;
-        return price <= parseInt(maxPrice);
-      });
+      filtered = filtered.filter(property => property.valor <= parseFloat(maxPrice));
     }
 
     // Bedrooms filter
-    if (selectedBedrooms !== 'all') {
+    if (selectedBedrooms !== 'todos') {
       filtered = filtered.filter(property => property.quartos === parseInt(selectedBedrooms));
     }
 
@@ -246,147 +311,189 @@ export default function MinisiteView() {
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!config || !broker) return;
+    
+    if (!contactForm.nome || !contactForm.email || !contactForm.telefone) {
+      toast({
+        title: "Erro",
+        description: "Por favor, preencha todos os campos obrigatórios",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setContactLoading(true);
     try {
       const { error } = await supabase
-        .from('leads')
+        .from('contacts')
         .insert({
-          name: contactName,
-          email: contactEmail,
-          phone: contactPhone,
-          message: contactMessage,
-          broker_id: broker.id,
-          source: 'minisite'
+          nome: contactForm.nome,
+          email: contactForm.email,
+          telefone: contactForm.telefone,
+          interesse: contactForm.mensagem || 'Contato via minisite',
+          empresa: 'ConectAIOS Minisite'
         });
 
       if (error) throw error;
 
-      toast.success('Mensagem enviada com sucesso!');
-      setContactName('');
-      setContactEmail('');
-      setContactPhone('');
-      setContactMessage('');
+      toast({
+        title: "Sucesso!",
+        description: "Sua mensagem foi enviada. O corretor entrará em contato em breve!",
+      });
+
+      setContactForm({ nome: '', email: '', telefone: '', mensagem: '' });
     } catch (error) {
-      console.error('Error sending contact:', error);
-      toast.error('Erro ao enviar mensagem. Tente novamente.');
-    } finally {
-      setContactLoading(false);
+      console.error('Error submitting contact:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar mensagem. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openWhatsApp = () => {
+    if (config?.whatsapp) {
+      const message = encodeURIComponent(`Olá! Vi seu minisite e gostaria de conversar sobre imóveis.`);
+      window.open(`https://wa.me/${config.whatsapp.replace(/\D/g, '')}?text=${message}`, '_blank');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Carregando minisite...</p>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Carregando minisite...</p>
         </div>
       </div>
     );
   }
 
-  if (notFound || !config) {
+  if (!config) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-4">404</h1>
-          <p className="text-muted-foreground mb-8">Minisite não encontrado</p>
-          <Button onClick={() => window.location.href = '/'}>
-            Voltar ao início
-          </Button>
+          <Home className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+          <h1 className="text-2xl font-bold mb-2">Minisite não encontrado</h1>
+          <p className="text-muted-foreground">O minisite que você está procurando não existe ou foi desativado.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-secondary/20">
+    <div className="min-h-screen bg-background" style={{ '--primary': config.primary_color, '--secondary': config.secondary_color } as any}>
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {broker?.avatar_url && (
-                <img
-                  src={broker.avatar_url}
-                  alt={broker.name || 'Corretor'}
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-              )}
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">{config.title}</h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigator.share?.({ url: window.location.href, title: config.title })}
-              >
-                <Share className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+      <header className="py-8 text-center" style={{ backgroundColor: config.primary_color }}>
+        <div className="container mx-auto px-4">
+          {config.broker?.avatar_url && (
+            <img 
+              src={config.broker.avatar_url} 
+              alt={config.broker.name}
+              className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white"
+            />
+          )}
+          <h1 className="text-4xl font-bold text-white mb-2">{config.title}</h1>
+          <p className="text-white/90 text-lg">{config.description}</p>
+          {config.broker && (
+            <p className="text-white/80 mt-2">
+              {config.broker.name} {config.broker.creci && `- CRECI: ${config.broker.creci}`}
+            </p>
+          )}
         </div>
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="lg:col-span-2 space-y-8">
             {/* About Section */}
-            {config.show_about && broker?.bio && (
+            {config.show_about && config.broker?.bio && (
               <Card>
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-bold mb-4">Sobre</h2>
-                  <p className="text-muted-foreground">{broker.bio}</p>
-                  {broker.creci && (
-                    <p className="text-sm text-muted-foreground mt-2">CRECI: {broker.creci}</p>
-                  )}
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Sobre o Corretor
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">{config.broker.bio}</p>
                 </CardContent>
               </Card>
             )}
 
             {/* Properties Section */}
             {config.show_properties && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Imóveis ({filteredProperties.length})</h2>
-                </div>
-
-                {/* Search and Filters */}
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Home className="h-5 w-5" />
+                    Imóveis Disponíveis
+                    {properties.length > 0 && (
+                      <span className="text-sm font-normal text-muted-foreground">
+                        ({filteredProperties.length} de {properties.length})
+                      </span>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {/* Search and Filters */}
+                  <div className="mb-6 p-4 bg-muted/30 rounded-lg space-y-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Search className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Pesquisar Imóveis</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {filteredProperties.length} de {properties.length} imóveis
+                      </span>
+                    </div>
+                    
+                    {/* Search Input */}
+                    <div className="relative">
                       <Input
-                        placeholder="Buscar por título, cidade ou bairro..."
+                        placeholder="Buscar por título, descrição ou localização..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
                       />
-                      
-                      <Select value={selectedType} onValueChange={setSelectedType}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Tipo de imóvel" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Todos os tipos</SelectItem>
-                          <SelectItem value="house">Casa</SelectItem>
-                          <SelectItem value="apartment">Apartamento</SelectItem>
-                          <SelectItem value="commercial">Comercial</SelectItem>
-                          <SelectItem value="land">Terreno</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    </div>
 
+                    {/* Filters Row */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                       <Select value={selectedListingType} onValueChange={setSelectedListingType}>
                         <SelectTrigger>
                           <SelectValue placeholder="Finalidade" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Todas</SelectItem>
-                          <SelectItem value="sale">Venda</SelectItem>
-                          <SelectItem value="rent">Aluguel</SelectItem>
+                          <SelectItem value="todos">Todas</SelectItem>
+                          <SelectItem value="venda">Venda</SelectItem>
+                          <SelectItem value="locacao">Locação</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Select value={selectedType} onValueChange={setSelectedType}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Tipo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todos</SelectItem>
+                          <SelectItem value="apartamento">Apartamento</SelectItem>
+                          <SelectItem value="casa">Casa</SelectItem>
+                          <SelectItem value="terreno">Terreno</SelectItem>
+                          <SelectItem value="comercial">Comercial</SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Quartos" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todos">Todos</SelectItem>
+                          <SelectItem value="0">Kitnet</SelectItem>
+                          <SelectItem value="1">1 quarto</SelectItem>
+                          <SelectItem value="2">2 quartos</SelectItem>
+                          <SelectItem value="3">3 quartos</SelectItem>
+                          <SelectItem value="4">4+ quartos</SelectItem>
                         </SelectContent>
                       </Select>
 
@@ -403,180 +510,304 @@ export default function MinisiteView() {
                         value={maxPrice}
                         onChange={(e) => setMaxPrice(e.target.value)}
                       />
-
-                      <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Quartos" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Qualquer quantidade</SelectItem>
-                          <SelectItem value="1">1 quarto</SelectItem>
-                          <SelectItem value="2">2 quartos</SelectItem>
-                          <SelectItem value="3">3 quartos</SelectItem>
-                          <SelectItem value="4">4+ quartos</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Properties Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredProperties.map((property) => (
-                    <AnimatedCard key={property.id} className="overflow-hidden">
-                      <CardContent className="p-0">
-                        {property.capa && (
-                          <img
-                            src={property.capa}
-                            alt={property.titulo}
-                            className="w-full h-48 object-cover"
-                          />
-                        )}
-                        <div className="p-4">
-                          <h3 className="font-semibold text-lg mb-2 line-clamp-2">{property.titulo}</h3>
-                          
-                          {property.valor && (
-                            <p className="text-2xl font-bold text-primary mb-2">
-                              R$ {property.valor.toLocaleString('pt-BR')}
-                            </p>
-                          )}
-
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            {property.quartos && (
-                              <Badge variant="secondary" className="text-xs">
-                                <Bed className="w-3 h-3 mr-1" />
-                                {property.quartos} quartos
-                              </Badge>
-                            )}
-                            {property.banheiros && (
-                              <Badge variant="secondary" className="text-xs">
-                                <Bath className="w-3 h-3 mr-1" />
-                                {property.banheiros} banheiros
-                              </Badge>
-                            )}
-                            {property.area_total && (
-                              <Badge variant="secondary" className="text-xs">
-                                <Square className="w-3 h-3 mr-1" />
-                                {property.area_total}m²
-                              </Badge>
-                            )}
-                          </div>
-
-                          {(property.cidade || property.bairro) && (
-                            <p className="text-sm text-muted-foreground mb-3 flex items-center">
-                              <MapPin className="w-4 h-4 mr-1" />
-                              {property.bairro && property.cidade 
-                                ? `${property.bairro}, ${property.cidade}`
-                                : property.bairro || property.cidade
-                              }
-                            </p>
-                          )}
-
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => navigator.share?.({ 
-                                url: `${window.location.origin}/property/${property.id}`, 
-                                title: property.titulo 
-                              })}
-                            >
-                              <Share className="w-4 h-4 mr-1" />
-                              Compartilhar
-                            </Button>
-                            <Button 
-                              variant="default" 
-                              size="sm"
-                              className="flex-1"
-                              onClick={() => window.open(`/property/${property.id}`, '_blank')}
-                            >
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              Ver Detalhes
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </AnimatedCard>
-                  ))}
-                </div>
-
-                {filteredProperties.length === 0 && (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">Nenhum imóvel encontrado com os filtros selecionados.</p>
+                    
+                    {/* Clear Filters Button */}
+                    {(searchTerm || selectedType !== 'todos' || selectedListingType !== 'todos' || 
+                      selectedBedrooms !== 'todos' || minPrice || maxPrice) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSearchTerm('');
+                          setSelectedType('todos');
+                          setSelectedListingType('todos');
+                          setSelectedBedrooms('todos');
+                          setMinPrice('');
+                          setMaxPrice('');
+                        }}
+                      >
+                        <Filter className="h-4 w-4 mr-2" />
+                        Limpar Filtros
+                      </Button>
+                    )}
                   </div>
-                )}
-              </div>
+
+                  {!properties || properties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel disponível</h3>
+                      <p className="text-muted-foreground">
+                        Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.
+                      </p>
+                    </div>
+                  ) : filteredProperties.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel encontrado</h3>
+                      <p className="text-muted-foreground">
+                        Tente ajustar os filtros de pesquisa para encontrar imóveis.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+                      {filteredProperties.map((property) => (
+                        <AnimatedCard key={property.id} className="overflow-hidden">
+                          {/* Property Image */}
+                          <div className="aspect-[4/3] relative bg-gray-200">
+                            {property.fotos && property.fotos.length > 0 ? (
+                              <img
+                                src={property.fotos[0]}
+                                alt={property.titulo}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                <ImageIcon className="h-12 w-12 text-gray-500" />
+                              </div>
+                            )}
+                            
+                            {/* Badge de tipo */}
+                            <div className="absolute top-2 left-2">
+                              <span className="bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
+                                {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
+                              </span>
+                            </div>
+
+                            {/* Badge vista mar */}
+                            {property.has_sea_view && (
+                              <div className="absolute top-2 right-2">
+                                <span className="bg-blue-500 text-white px-2 py-1 rounded text-xs font-medium">
+                                  Vista Mar
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <div className="p-4">
+                            {/* Title and Reference */}
+                            <div className="mb-3">
+                              <h3 className="font-semibold text-lg mb-1 line-clamp-2">{property.titulo}</h3>
+                              {property.reference_code && (
+                                <p className="text-xs text-muted-foreground">Cód: {property.reference_code}</p>
+                              )}
+                            </div>
+
+                            {/* Price */}
+                            <div className="mb-3">
+                              <p className="text-2xl font-bold text-primary mb-1">
+                                {formatCurrency(property.valor)}
+                              </p>
+                              {property.price_per_m2 && (
+                                <p className="text-sm text-muted-foreground">
+                                  {formatCurrency(property.price_per_m2)}/m²
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Location */}
+                            <div className="flex items-center gap-1 mb-3">
+                              <MapPin className="h-4 w-4 text-gray-500" />
+                              <span className="text-sm text-gray-600">
+                                {property.neighborhood}, {property.city}
+                              </span>
+                            </div>
+
+                            {/* Property Details - Organized icons */}
+                            <div className="grid grid-cols-4 gap-2 mb-3 text-sm">
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <BedDouble className="h-4 w-4" />
+                                <span>{property.quartos}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Bath className="h-4 w-4" />
+                                <span>{property.bathrooms || 0}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Car className="h-4 w-4" />
+                                <span>{property.parking_spots || 0}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-muted-foreground">
+                                <Square className="h-4 w-4" />
+                                <span>{property.area}m²</span>
+                              </div>
+                            </div>
+
+                            {/* Additional Costs */}
+                            {(property.condominium_fee || property.iptu) && (
+                              <div className="mb-3 text-sm text-muted-foreground">
+                                {property.condominium_fee && (
+                                  <span className="mr-3">Cond: {formatCurrency(property.condominium_fee)}</span>
+                                )}
+                                {property.iptu && (
+                                  <span>IPTU: {formatCurrency(property.iptu)}</span>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Features */}
+                            <div className="mb-3">
+                              {property.sea_distance && property.sea_distance <= 500 && (
+                                <span className="inline-block bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs mr-2">
+                                  {property.sea_distance}m do mar
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Description */}
+                            {property.descricao && (
+                              <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                                {property.descricao}
+                              </p>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2">
+                              <ShareButton
+                                property={{
+                                  id: property.id,
+                                  titulo: property.titulo,
+                                  valor: property.valor,
+                                  area: property.area,
+                                  quartos: property.quartos,
+                                  bathrooms: property.bathrooms || 0,
+                                  parking_spots: property.parking_spots || 0,
+                                  fotos: property.fotos || [],
+                                  neighborhood: property.neighborhood || '',
+                                  descricao: property.descricao || '',
+                                  property_type: property.property_type || '',
+                                  listing_type: property.listing_type || 'venda',
+                                  has_sea_view: property.has_sea_view || false,
+                                  furnishing_type: property.furnishing_type || '',
+                                  sea_distance: property.sea_distance || 0
+                                }}
+                                isOwner={false}
+                                isAuthorized={true}
+                              />
+                              <Button
+                                onClick={() => window.open(`/imovel/${property.id}`, '_blank')}
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Ver Detalhes
+                              </Button>
+                            </div>
+                          </div>
+                        </AnimatedCard>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
 
-            {/* Custom Message - Removed as not in database schema */}
+            {/* Custom Message */}
+            {config.custom_message && (
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-center text-lg italic">{config.custom_message}</p>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
             {/* Contact Info */}
-            {config.show_contact && (
-              <Card>
-                <CardContent className="p-6">
-                  <h3 className="font-bold mb-4">Contato</h3>
-                  <div className="space-y-3">
-                    {broker?.whatsapp && (
-                      <WhatsAppButton
-                        phone={broker.whatsapp}
-                        message="Olá! Vi seu minisite e gostaria de mais informações."
-                      />
-                    )}
+            <Card>
+              <CardHeader>
+                <CardTitle>Contato</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {config.phone && (
+                  <div className="flex items-center gap-3">
+                    <Phone className="h-5 w-5 text-primary" />
+                    <span>{config.phone}</span>
                   </div>
+                )}
+                {config.email && (
+                  <div className="flex items-center gap-3">
+                    <Mail className="h-5 w-5 text-primary" />
+                    <span>{config.email}</span>
+                  </div>
+                )}
+                {config.whatsapp && (
+                  <Button 
+                    onClick={openWhatsApp}
+                    className="w-full bg-green-600 hover:bg-green-700"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Contact Form */}
+            {config.show_contact_form && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Envie sua Mensagem</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleContactSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="nome">Nome *</Label>
+                      <Input
+                        id="nome"
+                        value={contactForm.nome}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, nome: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={contactForm.email}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="telefone">Telefone *</Label>
+                      <Input
+                        id="telefone"
+                        value={contactForm.telefone}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, telefone: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="mensagem">Mensagem</Label>
+                      <Textarea
+                        id="mensagem"
+                        value={contactForm.mensagem}
+                        onChange={(e) => setContactForm(prev => ({ ...prev, mensagem: e.target.value }))}
+                        placeholder="Como posso ajudá-lo?"
+                        rows={3}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Enviar Mensagem
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             )}
-
-            {/* Contact Form */}
-            <Card>
-              <CardContent className="p-6">
-                <h3 className="font-bold mb-4">Envie uma mensagem</h3>
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <Input
-                    placeholder="Seu nome"
-                    value={contactName}
-                    onChange={(e) => setContactName(e.target.value)}
-                    required
-                  />
-                  <Input
-                    type="email"
-                    placeholder="Seu email"
-                    value={contactEmail}
-                    onChange={(e) => setContactEmail(e.target.value)}
-                    required
-                  />
-                  <Input
-                    placeholder="Seu telefone"
-                    value={contactPhone}
-                    onChange={(e) => setContactPhone(e.target.value)}
-                  />
-                  <Textarea
-                    placeholder="Sua mensagem"
-                    value={contactMessage}
-                    onChange={(e) => setContactMessage(e.target.value)}
-                    required
-                  />
-                  <Button type="submit" className="w-full" disabled={contactLoading}>
-                    {contactLoading ? 'Enviando...' : 'Enviar Mensagem'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="bg-white/80 backdrop-blur-sm border-t mt-16">
-        <div className="container mx-auto px-4 py-8 text-center">
-          <p className="text-muted-foreground">
-            Minisite criado com ❤️ pelo ConectaIOS
-          </p>
-        </div>
+      <footer className="text-center py-6 border-t">
+        <p className="text-muted-foreground">
+          Minisite criado com <span className="text-primary">ConectAIOS</span>
+        </p>
       </footer>
     </div>
   );

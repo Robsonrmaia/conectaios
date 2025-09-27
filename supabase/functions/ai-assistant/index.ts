@@ -48,7 +48,7 @@ async function getRelevantData(query: string, userId: string): Promise<QueryCont
       .order('created_at', { ascending: false })
       .limit(10);
     
-    context.properties = properties || [];
+    context.properties = properties;
   }
   
   // Buscar clientes se pergunta sobre leads, clientes, contatos
@@ -63,7 +63,7 @@ async function getRelevantData(query: string, userId: string): Promise<QueryCont
       .order('updated_at', { ascending: false })
       .limit(10);
     
-    context.clients = clients || [];
+    context.clients = clients;
   }
   
   // Buscar deals se pergunta sobre negócios, propostas, vendas
@@ -82,7 +82,7 @@ async function getRelevantData(query: string, userId: string): Promise<QueryCont
       .order('created_at', { ascending: false })
       .limit(5);
     
-    context.deals = deals || [];
+    context.deals = deals;
   }
   
   // Buscar tarefas se pergunta sobre tarefas, agenda, fazer
@@ -97,7 +97,7 @@ async function getRelevantData(query: string, userId: string): Promise<QueryCont
       .order('created_at', { ascending: false })
       .limit(10);
     
-    context.tasks = tasks || [];
+    context.tasks = tasks;
   }
   
   // Buscar notas se pergunta sobre notas, anotações, observações
@@ -111,7 +111,7 @@ async function getRelevantData(query: string, userId: string): Promise<QueryCont
       .order('created_at', { ascending: false })
       .limit(10);
     
-    context.notes = notes || [];
+    context.notes = notes;
   }
   
   return context;
@@ -241,7 +241,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in ai-assistant function:', error);
     return new Response(JSON.stringify({ 
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error.message,
       response: 'Desculpe, ocorreu um erro ao processar sua solicitação. Tente novamente.' 
     }), {
       status: 500,

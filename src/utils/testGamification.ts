@@ -1,50 +1,43 @@
 import { supabase } from '@/integrations/supabase/client';
 
-// Simple test function to manually trigger gamification events
+// Test function to manually trigger gamification events
 export async function testPropertyQualityScoring(propertyId: string, brokerId: string) {
   try {
     console.log('🧪 Testing property quality scoring...');
     console.log('Property ID:', propertyId);
     console.log('Broker ID:', brokerId);
 
-    // Test quality by fetching property data
-    const { data: property, error: propertyError } = await supabase
-      .from('imoveis')
-      .select('*')
-      .eq('id', propertyId)
-      .single();
+    // First, test the quality calculation function
+    const { data: qualityData, error: qualityError } = await supabase
+      .rpc('calc_imovel_quality', { imovel_id: propertyId });
 
-    if (propertyError) {
-      console.error('❌ Error fetching property:', propertyError);
-      return { success: false, error: propertyError };
+    if (qualityError) {
+      console.error('❌ Error calculating quality:', qualityError);
+      return { success: false, error: qualityError };
     }
 
-    console.log('📊 Property data:', property);
+    console.log('📊 Property quality score:', qualityData);
 
-    // Test gamification event by creating a manual event
-    const { data: gamificationData, error: gamificationError } = await supabase
-      .from('gam_events')
-      .insert({
-        usuario_id: brokerId,
-        rule_key: 'property_created',
-        pontos: 10,
-        ref_tipo: 'property',
-        ref_id: propertyId,
-        meta: { test: true }
-      })
-      .select()
-      .single();
+    // Now test the gamification event
+    const { data: gamificationData, error: gamificationError } = await supabase.functions.invoke('gamification-events', {
+      body: {
+        action: 'process_property_event',
+        property_id: propertyId,
+        event_type: 'created', 
+        broker_id: brokerId
+      }
+    });
 
     if (gamificationError) {
-      console.error('❌ Error creating gamification event:', gamificationError);
+      console.error('❌ Error triggering gamification:', gamificationError);
       return { success: false, error: gamificationError };
     }
 
-    console.log('🎮 Gamification event created:', gamificationData);
+    console.log('🎮 Gamification result:', gamificationData);
 
     return { 
       success: true, 
-      property: property, 
+      quality: qualityData, 
       gamification: gamificationData 
     };
   } catch (error) {

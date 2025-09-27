@@ -140,7 +140,7 @@ serve(async (req) => {
         JSON.stringify({ 
           success: false,
           error: 'Erro ao processar virtual staging com Replicate',
-          details: replicateError instanceof Error ? replicateError.message : 'Replicate API error',
+          details: replicateError.message,
           timestamp: new Date().toISOString()
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
@@ -149,15 +149,15 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('=== Virtual Staging Function Error ===');
-    console.error('Error type:', error instanceof Error ? error.constructor.name : 'Unknown');
-    console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
-    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     
     return new Response(
       JSON.stringify({ 
         success: false,
         error: 'Erro interno do servidor ao processar virtual staging',
-        details: error instanceof Error ? error.message : 'Unknown error',
+        details: error.message,
         timestamp: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }

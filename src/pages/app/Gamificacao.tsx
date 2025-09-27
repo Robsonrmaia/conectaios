@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useSimpleGamification } from '@/hooks/useSimpleGamification';
-import { useBroker } from '@/hooks/useBroker';
+import { useGamification } from '@/hooks/useGamification';
 import { ScrollableRow } from '@/components/layout/ResponsiveRow';
 import { 
   Trophy, 
@@ -35,21 +34,19 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function Gamificacao() {
-  const { broker } = useBroker();
   const {
     stats,
     recentEvents,
     leaderboard,
+    propertyQualities,
+    pointsRules,
+    badgeDefinitions,
     loading,
     getTierInfo,
     getBadgeInfo,
-    getProgressToNextTier
-  } = useSimpleGamification(broker?.id);
-
-  const propertyQualities = [];
-  const pointsRules = [];
-  const badgeDefinitions = [];
-  const forceRefreshRules = () => {};
+    getProgressToNextTier,
+    forceRefreshRules
+  } = useGamification();
 
   const [activeTab, setActiveTab] = useState('overview');
 

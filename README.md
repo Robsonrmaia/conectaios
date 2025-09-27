@@ -1,52 +1,26 @@
-# ConectaIOS SaaS - Plataforma Imobiliária
+# ConectaIOS - Plataforma Imobiliária Completa
 
-Sistema completo para corretores de imóveis com gestão de propriedades, CRM, minisites e ferramentas de IA.
+Uma plataforma moderna e segura para corretores de imóveis, com recursos avançados de CRM, gestão de propriedades, inteligência artificial e automação.
 
-## 🚀 Funcionalidades Principais
+## 🚀 Funcionalidades
 
-- **Gestão de Imóveis**: Upload, edição e visualização de propriedades
-- **CRM Completo**: Pipeline drag-and-drop, clientes, tarefas e histórico
-- **Minisites**: Páginas personalizadas para corretores
-- **Sistema de Imagens**: Upload, marcação de capa e remoção segura
-- **Ferramentas de IA**: Descrições automáticas, análise de imagens
-- **Analytics**: Estatísticas de mercado e performance
+- **CRM Inteligente**: Gestão completa de clientes e leads
+- **Catálogo de Imóveis**: Sistema robusto de propriedades com fotos, vídeos e tours 360°
+- **IA Integrada**: Assistente virtual, geração de conteúdo e matching inteligente
+- **Marketplace**: Conecte-se com outros corretores e amplie sua rede
+- **Sistema de Deals**: Negociações transparentes e contratos digitais
+- **Minisites**: Páginas personalizadas para cada corretor
+- **Automações**: WhatsApp, e-mail e notificações inteligentes
 
 ## 🛠️ Tecnologias
 
-- **Frontend**: React + Vite + TypeScript + Tailwind CSS
-- **Backend**: Supabase (PostgreSQL + Edge Functions + Storage)
-- **Autenticação**: Supabase Auth
-- **UI Components**: Shadcn/ui + Radix UI
-
-## 🗄️ Gestão de Dados
-
-### ⚠️ Limpeza Controlada de Dados de Exemplo
-
-Sistema implementado para remoção segura de dados de demonstração:
-
-#### Processo de Limpeza (Apenas Administradores)
-
-1. **Habilitar temporariamente**: `VITE_ALLOW_SAMPLE_PURGE=true`
-2. **Executar**: `db/maintenance/001_purge_demo.sql`
-3. **Limpar Storage**: Edge Function `storage-purge`
-4. **Verificar**: `db/maintenance/check_clean.sql`
-5. **Desabilitar**: `VITE_ALLOW_SAMPLE_PURGE=false`
-
-#### Importação de Dados Reais
-
-- **Feeds**: CNM, OLX, VRSync automatizados
-- **Upload Manual**: Via interface administrativa
-- **Imagens**: `imoveis/public/{imovel_id}/arquivo.ext`
-- **Camada Unificada**: Use `src/data/index.ts` para todas as operações
-
-## 📊 Estrutura do Banco
-
-### Tabelas Padronizadas
-- `imoveis` - Propriedades com FTS e triggers
-- `imovel_images` - Imagens com storage integration
-- `crm_clients/deals/notes/tasks` - CRM completo
-- `brokers/profiles` - Usuários e permissões
-- Foreign Keys e índices implementados
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
+- **Autenticação**: Supabase Auth com RLS
+- **Integração IA**: OpenAI, Gemini, Hugging Face, ElevenLabs
+- **Pagamentos**: Asaas (PIX, cartão, boleto)
+- **Deploy**: Vercel/Netlify
 
 ## 📋 Pré-requisitos
 
@@ -87,94 +61,10 @@ Sistema implementado para remoção segura de dados de demonstração:
    - Ative RLS em todas as tabelas
    - Garanta que imóveis têm `is_public=true` e `visibility='public_site'` para aparecer em minisites
 
-5. **Crie o primeiro admin**:
-   - Acesse `/auth` no aplicativo
-   - Faça o primeiro cadastro (será automaticamente promovido a admin)
-   - Recomendado: `admin@conectaios.com.br` com senha segura
-   - O sistema aplicará role='admin' automaticamente via trigger
-
-6. **Inicie o desenvolvimento**:
+5. **Inicie o desenvolvimento**:
    ```bash
    npm run dev
    ```
-
-## 🔐 Autenticação e Primeiro Admin
-
-### Configuração do Supabase Auth
-
-1. **No Dashboard Supabase** → Authentication:
-   - **Providers** → Email: `Enable email signups = ON`
-   - **URL Configuration**: Configure Site URL e Redirect URLs
-   - **Settings**: `Block signups = OFF` (permitir cadastros)
-   - **SMTP** (opcional): Configure para ativar `Confirm email = ON`
-
-2. **Primeiro Admin Automático**:
-   - O primeiro usuário que se cadastrar no app será automaticamente promovido a admin
-   - Use: `admin@conectaios.com.br` com senha segura
-   - Depois altere a senha no painel administrativo
-
-3. **Fluxo de Cadastro**:
-   ```bash
-   # 1. Acesse /auth
-   # 2. Aba "Criar Conta"
-   # 3. Preencha os dados
-   # 4. Login automático ou verificação de email (se SMTP ativo)
-   ```
-
-### Configuração SMTP (Recomendado)
-
-Para ativar confirmação por email:
-
-1. Configure SMTP no Supabase Dashboard
-2. Ative `Confirm email = ON` em Authentication Settings
-3. Usuários receberão email de confirmação após cadastro
-
-## 📁 Arquitetura de Dados
-
-### ⚠️ Uso Obrigatório da Camada Unificada
-
-**SEMPRE** use `src/data/index.ts` para operações de banco:
-
-```tsx
-// ✅ CORRETO
-import { Properties, CRM, ClientSearches } from '@/data';
-const imoveis = await Properties.list();
-
-// ❌ PROIBIDO (exceto admin/monitoramento)
-import { supabase } from '@/integrations/supabase/client';
-const { data } = await supabase.from('imoveis')...
-```
-
-**Exceções permitidas**: Componentes de sistema/admin para monitoramento (`SystemStatus`, `SystemAlerts`, `SystemLogs`).
-
-### Importação de Dados VRSync
-
-Para importar feeds externos via Edge Function:
-
-```powershell
-# PowerShell para import VRSync
-$headers = @{
-  'Authorization' = "Bearer YOUR_SERVICE_ROLE_KEY"
-  'Content-Type' = 'application/json'
-  'apikey' = 'YOUR_ANON_KEY'
-}
-
-$body = @{
-  'source' = 'vrsync'
-  'broker_id' = 'uuid-do-corretor'
-  'validate_only' = $false
-} | ConvertTo-Json
-
-Invoke-RestMethod -Uri "https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/import-vrsync" -Method POST -Headers $headers -Body $body
-```
-
-### Sistema de Branding Dinâmico
-
-URLs de logo e hero são carregadas de `system_settings`:
-- Logo: https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/Logo.png
-- Hero: https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/iagohero.png
-
-Atualizações via admin não requerem deploy de código.
 
 ## 🌐 Minisites - Configuração Especial
 
@@ -378,41 +268,6 @@ Certifique-se de configurar:
 3. Faça o deploy do diretório `dist/`
 4. Configure o domínio no Supabase Auth
 
-## ✅ Checklist de Aceite - ConectaIOS SaaS
-
-### Autenticação e Permissões
-- [ ] Cadastro funciona (SignUp + SignIn) na página `/auth`
-- [ ] Primeiro usuário cadastrado automaticamente vira `admin`
-- [ ] Profile é criado automaticamente via trigger
-- [ ] Mensagens de erro específicas (credenciais inválidas, email já existe, etc.)
-- [ ] RLS policies ativas em todas as tabelas
-- [ ] Health check em dev mostra project ID correto
-
-### Sistema de Imagens e Branding
-- [ ] Logo carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/logonova.png`
-- [ ] Hero carrega de: `https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/iagohero.png`
-- [ ] Branding salvo em `system_settings` (verificar no SQL)
-- [ ] Imagens aparecem na navbar, página inicial e loading states
-
-### CRM e Dados
-- [ ] CRUD de clientes funcionando via `CRM.clients`
-- [ ] CRUD de negócios funcionando via `CRM.deals`
-- [ ] CRUD de imóveis funcionando via `Properties`
-- [ ] Busca Full-Text (FTS) operacional
-- [ ] Matches inteligentes entre buscas e imóveis
-
-### Camada de Dados
-- [ ] Zero uso direto de `supabase.from()` (exceto admin/monitoramento)
-- [ ] Todas as operações passam por `src/data/index.ts`
-- [ ] Import VRSync disponível via Edge Function
-- [ ] Storage bucket `assets` público e `imoveis` privado
-
-### Performance e Responsividade
-- [ ] App carrega em menos de 3 segundos
-- [ ] Responsivo em 320px, 768px, 1024px+
-- [ ] Sem overflow horizontal em dispositivos móveis
-- [ ] Touch targets de pelo menos 44px
-
 ## 🤝 Contribuição
 
 1. Fork o projeto
@@ -425,9 +280,8 @@ Certifique-se de configurar:
 
 - Use TypeScript strict mode
 - Siga as regras do ESLint configuradas
-- Utilize apenas `src/data/index.ts` para operações de banco
+- Mantenha cobertura de testes acima de 80%
 - Documente funções complexas
-- Mantenha responsividade mobile-first
 
 ## 📝 Licença
 

@@ -10,10 +10,10 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
-import BrokerSetupFixed from '@/components/BrokerSetupFixed';
+import BrokerSetup from '@/components/BrokerSetup';
 import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
 import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
-import { toast } from '@/hooks/use-toast';
+import { toast } from '@/components/ui/use-toast';
 import { 
   User, 
   Mail, 
@@ -43,21 +43,17 @@ export default function Perfil() {
     location: '',
     website: '',
     avatar: '',
+    username: '',
     secondaryPhone: '',
     instagram: '',
     linkedin: '',
     specialties: ''
   });
 
-  const [notifications, setNotifications] = useState({
-    emailLeads: true,
-    emailDeals: true,
-    emailMarketing: false,
-    pushLeads: true,
-    pushDeals: true,
-    pushMarketing: false,
-    smsImportant: true
-  });
+  // If no broker profile exists, show the setup form
+  if (!broker) {
+    return <BrokerSetup />;
+  }
 
   // Update profile data when broker data changes
   useEffect(() => {
@@ -71,6 +67,7 @@ export default function Perfil() {
           location: '',
           website: '',
           avatar: broker.avatar_url || '',
+          username: broker.username || '',
           secondaryPhone: '',
           instagram: '',
           linkedin: '',
@@ -79,10 +76,15 @@ export default function Perfil() {
     }
   }, [broker]);
 
-  // If no broker profile exists, show the setup form
-  if (!broker) {
-    return <BrokerSetupFixed />;
-  }
+  const [notifications, setNotifications] = useState({
+    emailLeads: true,
+    emailDeals: true,
+    emailMarketing: false,
+    pushLeads: true,
+    pushDeals: true,
+    pushMarketing: false,
+    smsImportant: true
+  });
 
   const stats = {
     totalVendas: 45,
@@ -270,17 +272,26 @@ export default function Perfil() {
                        />
                      </div>
                      <div className="space-y-2">
-                       <Label htmlFor="location">Localização</Label>
+                       <Label htmlFor="username">Username</Label>
                        <Input
-                         id="location"
-                         value={profile.location}
-                         onChange={(e) => setProfile({...profile, location: e.target.value})}
-                         placeholder="Cidade, Estado"
+                         id="username"
+                         value={profile.username}
+                         onChange={(e) => setProfile({...profile, username: e.target.value})}
+                         placeholder="seunome_corretor"
                          className="h-11"
                        />
                      </div>
                    </div>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                       <Label htmlFor="location">Localização</Label>
+                       <Input
+                         id="location"
+                         value={profile.location}
+                         onChange={(e) => setProfile({...profile, location: e.target.value})}
+                         className="h-11"
+                       />
+                     </div>
                      <div className="space-y-2">
                        <Label htmlFor="website">Website</Label>
                        <Input
@@ -342,7 +353,8 @@ export default function Perfil() {
                           email: profile.email,
                           phone: profile.phone,
                           bio: profile.bio,
-                          creci: profile.creci
+                          creci: profile.creci,
+                          username: profile.username
                         });
                         toast({
                           title: "Perfil atualizado!",
@@ -417,7 +429,7 @@ export default function Perfil() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label>Negociações</Label>
-                        <div className="text-sm text-muted-foreground">Atualizações de negócios</div>
+                        <div className="text-sm text-muted-foreground">Atualizações sobre suas negociações</div>
                       </div>
                       <Switch
                         checked={notifications.emailDeals}
@@ -429,7 +441,7 @@ export default function Perfil() {
                     <div className="flex items-center justify-between">
                       <div className="space-y-0.5">
                         <Label>Marketing</Label>
-                        <div className="text-sm text-muted-foreground">Novidades e promoções</div>
+                        <div className="text-sm text-muted-foreground">Novidades e dicas de vendas</div>
                       </div>
                       <Switch
                         checked={notifications.emailMarketing}
@@ -440,17 +452,14 @@ export default function Perfil() {
                     </div>
                   </div>
                 </div>
-
+                
                 <Separator />
-
+                
                 <div>
-                  <h4 className="font-medium mb-3">Push</h4>
+                  <h4 className="font-medium mb-3">Push Notifications</h4>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Novos Leads</Label>
-                        <div className="text-sm text-muted-foreground">Notificações no navegador</div>
-                      </div>
+                      <Label>Leads Importantes</Label>
                       <Switch
                         checked={notifications.pushLeads}
                         onCheckedChange={(checked) => 
@@ -459,10 +468,7 @@ export default function Perfil() {
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="space-y-0.5">
-                        <Label>Negociações</Label>
-                        <div className="text-sm text-muted-foreground">Atualizações de negócios</div>
-                      </div>
+                      <Label>Negociações</Label>
                       <Switch
                         checked={notifications.pushDeals}
                         onCheckedChange={(checked) => 
@@ -470,6 +476,24 @@ export default function Perfil() {
                         }
                       />
                     </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div>
+                  <h4 className="font-medium mb-3">SMS</h4>
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label>Apenas Urgente</Label>
+                      <div className="text-sm text-muted-foreground">Leads muito qualificados</div>
+                    </div>
+                    <Switch
+                      checked={notifications.smsImportant}
+                      onCheckedChange={(checked) => 
+                        setNotifications({...notifications, smsImportant: checked})
+                      }
+                    />
                   </div>
                 </div>
               </CardContent>
@@ -487,37 +511,34 @@ export default function Perfil() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Autenticação de Dois Fatores</Label>
-                      <div className="text-sm text-muted-foreground">Adicione uma camada extra de segurança</div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Configurar
-                    </Button>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Senha</Label>
-                      <div className="text-sm text-muted-foreground">Última alteração há 30 dias</div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Alterar
-                    </Button>
-                  </div>
-                  <Separator />
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label>Sessões Ativas</Label>
-                      <div className="text-sm text-muted-foreground">Gerencie seus dispositivos conectados</div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Ver Todas
-                    </Button>
-                  </div>
-                </div>
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento",
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
+                  Alterar Senha
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento", 
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
+                  Configurar 2FA
+                </Button>
+                <Button variant="outline" className="w-full justify-start" onClick={() => {
+                  toast({
+                    title: "Em desenvolvimento",
+                    description: "Funcionalidade será disponibilizada em breve.",
+                  });
+                }}>
+                  Sessões Ativas
+                </Button>
+                <Separator />
+                <Button variant="destructive" className="w-full">
+                  Excluir Conta
+                </Button>
               </CardContent>
             </Card>
           </div>
@@ -526,66 +547,58 @@ export default function Perfil() {
         <TabsContent value="conquistas" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Conquistas e Badges
-              </CardTitle>
+              <CardTitle>Suas Conquistas</CardTitle>
               <CardDescription>
-                Acompanhe seu progresso e conquistas na plataforma
+                Marcos e conquistas na plataforma ConectaIOS
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {achievements.map((achievement) => {
                   const IconComponent = achievement.icon;
                   return (
-                    <Card key={achievement.id} className={`relative ${
-                      achievement.earned ? 'border-primary bg-primary/5' : 'border-muted-foreground/20'
-                    }`}>
-                      <CardHeader className="pb-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-full ${
-                              achievement.earned ? 'bg-primary text-primary-foreground' : 'bg-muted'
-                            }`}>
-                              <IconComponent className="h-5 w-5" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{achievement.title}</CardTitle>
-                              <CardDescription className="text-sm">{achievement.description}</CardDescription>
-                            </div>
-                          </div>
-                          {achievement.earned && (
-                            <Badge className="bg-primary">
-                              Conquistado
-                            </Badge>
-                          )}
+                    <div
+                      key={achievement.id}
+                      className={`p-4 border rounded-lg ${
+                        achievement.earned ? 'bg-success/5 border-success/20' : 'bg-muted/20'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className={`p-2 rounded-lg ${
+                          achievement.earned ? 'bg-success/20' : 'bg-muted/50'
+                        }`}>
+                          <IconComponent className={`h-5 w-5 ${
+                            achievement.earned ? 'text-success' : 'text-muted-foreground'
+                          }`} />
                         </div>
-                      </CardHeader>
-                      <CardContent>
-                        {achievement.earned ? (
-                          <p className="text-sm text-muted-foreground">
-                            Conquistado em{' '}
-                            {new Date(achievement.date!).toLocaleDateString('pt-BR')}
-                          </p>
-                        ) : achievement.progress ? (
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>Progresso</span>
-                              <span>{achievement.progress}%</span>
-                            </div>
-                            <div className="w-full bg-muted rounded-full h-2">
-                              <div 
-                                className="bg-primary h-2 rounded-full transition-all duration-300" 
-                                style={{ width: `${achievement.progress}%` }}
-                              />
-                            </div>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">Continue trabalhando para conquistar este badge!</p>
+                        {achievement.earned && (
+                          <Badge className="bg-success/20 text-success">
+                            Conquistado
+                          </Badge>
                         )}
-                      </CardContent>
-                    </Card>
+                      </div>
+                      <h3 className="font-semibold mb-1">{achievement.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {achievement.description}
+                      </p>
+                      {achievement.earned ? (
+                        <div className="text-xs text-success">
+                          Conquistado em {new Date(achievement.date!).toLocaleDateString('pt-BR')}
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">
+                            Progresso: {achievement.progress}%
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className="bg-primary h-2 rounded-full" 
+                              style={{ width: `${achievement.progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -594,51 +607,83 @@ export default function Perfil() {
         </TabsContent>
 
         <TabsContent value="plano" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Plano Atual
-                </CardTitle>
-                <CardDescription>
-                  Informações sobre sua assinatura
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="text-2xl font-bold text-primary">Plano Trial</div>
-                  <div className="text-muted-foreground">Gratuito por 30 dias</div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Meu Plano
+              </CardTitle>
+              <CardDescription>
+                Gerencie sua assinatura e forma de pagamento
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-4 border rounded-lg bg-primary/5 border-primary/20">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Plano Profissional</h3>
+                  <Badge className="bg-primary/20 text-primary">Ativo</Badge>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Imóveis cadastrados</span>
-                    <span>5 / 10</span>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Acesso completo a todas as funcionalidades da plataforma
+                </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-2xl font-bold">R$ 197/mês</div>
+                    <div className="text-sm text-muted-foreground">Próxima cobrança: 15/02/2024</div>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className="bg-primary h-2 rounded-full w-1/2" />
-                  </div>
-                </div>
-                <div className="pt-4">
-                  <Button className="w-full">
-                    Fazer Upgrade
+                  <Button variant="outline">
+                    Gerenciar Plano
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Teste de Pagamento</CardTitle>
-                <CardDescription>
-                  Componente de teste para integração com Asaas
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AsaasTestButton />
-              </CardContent>
-            </Card>
-          </div>
+              <div className="space-y-4">
+                <h4 className="font-medium">Funcionalidades Incluídas</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    CRM Completo
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    Match IA Ilimitado
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    Assistente IA
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    Analytics Avançado
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    Suporte Prioritário
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full" />
+                    Integrações Completas
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h4 className="font-medium">Forma de Pagamento</h4>
+                <div className="flex items-center gap-3 p-3 border rounded-lg">
+                  <CreditCard className="h-5 w-5 text-muted-foreground" />
+                  <div className="flex-1">
+                    <div className="font-medium">Cartão terminado em 1234</div>
+                    <div className="text-sm text-muted-foreground">Expira em 12/2027</div>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Alterar
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

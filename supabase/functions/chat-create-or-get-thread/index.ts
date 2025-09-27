@@ -108,7 +108,7 @@ Deno.serve(async (req) => {
     
   } catch (e) {
     console.error('Internal error:', e);
-    return json({ error: "INTERNAL_ERROR", detail: String(e) }, 500);
+    return json({ error: "INTERNAL_ERROR", detail: String(e?.message ?? e) }, 500);
   }
 });
 

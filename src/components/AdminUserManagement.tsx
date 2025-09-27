@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CRM } from '@/data';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -30,21 +29,26 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-// Usar tipos da camada de dados unificada
-interface Broker {
-  id: string;
-  name: string;
-  email: string;
-  status: string;
-  user_id?: string;
-}
-
 interface User {
   id: string;
+  user_id: string;
+  nome: string;
+  role: string;
+  created_at: string;
+  updated_at: string;
+  email?: string;
+  phone?: string;
+  status?: string;
+}
+
+interface Broker {
+  id: string;
+  user_id: string;
+  name: string;
   email: string;
-  full_name?: string;
-  role: 'admin' | 'broker' | 'user';
-  created_at?: string;
+  phone?: string;
+  status: string;
+  created_at: string;
 }
 
 export default function AdminUserManagement() {
@@ -61,70 +65,36 @@ export default function AdminUserManagement() {
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'user' });
   const { toast } = useToast();
 
-  const fetchUsers = async () => {
+  const loadUsers = async () => {
+    setLoading(true);
     try {
-      const { data: profiles, error } = await supabase
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching users:', error);
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar usuários",
-          variant: "destructive",
-        });
-        return;
-      }
+      if (profilesError) throw profilesError;
 
-      const mappedUsers: User[] = profiles?.map(profile => ({
-        id: profile.id,
-        email: profile.email || '',
-        full_name: profile.full_name || '',
-        role: profile.role as 'admin' | 'broker' | 'user',
-        created_at: profile.created_at || ''
-      })) || [];
+      const { data: brokersData, error: brokersError } = await supabase
+        .from('conectaios_brokers')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-      setUsers(mappedUsers);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar usuários",
-        variant: "destructive",
-      });
-    }
-  };
+      if (brokersError) throw brokersError;
 
-  const fetchBrokers = async () => {
-    try {
-      const brokersWithProfiles = await CRM.brokers.list();
-      
-      // Map para interface esperada
-      const mappedBrokers: Broker[] = brokersWithProfiles.map(broker => ({
-        id: broker.id,
-        name: broker.profiles?.full_name || broker.profiles?.email || 'Nome não disponível',
-        email: broker.profiles?.email || '',
-        status: 'active',
-        user_id: broker.user_id
-      }));
+      // Merge profiles with broker data
+      const usersWithBrokerData = profilesData?.map(profile => {
+        const broker = brokersData?.find(b => b.user_id === profile.user_id);
+        return {
+          ...profile,
+          email: broker?.email,
+          phone: broker?.phone,
+          status: broker?.status || 'inactive'
+        };
+      }) || [];
 
-      setBrokers(mappedBrokers);
-    } catch (error) {
-      console.error('Error fetching brokers:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar corretores",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const loadUsers = async () => {
-    setLoading(true);
-    try {
-      await Promise.all([fetchUsers(), fetchBrokers()]);
+      setUsers(usersWithBrokerData);
+      setBrokers(brokersData || []);
     } catch (error: any) {
       toast({
         title: 'Erro',
@@ -142,7 +112,7 @@ export default function AdminUserManagement() {
   }, []);
 
   const filteredUsers = users.filter(user => {
-    const matchesSearch = user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = user.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     return matchesSearch && matchesRole;
@@ -179,28 +149,27 @@ export default function AdminUserManagement() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: 'admin' | 'broker' | 'user') => {
+  const handleUpdateRole = async (userId: string, newRole: string) => {
     try {
-      setLoading(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Sucesso',
+        description: 'Perfil do usuário atualizado',
+      });
       
-      await CRM.profiles.updateRole(userId, newRole);
-
+      loadUsers();
+    } catch (error: any) {
       toast({
-        title: "Sucesso",
-        description: "Função do usuário atualizada com sucesso",
+        title: 'Erro',
+        description: 'Não foi possível atualizar o usuário',
+        variant: 'destructive',
       });
-
-      fetchUsers();
-      fetchBrokers();
-    } catch (error) {
-      console.error('Error updating user role:', error);
-      toast({
-        title: "Erro", 
-        description: "Erro ao atualizar função do usuário",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -210,7 +179,7 @@ export default function AdminUserManagement() {
     try {
       // Call edge function to properly delete user
       const { error } = await supabase.functions.invoke('admin-delete-user', {
-        body: { userId: selectedUser.id }
+        body: { userId: selectedUser.user_id }
       });
 
       if (error) throw error;
@@ -399,7 +368,9 @@ export default function AdminUserManagement() {
               <TableRow>
                 <TableHead>Usuário</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead className="hidden sm:table-cell">Telefone</TableHead>
                 <TableHead>Perfil</TableHead>
+                <TableHead className="hidden md:table-cell">Status</TableHead>
                 <TableHead className="hidden lg:table-cell">Cadastro</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
@@ -407,14 +378,14 @@ export default function AdminUserManagement() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
                     Carregando usuários...
                   </TableCell>
                 </TableRow>
               ) : filteredUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell colSpan={7} className="text-center py-8">
                     Nenhum usuário encontrado
                   </TableCell>
                 </TableRow>
@@ -422,7 +393,7 @@ export default function AdminUserManagement() {
                 filteredUsers.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
-                      <div className="font-medium">{user.full_name || user.email}</div>
+                      <div className="font-medium">{user.nome}</div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
@@ -430,29 +401,41 @@ export default function AdminUserManagement() {
                         {user.email || '-'}
                       </div>
                     </TableCell>
+                    <TableCell className="hidden sm:table-cell">
+                      <div className="flex items-center gap-2">
+                        {user.phone && <Phone className="h-4 w-4 text-muted-foreground" />}
+                        {user.phone || '-'}
+                      </div>
+                    </TableCell>
                     <TableCell>
-                      <Select
-                        value={user.role}
-                        onValueChange={(newRole: 'admin' | 'broker' | 'user') => updateUserRole(user.id, newRole)}
-                      >
-                        <SelectTrigger className="w-32">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="user">Usuário</SelectItem>
-                          <SelectItem value="broker">Corretor</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Badge className={getRoleColor(user.role)}>
+                        {user.role === 'admin' ? 'Admin' : 'Usuário'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      <Badge className={getStatusColor(user.status)}>
+                        {user.status === 'active' ? 'Ativo' : 'Inativo'}
+                      </Badge>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        {user.created_at && format(new Date(user.created_at), 'dd/MM/yyyy')}
+                        {format(new Date(user.created_at), 'dd/MM/yyyy')}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1">
+                      <div className="flex-row-wrap">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setIsEditDialogOpen(true);
+                          }}
+                          className="btn-fluid"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
                         {user.email && (
                           <Button
                             variant="ghost"
@@ -461,6 +444,7 @@ export default function AdminUserManagement() {
                               setSelectedUser(user);
                               setIsResetPasswordDialogOpen(true);
                             }}
+                            className="btn-fluid"
                           >
                             <Key className="h-4 w-4" />
                           </Button>
@@ -472,6 +456,7 @@ export default function AdminUserManagement() {
                             setSelectedUser(user);
                             setIsDeleteDialogOpen(true);
                           }}
+                          className="btn-fluid"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -485,37 +470,81 @@ export default function AdminUserManagement() {
         </CardContent>
       </Card>
 
+      {/* Edit Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Usuário</DialogTitle>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="space-y-4">
+              <div>
+                <Label>Nome</Label>
+                <Input
+                  value={selectedUser.nome}
+                  onChange={(e) => setSelectedUser({ ...selectedUser, nome: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Perfil</Label>
+                <Select 
+                  value={selectedUser.role} 
+                  onValueChange={(value) => handleUpdateRole(selectedUser.user_id, value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="user">Usuário</SelectItem>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex-row-wrap">
+                <Button onClick={() => setIsEditDialogOpen(false)}>
+                  Salvar
+                </Button>
+                <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o usuário "{selectedUser?.nome}"? 
+              Esta ação não pode ser desfeita e todos os dados do usuário serão perdidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser}>
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Reset Password Dialog */}
       <AlertDialog open={isResetPasswordDialogOpen} onOpenChange={setIsResetPasswordDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Redefinir Senha</AlertDialogTitle>
             <AlertDialogDescription>
-              Tem certeza que deseja enviar um email de redefinição de senha para {selectedUser?.email}?
+              Será enviado um email para "{selectedUser?.email}" com instruções para redefinir a senha.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
             <AlertDialogAction onClick={handleResetPassword}>
               Enviar Email
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Excluir Usuário</AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir o usuário {selectedUser?.full_name || selectedUser?.email}? Esta ação não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -8,25 +8,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 
-import { Building2, Mail, Lock, User, Phone, Eye, EyeOff, Check, X } from 'lucide-react';
+import { Building2, Mail, Lock, User, Phone } from 'lucide-react';
 import { toast } from 'sonner';
 import ConectaLogo from '@/components/ConectaLogo';
-import { useHealthCheck } from '@/hooks/useHealthCheck';
 
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { result: healthCheck } = useHealthCheck();
 
   useEffect(() => {
     if (user) {
@@ -34,44 +29,9 @@ const Auth = () => {
     }
   }, [user, navigate]);
 
-  // Validação de força da senha
-  const getPasswordStrength = (password: string) => {
-    let score = 0;
-    const checks = {
-      length: password.length >= 8,
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      number: /\d/.test(password),
-      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-    };
-
-    Object.values(checks).forEach(check => {
-      if (check) score++;
-    });
-
-    return { score, checks };
-  };
-
-  const passwordStrength = getPasswordStrength(password);
-  const isPasswordValid = passwordStrength.score >= 3 && password.length >= 8;
-  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
-
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    // Validações client-side
-    if (!isPasswordValid) {
-      toast.error('Senha deve ter pelo menos 8 caracteres, incluir maiúscula, minúscula e número');
-      setLoading(false);
-      return;
-    }
-
-    if (!passwordsMatch) {
-      toast.error('As senhas não coincidem');
-      setLoading(false);
-      return;
-    }
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -80,7 +40,6 @@ const Auth = () => {
         options: {
           emailRedirectTo: `${window.location.origin}/`,
           data: {
-            full_name: name,
             name,
             username,
             phone,
@@ -89,28 +48,9 @@ const Auth = () => {
       });
 
       if (error) {
-        // Handle specific error types
-        if (error.message.includes('already registered')) {
-          toast.error('E-mail já cadastrado. Tente fazer login.');
-        } else if (error.message.includes('rate_limit')) {
-          toast.error('Muitas tentativas. Tente novamente em instantes.');
-        } else if (error.message.includes('weak_password')) {
-          toast.error('Senha muito fraca. Use pelo menos 8 caracteres com maiúscula, minúscula e número.');
-        } else {
-          toast.error(error.message);
-        }
+        toast.error(error.message);
       } else {
-        toast.success('Conta criada com sucesso! Faça login para continuar.');
-        // Clear form
-        setName('');
-        setUsername('');
-        setPhone('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        // Switch to signin tab
-        const signinTab = document.querySelector('[value="signin"]') as HTMLElement;
-        signinTab?.click();
+        toast.success('Conta criada! Verifique seu email para ativar sua conta.');
       }
     } catch (error: any) {
       toast.error('Erro ao criar conta');
@@ -130,18 +70,7 @@ const Auth = () => {
       });
 
       if (error) {
-        // Handle specific error types
-        if (error.message.includes('invalid_credentials')) {
-          toast.error('E-mail ou senha incorretos');
-        } else if (error.message.includes('email_not_confirmed')) {
-          toast.error('Verifique seu e-mail para confirmar a conta');
-        } else if (error.message.includes('rate_limit')) {
-          toast.error('Muitas tentativas. Tente novamente em instantes.');
-        } else {
-          toast.error('Erro ao fazer login: ' + error.message);
-        }
-      } else {
-        toast.success('Login realizado com sucesso!');
+        toast.error('Credenciais inválidas');
       }
     } catch (error: any) {
       toast.error('Erro ao fazer login');
@@ -198,20 +127,13 @@ const Auth = () => {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signin-password"
-                        type={showPassword ? "text" : "password"}
+                        type="password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 pr-10"
+                        className="pl-10"
                         required
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
                     </div>
                   </div>
 
@@ -297,114 +219,21 @@ const Auth = () => {
                       <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-password"
-                        type={showPassword ? "text" : "password"}
+                        type="password"
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pl-10 pr-10"
+                        className="pl-10"
                         required
-                        minLength={8}
+                        minLength={6}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
                     </div>
-                    
-                    {/* Indicador de força da senha */}
-                    {password && (
-                      <div className="space-y-2 text-xs">
-                        <div className="flex items-center space-x-2">
-                          <div className={`h-1 flex-1 rounded ${
-                            passwordStrength.score >= 1 ? 'bg-red-500' : 'bg-muted'
-                          }`} />
-                          <div className={`h-1 flex-1 rounded ${
-                            passwordStrength.score >= 2 ? 'bg-yellow-500' : 'bg-muted'
-                          }`} />
-                          <div className={`h-1 flex-1 rounded ${
-                            passwordStrength.score >= 3 ? 'bg-green-500' : 'bg-muted'
-                          }`} />
-                          <div className={`h-1 flex-1 rounded ${
-                            passwordStrength.score >= 4 ? 'bg-green-600' : 'bg-muted'
-                          }`} />
-                        </div>
-                        <div className="space-y-1 text-muted-foreground">
-                          <div className="flex items-center space-x-1">
-                            {passwordStrength.checks.length ? 
-                              <Check className="h-3 w-3 text-green-500" /> : 
-                              <X className="h-3 w-3 text-red-500" />
-                            }
-                            <span>Pelo menos 8 caracteres</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            {passwordStrength.checks.uppercase ? 
-                              <Check className="h-3 w-3 text-green-500" /> : 
-                              <X className="h-3 w-3 text-red-500" />
-                            }
-                            <span>Uma letra maiúscula</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            {passwordStrength.checks.lowercase ? 
-                              <Check className="h-3 w-3 text-green-500" /> : 
-                              <X className="h-3 w-3 text-red-500" />
-                            }
-                            <span>Uma letra minúscula</span>
-                          </div>
-                          <div className="flex items-center space-x-1">
-                            {passwordStrength.checks.number ? 
-                              <Check className="h-3 w-3 text-green-500" /> : 
-                              <X className="h-3 w-3 text-red-500" />
-                            }
-                            <span>Um número</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirmar Senha</Label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        id="signup-confirm-password"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="pl-10 pr-10"
-                        required
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                      >
-                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    </div>
-                    
-                    {/* Indicador de senha coincidente */}
-                    {confirmPassword && (
-                      <div className="flex items-center space-x-1 text-xs">
-                        {passwordsMatch ? 
-                          <Check className="h-3 w-3 text-green-500" /> : 
-                          <X className="h-3 w-3 text-red-500" />
-                        }
-                        <span className={passwordsMatch ? 'text-green-600' : 'text-red-600'}>
-                          {passwordsMatch ? 'Senhas coincidem' : 'Senhas não coincidem'}
-                        </span>
-                      </div>
-                    )}
                   </div>
 
                   <Button
                     type="submit"
                     className="w-full bg-primary hover:bg-primary/90 text-white transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    disabled={loading || !isPasswordValid || !passwordsMatch}
+                    disabled={loading}
                   >
                     {loading ? 'Criando conta...' : 'Criar Conta'}
                   </Button>

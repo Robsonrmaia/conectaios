@@ -29,17 +29,13 @@ export function ClientSelect({ value, onValueChange, placeholder = "Selecione um
   const fetchClients = async () => {
     try {
       const { data, error } = await supabase
-        .from('crm_clients')
-        .select('id, name, phone')
+        .from('conectaios_clients')
+        .select('id, nome, telefone')
         .eq('user_id', user?.id)
-        .order('name');
+        .order('nome');
 
       if (error) throw error;
-      setClients(data?.map(c => ({
-        id: c.id,
-        nome: c.name || '',
-        telefone: c.phone || ''
-      })) || []);
+      setClients(data || []);
     } catch (error) {
       console.error('Error fetching clients:', error);
     } finally {
