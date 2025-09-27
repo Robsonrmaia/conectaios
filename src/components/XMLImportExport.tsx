@@ -195,17 +195,16 @@ export default function XMLImportExport() {
             title: property.titulo,
             description: property.descricao,
             price: property.valor,
-            area: property.area,
-            quartos: property.quartos,
-            bathrooms: property.banheiros, // Map banheiros -> bathrooms
-            parking_spots: property.vagas, // Map vagas -> parking_spots  
-            address: property.endereco, // Map endereco -> address
+            area_total: property.area,
+            bedrooms: property.quartos,
+            bathrooms: property.banheiros,
+            parking: property.vagas,
+            street: property.endereco,
             city: property.city,
             state: property.state,
-            zipcode: property.cep, // Map cep -> zipcode
-            property_type: property.property_type,
-            listing_type: property.transaction_type, // Map transaction_type -> listing_type
-            fotos: property.photos || [], // Map photos -> fotos
+            zipcode: property.cep,
+            type: property.property_type,
+            purpose: property.transaction_type === 'venda' ? 'sale' : 'rent',
             visibility: 'public_site',
             is_public: true
           });

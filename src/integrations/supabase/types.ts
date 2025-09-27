@@ -85,6 +85,183 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          attachments: Json | null
+          body: string | null
+          created_at: string | null
+          id: string
+          reply_to_id: string | null
+          sender_id: string
+          thread_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          reply_to_id?: string | null
+          sender_id: string
+          thread_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          reply_to_id?: string | null
+          sender_id?: string
+          thread_id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      chat_participants: {
+        Row: {
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          role: string | null
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          role?: string | null
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          role?: string | null
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_receipts: {
+        Row: {
+          created_at: string | null
+          id: string
+          message_id: string
+          status: string | null
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message_id: string
+          status?: string | null
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message_id?: string
+          status?: string | null
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_threads: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_group: boolean | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_group?: boolean | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_group?: boolean | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      conectaios_brokers: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          creci: string | null
+          email: string | null
+          id: string
+          minisite_slug: string | null
+          name: string | null
+          phone: string | null
+          referral_code: string | null
+          status: string | null
+          subscription_status: string | null
+          updated_at: string | null
+          user_id: string
+          username: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          creci?: string | null
+          email?: string | null
+          id?: string
+          minisite_slug?: string | null
+          name?: string | null
+          phone?: string | null
+          referral_code?: string | null
+          status?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id: string
+          username?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          creci?: string | null
+          email?: string | null
+          id?: string
+          minisite_slug?: string | null
+          name?: string | null
+          phone?: string | null
+          referral_code?: string | null
+          status?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string
+          username?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
       crm_clients: {
         Row: {
           broker_id: string | null
@@ -93,6 +270,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          indication_id: string | null
           name: string
           notes: string | null
           phone: string | null
@@ -108,6 +286,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          indication_id?: string | null
           name: string
           notes?: string | null
           phone?: string | null
@@ -123,6 +302,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          indication_id?: string | null
           name?: string
           notes?: string | null
           phone?: string | null
@@ -497,6 +677,72 @@ export type Database = {
           },
         ]
       }
+      indication_discounts: {
+        Row: {
+          created_at: string | null
+          discount_percentage: number | null
+          id: string
+          indication_id: string
+          used: boolean | null
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          discount_percentage?: number | null
+          id?: string
+          indication_id: string
+          used?: boolean | null
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          discount_percentage?: number | null
+          id?: string
+          indication_id?: string
+          used?: boolean | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
+      indications: {
+        Row: {
+          created_at: string | null
+          id: string
+          referred_email: string | null
+          referred_id: string | null
+          referred_phone: string | null
+          referrer_id: string
+          reward_amount: number | null
+          reward_claimed: boolean | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referred_phone?: string | null
+          referrer_id: string
+          reward_amount?: number | null
+          reward_claimed?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          referred_email?: string | null
+          referred_id?: string | null
+          referred_phone?: string | null
+          referrer_id?: string
+          reward_amount?: number | null
+          reward_claimed?: boolean | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           broker_id: string | null
@@ -696,6 +942,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string | null
+          id: string
+          meta: Json | null
+          read: boolean | null
+          title: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          meta?: Json | null
+          read?: boolean | null
+          title?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string | null
+          id?: string
+          meta?: Json | null
+          read?: boolean | null
+          title?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -703,6 +982,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          nome: string | null
           phone: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string | null
@@ -713,6 +993,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          nome?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
@@ -723,8 +1004,48 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          nome?: string | null
           phone?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      property_submissions: {
+        Row: {
+          broker_id: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          message: string | null
+          name: string | null
+          phone: string | null
+          property_data: Json | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+          property_data?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string | null
+          phone?: string | null
+          property_data?: Json | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -805,6 +1126,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      find_existing_one_to_one_thread: {
+        Args: { user_a: string; user_b: string }
+        Returns: string
+      }
       gtrgm_compress: {
         Args: { "": unknown }
         Returns: unknown

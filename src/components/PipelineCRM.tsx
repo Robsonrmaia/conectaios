@@ -183,7 +183,8 @@ export default function PipelineCRM() {
         budget_min: null,
         notes: null,
         preferred_locations: null,
-        whatsapp: null
+        whatsapp: null,
+        indication_id: null
       });
 
       setNewClient({ nome: '', telefone: '', email: '', tipo: 'comprador' });

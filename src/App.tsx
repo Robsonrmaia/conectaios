@@ -6,7 +6,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { BrokerProvider, useBroker } from "@/hooks/useBroker";
+import { useBroker } from "@/hooks/useBroker";
 import { MinisiteProvider } from "@/hooks/useMinisite";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
@@ -120,8 +120,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <AuthProvider>
-          <BrokerProvider>
-            <MinisiteProvider>
+          <MinisiteProvider>
               <BrowserRouter>
                 <MaintenanceCheck>
                   <Routes>
@@ -179,7 +178,6 @@ const App = () => (
                 </MaintenanceCheck>
               </BrowserRouter>
             </MinisiteProvider>
-          </BrokerProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>
