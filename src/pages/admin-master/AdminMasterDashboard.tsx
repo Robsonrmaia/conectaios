@@ -72,7 +72,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
       const usersWithEmails = await Promise.all(
         profiles.map(async (profile) => {
           try {
-            const { data: authData } = await supabase.auth.admin.getUserById(profile.user_id);
+            const { data: authData } = await supabase.auth.admin.getUserById(profile.id); // Use profile.id instead of user_id
             return {
               ...profile,
               email: authData.user?.email || 'N/A'
@@ -86,7 +86,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
         })
       );
 
-      setUsers(usersWithEmails);
+      setUsers(usersWithEmails as any);
     } catch (error) {
       console.error('Error fetching users:', error);
       toast.error('Erro ao carregar usuários');
@@ -169,7 +169,7 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       const { error } = await supabase.rpc('admin_change_user_role', {
-        target_user_id: userId,
+        user_id_param: userId, // Use user_id_param instead of target_user_id
         new_role: newRole
       });
 

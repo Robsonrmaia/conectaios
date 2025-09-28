@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import type { ChatMessageCompat } from '@/types/compat';
 import { useAuth } from './useAuth';
 import { useBroker } from './useBroker';
 import { toast } from '@/hooks/use-toast';
@@ -211,7 +212,10 @@ export function useEnhancedChat() {
 
       setMessages(prev => ({
         ...prev,
-        [threadId]: messagesWithInfo
+        [threadId]: messagesWithInfo.map(msg => ({
+          ...msg,
+          edited_at: (msg as any).edited_at || (msg as any).updated_at || (msg as any).created_at
+        })) as any[]
       }));
 
     } catch (error) {

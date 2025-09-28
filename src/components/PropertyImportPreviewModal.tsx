@@ -74,9 +74,9 @@ export function PropertyImportPreviewModal({
       
       // Create property record with corrected field mapping
       const { data, error } = await supabase
-        .from('properties')
-        .insert({
-          user_id: brokerUserId,
+          .from('imoveis')
+          .insert({
+            owner_id: brokerUserId, // Use owner_id instead of user_id
           titulo: propertyData.titulo,
           descricao: propertyData.descricao,
           valor: parseFloat(propertyData.valor) || 0,

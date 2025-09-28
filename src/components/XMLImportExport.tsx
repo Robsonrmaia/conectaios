@@ -187,12 +187,12 @@ export default function XMLImportExport() {
       
       for (const property of properties) {
         const { error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .insert({
-            user_id: user.id,
-            titulo: property.titulo,
-            descricao: property.descricao,
-            valor: property.valor,
+            owner_id: user.id, // Use owner_id instead of user_id
+            titulo: (property as any).titulo || (property as any).title,
+            descricao: (property as any).descricao || (property as any).description,
+            valor: (property as any).valor || (property as any).price,
             area: property.area,
             quartos: property.quartos,
             bathrooms: property.banheiros, // Map banheiros -> bathrooms

@@ -54,8 +54,8 @@ interface IndicationMetrics {
 }
 
 export function IndicationManagement() {
-  const [indications, setIndications] = useState<CompatIndication[]>([]);
-  const [filteredIndications, setFilteredIndications] = useState<Indication[]>([]);
+  const [indications, setIndications] = useState<IndicationCompat[]>([]);
+  const [filteredIndications, setFilteredIndications] = useState<IndicationCompat[]>([]);
   const [metrics, setMetrics] = useState<IndicationMetrics>({
     total_indicacoes: 0,
     indicacoes_confirmadas: 0,
@@ -212,7 +212,7 @@ export function IndicationManagement() {
       filtered = filtered.filter(indication => indication.status === statusFilter);
     }
 
-    setFilteredIndications(filtered);
+    setFilteredIndications(filtered as any);
   }, [indications, searchTerm, statusFilter]);
 
   useEffect(() => {

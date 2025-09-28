@@ -12,6 +12,7 @@ import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
 import AnimatedBackground from '@/components/AnimatedBackground';
+// @ts-ignore - Parallax import
 import { initParallax } from '@/utils/parallax';
 import { BrokerSignupForm } from '@/components/BrokerSignupForm';
 import { AsaasPaymentButton } from '@/components/AsaasPaymentButton';

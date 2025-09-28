@@ -173,9 +173,9 @@ export function PropertyStatusManager({ property, onStatusUpdate }: PropertyStat
             // Cancel auto-deletion
             try {
               const { error } = await supabase
-                .from('properties')
+                .from('imoveis')
                 .update({
-                  sale_status: 'available',
+                  // Remove sale_status - doesn't exist in imoveis table
                   auto_delete_at: null,
                   marked_as_sold_at: null,
                   marked_as_rented_at: null,
