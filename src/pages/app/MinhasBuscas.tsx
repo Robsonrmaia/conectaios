@@ -38,6 +38,8 @@ interface ClientSearch {
   filters?: any;
   broker_id?: string;
   client_id?: string;
+  user_id?: string;
+  params?: any;
 }
 
 interface PropertyMatch {

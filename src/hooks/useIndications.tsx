@@ -50,33 +50,85 @@ export function useIndications() {
   });
 
   const fetchIndications = async () => {
-    if (!broker?.id) return;
+    if (!broker?.user_id) return;
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('indication-system', {
-        body: {
-          action: 'get',
-          broker_id: broker.id
+      if (import.meta.env.DEV) {
+        console.log('📋 Indicações: Loading indications for user:', broker.user_id);
+      }
+
+      // Direct query to indications table using referrer_id
+      const { data: indicationsData, error: indicationsError } = await supabase
+        .from('indications')
+        .select(`
+          id,
+          referrer_id,
+          referred_id,
+          referred_email,
+          status,
+          created_at,
+          updated_at,
+          reward_amount,
+          reward_claimed
+        `)
+        .eq('referrer_id', broker.user_id)
+        .order('created_at', { ascending: false });
+
+      if (indicationsError) {
+        if (import.meta.env.DEV) {
+          console.error('❌ Indicações fetch error:', indicationsError);
         }
-      });
+        throw indicationsError;
+      }
 
-      if (error) throw error;
+      // Query discounts related to indications
+      const { data: discountsData, error: discountsError } = await supabase
+        .from('indication_discounts')
+        .select('*')
+        .in('indication_id', indicationsData?.map(i => i.id) || []);
 
-      setIndications(data.indications || []);
-      setDiscounts(data.discounts || []);
+      if (discountsError && import.meta.env.DEV) {
+        console.log('⚠️ Indicações: Could not load discounts:', discountsError);
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('✅ Indicações: Loaded', indicationsData?.length || 0, 'indications');
+      }
+
+      // Transform data to match interface
+      const transformedIndications = (indicationsData || []).map(ind => ({
+        id: ind.id,
+        id_indicador: ind.referrer_id,
+        id_indicado: ind.referred_id || '',
+        status: ind.status as 'pendente' | 'confirmado' | 'cancelado',
+        mes_recompensa: 0, // Will be calculated based on dates
+        data_criacao: ind.created_at,
+        data_confirmacao: ind.updated_at,
+        codigo_indicacao: broker?.referral_code || '',
+        desconto_aplicado: ind.reward_amount || 0,
+        indicado: {
+          id: ind.referred_id || '',
+          name: 'Nome não informado',
+          username: '',
+          email: ind.referred_email || ''
+        }
+      }));
+
+      setIndications(transformedIndications);
+      setDiscounts(discountsData || []);
       
-      // Calcular estatísticas
-      const totalIndications = data.indications?.length || 0;
-      const confirmedIndications = data.indications?.filter((i: Indication) => i.status === 'confirmado').length || 0;
-      const totalDiscountApplied = data.discounts?.reduce((sum: number, d: IndicationDiscount) => sum + d.valor_desconto, 0) || 0;
+      // Calcular estatísticas  
+      const totalIndications = transformedIndications.length;
+      const confirmedIndications = transformedIndications.filter((i: Indication) => i.status === 'confirmado').length;
+      const totalDiscountApplied = (discountsData || []).reduce((sum: number, d: any) => sum + (d.discount_amount || 0), 0);
       
       // Calcular desconto do próximo mês
       const currentMonth = parseInt(new Date().toISOString().slice(0, 7).replace('-', ''));
       const nextMonth = currentMonth + 1;
-      const nextMonthConfirmed = data.indications?.filter((i: Indication) => 
+      const nextMonthConfirmed = transformedIndications.filter((i: Indication) => 
         i.status === 'confirmado' && i.mes_recompensa === nextMonth
-      ).length || 0;
+      ).length;
       
       let nextMonthDiscount = 0;
       if (nextMonthConfirmed >= 2) {
@@ -177,7 +229,7 @@ export function useIndications() {
 
   useEffect(() => {
     fetchIndications();
-  }, [broker?.id]);
+  }, [broker?.user_id]);
 
   return {
     indications,

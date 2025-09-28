@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
@@ -352,6 +353,7 @@ export default function Perfil() {
                           console.log('💾 Perfil: Saving profile changes...');
                         }
                         
+                        // Save to broker profile (conectaios_brokers table)
                         await updateBrokerProfile({
                           name: profile.name,
                           email: profile.email,
@@ -360,6 +362,26 @@ export default function Perfil() {
                           creci: profile.creci,
                           username: profile.username
                         });
+
+                        // Also save additional fields to profiles table (using id = auth.uid())
+                        const uid = (await supabase.auth.getUser()).data.user?.id;
+                        if (uid) {
+                          const { error: profileError } = await supabase
+                            .from('profiles')
+                            .update({
+                              name: profile.name,
+                              website: profile.website,
+                              instagram: profile.instagram,
+                              linkedin: profile.linkedin,
+                              specialties: profile.specialties,
+                              bio: profile.bio
+                            })
+                            .eq('id', uid);
+
+                          if (profileError && import.meta.env.DEV) {
+                            console.log('⚠️ Perfil: Additional profile data not saved to profiles table:', profileError);
+                          }
+                        }
                         
                         if (import.meta.env.DEV) {
                           console.log('✅ Perfil: Profile saved successfully');
