@@ -71,4 +71,20 @@ declare namespace Compat {
     status?: string;
     subscription_status?: string;
   }
+
+  // Indication compatibility types
+  interface CompatIndication extends BaseRow {
+    referrer_id?: string;
+    referred_id?: string; 
+    referred_email?: string;
+    status?: string;
+    reward_amount?: number;
+    [key: string]: any;
+  }
+}
+
+// Global type shims for compatibility
+declare global {
+  type CompatIndication = Compat.CompatIndication;
+  var compatIndication: CompatIndication;
 }

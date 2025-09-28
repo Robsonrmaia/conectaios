@@ -410,6 +410,39 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          broker_id: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          source: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          source?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       crm_clients: {
         Row: {
           broker_id: string | null
@@ -533,6 +566,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_deals_property_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
             referencedColumns: ["id"]
           },
           {
@@ -1047,6 +1087,13 @@ export type Database = {
             foreignKeyName: "imovel_features_imovel_fk"
             columns: ["imovel_id"]
             isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
@@ -1055,6 +1102,13 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
             referencedColumns: ["id"]
           },
           {
@@ -1106,6 +1160,13 @@ export type Database = {
             foreignKeyName: "imovel_images_imovel_fk"
             columns: ["imovel_id"]
             isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
@@ -1114,6 +1175,13 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
             referencedColumns: ["id"]
           },
           {
@@ -1254,6 +1322,13 @@ export type Database = {
             foreignKeyName: "leads_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
@@ -1340,6 +1415,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "matches_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "matches_imovel_id_fkey"
             columns: ["imovel_id"]
@@ -1728,36 +1810,60 @@ export type Database = {
           broker_id: string | null
           created_at: string | null
           email: string | null
+          exclusivity_type: string | null
           id: string
+          marketing_consent: boolean | null
           message: string | null
           name: string | null
+          owner_email: string | null
+          owner_name: string | null
+          owner_phone: string | null
           phone: string | null
+          photos: Json | null
           property_data: Json | null
           status: string | null
+          submission_token: string | null
+          submitted_at: string | null
           updated_at: string | null
         }
         Insert: {
           broker_id?: string | null
           created_at?: string | null
           email?: string | null
+          exclusivity_type?: string | null
           id?: string
+          marketing_consent?: boolean | null
           message?: string | null
           name?: string | null
+          owner_email?: string | null
+          owner_name?: string | null
+          owner_phone?: string | null
           phone?: string | null
+          photos?: Json | null
           property_data?: Json | null
           status?: string | null
+          submission_token?: string | null
+          submitted_at?: string | null
           updated_at?: string | null
         }
         Update: {
           broker_id?: string | null
           created_at?: string | null
           email?: string | null
+          exclusivity_type?: string | null
           id?: string
+          marketing_consent?: boolean | null
           message?: string | null
           name?: string | null
+          owner_email?: string | null
+          owner_name?: string | null
+          owner_phone?: string | null
           phone?: string | null
+          photos?: Json | null
           property_data?: Json | null
           status?: string | null
+          submission_token?: string | null
+          submitted_at?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -2108,6 +2214,38 @@ export type Database = {
           },
         ]
       }
+      support_ticket_messages: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          ticket_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          ticket_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          ticket_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "support_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           assignee_id: string | null
@@ -2348,6 +2486,19 @@ export type Database = {
         }
         Relationships: []
       }
+      banners: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string | null
+          image_url: string | null
+          is_active: boolean | null
+          sort_order: number | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
       conectaios_brokers: {
         Row: {
           avatar_url: string | null
@@ -2388,99 +2539,108 @@ export type Database = {
       }
       properties: {
         Row: {
+          address: string | null
+          area: number | null
           area_built: number | null
-          area_total: number | null
+          banner_type: string | null
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          condominium_fee: number | null
           created_at: string | null
+          descricao: string | null
           description: string | null
-          distancia_mar: number | null
+          fotos: Json | null
+          furnishing_type: boolean | null
+          has_sea_view: boolean | null
           id: string | null
           iptu: number | null
-          is_furnished: boolean | null
-          is_public: boolean | null
+          listing_type: string | null
           neighborhood: string | null
-          number: string | null
           owner_id: string | null
-          parking: number | null
+          parking_spots: number | null
           price: number | null
-          purpose: string | null
-          state: string | null
+          property_type: string | null
+          raw_cnm: Json | null
+          raw_vrsync: Json | null
+          sea_distance: number | null
           status: string | null
-          street: string | null
-          suites: number | null
-          thumb_url: string | null
           title: string | null
-          type: string | null
+          titulo: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
-          vista_mar: boolean | null
           zipcode: string | null
         }
         Insert: {
+          address?: string | null
+          area?: number | null
           area_built?: number | null
-          area_total?: number | null
+          banner_type?: never
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          condominium_fee?: number | null
           created_at?: string | null
+          descricao?: string | null
           description?: string | null
-          distancia_mar?: number | null
+          fotos?: never
+          furnishing_type?: boolean | null
+          has_sea_view?: boolean | null
           id?: string | null
           iptu?: number | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
+          listing_type?: string | null
           neighborhood?: string | null
-          number?: string | null
           owner_id?: string | null
-          parking?: number | null
+          parking_spots?: number | null
           price?: number | null
-          purpose?: string | null
-          state?: string | null
+          property_type?: string | null
+          raw_cnm?: never
+          raw_vrsync?: never
+          sea_distance?: number | null
           status?: string | null
-          street?: string | null
-          suites?: number | null
-          thumb_url?: never
           title?: string | null
-          type?: string | null
+          titulo?: string | null
           updated_at?: string | null
+          videos?: never
           visibility?: string | null
-          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Update: {
+          address?: string | null
+          area?: number | null
           area_built?: number | null
-          area_total?: number | null
+          banner_type?: never
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          condominium_fee?: number | null
           created_at?: string | null
+          descricao?: string | null
           description?: string | null
-          distancia_mar?: number | null
+          fotos?: never
+          furnishing_type?: boolean | null
+          has_sea_view?: boolean | null
           id?: string | null
           iptu?: number | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
+          listing_type?: string | null
           neighborhood?: string | null
-          number?: string | null
           owner_id?: string | null
-          parking?: number | null
+          parking_spots?: number | null
           price?: number | null
-          purpose?: string | null
-          state?: string | null
+          property_type?: string | null
+          raw_cnm?: never
+          raw_vrsync?: never
+          sea_distance?: number | null
           status?: string | null
-          street?: string | null
-          suites?: number | null
-          thumb_url?: never
           title?: string | null
-          type?: string | null
+          titulo?: string | null
           updated_at?: string | null
+          videos?: never
           visibility?: string | null
-          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Relationships: [
@@ -2535,6 +2695,13 @@ export type Database = {
             foreignKeyName: "imovel_features_imovel_fk"
             columns: ["property_id"]
             isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
@@ -2543,6 +2710,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
             referencedColumns: ["id"]
           },
           {
@@ -2594,6 +2768,13 @@ export type Database = {
             foreignKeyName: "imovel_images_imovel_fk"
             columns: ["property_id"]
             isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
             referencedRelation: "imoveis"
             referencedColumns: ["id"]
           },
@@ -2602,6 +2783,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
             referencedColumns: ["id"]
           },
           {

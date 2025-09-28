@@ -199,19 +199,19 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateBrokerProfile = async (data: Partial<Broker>) => {
+  const updateBrokerProfile = async (data: any) => {
     if (!broker) throw new Error('No broker profile found');
 
     try {
       const { data: updatedBroker, error } = await supabase
         .from('conectaios_brokers')
-        .update(data)
+        .update(data as any)
         .eq('id', broker.id)
         .select()
         .single();
 
       if (error) throw error;
-      setBroker(updatedBroker);
+      setBroker(updatedBroker as any);
       
       // Refresh broker profile to ensure we have the latest data
       await fetchBrokerProfile();
