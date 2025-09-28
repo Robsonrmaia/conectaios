@@ -54,6 +54,8 @@ export type Database = {
           creci: string | null
           email: string | null
           id: string
+          instagram: string | null
+          linkedin: string | null
           minisite_slug: string | null
           name: string | null
           phone: string | null
@@ -66,6 +68,7 @@ export type Database = {
           subscription_status: string | null
           updated_at: string | null
           user_id: string
+          website: string | null
           whatsapp: string | null
         }
         Insert: {
@@ -77,6 +80,8 @@ export type Database = {
           creci?: string | null
           email?: string | null
           id?: string
+          instagram?: string | null
+          linkedin?: string | null
           minisite_slug?: string | null
           name?: string | null
           phone?: string | null
@@ -89,6 +94,7 @@ export type Database = {
           subscription_status?: string | null
           updated_at?: string | null
           user_id: string
+          website?: string | null
           whatsapp?: string | null
         }
         Update: {
@@ -100,6 +106,8 @@ export type Database = {
           creci?: string | null
           email?: string | null
           id?: string
+          instagram?: string | null
+          linkedin?: string | null
           minisite_slug?: string | null
           name?: string | null
           phone?: string | null
@@ -112,6 +120,7 @@ export type Database = {
           subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
+          website?: string | null
           whatsapp?: string | null
         }
         Relationships: [
