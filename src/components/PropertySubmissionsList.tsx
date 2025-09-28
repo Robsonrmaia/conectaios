@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useBroker } from '@/hooks/useBroker';
-import PropertyImportPreviewModal from './PropertyImportPreviewModal';
+import { PropertyImportPreviewModal } from './PropertyImportPreviewModal';
 import { asPropertySubmissionArray } from '@/utils/typeCompat';
 import { 
   Eye, 

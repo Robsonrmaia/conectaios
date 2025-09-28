@@ -15,35 +15,6 @@ export type CompatPlans = {
   updated_at: string;
 };
 
-// Tipos para propriedades compatíveis
-export type PropertyCompat = {
-  id: string;
-  title: string;
-  titulo?: string;
-  description: string;
-  descricao?: string;
-  price: number | null;
-  valor?: number | null;
-  city: string | null;
-  cidade?: string | null;
-  neighborhood: string | null;
-  bairro?: string | null;
-  is_public: boolean;
-  visibility: string | null;
-  owner_id: string;
-  created_at: string;
-  updated_at: string;
-  thumb_url?: string | null;
-  bathrooms?: number;
-  bedrooms?: number;
-  parking_spots?: number;
-  area_built?: number;
-  area_total?: number;
-  purpose?: string;
-  type?: string;
-  status?: string;
-};
-
 // Fix para useAdminAuth
 export const safeUserRole = (data: any): string | null => {
   return data?.role || null;
@@ -129,15 +100,10 @@ export type CompatIndication = {
   // Campos de compatibilidade
   id_indicador: string;
   id_indicado: string;
-  mes_recompensa?: number;
+  mes_recompensa?: string;
   data_criacao: string;
   valor_desconto?: number;
   valor_original?: number;
-  codigo_indicacao: string;
-  desconto_aplicado: number;
-  data_confirmacao?: string;
-  indicador?: any;
-  indicado?: any;
 };
 
 export const compatIndication = (data: any): CompatIndication => ({
@@ -145,12 +111,9 @@ export const compatIndication = (data: any): CompatIndication => ({
   id_indicador: data.referrer_id || '',
   id_indicado: data.referred_id || '',
   data_criacao: data.created_at || '',
-  mes_recompensa: data.created_at ? parseInt(new Date(data.created_at).toISOString().substring(0, 7).replace('-', '')) : undefined,
+  mes_recompensa: new Date(data.created_at).toISOString().substring(0, 7), // YYYY-MM
   valor_desconto: data.reward_amount || 0,
-  valor_original: data.reward_amount || 0,
-  codigo_indicacao: data.id || `IND-${data.id?.slice(0, 8)}`,
-  desconto_aplicado: data.reward_amount || 0,
-  data_confirmacao: data.updated_at
+  valor_original: data.reward_amount || 0
 });
 
 // Helper para property submissions compatíveis
@@ -192,7 +155,7 @@ export type CompatChatMessage = {
   reply_to_id?: string;
   sender_name?: string;
   sender_avatar?: string;
-  edited_at: string; // Campo obrigatório
+  edited_at?: string; // Campo obrigatório que estava faltando
 };
 
 export const compatChatMessage = (data: any): CompatChatMessage => ({

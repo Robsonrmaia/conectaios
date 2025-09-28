@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 
-export const useUsernameGeneratorHook = () => {
+export const useUsernameGenerator = () => {
   
   const generateUsername = async (fullName: string): Promise<string> => {
     // Sanitize and create base username from full name
@@ -37,8 +37,8 @@ export const useUsernameGeneratorHook = () => {
     try {
       const { data, error } = await supabase
         .from('conectaios_brokers')
-        .select('id')
-        .eq('name', username)
+        .select('username')
+        .eq('username', username)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
@@ -79,6 +79,3 @@ export const useUsernameGeneratorHook = () => {
     validateUsername
   };
 };
-
-// Legacy export for compatibility
-export const useUsernameGenerator = useUsernameGeneratorHook;

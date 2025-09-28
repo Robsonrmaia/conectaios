@@ -1,6 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
 
 // Global audio control system
 const globalAudioInstances = new Map<string, HTMLAudioElement>();
@@ -121,16 +120,11 @@ export const useElevenLabsVoice = () => {
         setTimeout(() => reject(new Error('Timeout na geração de áudio - Tente novamente')), 10000)
       );
       
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) {
-        throw new Error('Usuário não autenticado');
-      }
-
       const fetchPromise = fetch('https://paawojkqrggnuvpnnwrc.supabase.co/functions/v1/text-to-speech', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YmRleXVxY2xpcXJtenZ5Y2lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDAwNDgsImV4cCI6MjA3MDQxNjA0OH0.9-Ewj0EvAuo-z9caO4euMntxxRI-MlqgZDTba6Hw98I`
         },
         body: JSON.stringify({
           text: cleanedText,

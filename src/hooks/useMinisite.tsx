@@ -86,10 +86,7 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
 
         const { data: newConfig, error: createError } = await supabase
           .from('minisite_configs')
-          .insert({
-            ...defaultConfig,
-            user_id: user?.id || broker.user_id
-          })
+          .insert(defaultConfig)
           .select()
           .single();
 
@@ -98,36 +95,30 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       }
     } catch (error) {
       console.error('Error fetching minisite config:', error);
-      // Only show fallback warning in development
-      const allowLocal = import.meta.env.DEV && import.meta.env.VITE_ALLOW_LOCAL_CONFIG === 'true';
+      // Fallback: create local config if database fails
+      const fallbackConfig = {
+        broker_id: broker?.id || '',
+        title: broker?.name || 'Meu Mini Site',
+        description: broker?.bio || '',
+        primary_color: '#1CA9C9',
+        secondary_color: '#64748B',
+        template_id: 'modern',
+        show_properties: true,
+        show_contact_form: true,
+        show_about: true,
+        phone: broker?.phone || '',
+        email: broker?.email || '',
+        whatsapp: broker?.phone || '',
+        is_active: true,
+        config_data: {}
+      };
+      setConfig(fallbackConfig);
       
-      if (allowLocal) {
-        const fallbackConfig = {
-          broker_id: broker?.id || '',
-          title: broker?.name || 'Meu Mini Site',
-          description: broker?.bio || '',
-          primary_color: '#1CA9C9',
-          secondary_color: '#64748B',
-          template_id: 'modern',
-          show_properties: true,
-          show_contact_form: true,
-          show_about: true,
-          phone: broker?.phone || '',
-          email: broker?.email || '',
-          whatsapp: broker?.phone || '',
-          is_active: true,
-          config_data: {}
-        };
-        setConfig(fallbackConfig);
-        
-        toast({
-          title: "Aviso",
-          description: "Usando configuração local. Salve para sincronizar com o servidor.",
-          variant: "default",
-        });
-      } else {
-        throw error; // Re-throw in production
-      }
+      toast({
+        title: "Aviso",
+        description: "Usando configuração local. Salve para sincronizar com o servidor.",
+        variant: "default",
+      });
     } finally {
       setLoading(false);
     }
@@ -190,13 +181,10 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
     const url = `/broker/${username}`;
     
     try {
-      const updateData: any = {};
-      if (config.id) {
-        await supabase
-          .from('minisite_configs')
-          .update(updateData)
-          .eq('id', config.id);
-      }
+      await supabase
+        .from('minisite_configs')
+        .update({ generated_url: url })
+        .eq('id', config.id);
 
       setConfig(prev => prev ? { ...prev, generated_url: url } : null);
       return url;

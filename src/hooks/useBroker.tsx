@@ -1,21 +1,54 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useUsernameGenerator } from './useUsernameGenerator';
+
+interface Broker {
+  id: string;
+  user_id: string;
+  region_id?: string;
+  plan_id?: string;
+  name: string;
+  email: string;
+  phone?: string;
+  creci?: string;
+  username?: string;
+  bio?: string;
+  avatar_url?: string;
+  cover_url?: string;
+  status: string;
+  subscription_status: string;
+  subscription_expires_at?: string;
+  referral_code?: string;
+  cpf_cnpj?: string;
+}
+
+interface Plan {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  property_limit: number;
+  match_limit: number;
+  thread_limit: number;
+  features: any; // Use any to handle Json type from Supabase
+}
 
 interface BrokerContextType {
-  broker: any;
-  plan: any;
+  broker: Broker | null;
+  plan: Plan | null;
   loading: boolean;
-  createBrokerProfile: (data: any) => Promise<void>;
-  updateBrokerProfile: (data: any) => Promise<void>;
+  createBrokerProfile: (data: Partial<Broker>) => Promise<void>;
+  updateBrokerProfile: (data: Partial<Broker>) => Promise<void>;
 }
 
 const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
 
 export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [broker, setBroker] = useState<any>(null);
-  const [plan, setPlan] = useState<any>(null);
+  const { generateUsername } = useUsernameGenerator();
+  const [broker, setBroker] = useState<Broker | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -94,7 +127,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const createBrokerProfile = async (data: any) => {
+  const createBrokerProfile = async (data: Partial<Broker>) => {
     if (!user) throw new Error('User not authenticated');
 
     try {
@@ -107,7 +140,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       if (existingBroker) {
         console.log('✅ Broker profile already exists, using existing one');
-        setBroker(existingBroker as any);
+        setBroker(existingBroker as Broker);
         await fetchBrokerProfile();
         return;
       }
@@ -119,10 +152,17 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .eq('slug', 'starter')
         .maybeSingle();
 
-      // Generate simple username
+      // Generate username automatically if not provided
       let username = data.username;
       if (!username && data.name) {
-        username = data.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'user';
+        try {
+          username = await generateUsername(data.name);
+          console.log('✅ Generated username:', username);
+        } catch (error) {
+          console.error('❌ Error generating username:', error);
+          // Fallback to email-based username
+          username = user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user';
+        }
       }
 
       // Validate region_id if provided
@@ -151,7 +191,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) throw error;
-      setBroker(brokerData as any);
+      setBroker(brokerData);
       await fetchBrokerProfile(); // Refresh to get plan data
     } catch (error) {
       console.error('Error creating broker profile:', error);
@@ -159,19 +199,19 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateBrokerProfile = async (data: any) => {
+  const updateBrokerProfile = async (data: Partial<Broker>) => {
     if (!broker) throw new Error('No broker profile found');
 
     try {
       const { data: updatedBroker, error } = await supabase
         .from('conectaios_brokers')
-        .update(data as never)
+        .update(data)
         .eq('id', broker.id)
         .select()
         .single();
 
       if (error) throw error;
-      setBroker(updatedBroker as any);
+      setBroker(updatedBroker);
       
       // Refresh broker profile to ensure we have the latest data
       await fetchBrokerProfile();

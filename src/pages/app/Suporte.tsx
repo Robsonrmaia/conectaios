@@ -113,8 +113,9 @@ export default function Suporte() {
       const { data, error } = await supabase
         .from('support_tickets')
         .insert({
-          subject: newTicket.title,
-          body: newTicket.description,
+          user_id: user.id,
+          title: newTicket.title,
+          description: newTicket.description,
           category: newTicket.category,
           priority: newTicket.priority
         })
@@ -144,13 +145,13 @@ export default function Suporte() {
   const fetchMessages = async (ticketId: string) => {
     try {
       const { data, error } = await supabase
-        .from('support_tickets')
+        .from('ticket_messages')
         .select('*')
-        .eq('id', ticketId)
+        .eq('ticket_id', ticketId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages([]);
+      setMessages(data || []);
     } catch (error) {
       console.error('Erro ao buscar mensagens:', error);
     }
@@ -161,7 +162,7 @@ export default function Suporte() {
 
     try {
       const { error } = await supabase
-        .from('support_ticket_messages')
+        .from('ticket_messages')
         .insert({
           ticket_id: selectedTicket.id,
           user_id: user.id,

@@ -410,39 +410,6 @@ export type Database = {
         }
         Relationships: []
       }
-      contacts: {
-        Row: {
-          broker_id: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          message: string | null
-          name: string
-          phone: string | null
-          source: string | null
-        }
-        Insert: {
-          broker_id?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          message?: string | null
-          name: string
-          phone?: string | null
-          source?: string | null
-        }
-        Update: {
-          broker_id?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          message?: string | null
-          name?: string
-          phone?: string | null
-          source?: string | null
-        }
-        Relationships: []
-      }
       crm_clients: {
         Row: {
           broker_id: string | null
@@ -1761,60 +1728,36 @@ export type Database = {
           broker_id: string | null
           created_at: string | null
           email: string | null
-          exclusivity_type: string | null
           id: string
-          marketing_consent: boolean | null
           message: string | null
           name: string | null
-          owner_email: string | null
-          owner_name: string | null
-          owner_phone: string | null
           phone: string | null
-          photos: Json | null
           property_data: Json | null
           status: string | null
-          submission_token: string | null
-          submitted_at: string | null
           updated_at: string | null
         }
         Insert: {
           broker_id?: string | null
           created_at?: string | null
           email?: string | null
-          exclusivity_type?: string | null
           id?: string
-          marketing_consent?: boolean | null
           message?: string | null
           name?: string | null
-          owner_email?: string | null
-          owner_name?: string | null
-          owner_phone?: string | null
           phone?: string | null
-          photos?: Json | null
           property_data?: Json | null
           status?: string | null
-          submission_token?: string | null
-          submitted_at?: string | null
           updated_at?: string | null
         }
         Update: {
           broker_id?: string | null
           created_at?: string | null
           email?: string | null
-          exclusivity_type?: string | null
           id?: string
-          marketing_consent?: boolean | null
           message?: string | null
           name?: string | null
-          owner_email?: string | null
-          owner_name?: string | null
-          owner_phone?: string | null
           phone?: string | null
-          photos?: Json | null
           property_data?: Json | null
           status?: string | null
-          submission_token?: string | null
-          submitted_at?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -2162,38 +2105,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      support_ticket_messages: {
-        Row: {
-          created_at: string | null
-          id: string
-          message: string
-          ticket_id: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          message: string
-          ticket_id?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          message?: string
-          ticket_id?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_ticket_messages_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "support_tickets"
-            referencedColumns: ["id"]
           },
         ]
       }

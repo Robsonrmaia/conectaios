@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
-import { asNotificationArray } from '@/utils/typeCompat';
 
 export interface Notification {
   id: string;
@@ -39,7 +38,7 @@ export function useNotifications() {
         return;
       }
 
-      setNotifications(asNotificationArray(data || []));
+      setNotifications(data || []);
       setUnreadCount((data || []).filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);

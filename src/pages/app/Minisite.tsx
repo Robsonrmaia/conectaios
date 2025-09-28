@@ -90,9 +90,9 @@ export default function Minisite() {
     
     try {
       const { count: propertiesCount } = await supabase
-        .from('imoveis')
+        .from('properties')
         .select('*', { count: 'exact', head: true })
-        .eq('owner_id', user.id)
+        .eq('user_id', user.id)
         .eq('visibility', 'public_site')
         .eq('is_public', true);
 

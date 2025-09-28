@@ -860,6 +860,7 @@ export function MinisiteEditorIntegrated() {
               <MinisitePreview 
                 config={config}
                 broker={broker}
+                preview={preview as 'mobile' | 'tablet' | 'desktop'}
               />
               
               {config.generated_url && (

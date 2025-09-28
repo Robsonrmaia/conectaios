@@ -451,8 +451,8 @@ export default function Marketplace() {
     try {
       // Update properties as verified in the database
       const { error } = await supabase
-        .from('imoveis')
-        .update({ is_public: true, visibility: 'public_site' })
+        .from('properties')
+        .update({ verified: true })
         .in('id', selectedProperties);
 
       if (error) {
