@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useBroker } from '@/hooks/useBroker';
 import { PropertyImportPreviewModal } from './PropertyImportPreviewModal';
+import { asPropertySubmissionArray } from '@/utils/typeCompat';
 import { 
   Eye, 
   Check, 
@@ -38,7 +39,7 @@ interface PropertySubmissionsListProps {
 
 export function PropertySubmissionsList({ onImport }: PropertySubmissionsListProps) {
   const { broker } = useBroker();
-  const [submissions, setSubmissions] = useState<PropertySubmission[]>([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSubmission, setSelectedSubmission] = useState<PropertySubmission | null>(null);
   const [previewModalOpen, setPreviewModalOpen] = useState(false);
@@ -65,7 +66,7 @@ export function PropertySubmissionsList({ onImport }: PropertySubmissionsListPro
         return;
       }
 
-      setSubmissions(data as PropertySubmission[] || []);
+      setSubmissions(asPropertySubmissionArray(data) || []);
     } catch (error) {
       console.error('Error:', error);
       toast.error('Erro ao carregar dados');

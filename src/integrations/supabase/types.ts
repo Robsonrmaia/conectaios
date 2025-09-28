@@ -46,31 +46,67 @@ export type Database = {
       }
       brokers: {
         Row: {
+          avatar_url: string | null
           bio: string | null
+          cover_url: string | null
+          cpf_cnpj: string | null
           created_at: string | null
           creci: string | null
+          email: string | null
           id: string
           minisite_slug: string | null
+          name: string | null
+          phone: string | null
+          plan_id: string | null
+          referral_code: string | null
+          region_id: string | null
+          status: string | null
+          subscription_expires_at: string | null
+          subscription_status: string | null
           updated_at: string | null
           user_id: string
           whatsapp: string | null
         }
         Insert: {
+          avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
           created_at?: string | null
           creci?: string | null
+          email?: string | null
           id?: string
           minisite_slug?: string | null
+          name?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
           user_id: string
           whatsapp?: string | null
         }
         Update: {
+          avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
           created_at?: string | null
           creci?: string | null
+          email?: string | null
           id?: string
           minisite_slug?: string | null
+          name?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
           whatsapp?: string | null
@@ -148,6 +184,36 @@ export type Database = {
           left_at?: string | null
           role?: string | null
           thread_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_presence: {
+        Row: {
+          created_at: string
+          id: string
+          last_seen: string
+          status: string
+          typing_in_thread: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_seen?: string
+          status?: string
+          typing_in_thread?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_seen?: string
+          status?: string
+          typing_in_thread?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -1366,13 +1432,18 @@ export type Database = {
       }
       minisite_configs: {
         Row: {
+          broker_id: string | null
+          config_data: Json | null
           created_at: string
           custom_domain: string | null
+          description: string | null
           id: string
+          is_active: boolean | null
           primary_color: string | null
           secondary_color: string | null
           show_about: boolean | null
           show_contact: boolean | null
+          show_contact_form: boolean | null
           show_properties: boolean | null
           template_id: string | null
           title: string | null
@@ -1380,13 +1451,18 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          broker_id?: string | null
+          config_data?: Json | null
           created_at?: string
           custom_domain?: string | null
+          description?: string | null
           id?: string
+          is_active?: boolean | null
           primary_color?: string | null
           secondary_color?: string | null
           show_about?: boolean | null
           show_contact?: boolean | null
+          show_contact_form?: boolean | null
           show_properties?: boolean | null
           template_id?: string | null
           title?: string | null
@@ -1394,13 +1470,18 @@ export type Database = {
           user_id: string
         }
         Update: {
+          broker_id?: string | null
+          config_data?: Json | null
           created_at?: string
           custom_domain?: string | null
+          description?: string | null
           id?: string
+          is_active?: boolean | null
           primary_color?: string | null
           secondary_color?: string | null
           show_about?: boolean | null
           show_contact?: boolean | null
+          show_contact_form?: boolean | null
           show_properties?: boolean | null
           template_id?: string | null
           title?: string | null
@@ -1552,6 +1633,48 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      plans: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          is_active: boolean
+          match_limit: number | null
+          name: string
+          price: number
+          property_limit: number
+          slug: string
+          thread_limit: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          match_limit?: number | null
+          name: string
+          price?: number
+          property_limit?: number
+          slug: string
+          thread_limit?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          match_limit?: number | null
+          name?: string
+          price?: number
+          property_limit?: number
+          slug?: string
+          thread_limit?: number | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1990,11 +2113,14 @@ export type Database = {
           assignee_id: string | null
           body: string
           broker_id: string | null
+          category: string | null
           created_at: string
+          description: string | null
           id: string
           priority: string
           status: string
           subject: string
+          title: string | null
           updated_at: string
           user_id: string | null
         }
@@ -2002,11 +2128,14 @@ export type Database = {
           assignee_id?: string | null
           body: string
           broker_id?: string | null
+          category?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           priority?: string
           status?: string
           subject: string
+          title?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -2014,11 +2143,14 @@ export type Database = {
           assignee_id?: string | null
           body?: string
           broker_id?: string | null
+          category?: string | null
           created_at?: string
+          description?: string | null
           id?: string
           priority?: string
           status?: string
           subject?: string
+          title?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -2127,6 +2259,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_onboarding: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          tour_completed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          tour_completed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          tour_completed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           at: string | null
@@ -2156,6 +2315,39 @@ export type Database = {
       }
     }
     Views: {
+      audit_logs: {
+        Row: {
+          action: string | null
+          created_at: string | null
+          id: number | null
+          new_values: string | null
+          old_values: string | null
+          resource_id: string | null
+          resource_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string | null
+          id?: number | null
+          new_values?: never
+          old_values?: never
+          resource_id?: string | null
+          resource_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          created_at?: string | null
+          id?: number | null
+          new_values?: never
+          old_values?: never
+          resource_id?: string | null
+          resource_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       conectaios_brokers: {
         Row: {
           avatar_url: string | null
@@ -2201,20 +2393,31 @@ export type Database = {
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
+          condo_fee: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           id: string | null
+          iptu: number | null
+          is_furnished: boolean | null
           is_public: boolean | null
           neighborhood: string | null
+          number: string | null
           owner_id: string | null
+          parking: number | null
           price: number | null
           purpose: string | null
+          state: string | null
           status: string | null
+          street: string | null
+          suites: number | null
           thumb_url: string | null
           title: string | null
           type: string | null
           updated_at: string | null
           visibility: string | null
+          vista_mar: boolean | null
+          zipcode: string | null
         }
         Insert: {
           area_built?: number | null
@@ -2222,20 +2425,31 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
+          condo_fee?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           id?: string | null
+          iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           neighborhood?: string | null
+          number?: string | null
           owner_id?: string | null
+          parking?: number | null
           price?: number | null
           purpose?: string | null
+          state?: string | null
           status?: string | null
+          street?: string | null
+          suites?: number | null
           thumb_url?: never
           title?: string | null
           type?: string | null
           updated_at?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
         }
         Update: {
           area_built?: number | null
@@ -2243,20 +2457,31 @@ export type Database = {
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
+          condo_fee?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           id?: string | null
+          iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           neighborhood?: string | null
+          number?: string | null
           owner_id?: string | null
+          parking?: number | null
           price?: number | null
           purpose?: string | null
+          state?: string | null
           status?: string | null
+          street?: string | null
+          suites?: number | null
           thumb_url?: never
           title?: string | null
           type?: string | null
           updated_at?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
         }
         Relationships: [
           {
@@ -2411,6 +2636,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_change_user_role: {
+        Args: { new_role: string; user_id_param: string }
+        Returns: boolean
+      }
       apply_points: {
         Args: {
           p_meta?: Json
@@ -2515,6 +2744,14 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+      }
+      generate_referral_code: {
+        Args: { user_uuid?: string }
+        Returns: string
+      }
+      get_security_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       gtrgm_compress: {
         Args: { "": unknown }

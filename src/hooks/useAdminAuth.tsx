@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { safeUserRole } from '@/types/supabase-compat';
 
 export function useAdminAuth() {
   const { user, loading: authLoading } = useAuth();
@@ -19,14 +20,14 @@ export function useAdminAuth() {
         const { data, error } = await supabase
           .from('profiles')
           .select('role')
-          .eq('user_id', user.id)
+          .eq('id', user.id)  // usar id ao invés de user_id
           .single();
 
         if (error) {
           console.error('Error checking admin role:', error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(data?.role === 'admin');
+          setIsAdmin(safeUserRole(data) === 'admin');
         }
       } catch (error) {
         console.error('Error checking admin role:', error);

@@ -54,7 +54,7 @@ interface IndicationMetrics {
 }
 
 export function IndicationManagement() {
-  const [indications, setIndications] = useState<Indication[]>([]);
+  const [indications, setIndications] = useState<CompatIndication[]>([]);
   const [filteredIndications, setFilteredIndications] = useState<Indication[]>([]);
   const [metrics, setMetrics] = useState<IndicationMetrics>({
     total_indicacoes: 0,
@@ -83,14 +83,14 @@ export function IndicationManagement() {
         (indicationsData || []).map(async (indication) => {
           const [indicadorResult, indicadoResult] = await Promise.all([
             supabase
-              .from('conectaios_brokers')
-              .select('id, name, username, email')
-              .eq('id', indication.id_indicador)
+              .from('brokers')
+              .select('id, name, email')
+              .eq('user_id', indication.referrer_id)
               .single(),
             supabase
-              .from('conectaios_brokers')
-              .select('id, name, username, email')
-              .eq('id', indication.id_indicado)
+              .from('brokers')
+              .select('id, name, email')
+              .eq('user_id', indication.referred_id)
               .single()
           ]);
 
@@ -110,12 +110,12 @@ export function IndicationManagement() {
       // Buscar descontos aplicados
       const { data: discountsData } = await supabase
         .from('indication_discounts')
-        .select('valor_desconto, valor_original');
+        .select('discount_percentage');
 
-      const descontoTotalAplicado = discountsData?.reduce((sum, d) => sum + d.valor_desconto, 0) || 0;
-      const receitaImpactada = discountsData?.reduce((sum, d) => sum + d.valor_original, 0) || 0;
+      const descontoTotalAplicado = discountsData?.reduce((sum, d) => sum + (d.discount_percentage || 0), 0) || 0;
+      const receitaImpactada = descontoTotalAplicado * 100; // Estimativa
 
-      setIndications(indicationsWithDetails as Indication[]);
+      setIndications(indicationsWithDetails?.map(compatIndication) || []);
       setMetrics({
         total_indicacoes: totalIndicacoes,
         indicacoes_confirmadas: indicacoesConfirmadas,

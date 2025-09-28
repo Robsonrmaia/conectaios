@@ -130,7 +130,7 @@ export default function SecureAdminUserManagement() {
       setLoading(true);
       
       const { data, error } = await supabase.rpc('admin_change_user_role', {
-        target_user_id: selectedUser.id,
+        user_id_param: selectedUser.id,
         new_role: newRole
       });
 
