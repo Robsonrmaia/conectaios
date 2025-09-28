@@ -196,7 +196,7 @@ export function useEnhancedChat() {
               ...msg,
               sender_name: profileInfo?.nome || 'Unknown User',
               sender_avatar: null,
-              edited_at: msg.edited_at || msg.updated_at || msg.created_at,
+              edited_at: msg.updated_at || msg.created_at,
               attachments: Array.isArray(msg.attachments) ? msg.attachments : []
             };
           }
@@ -205,7 +205,7 @@ export function useEnhancedChat() {
             ...msg,
             sender_name: senderInfo.name,
             sender_avatar: senderInfo.avatar_url,
-            edited_at: msg.edited_at || msg.updated_at || msg.created_at,
+            edited_at: msg.updated_at || msg.created_at,
             attachments: Array.isArray(msg.attachments) ? msg.attachments : []
           };
         })
@@ -444,7 +444,7 @@ export function useEnhancedChat() {
             {
               ...newMessage,
               sender_name: 'Loading...',
-              edited_at: newMessage.edited_at || newMessage.updated_at || newMessage.created_at,
+              edited_at: newMessage.updated_at || newMessage.created_at,
               attachments: Array.isArray(newMessage.attachments) ? newMessage.attachments : []
             }
           ]

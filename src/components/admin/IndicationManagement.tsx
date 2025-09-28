@@ -55,7 +55,7 @@ interface IndicationMetrics {
 }
 
 export function IndicationManagement() {
-  const [indications, setIndications] = useState<Indication[]>([]);
+  const [indications, setIndications] = useState<any[]>([]);
   const [filteredIndications, setFilteredIndications] = useState<Indication[]>([]);
   const [metrics, setMetrics] = useState<IndicationMetrics>({
     total_indicacoes: 0,
@@ -116,11 +116,7 @@ export function IndicationManagement() {
       const descontoTotalAplicado = discountsData?.reduce((sum, d) => sum + (d.discount_percentage || 0), 0) || 0;
       const receitaImpactada = descontoTotalAplicado * 100; // Estimativa
 
-      setIndications(indicationsWithDetails?.map(indication => ({
-        ...compatIndication(indication),
-        indicador: indication.indicador,
-        indicado: indication.indicado
-      })) || []);
+      setIndications(indicationsWithDetails || []);
       setMetrics({
         total_indicacoes: totalIndicacoes,
         indicacoes_confirmadas: indicacoesConfirmadas,

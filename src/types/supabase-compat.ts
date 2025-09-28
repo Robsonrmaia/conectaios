@@ -129,7 +129,7 @@ export type CompatIndication = {
   // Campos de compatibilidade
   id_indicador: string;
   id_indicado: string;
-  mes_recompensa?: string;
+  mes_recompensa?: number;
   data_criacao: string;
   valor_desconto?: number;
   valor_original?: number;
@@ -145,7 +145,7 @@ export const compatIndication = (data: any): CompatIndication => ({
   id_indicador: data.referrer_id || '',
   id_indicado: data.referred_id || '',
   data_criacao: data.created_at || '',
-  mes_recompensa: new Date(data.created_at).toISOString().substring(0, 7), // YYYY-MM
+  mes_recompensa: data.created_at ? parseInt(new Date(data.created_at).toISOString().substring(0, 7).replace('-', '')) : undefined,
   valor_desconto: data.reward_amount || 0,
   valor_original: data.reward_amount || 0,
   codigo_indicacao: data.id || `IND-${data.id?.slice(0, 8)}`,

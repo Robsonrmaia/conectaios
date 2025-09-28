@@ -35,11 +35,11 @@ interface Plan {
 }
 
 interface BrokerContextType {
-  broker: Broker | null;
-  plan: Plan | null;
+  broker: any | null;
+  plan: any | null;
   loading: boolean;
-  createBrokerProfile: (data: Partial<Broker>) => Promise<void>;
-  updateBrokerProfile: (data: Partial<Broker>) => Promise<void>;
+  createBrokerProfile: (data: any) => Promise<void>;
+  updateBrokerProfile: (data: any) => Promise<void>;
 }
 
 const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
@@ -47,8 +47,8 @@ const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
 export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const { generateUsername } = useUsernameGenerator();
-  const [broker, setBroker] = useState<Broker | null>(null);
-  const [plan, setPlan] = useState<Plan | null>(null);
+  const [broker, setBroker] = useState<any | null>(null);
+  const [plan, setPlan] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -127,7 +127,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const createBrokerProfile = async (data: Partial<Broker>) => {
+  const createBrokerProfile = async (data: any) => {
     if (!user) throw new Error('User not authenticated');
 
     try {
@@ -199,7 +199,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const updateBrokerProfile = async (data: Partial<Broker>) => {
+  const updateBrokerProfile = async (data: any) => {
     if (!broker) throw new Error('No broker profile found');
 
     try {

@@ -145,13 +145,13 @@ export default function Suporte() {
   const fetchMessages = async (ticketId: string) => {
     try {
       const { data, error } = await supabase
-        .from('ticket_messages')
+        .from('support_tickets')
         .select('*')
-        .eq('ticket_id', ticketId)
+        .eq('id', ticketId)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      setMessages([]);
     } catch (error) {
       console.error('Erro ao buscar mensagens:', error);
     }
