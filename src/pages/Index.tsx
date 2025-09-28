@@ -20,7 +20,7 @@ import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/property-images/iagonovo.png';
+const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 import logoSvg from '@/assets/logo.svg';
 
@@ -236,21 +236,67 @@ const Index = () => {
               </div>
             </div>
             
-            {/* Seção Vídeo - Centralizado */}
+            {/* Seção Vídeos - Grid 3x2 */}
             <div className="mt-20">
-              <div className="flex justify-center">
-                <div className="w-full max-w-2xl mx-auto">
-                  {/* Badge acima do vídeo */}
-                  <div className="text-center mb-6">
-                    <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
-                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                      Veja como funciona
+              <div className="max-w-6xl mx-auto">
+                {/* Badge acima dos vídeos */}
+                <div className="text-center mb-8">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-sm font-medium border border-primary/20">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                    Veja como funciona
+                  </div>
+                </div>
+
+                {/* Grid de Vídeos - 3 colunas e 2 linhas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {/* Vídeo 1 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl">
+                    <wistia-player media-id="k3abf93ih1" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  </div>
+
+                  {/* Vídeo 2 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl">
+                    <wistia-player media-id="hczxrata2s" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  </div>
+
+                  {/* Vídeo 3 - Placeholder */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
+                        <Building2 className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-medium">Em breve</p>
                     </div>
                   </div>
 
-                  <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl ring-2 ring-primary/20">
-                    {/* Embed nativo do Wistia */}
-                    <wistia-player media-id="57t2gkpop2" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  {/* Vídeo 4 - Placeholder */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
+                        <Users className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-medium">Em breve</p>
+                    </div>
+                  </div>
+
+                  {/* Vídeo 5 - Placeholder */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
+                        <MessageSquare className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-medium">Em breve</p>
+                    </div>
+                  </div>
+
+                  {/* Vídeo 6 - Placeholder */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                    <div className="text-center text-gray-500">
+                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
+                        <TrendingUp className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-medium">Em breve</p>
+                    </div>
                   </div>
                 </div>
               </div>
