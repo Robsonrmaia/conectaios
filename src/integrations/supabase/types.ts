@@ -2479,115 +2479,97 @@ export type Database = {
         Row: {
           area_built: number | null
           area_total: number | null
-          bairro: string | null
-          banner_type: string | null
           bathrooms: number | null
           bedrooms: number | null
-          cidade: string | null
           city: string | null
-          condominium_fee: number | null
+          condo_fee: number | null
           created_at: string | null
-          descricao: string | null
           description: string | null
-          fotos: Json | null
-          furnishing_type: boolean | null
-          has_sea_view: boolean | null
+          distancia_mar: number | null
           id: string | null
           iptu: number | null
+          is_furnished: boolean | null
           is_public: boolean | null
-          listing_type: string | null
           neighborhood: string | null
+          number: string | null
           owner_id: string | null
-          parking_spots: number | null
+          parking: number | null
           price: number | null
-          property_type: string | null
-          raw_cnm: string | null
-          raw_vrsync: string | null
-          sea_distance: number | null
+          purpose: string | null
+          state: string | null
           status: string | null
+          street: string | null
+          suites: number | null
           thumb_url: string | null
           title: string | null
-          titulo: string | null
+          type: string | null
           updated_at: string | null
-          valor: number | null
-          videos: Json | null
           visibility: string | null
+          vista_mar: boolean | null
           zipcode: string | null
         }
         Insert: {
           area_built?: number | null
           area_total?: number | null
-          bairro?: string | null
-          banner_type?: never
           bathrooms?: number | null
           bedrooms?: number | null
-          cidade?: string | null
           city?: string | null
-          condominium_fee?: number | null
+          condo_fee?: number | null
           created_at?: string | null
-          descricao?: string | null
           description?: string | null
-          fotos?: never
-          furnishing_type?: boolean | null
-          has_sea_view?: boolean | null
+          distancia_mar?: number | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
-          listing_type?: string | null
           neighborhood?: string | null
+          number?: string | null
           owner_id?: string | null
-          parking_spots?: number | null
+          parking?: number | null
           price?: number | null
-          property_type?: string | null
-          raw_cnm?: never
-          raw_vrsync?: never
-          sea_distance?: number | null
+          purpose?: string | null
+          state?: string | null
           status?: string | null
+          street?: string | null
+          suites?: number | null
           thumb_url?: never
           title?: string | null
-          titulo?: string | null
+          type?: string | null
           updated_at?: string | null
-          valor?: number | null
-          videos?: never
           visibility?: string | null
+          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Update: {
           area_built?: number | null
           area_total?: number | null
-          bairro?: string | null
-          banner_type?: never
           bathrooms?: number | null
           bedrooms?: number | null
-          cidade?: string | null
           city?: string | null
-          condominium_fee?: number | null
+          condo_fee?: number | null
           created_at?: string | null
-          descricao?: string | null
           description?: string | null
-          fotos?: never
-          furnishing_type?: boolean | null
-          has_sea_view?: boolean | null
+          distancia_mar?: number | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
-          listing_type?: string | null
           neighborhood?: string | null
+          number?: string | null
           owner_id?: string | null
-          parking_spots?: number | null
+          parking?: number | null
           price?: number | null
-          property_type?: string | null
-          raw_cnm?: never
-          raw_vrsync?: never
-          sea_distance?: number | null
+          purpose?: string | null
+          state?: string | null
           status?: string | null
+          street?: string | null
+          suites?: number | null
           thumb_url?: never
           title?: string | null
-          titulo?: string | null
+          type?: string | null
           updated_at?: string | null
-          valor?: number | null
-          videos?: never
           visibility?: string | null
+          vista_mar?: boolean | null
           zipcode?: string | null
         }
         Relationships: [
