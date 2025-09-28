@@ -20,7 +20,7 @@ import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 
-const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png';
+const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png?t=' + Date.now();
 import logoconectaiosImg from '@/assets/logoconectaios.png';
 import logoSvg from '@/assets/logo.svg';
 
@@ -372,6 +372,18 @@ const Index = () => {
                 src={garotonectaImg} 
                 alt="Profissional ConectaIOS" 
                 className="max-w-[280px] h-auto object-contain drop-shadow-xl relative z-10"
+                onError={(e) => {
+                  console.error('Erro ao carregar imagem hero:', garotonectaImg);
+                  e.currentTarget.style.display = 'none';
+                }}
+                onLoad={() => {
+                  console.log('Imagem hero carregada com sucesso:', garotonectaImg);
+                }}
+                style={{
+                  imageRendering: 'auto',
+                  maxWidth: '100%',
+                  height: 'auto'
+                }}
               />
             </div>
 
