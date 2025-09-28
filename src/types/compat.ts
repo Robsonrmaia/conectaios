@@ -154,6 +154,13 @@ export type IndicationCompat = {
   data_criacao?: string | null;
   valor_desconto?: number | null;
   valor_original?: number | null;
+  // Campos usados pela UI
+  indicador?: any;
+  indicado?: any;
+  codigo_indicacao?: string | null;
+  data_confirmacao?: string | null;
+  desconto_aplicado?: number | null;
+  [key: string]: any;
 };
 
 export type UserCompat = {
