@@ -21,6 +21,10 @@ interface Broker {
   subscription_expires_at?: string;
   referral_code?: string;
   cpf_cnpj?: string;
+  website?: string;
+  instagram?: string;
+  linkedin?: string;
+  specialties?: string;
 }
 
 interface Plan {
@@ -82,7 +86,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       
       // Fetch broker profile with ORDER BY to handle any potential duplicates
       const { data: brokerData, error: brokerError } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
@@ -133,7 +137,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       // Check if broker profile already exists
       const { data: existingBroker } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('id, name, email')
         .eq('user_id', user.id)
         .maybeSingle();
@@ -185,7 +189,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       }
 
       const { data: brokerData, error } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .insert(profileData)
         .select()
         .single();
@@ -204,9 +208,9 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const { data: updatedBroker, error } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .update(data as any)
-        .eq('id', broker.id)
+        .eq('user_id', broker.user_id)
         .select()
         .single();
 

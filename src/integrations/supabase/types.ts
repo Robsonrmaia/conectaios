@@ -60,6 +60,7 @@ export type Database = {
           plan_id: string | null
           referral_code: string | null
           region_id: string | null
+          specialties: string | null
           status: string | null
           subscription_expires_at: string | null
           subscription_status: string | null
@@ -82,6 +83,7 @@ export type Database = {
           plan_id?: string | null
           referral_code?: string | null
           region_id?: string | null
+          specialties?: string | null
           status?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
@@ -104,6 +106,7 @@ export type Database = {
           plan_id?: string | null
           referral_code?: string | null
           region_id?: string | null
+          specialties?: string | null
           status?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string | null

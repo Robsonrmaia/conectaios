@@ -73,7 +73,7 @@ export function useIndications() {
           reward_amount,
           reward_claimed
         `)
-        .eq('referrer_id', uid)
+        .or(`referrer_id.eq.${uid},referred_id.eq.${uid}`)
         .order('created_at', { ascending: false });
 
       if (indicationsError) {

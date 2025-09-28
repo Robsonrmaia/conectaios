@@ -66,13 +66,13 @@ export default function Perfil() {
           creci: broker.creci || '',
           bio: broker.bio || '',
           location: '',
-          website: '',
+          website: broker.website || '',
           avatar: broker.avatar_url || '',
           username: broker.username || '',
           secondaryPhone: '',
-          instagram: '',
-          linkedin: '',
-          specialties: ''
+          instagram: broker.instagram || '',
+          linkedin: broker.linkedin || '',
+          specialties: broker.specialties || ''
         });
     }
   }, [broker]);
@@ -353,34 +353,32 @@ export default function Perfil() {
                           console.log('💾 Perfil: Saving profile changes...');
                         }
                         
-                        // Save to broker profile (conectaios_brokers table)
-                        await updateBrokerProfile({
-                          name: profile.name,
-                          email: profile.email,
-                          phone: profile.phone,
-                          bio: profile.bio,
-                          creci: profile.creci,
-                          username: profile.username
-                        });
+                        // Get user session
+                        const { data: { user } } = await supabase.auth.getUser();
+                        if (!user) throw new Error('User not authenticated');
 
-                        // Also save additional fields to profiles table (using id = auth.uid())
-                        const uid = (await supabase.auth.getUser()).data.user?.id;
-                        if (uid) {
-                          const { error: profileError } = await supabase
-                            .from('profiles')
-                            .update({
-                              name: profile.name,
-                              website: profile.website,
-                              instagram: profile.instagram,
-                              linkedin: profile.linkedin,
-                              specialties: profile.specialties,
-                              bio: profile.bio
-                            })
-                            .eq('id', uid);
+                        // Save everything to brokers table (user_id = auth.uid)
+                        const { error } = await supabase
+                          .from('brokers')
+                          .update({
+                            name: profile.name,
+                            email: profile.email,
+                            phone: profile.phone,
+                            bio: profile.bio,
+                            creci: profile.creci,
+                            website: profile.website,
+                            instagram: profile.instagram,
+                            linkedin: profile.linkedin,
+                            specialties: profile.specialties,
+                            updated_at: new Date().toISOString()
+                          })
+                          .eq('user_id', user.id);
 
-                          if (profileError && import.meta.env.DEV) {
-                            console.log('⚠️ Perfil: Additional profile data not saved to profiles table:', profileError);
+                        if (error) {
+                          if (import.meta.env.DEV) {
+                            console.error('/* DEBUG */ update brokers error', error);
                           }
+                          throw error;
                         }
                         
                         if (import.meta.env.DEV) {
@@ -393,9 +391,8 @@ export default function Perfil() {
                         });
                       } catch (error) {
                         if (import.meta.env.DEV) {
-                          console.error('❌ Perfil save error:', error);
+                          console.error('/* DEBUG */ Perfil save error:', error);
                         }
-                        console.error('Erro ao salvar perfil:', error);
                         toast({
                           title: "Erro",
                           description: "Erro ao salvar as alterações.",
