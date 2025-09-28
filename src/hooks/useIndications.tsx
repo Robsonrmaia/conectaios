@@ -147,11 +147,17 @@ export function useIndications() {
 
     } catch (error) {
       console.error('Error fetching indications:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível carregar as indicações',
-        variant: 'destructive'
-      });
+      // Only show toast for actual database errors, not when no data exists
+      const isEmptyResult = error instanceof Error && 
+        (error.message.includes('PGRST116') || error.message.includes('row'));
+      
+      if (!isEmptyResult) {
+        toast({
+          title: 'Erro',
+          description: 'Não foi possível carregar as indicações',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setLoading(false);
     }

@@ -106,7 +106,7 @@ export default function MinhasBuscas() {
       
       const { data: searchData, error } = await supabase
         .from('client_searches')
-        .select('id,title,params,is_active,created_at,updated_at')
+        .select('id,user_id,title,params,is_active,created_at,updated_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -114,7 +114,10 @@ export default function MinhasBuscas() {
         if (import.meta.env.DEV) {
           console.error('❌ MinhasBuscas fetch error:', { status: error.code, message: error.message });
         }
-        throw error;
+        // Only show toast for actual database errors, not empty results
+        if (error.code !== 'PGRST116') {
+          throw error;
+        }
       }
 
       if (import.meta.env.DEV) {
@@ -137,8 +140,8 @@ export default function MinhasBuscas() {
       setSearches(transformedSearches);
     } catch (error) {
       console.error('Error fetching searches:', error);
-      // Don't show toast for empty results, only for actual errors
-      if (error instanceof Error && !error.message.includes('row')) {
+      // Only show toast for actual errors, not empty results
+      if (error instanceof Error && error.message && !error.message.includes('PGRST116')) {
         toast({
           title: 'Erro',
           description: 'Erro ao carregar buscas',
