@@ -29,18 +29,14 @@ interface Client {
   data_nascimento?: string;
   tipo: string;
   stage: string;
-  classificacao: string;
   valor: number;
   photo?: string;
   created_at: string;
   score: number;
-  last_contact_at?: string;
-  pipeline_id?: string;
-  historico?: any[];
-  opp?: string;
-  responsavel?: string;
   updated_at: string;
-  documents?: string[];
+  broker_id?: string;
+  user_id?: string;
+  historico?: any[];
 }
 
 interface ClientHistory {
@@ -52,12 +48,15 @@ interface ClientHistory {
 
 interface Task {
   id: string;
-  txt: string;
-  done: boolean;
+  title: string;
+  description: string;
+  due_date?: string;
+  status: string;
+  priority: string;
   created_at: string;
-  quando?: string;
-  onde?: string;
-  porque?: string;
+  updated_at: string;
+  user_id: string;
+  client_id?: string;
 }
 
 interface Note {
@@ -127,7 +126,7 @@ export default function PipelineCRM() {
     try {
       // Fetch clients
       const { data: clientsData, error: clientsError } = await supabase
-        .from('conectaios_clients')
+        .from('clients')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
@@ -155,7 +154,7 @@ export default function PipelineCRM() {
 
       // Fetch tasks
       const { data: tasksData } = await supabase
-        .from('conectaios_tasks')
+        .from('crm_tasks')
         .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
@@ -195,10 +194,10 @@ export default function PipelineCRM() {
 
     try {
       const { error } = await supabase
-        .from('conectaios_clients')
+        .from('clients')
         .update({ 
           stage: newStage,
-          last_contact_at: new Date().toISOString()
+          updated_at: new Date().toISOString()
         })
         .eq('id', clientId);
 
@@ -217,7 +216,7 @@ export default function PipelineCRM() {
       // Update local state
       setClients(prev => prev.map(client => 
         client.id === clientId 
-          ? { ...client, stage: newStage, last_contact_at: new Date().toISOString() }
+          ? { ...client, stage: newStage, updated_at: new Date().toISOString() }
           : client
       ));
 
@@ -243,19 +242,16 @@ export default function PipelineCRM() {
       console.log('Tentando criar cliente:', clientFormData);
       // First, create the client
       const { data: clientData, error } = await supabase
-        .from('conectaios_clients')
+        .from('clients')
         .insert({
           user_id: user.id,
           nome: clientFormData.nome,
           telefone: clientFormData.telefone,
           email: clientFormData.email || null,
-          data_nascimento: clientFormData.data_nascimento || null,
           tipo: clientFormData.tipo,
           valor: parseFloat(clientFormData.valor) || 0,
           stage: 'novo_lead',
-          classificacao: 'novo_lead',
-          score: 0,
-          last_contact_at: new Date().toISOString()
+          score: 0
         })
         .select()
         .single();
@@ -353,8 +349,8 @@ export default function PipelineCRM() {
 
       // Update last contact
       await supabase
-        .from('conectaios_clients')
-        .update({ last_contact_at: new Date().toISOString() })
+        .from('clients')
+        .update({ updated_at: new Date().toISOString() })
         .eq('id', selectedClient.id);
 
       toast({
@@ -380,14 +376,13 @@ export default function PipelineCRM() {
 
     try {
       const { error } = await supabase
-        .from('conectaios_tasks')
+        .from('crm_tasks')
         .insert({
           user_id: user.id,
-          txt: taskFormData.txt,
-          quando: taskFormData.quando,
-          onde: taskFormData.onde,
-          porque: taskFormData.porque,
-          done: false
+          title: taskFormData.txt,
+          description: taskFormData.porque,
+          due_date: taskFormData.quando,
+          status: 'pending'
         });
 
       if (error) throw error;
@@ -410,7 +405,7 @@ export default function PipelineCRM() {
 
     try {
       const { error } = await supabase
-        .from('conectaios_notes')
+        .from('crm_notes')
         .insert({
           user_id: user.id,
           client_id: selectedClient.id,
@@ -645,14 +640,14 @@ export default function PipelineCRM() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            {tasks.filter(task => !task.done).slice(0, 5).map((task) => (
+            {tasks.filter(task => task.status === 'pending').slice(0, 5).map((task) => (
               <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg border">
                 <div className="flex-1">
-                  <p className="text-sm font-medium">{task.txt}</p>
-                  {task.quando && (
+                  <p className="text-sm font-medium">{task.title}</p>
+                  {task.due_date && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {task.quando}
+                      {new Date(task.due_date).toLocaleString('pt-BR')}
                     </p>
                   )}
                 </div>
@@ -661,7 +656,7 @@ export default function PipelineCRM() {
                 </Button>
               </div>
             ))}
-            {tasks.filter(task => !task.done).length === 0 && (
+            {tasks.filter(task => task.status === 'pending').length === 0 && (
               <p className="text-sm text-muted-foreground">Nenhuma tarefa pendente</p>
             )}
           </div>
@@ -788,8 +783,8 @@ export default function PipelineCRM() {
                       <div>
                         <label className="text-sm font-medium">Último Contato</label>
                         <p className="text-sm text-muted-foreground">
-                          {selectedClient.last_contact_at 
-                            ? formatDistanceToNow(new Date(selectedClient.last_contact_at), { 
+                          {selectedClient.updated_at 
+                            ? formatDistanceToNow(new Date(selectedClient.updated_at), { 
                                 addSuffix: true, 
                                 locale: ptBR 
                               })

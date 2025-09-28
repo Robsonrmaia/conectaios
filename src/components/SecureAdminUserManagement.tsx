@@ -47,16 +47,16 @@ export default function SecureAdminUserManagement() {
       // Get user profiles with proper admin verification
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, nome, role, created_at')
+        .select('id, name, role, created_at')
         .order('created_at', { ascending: false });
 
       if (profilesError) throw profilesError;
 
       // Create user array from profiles (auth.admin.listUsers not available in client)
       const combinedUsers = profiles?.map(profile => ({
-        id: profile.user_id || '',
+        id: profile.id || '',
         email: 'Ver detalhes', // Email will be shown in detail view for security
-        nome: profile.nome || 'N/A',
+        nome: profile.name || 'N/A',
         role: (profile.role as 'user' | 'admin') || 'user',
         created_at: profile.created_at || new Date().toISOString()
       })) || [];

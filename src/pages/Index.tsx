@@ -423,8 +423,8 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Grid Mobile - 2 colunas */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* Grid Mobile - 1 coluna */}
+              <div className="grid grid-cols-1 gap-4">
                 {/* Vídeo 1 */}
                 <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-primary/10">
                   <wistia-player media-id="k3abf93ih1" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>

@@ -87,32 +87,32 @@ export default function SmartCalendar() {
 
   const fetchTasks = async () => {
     try {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('crm_tasks')
+      .select('*')
+      .eq('user_id', user?.id)
+      .order('created_at', { ascending: false });
 
       if (error) throw error;
       
       // Map database schema to Task interface
       const mappedTasks = (data || []).map(dbTask => {
-        const quandoParts = dbTask.quando ? dbTask.quando.split(' ') : ['', ''];
-        const taskDate = quandoParts[0] || new Date().toISOString().split('T')[0];
-        const taskTime = quandoParts[1] || '09:00';
+        const taskDateTime = dbTask.due_date ? new Date(dbTask.due_date) : new Date();
+        const taskDate = taskDateTime.toISOString().split('T')[0];
+        const taskTime = taskDateTime.toTimeString().split(' ')[0].substring(0, 5);
         
         return {
           id: dbTask.id,
-          title: dbTask.txt || 'Tarefa sem título',
-          description: dbTask.porque || '',
+          title: dbTask.title || 'Tarefa sem título',
+          description: dbTask.description || '',
           date: taskDate,
           time: taskTime,
-          priority: 'media' as const,
+          priority: (dbTask.priority as 'baixa' | 'media' | 'alta') || 'media',
           category: 'Geral',
           user_id: dbTask.user_id,
           created_at: dbTask.created_at,
-          client_name: dbTask.quem || '',
-          client_phone: ''  // Will be extracted from quem field if it contains phone
+          client_name: '', // Will be extracted from client_id relation if needed
+          client_phone: ''
         };
       });
       
@@ -137,15 +137,13 @@ export default function SmartCalendar() {
       const taskDateTime = `${newTask.date} ${newTask.time}`;
       
       const { data, error } = await supabase
-        .from('tasks')
+        .from('crm_tasks')
         .insert([{
-          txt: newTask.title,
-          quando: taskDateTime,
-          porque: newTask.description,
-          quem: newTask.client_name || '',
-          onde: newTask.client_phone || '',
-          responsavel: null,
-          done: false,
+          title: newTask.title,
+          description: newTask.description,
+          due_date: `${newTask.date} ${newTask.time}:00`,
+          priority: newTask.priority,
+          status: 'pending',
           user_id: user.id
         }])
         .select()
@@ -156,16 +154,16 @@ export default function SmartCalendar() {
       // Map database response back to Task interface
         const mappedTask = {
           id: data.id,
-          title: data.txt,
-          description: data.porque || '',
-          date: data.quando?.split(' ')[0] || newTask.date,
-          time: data.quando?.split(' ')[1] || newTask.time,
+          title: data.title,
+          description: data.description || '',
+          date: data.due_date?.split(' ')[0] || newTask.date,
+          time: data.due_date?.split(' ')[1]?.substring(0, 5) || newTask.time,
           priority: newTask.priority,
           category: newTask.category,
           user_id: data.user_id,
           created_at: data.created_at,
-          client_name: data.quem || '',
-          client_phone: data.onde || ''
+          client_name: newTask.client_name,
+          client_phone: newTask.client_phone
         };
 
       setTasks(prev => [...prev, mappedTask]);
@@ -232,8 +230,15 @@ export default function SmartCalendar() {
       console.log('Inserting task data:', dbTaskData);
 
       const { data, error } = await supabase
-        .from('tasks')
-        .insert([dbTaskData])
+        .from('crm_tasks')
+        .insert([{
+          title: voiceData.titulo || 'Nova tarefa por voz',
+          description: voiceData.descricao || '',
+          due_date: quandoValue,
+          priority: (voiceData.prioridade as 'baixa' | 'media' | 'alta') || 'media',
+          status: 'pending',
+          user_id: user?.id
+        }])
         .select()
         .single();
 
@@ -247,16 +252,16 @@ export default function SmartCalendar() {
       // Map back to Task interface for state
       const newTask = {
         id: data.id,
-        title: data.txt,
-        description: data.porque || '',
-        date: data.quando?.split(' ')[0] || taskDate.toISOString().split('T')[0],
-        time: data.quando?.split(' ')[1] || taskTime,
+        title: data.title,
+        description: data.description || '',
+        date: data.due_date?.split(' ')[0] || taskDate.toISOString().split('T')[0],
+        time: data.due_date?.split(' ')[1]?.substring(0, 5) || taskTime,
         priority: (voiceData.prioridade as 'baixa' | 'media' | 'alta') || 'media',
         category: 'geral',
         user_id: data.user_id,
         created_at: data.created_at,
-        client_name: data.quem || '',
-        client_phone: data.onde || ''
+        client_name: voiceData.cliente || '',
+        client_phone: voiceData.telefone || ''
       };
 
       setTasks(prev => [...prev, newTask]);
@@ -278,7 +283,7 @@ export default function SmartCalendar() {
   const handleDeleteTask = async (taskId: string) => {
     try {
       const { error } = await supabase
-        .from('tasks')
+        .from('crm_tasks')
         .delete()
         .eq('id', taskId);
 
