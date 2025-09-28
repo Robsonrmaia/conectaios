@@ -123,39 +123,26 @@ export default function Marketplace() {
       let propertiesError;
       
       if (page === 0) {
+        if (import.meta.env.DEV) {
+          console.log('🔄 [MARKETPLACE] Carregando imóveis públicos - página:', page);
+        }
+        
         // Para primeira página: buscar mais dados para implementar round-robin
         const { data: allProperties, error } = await supabase
-          .from('properties')
-          .select(`
-            id,
-            titulo,
-            valor,
-            area,
-            quartos,
-            bathrooms,
-            parking_spots,
-            furnishing_type,
-            sea_distance,
-            has_sea_view,
-            listing_type,
-            property_type,
-            fotos,
-            neighborhood,
-            zipcode,
-            condominium_fee,
-            iptu,
-            descricao,
-            reference_code,
-            verified,
-            user_id,
-            created_at
-          `)
+          .from('imoveis')
+          .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
           .eq('is_public', true)
-          .in('visibility', ['public_site', 'both'])
-          .not('user_id', 'is', null)
+          .eq('visibility', 'public_site')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
+        if (import.meta.env.DEV) {
+          console.log('📊 [MARKETPLACE] Resultado query:', { 
+            status: error ? 'error' : 'success', 
+            error: error?.message, 
+            count: allProperties?.length 
+          });
+        }
         propertiesData = allProperties;
         propertiesError = error;
         
@@ -196,34 +183,10 @@ export default function Marketplace() {
         const offset = (page - 1) * 50 + (page - 1) * 12; // Ajustar offset considerando primeira página maior
         
         const { data, error } = await supabase
-          .from('properties')
-          .select(`
-            id,
-            titulo,
-            valor,
-            area,
-            quartos,
-            bathrooms,
-            parking_spots,
-            furnishing_type,
-            sea_distance,
-            has_sea_view,
-            listing_type,
-            property_type,
-            fotos,
-            neighborhood,
-            zipcode,
-            condominium_fee,
-            iptu,
-            descricao,
-            reference_code,
-            verified,
-            user_id,
-            created_at
-          `)
+          .from('imoveis')
+          .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
           .eq('is_public', true)
-          .in('visibility', ['public_site', 'both'])
-          .not('user_id', 'is', null)
+          .eq('visibility', 'public_site')
           .order('created_at', { ascending: false })
           .range(offset, offset + pageSize - 1);
           
@@ -231,7 +194,10 @@ export default function Marketplace() {
         propertiesError = error;
       }
 
-      if (propertiesError) throw propertiesError;
+      if (propertiesError) {
+        console.error('❌ [MARKETPLACE] Erro detalhado:', propertiesError);
+        throw propertiesError;
+      }
 
       if (!propertiesData || propertiesData.length === 0) {
         if (page === 0) {
@@ -264,29 +230,32 @@ export default function Marketplace() {
       // Create lookup map and combine data with robust validation
       const brokersMap = new Map((brokersData || []).map(broker => [broker.user_id, broker]));
       const validProperties = propertiesData
-        .filter(property => property && property.id && property.titulo) // Basic validation
+        .filter(property => property && property.id && property.title) // Basic validation
         .map(property => ({
-          ...property,
-          titulo: property.titulo || 'Imóvel sem título',
-          valor: property.valor || 0,
-          area: property.area || 0,
-          quartos: property.quartos || 0,
-          bathrooms: property.bathrooms || 0,
-          parking_spots: property.parking_spots || 0,
-          furnishing_type: property.furnishing_type || 'none',
-          sea_distance: property.sea_distance || null,
-          has_sea_view: property.has_sea_view || false,
-          fotos: Array.isArray(property.fotos) ? property.fotos.filter(Boolean) : [],
-          videos: [], // Set default empty array since we don't fetch videos for performance
+          id: property.id,
+          titulo: property.title || 'Imóvel sem título',
+          valor: property.price || 0,
+          area: 0, // Default
+          quartos: 0, // Default
+          bathrooms: 0,
+          parking_spots: 0,
+          furnishing_type: 'none',
+          sea_distance: null,
+          has_sea_view: false,
+          fotos: [],
+          videos: [],
           neighborhood: property.neighborhood || '',
-          zipcode: property.zipcode || '',
-          condominium_fee: property.condominium_fee || null,
-          iptu: property.iptu || null,
-          finalidade: property.listing_type || 'venda', // Use listing_type as finalidade
-          descricao: property.descricao || '',
-          verified: property.verified || false,
-          created_at: new Date().toISOString(), // Set current time as fallback
-          conectaios_brokers: brokersMap.get(property.user_id) || null
+          zipcode: '',
+          condominium_fee: null,
+          iptu: null,
+          finalidade: 'venda',
+          descricao: '',
+          verified: false,
+          created_at: property.created_at || new Date().toISOString(),
+          user_id: property.owner_id,
+          listing_type: 'venda',
+          property_type: 'apartamento',
+          conectaios_brokers: brokersMap.get(property.owner_id) || null
         }))
         .filter(property => property.conectaios_brokers); // Only show properties with valid brokers
 
@@ -316,13 +285,24 @@ export default function Marketplace() {
       }
       
     } catch (error) {
-      console.error('Error fetching properties:', error);
+      console.error('❌ [MARKETPLACE] Erro ao buscar imóveis:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ [MARKETPLACE] Detalhes do erro:', error);
+      }
+      
       if (page === 0) {
-        toast({
-          title: "Erro",
-          description: "Erro ao carregar imóveis do marketplace. Tentando novamente...",
-          variant: "destructive",
-        });
+        // Se não há dados, não mostrar erro para listas vazias
+        setProperties([]);
+        setRecentProperties([]);
+        
+        // Só mostrar toast de erro se for um erro real
+        if (error && (error as any).message && !(error as any).message.includes('0 rows')) {
+          toast({
+            title: "Erro",
+            description: "Erro ao carregar imóveis do marketplace",
+            variant: "destructive",
+          });
+        }
       }
     } finally {
       setLoading(false);

@@ -2539,106 +2539,88 @@ export type Database = {
       }
       properties: {
         Row: {
-          address: string | null
           area: number | null
-          area_built: number | null
-          banner_type: string | null
           bathrooms: number | null
-          bedrooms: number | null
           city: string | null
-          condo_fee: number | null
           condominium_fee: number | null
           created_at: string | null
           descricao: string | null
-          description: string | null
           fotos: Json | null
-          furnishing_type: boolean | null
           has_sea_view: boolean | null
           id: string | null
           iptu: number | null
+          is_furnished: boolean | null
+          is_public: boolean | null
           listing_type: string | null
           neighborhood: string | null
           owner_id: string | null
           parking_spots: number | null
-          price: number | null
           property_type: string | null
-          raw_cnm: Json | null
-          raw_vrsync: Json | null
+          quartos: number | null
           sea_distance: number | null
-          status: string | null
-          title: string | null
+          thumb_url: string | null
           titulo: string | null
           updated_at: string | null
+          user_id: string | null
+          valor: number | null
           videos: Json | null
           visibility: string | null
           zipcode: string | null
         }
         Insert: {
-          address?: string | null
           area?: number | null
-          area_built?: number | null
-          banner_type?: never
           bathrooms?: number | null
-          bedrooms?: number | null
           city?: string | null
-          condo_fee?: number | null
           condominium_fee?: number | null
           created_at?: string | null
           descricao?: string | null
-          description?: string | null
           fotos?: never
-          furnishing_type?: boolean | null
           has_sea_view?: boolean | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
+          is_public?: boolean | null
           listing_type?: string | null
           neighborhood?: string | null
           owner_id?: string | null
           parking_spots?: number | null
-          price?: number | null
           property_type?: string | null
-          raw_cnm?: never
-          raw_vrsync?: never
+          quartos?: number | null
           sea_distance?: number | null
-          status?: string | null
-          title?: string | null
+          thumb_url?: never
           titulo?: string | null
           updated_at?: string | null
+          user_id?: string | null
+          valor?: number | null
           videos?: never
           visibility?: string | null
           zipcode?: string | null
         }
         Update: {
-          address?: string | null
           area?: number | null
-          area_built?: number | null
-          banner_type?: never
           bathrooms?: number | null
-          bedrooms?: number | null
           city?: string | null
-          condo_fee?: number | null
           condominium_fee?: number | null
           created_at?: string | null
           descricao?: string | null
-          description?: string | null
           fotos?: never
-          furnishing_type?: boolean | null
           has_sea_view?: boolean | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
+          is_public?: boolean | null
           listing_type?: string | null
           neighborhood?: string | null
           owner_id?: string | null
           parking_spots?: number | null
-          price?: number | null
           property_type?: string | null
-          raw_cnm?: never
-          raw_vrsync?: never
+          quartos?: number | null
           sea_distance?: number | null
-          status?: string | null
-          title?: string | null
+          thumb_url?: never
           titulo?: string | null
           updated_at?: string | null
+          user_id?: string | null
+          valor?: number | null
           videos?: never
           visibility?: string | null
           zipcode?: string | null
@@ -2646,10 +2628,24 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "imoveis_owner_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_fk"
@@ -2660,10 +2656,24 @@ export type Database = {
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"

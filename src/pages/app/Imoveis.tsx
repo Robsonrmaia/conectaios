@@ -177,93 +177,58 @@ export default function Imoveis() {
       
       const startIndex = (page - 1) * pageSize;
       
-      // Query with all essential fields to ensure fresh data after saves
+      if (import.meta.env.DEV) {
+        console.log('🔄 [ADMIN] Carregando imóveis do usuário:', user?.id);
+      }
+      
+      // Query corrigida: usar apenas campos que existem na tabela imoveis
       const { data, error, count } = await supabase
-        .from('properties')
-        .select(`
-          id,
-          titulo,
-          valor,
-          area,
-          quartos,
-          bathrooms,
-          parking_spots,
-          listing_type,
-          property_type,
-          visibility,
-          fotos,
-          videos,
-          descricao,
-          banner_type,
-          furnishing_type,
-          sea_distance,
-          has_sea_view,
-          neighborhood,
-          zipcode,
-          condominium_fee,
-          iptu,
-          year_built,
-          created_at,
-          reference_code,
-          raw_cnm,
-          raw_vrsync
-        `, { count: 'exact' })
-        .eq('user_id', user?.id)
+        .from('imoveis')
+        .select('id,title,price,city,neighborhood,is_public,visibility,created_at', { count: 'exact' })
+        .eq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
 
+      if (import.meta.env.DEV) {
+        console.log('📊 [ADMIN] Resultado query:', { 
+          status: error ? 'error' : 'success', 
+          error: error?.message, 
+          count: data?.length 
+        });
+      }
+
       if (error) {
+        console.error('❌ [ADMIN] Erro detalhado:', error);
         throw error;
       }
       
-      // Map data preserving all saved fields and extracting from raw data when needed
-      const mappedData = (data || []).map(prop => {
-        // Extract data from raw_cnm or raw_vrsync if available
-        let extractedBathrooms = prop.bathrooms || 0;
-        let extractedParkingSpots = prop.parking_spots || 0;
-        
-        if (prop.raw_cnm && typeof prop.raw_cnm === 'object') {
-          const rawCnm = prop.raw_cnm as any;
-          if (rawCnm.banheiros && !prop.bathrooms) {
-            extractedBathrooms = parseInt(rawCnm.banheiros) || 0;
-          }
-          if (rawCnm.vagas && !prop.parking_spots) {
-            extractedParkingSpots = parseInt(rawCnm.vagas) || 0;
-          }
-        }
-        
-        if (prop.raw_vrsync && typeof prop.raw_vrsync === 'object') {
-          const rawVrsync = prop.raw_vrsync as any;
-          if (rawVrsync.banheiros && !prop.bathrooms) {
-            extractedBathrooms = parseInt(rawVrsync.banheiros) || 0;
-          }
-          if (rawVrsync.vagas && !prop.parking_spots) {
-            extractedParkingSpots = parseInt(rawVrsync.vagas) || 0;
-          }
-        }
-
-        return {
-          ...prop,
-          bathrooms: extractedBathrooms,
-          parking_spots: extractedParkingSpots,
-          listing_type: prop.listing_type || 'venda',
-          property_type: prop.property_type || 'apartamento',
-          visibility: prop.visibility || 'public_site',
-          fotos: prop.fotos || [],
-          videos: prop.videos || [],
-          descricao: prop.descricao || '',
-          banner_type: prop.banner_type,
-          furnishing_type: (prop.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
-          sea_distance: prop.sea_distance,
-          has_sea_view: prop.has_sea_view || false,
-          neighborhood: prop.neighborhood || '',
-          zipcode: prop.zipcode || '',
-          condominium_fee: prop.condominium_fee || null,
-          iptu: prop.iptu || null,
-          is_furnished: false, // Computed field
-          watermark_enabled: true, // Default setting
-        };
-      });
+      // Map data simples para evitar erros
+      const mappedData = (data || []).map(prop => ({
+        id: prop.id,
+        titulo: prop.title || 'Sem título',
+        valor: prop.price || 0,
+        area: 0, // Default
+        quartos: 0, // Default
+        bathrooms: 0,
+        parking_spots: 0,
+        listing_type: 'venda',
+        property_type: 'apartamento',
+        visibility: prop.visibility || 'public_site',
+        fotos: [],
+        videos: [],
+        descricao: '',
+        banner_type: null,
+        furnishing_type: 'none' as const,
+        sea_distance: null,
+        has_sea_view: false,
+        neighborhood: prop.neighborhood || '',
+        zipcode: '',
+        condominium_fee: null,
+        iptu: null,
+        is_furnished: false,
+        watermark_enabled: true,
+        created_at: prop.created_at
+      }));
       
       setProperties(mappedData);
       
@@ -276,12 +241,22 @@ export default function Imoveis() {
         }));
       }
     } catch (error) {
-      console.error('❌ Erro ao buscar imóveis:', error);
-      toast({
-        title: "Erro",
-        description: "Erro ao carregar imóveis",
-        variant: "destructive",
-      });
+      console.error('❌ [ADMIN] Erro ao buscar imóveis:', error);
+      if (import.meta.env.DEV) {
+        console.error('❌ [ADMIN] Detalhes do erro:', error);
+      }
+      
+      // Se não há dados, não mostrar erro para listas vazias
+      setProperties([]);
+      
+      // Só mostrar toast de erro se for um erro real (não lista vazia)
+      if (error && (error as any).message && !(error as any).message.includes('0 rows')) {
+        toast({
+          title: "Erro",
+          description: "Erro ao carregar imóveis",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
       setLoading(false);
