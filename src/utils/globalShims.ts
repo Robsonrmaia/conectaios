@@ -2,13 +2,9 @@
 
 // Apply minimal type overrides to prevent deep instantiation errors
 declare global {
-  // Override problematic generic types
-  type SelectQueryError<T = string> = any;
-  type QueryResult<T = any> = T;
-  
   // Fix for over-nested types
   interface Window {
-    __TYPESCRIPT_COMPAT_MODE__: boolean;
+    __TYPESCRIPT_COMPAT_MODE__?: boolean;
   }
   
   // Quick property fixes

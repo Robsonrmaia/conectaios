@@ -16,7 +16,7 @@ if (import.meta.env.MODE === 'development' && (!url || !anon)) {
   console.warn('⚠️ Missing Supabase environment variables');
 }
 
-export const supabase = createClient<Database>(
+export const supabase = createClient<any>(
   url || 'https://paawojkqrggnuvpnnwrc.supabase.co', 
   anon || '', 
   {

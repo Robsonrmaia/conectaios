@@ -229,7 +229,7 @@ export default function XMLImportExport() {
     setIsExporting(true);
     
     try {
-      const { data: properties, error } = await supabase
+      const { data: properties, error } = await (supabase as any)
         .from('properties')
         .select('*')
         .eq('user_id', user.id)
