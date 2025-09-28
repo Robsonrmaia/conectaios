@@ -1,4 +1,4 @@
-import { EnhancedMessaging } from '@/components/EnhancedMessaging';
+import EnhancedMessaging from '@/components/EnhancedMessaging';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

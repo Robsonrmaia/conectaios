@@ -106,21 +106,21 @@ export default function PropertyDetail() {
         .select('*')
         .eq('id', id)
         .eq('visibility', 'public_site')
-        .single();
+        .maybeSingle();
 
       if (propertyError) throw propertyError;
-      setProperty(propertyData);
+      if (propertyData) setProperty(propertyData as any);
 
       // Fetch broker info (only business-safe fields for public access)
       const { data: brokerData, error: brokerError } = await supabase
         .from('conectaios_brokers')
         .select('id, name, username, bio, avatar_url, cover_url, status')
-        .eq('user_id', propertyData.user_id)
+        .eq('user_id', propertyData?.owner_id)
         .eq('status', 'active')
-        .single();
+        .maybeSingle();
 
-      if (brokerError) throw brokerError;
-      setBroker(brokerData);
+      if (brokerError) console.error('Broker error:', brokerError);
+      if (brokerData) setBroker(brokerData as any);
 
     } catch (error) {
       console.error('Error fetching property:', error);
@@ -141,7 +141,7 @@ export default function PropertyDetail() {
       const { error } = await supabase
         .from('contacts')
         .insert({
-          nome: contactForm.nome,
+          name: contactForm.nome,
           telefone: contactForm.telefone,
           email: contactForm.email,
           interesse: contactForm.mensagem || `Interesse no imóvel: ${property?.titulo}`,

@@ -113,9 +113,8 @@ export default function Suporte() {
       const { data, error } = await supabase
         .from('support_tickets')
         .insert({
-          user_id: user.id,
-          title: newTicket.title,
-          description: newTicket.description,
+          subject: newTicket.title,
+          body: newTicket.description,
           category: newTicket.category,
           priority: newTicket.priority
         })

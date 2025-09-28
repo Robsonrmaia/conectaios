@@ -3,20 +3,22 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 
 interface PropertyImportPreviewModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  properties: any[];
-  onConfirm: () => Promise<void>;
+  submission: any;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onImport: () => void;
+  brokerUserId: any;
 }
 
 export default function PropertyImportPreviewModal({
-  isOpen,
-  onClose,
-  properties,
-  onConfirm
+  submission,
+  open,
+  onOpenChange,
+  onImport,
+  brokerUserId
 }: PropertyImportPreviewModalProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Prévia da Importação</DialogTitle>
@@ -24,15 +26,13 @@ export default function PropertyImportPreviewModal({
         
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {properties.length} propriedades serão importadas
+            Propriedade será importada
           </p>
           
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button onClick={onImport}>Importar</Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
-            </Button>
-            <Button onClick={onConfirm}>
-              Confirmar Importação
             </Button>
           </div>
         </div>

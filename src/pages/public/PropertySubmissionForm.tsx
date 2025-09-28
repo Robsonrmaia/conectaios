@@ -148,8 +148,8 @@ export default function PropertySubmissionForm() {
         });
       }
 
-      if (data.photos && data.photos.length > 0) {
-        setPhotos(data.photos);
+      if (data.photos && Array.isArray(data.photos) && data.photos.length > 0) {
+        setPhotos(data.photos as string[]);
       }
 
     } catch (error) {

@@ -76,9 +76,9 @@ const Dashboard = () => {
     try {
       // Fetch properties with details for insights
       const { data: properties, count: propertiesCount } = await supabase
-        .from('properties')
-        .select('property_type, valor, visibility', { count: 'exact' })
-        .eq('user_id', user?.id);
+        .from('imoveis')
+        .select('type, price, visibility', { count: 'exact' })
+        .eq('owner_id', user?.id);
 
       // Fetch clients count
       const { count: clientsCount } = await supabase

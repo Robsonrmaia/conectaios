@@ -157,29 +157,16 @@ export default function PropertySubmissions() {
       
       // Create property record
       const { error } = await supabase
-        .from('properties')
+        .from('imoveis')
         .insert({
-          user_id: broker?.user_id,
-          titulo: propertyData.titulo,
-          descricao: propertyData.descricao,
-          valor: propertyData.valor,
-          listing_type: propertyData.listing_type,
-          property_type: propertyData.property_type,
-          area: propertyData.area,
-          quartos: propertyData.quartos,
-          banheiros: propertyData.banheiros,
-          parking_spots: propertyData.vagas,
-          condominium_fee: propertyData.condominio,
-          iptu: propertyData.iptu,
-          address: propertyData.endereco,
-          neighborhood: propertyData.bairro,
+          owner_id: broker?.user_id,
+          title: propertyData.titulo,
+          description: propertyData.descricao,
+          price: propertyData.valor,
           city: propertyData.cidade,
-          state: propertyData.estado,
-          postal_code: propertyData.cep,
-          fotos: submission.photos,
-          is_public: true,
-          visibility: 'public_site'
-        });
+          purpose: 'sale',
+          visibility: 'private'
+        } as any);
 
       if (error) {
         console.error('Error importing property:', error);

@@ -165,7 +165,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       const { data: updatedBroker, error } = await supabase
         .from('conectaios_brokers')
-        .update(data)
+        .update(data as never)
         .eq('id', broker.id)
         .select()
         .single();

@@ -187,26 +187,16 @@ export default function XMLImportExport() {
       
       for (const property of properties) {
         const { error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .insert({
             owner_id: user.id,
-            titulo: property.titulo,
-            descricao: property.descricao,
-            valor: property.valor,
-            area: property.area,
-            quartos: property.quartos,
-            bathrooms: property.banheiros, // Map banheiros -> bathrooms
-            parking_spots: property.vagas, // Map vagas -> parking_spots  
-            address: property.endereco, // Map endereco -> address
-            city: property.city,
-            state: property.state,
-            zipcode: property.cep, // Map cep -> zipcode
-            property_type: property.property_type,
-            listing_type: property.transaction_type, // Map transaction_type -> listing_type
-            fotos: property.photos || [], // Map photos -> fotos
-            visibility: 'public_site',
-            is_public: true
-          });
+            title: property.titulo,
+            description: property.descricao,
+            price: property.valor,
+            city: (property as any).city || '',
+            purpose: 'sale',
+            visibility: 'private'
+          } as any);
 
         if (error) {
           console.error('Erro ao inserir propriedade:', error);
@@ -229,14 +219,15 @@ export default function XMLImportExport() {
     setIsExporting(true);
     
     try {
-      const { data: properties, error } = await supabase
-        .from('properties')
+      const { data: properties } = await supabase
+        .from('imoveis')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('is_public', true);
+        .eq('owner_id', user.id)
+        .eq('is_public', true) as any;
 
-      if (error) {
-        throw new Error('Erro ao buscar propriedades');
+      if (!properties || properties.length === 0) {
+        toast.error('Nenhum imóvel encontrado para exportar');
+        return;
       }
 
       if (!properties || properties.length === 0) {

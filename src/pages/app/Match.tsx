@@ -109,7 +109,8 @@ export default function Match() {
       
       // Call the match engine function
       const { data, error } = await supabase.rpc('find_property_matches', {
-        client_preferences: prefs
+        p_broker_id: user?.id || '',
+        p_filters: prefs as any
       });
 
       if (error) throw error;
