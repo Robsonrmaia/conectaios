@@ -152,36 +152,6 @@ export type Database = {
         }
         Relationships: []
       }
-      chat_presence: {
-        Row: {
-          created_at: string
-          id: string
-          last_seen: string
-          status: string
-          typing_in_thread: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          last_seen?: string
-          status?: string
-          typing_in_thread?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          last_seen?: string
-          status?: string
-          typing_in_thread?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       chat_receipts: {
         Row: {
           created_at: string | null
@@ -1585,42 +1555,6 @@ export type Database = {
         }
         Relationships: []
       }
-      plans: {
-        Row: {
-          created_at: string
-          features: Json
-          id: string
-          is_active: boolean
-          name: string
-          price: number
-          property_limit: number
-          slug: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          features?: Json
-          id?: string
-          is_active?: boolean
-          name: string
-          price?: number
-          property_limit?: number
-          slug: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          features?: Json
-          id?: string
-          is_active?: boolean
-          name?: string
-          price?: number
-          property_limit?: number
-          slug?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -2222,39 +2156,6 @@ export type Database = {
       }
     }
     Views: {
-      audit_logs: {
-        Row: {
-          action: string | null
-          created_at: string | null
-          id: number | null
-          new_values: string | null
-          old_values: string | null
-          resource_id: string | null
-          resource_type: string | null
-          user_id: string | null
-        }
-        Insert: {
-          action?: string | null
-          created_at?: string | null
-          id?: number | null
-          new_values?: never
-          old_values?: never
-          resource_id?: string | null
-          resource_type?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          action?: string | null
-          created_at?: string | null
-          id?: number | null
-          new_values?: never
-          old_values?: never
-          resource_id?: string | null
-          resource_type?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       conectaios_brokers: {
         Row: {
           avatar_url: string | null
@@ -2297,13 +2198,10 @@ export type Database = {
         Row: {
           area_built: number | null
           area_total: number | null
-          bairro: string | null
           bathrooms: number | null
           bedrooms: number | null
-          cidade: string | null
           city: string | null
           created_at: string | null
-          descricao: string | null
           description: string | null
           id: string | null
           is_public: boolean | null
@@ -2314,22 +2212,17 @@ export type Database = {
           status: string | null
           thumb_url: string | null
           title: string | null
-          titulo: string | null
           type: string | null
           updated_at: string | null
-          valor: number | null
           visibility: string | null
         }
         Insert: {
           area_built?: number | null
           area_total?: number | null
-          bairro?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
-          cidade?: string | null
           city?: string | null
           created_at?: string | null
-          descricao?: string | null
           description?: string | null
           id?: string | null
           is_public?: boolean | null
@@ -2340,22 +2233,17 @@ export type Database = {
           status?: string | null
           thumb_url?: never
           title?: string | null
-          titulo?: string | null
           type?: string | null
           updated_at?: string | null
-          valor?: number | null
           visibility?: string | null
         }
         Update: {
           area_built?: number | null
           area_total?: number | null
-          bairro?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
-          cidade?: string | null
           city?: string | null
           created_at?: string | null
-          descricao?: string | null
           description?: string | null
           id?: string | null
           is_public?: boolean | null
@@ -2366,10 +2254,8 @@ export type Database = {
           status?: string | null
           thumb_url?: never
           title?: string | null
-          titulo?: string | null
           type?: string | null
           updated_at?: string | null
-          valor?: number | null
           visibility?: string | null
         }
         Relationships: [
@@ -2629,14 +2515,6 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
-      }
-      generate_referral_code: {
-        Args: { user_uuid?: string }
-        Returns: string
-      }
-      get_security_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       gtrgm_compress: {
         Args: { "": unknown }

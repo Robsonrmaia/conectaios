@@ -857,15 +857,11 @@ export function MinisiteEditorIntegrated() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="p-4 border rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                  Preview do minisite em modo {preview}
-                </p>
-                <div className="mt-2 p-3 bg-muted rounded">
-                  <h4 className="font-medium">{config?.title || 'Meu Minisite'}</h4>
-                  <p className="text-xs">Broker: {broker?.name || broker?.user_id || 'Nome não disponível'}</p>
-                </div>
-              </div>
+              <MinisitePreview 
+                config={config}
+                broker={broker}
+                preview={preview as 'mobile' | 'tablet' | 'desktop'}
+              />
               
               {config.generated_url && (
                 <div className="mt-4 p-3 bg-muted rounded-lg">
