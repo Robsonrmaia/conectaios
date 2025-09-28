@@ -189,7 +189,7 @@ export default function XMLImportExport() {
         const { error } = await supabase
           .from('properties')
           .insert({
-            user_id: user.id,
+            owner_id: user.id,
             titulo: property.titulo,
             descricao: property.descricao,
             valor: property.valor,

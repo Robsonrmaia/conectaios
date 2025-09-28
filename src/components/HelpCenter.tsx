@@ -792,7 +792,7 @@ export function HelpCenter() {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <div className={`p-3 rounded-xl ${category.color} text-white`}>
-                              <category.icon className="h-6 w-6" />
+                              {category.icon && <category.icon className="h-6 w-6" />}
                             </div>
                             <div className="text-left">
                               <CardTitle className="text-xl">{category.title}</CardTitle>

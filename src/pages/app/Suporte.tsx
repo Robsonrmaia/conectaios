@@ -162,7 +162,7 @@ export default function Suporte() {
 
     try {
       const { error } = await supabase
-        .from('ticket_messages')
+        .from('support_ticket_messages')
         .insert({
           ticket_id: selectedTicket.id,
           user_id: user.id,

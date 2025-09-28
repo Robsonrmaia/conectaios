@@ -1,42 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
-import { useUsernameGenerator } from './useUsernameGenerator';
-
-interface Broker {
-  id: string;
-  user_id: string;
-  region_id?: string;
-  plan_id?: string;
-  name: string;
-  email: string;
-  phone?: string;
-  creci?: string;
-  username?: string;
-  bio?: string;
-  avatar_url?: string;
-  cover_url?: string;
-  status: string;
-  subscription_status: string;
-  subscription_expires_at?: string;
-  referral_code?: string;
-  cpf_cnpj?: string;
-}
-
-interface Plan {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  property_limit: number;
-  match_limit: number;
-  thread_limit: number;
-  features: any; // Use any to handle Json type from Supabase
-}
 
 interface BrokerContextType {
-  broker: any | null;
-  plan: any | null;
+  broker: any;
+  plan: any;
   loading: boolean;
   createBrokerProfile: (data: any) => Promise<void>;
   updateBrokerProfile: (data: any) => Promise<void>;
@@ -46,9 +14,8 @@ const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
 
 export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const { generateUsername } = useUsernameGenerator();
-  const [broker, setBroker] = useState<any | null>(null);
-  const [plan, setPlan] = useState<any | null>(null);
+  const [broker, setBroker] = useState<any>(null);
+  const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -140,7 +107,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       if (existingBroker) {
         console.log('✅ Broker profile already exists, using existing one');
-        setBroker(existingBroker as Broker);
+        setBroker(existingBroker as any);
         await fetchBrokerProfile();
         return;
       }
@@ -152,17 +119,10 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .eq('slug', 'starter')
         .maybeSingle();
 
-      // Generate username automatically if not provided
+      // Generate simple username
       let username = data.username;
       if (!username && data.name) {
-        try {
-          username = await generateUsername(data.name);
-          console.log('✅ Generated username:', username);
-        } catch (error) {
-          console.error('❌ Error generating username:', error);
-          // Fallback to email-based username
-          username = user.email?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user';
-        }
+        username = data.name.toLowerCase().replace(/[^a-z0-9]/g, '').substring(0, 20) || 'user';
       }
 
       // Validate region_id if provided
@@ -191,7 +151,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) throw error;
-      setBroker(brokerData);
+      setBroker(brokerData as any);
       await fetchBrokerProfile(); // Refresh to get plan data
     } catch (error) {
       console.error('Error creating broker profile:', error);
@@ -211,7 +171,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .single();
 
       if (error) throw error;
-      setBroker(updatedBroker);
+      setBroker(updatedBroker as any);
       
       // Refresh broker profile to ensure we have the latest data
       await fetchBrokerProfile();

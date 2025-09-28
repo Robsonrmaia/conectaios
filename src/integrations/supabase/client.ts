@@ -6,7 +6,7 @@ import { RUNTIME } from '@/config/runtime';
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(RUNTIME.url, RUNTIME.key, {
+export const supabaseClient = createClient<Database>(RUNTIME.url, RUNTIME.key, {
   auth: {
     storage: localStorage,
     persistSession: true,
@@ -14,3 +14,6 @@ export const supabase = createClient<Database>(RUNTIME.url, RUNTIME.key, {
     detectSessionInUrl: true
   }
 });
+
+// Export with original name for compatibility
+export const supabase = supabaseClient;
