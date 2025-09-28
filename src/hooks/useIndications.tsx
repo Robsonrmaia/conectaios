@@ -50,15 +50,16 @@ export function useIndications() {
   });
 
   const fetchIndications = async () => {
-    if (!broker?.user_id) return;
+    const uid = (await supabase.auth.getUser()).data.user?.id;
+    if (!uid) return;
 
     setLoading(true);
     try {
       if (import.meta.env.DEV) {
-        console.log('📋 Indicações: Loading indications for user:', broker.user_id);
+        console.log('📋 Indicações: Loading indications for user:', uid);
       }
 
-      // Direct query to indications table using referrer_id
+      // Direct query to indications table using referrer_id = auth.uid()
       const { data: indicationsData, error: indicationsError } = await supabase
         .from('indications')
         .select(`
@@ -72,7 +73,7 @@ export function useIndications() {
           reward_amount,
           reward_claimed
         `)
-        .eq('referrer_id', broker.user_id)
+        .eq('referrer_id', uid)
         .order('created_at', { ascending: false });
 
       if (indicationsError) {
@@ -97,11 +98,11 @@ export function useIndications() {
       }
 
       // Transform data to match interface
-      const transformedIndications = (indicationsData || []).map(ind => ({
+      const transformedIndications: Indication[] = (indicationsData || []).map(ind => ({
         id: ind.id,
         id_indicador: ind.referrer_id,
         id_indicado: ind.referred_id || '',
-        status: ind.status as 'pendente' | 'confirmado' | 'cancelado',
+        status: (ind.status === 'confirmed' ? 'confirmado' : (ind.status === 'cancelled' ? 'cancelado' : 'pendente')) as 'pendente' | 'confirmado' | 'cancelado',
         mes_recompensa: 0, // Will be calculated based on dates
         data_criacao: ind.created_at,
         data_confirmacao: ind.updated_at,
@@ -120,13 +121,13 @@ export function useIndications() {
       
       // Calcular estatísticas  
       const totalIndications = transformedIndications.length;
-      const confirmedIndications = transformedIndications.filter((i: Indication) => i.status === 'confirmado').length;
+      const confirmedIndications = transformedIndications.filter((i) => i.status === 'confirmado').length;
       const totalDiscountApplied = (discountsData || []).reduce((sum: number, d: any) => sum + (d.discount_amount || 0), 0);
       
       // Calcular desconto do próximo mês
       const currentMonth = parseInt(new Date().toISOString().slice(0, 7).replace('-', ''));
       const nextMonth = currentMonth + 1;
-      const nextMonthConfirmed = transformedIndications.filter((i: Indication) => 
+      const nextMonthConfirmed = transformedIndications.filter((i) => 
         i.status === 'confirmado' && i.mes_recompensa === nextMonth
       ).length;
       
@@ -229,7 +230,7 @@ export function useIndications() {
 
   useEffect(() => {
     fetchIndications();
-  }, [broker?.user_id]);
+  }, [broker?.id]);
 
   return {
     indications,

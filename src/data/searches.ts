@@ -20,8 +20,7 @@ export async function saveSearch(payload: { title?: string; params: any }) {
     .insert({ 
       user_id: uid, 
       title: payload.title,
-      params: payload.params,
-      is_active: true
+      params: payload.params
     });
 }
 
@@ -32,6 +31,17 @@ export async function deleteSearch(searchId: string) {
   return supabase
     .from('client_searches')
     .delete()
+    .eq('id', searchId)
+    .eq('user_id', uid);
+}
+
+export async function updateSearch(searchId: string, updates: any) {
+  const uid = (await supabase.auth.getUser()).data.user?.id;
+  if (!uid) throw new Error('User not authenticated');
+  
+  return supabase
+    .from('client_searches')
+    .update(updates)
     .eq('id', searchId)
     .eq('user_id', uid);
 }

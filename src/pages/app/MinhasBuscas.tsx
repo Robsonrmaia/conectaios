@@ -106,9 +106,8 @@ export default function MinhasBuscas() {
       
       const { data: searchData, error } = await supabase
         .from('client_searches')
-        .select('id,title,filters,is_active,created_at,updated_at,broker_id,client_id,name,match_count')
+        .select('id,title,params,is_active,created_at,updated_at')
         .eq('user_id', user.id)
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -122,14 +121,30 @@ export default function MinhasBuscas() {
         console.log('✅ MinhasBuscas: Loaded', searchData?.length || 0, 'searches');
       }
 
-      setSearches(searchData || []);
+      // Transform params to match expected interface
+      const transformedSearches = (searchData || []).map(search => ({
+        ...search,
+        filters: search.params || {},
+        property_type: search.params?.property_type || 'apartamento',
+        listing_type: search.params?.listing_type || 'venda',
+        max_price: search.params?.max_price || 0,
+        min_bedrooms: search.params?.min_bedrooms || 0,
+        neighborhood: search.params?.neighborhood || '',
+        city: search.params?.city || '',
+        min_area: search.params?.min_area || 0
+      }));
+
+      setSearches(transformedSearches);
     } catch (error) {
       console.error('Error fetching searches:', error);
-      toast({
-        title: 'Erro',
-        description: 'Erro ao carregar buscas',
-        variant: 'destructive'
-      });
+      // Don't show toast for empty results, only for actual errors
+      if (error instanceof Error && !error.message.includes('row')) {
+        toast({
+          title: 'Erro',
+          description: 'Erro ao carregar buscas',
+          variant: 'destructive'
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -160,7 +175,7 @@ export default function MinhasBuscas() {
         .insert({
           user_id: user.id,
           title: newSearch.title,
-          filters: {
+          params: {
             property_type: newSearch.property_type,
             listing_type: newSearch.listing_type,
             max_price: parseFloat(newSearch.max_price.replace(/\./g, '').replace(',', '.')),
@@ -168,8 +183,7 @@ export default function MinhasBuscas() {
             neighborhood: newSearch.neighborhood || null,
             city: newSearch.city || null,
             min_area: parseFloat(newSearch.min_area) || null
-          },
-          is_active: true
+          }
         })
         .select()
         .single();
