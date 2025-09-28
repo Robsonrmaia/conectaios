@@ -124,7 +124,7 @@ export const useElevenLabsVoice = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2YmRleXVxY2xpcXJtenZ5Y2lxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDAwNDgsImV4cCI6MjA3MDQxNjA0OH0.9-Ewj0EvAuo-z9caO4euMntxxRI-MlqgZDTba6Hw98I`
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBhYXdvamtxcmdnbnV2cG5ud3JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5MjcwMjIsImV4cCI6MjA3NDUwMzAyMn0.w6GWfIyEvcYDsG1W4J0yatSx-ueTm6_m7Qkj-GvxEIU`
         },
         body: JSON.stringify({
           text: cleanedText,

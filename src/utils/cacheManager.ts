@@ -21,7 +21,7 @@ export class CacheManager {
       // Clear specific app-related cache keys, but keep auth tokens
       const keysToKeep = [
         'supabase.auth.token',
-        'sb-hvbdeyuqcliqrmzvyciq-auth-token'
+        'sb-paawojkqrggnuvpnnwrc-auth-token'
       ];
       
       const keysToRemove: string[] = [];
