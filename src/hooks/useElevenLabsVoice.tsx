@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 // Global audio control system
 const globalAudioInstances = new Map<string, HTMLAudioElement>();
