@@ -38,7 +38,17 @@ export function useNotifications() {
         return;
       }
 
-      setNotifications(data || []);
+      setNotifications((data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        type: item.type,
+        title: item.title,
+        message: item.body || '',
+        data: item.meta || {},
+        read: item.read,
+        created_at: item.created_at,
+        updated_at: item.created_at // fallback since updated_at might not exist
+      })));
       setUnreadCount((data || []).filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);

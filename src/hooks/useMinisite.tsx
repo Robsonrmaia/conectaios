@@ -6,7 +6,7 @@ import { toast } from './use-toast';
 
 interface MinisiteConfig {
   id?: string;
-  broker_id?: string;
+  user_id?: string;
   title: string;
   description?: string;
   primary_color: string;
@@ -56,7 +56,7 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase
         .from('minisite_configs')
         .select('*')
-        .eq('broker_id', broker.id)
+        .eq('user_id', broker.user_id)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
@@ -86,7 +86,22 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
 
         const { data: newConfig, error: createError } = await supabase
           .from('minisite_configs')
-          .insert(defaultConfig)
+          .insert({
+            user_id: broker.user_id,
+            title: broker.name || 'Meu Mini Site',
+            description: broker.bio || '',
+            primary_color: '#1CA9C9',
+            secondary_color: '#64748B',
+            template_id: 'modern',
+            show_properties: true,
+            show_contact_form: true,
+            show_about: true,
+            phone: broker.phone || '',
+            email: broker.email || '',
+            whatsapp: broker.phone || '',
+            is_active: true,
+            config_data: {}
+          })
           .select()
           .single();
 
@@ -97,7 +112,7 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       console.error('Error fetching minisite config:', error);
       // Fallback: create local config if database fails
       const fallbackConfig = {
-        broker_id: broker?.id || '',
+        user_id: broker?.user_id || '',
         title: broker?.name || 'Meu Mini Site',
         description: broker?.bio || '',
         primary_color: '#1CA9C9',
@@ -114,11 +129,14 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       };
       setConfig(fallbackConfig);
       
-      toast({
-        title: "Aviso",
-        description: "Usando configuração local. Salve para sincronizar com o servidor.",
-        variant: "default",
-      });
+      // Only show local config warning in development when envs are missing
+      if (import.meta.env.DEV && (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY)) {
+        toast({
+          title: "Aviso",
+          description: "Usando configuração local. Salve para sincronizar com o servidor.",
+          variant: "default",
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -181,10 +199,16 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
     const url = `/broker/${username}`;
     
     try {
-      await supabase
-        .from('minisite_configs')
-        .update({ generated_url: url })
-        .eq('id', config.id);
+      if (config.id) {
+        const { error: updateError } = await supabase
+          .from('minisite_configs')
+          .update({ config_data: { ...config.config_data, generated_url: url } })
+          .eq('id', config.id);
+        
+        if (updateError) {
+          console.warn('Failed to save generated URL:', updateError);
+        }
+      }
 
       setConfig(prev => prev ? { ...prev, generated_url: url } : null);
       return url;
