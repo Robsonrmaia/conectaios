@@ -130,7 +130,10 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       setConfig(fallbackConfig);
       
       // Only show local config warning in development when envs are missing
-      if (import.meta.env.DEV && (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY)) {
+      if (import.meta.env.MODE === 'development' && 
+          (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY ||
+           import.meta.env.VITE_SUPABASE_URL === '__REQUIRED__' || 
+           import.meta.env.VITE_SUPABASE_ANON_KEY === '__REQUIRED__')) {
         toast({
           title: "Aviso",
           description: "Usando configuração local. Salve para sincronizar com o servidor.",
