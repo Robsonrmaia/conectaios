@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { CompatIndication, compatIndication } from '@/types/supabase-compat';
 
 interface Indication {
   id: string;
@@ -54,7 +55,7 @@ interface IndicationMetrics {
 }
 
 export function IndicationManagement() {
-  const [indications, setIndications] = useState<CompatIndication[]>([]);
+  const [indications, setIndications] = useState<Indication[]>([]);
   const [filteredIndications, setFilteredIndications] = useState<Indication[]>([]);
   const [metrics, setMetrics] = useState<IndicationMetrics>({
     total_indicacoes: 0,
@@ -115,7 +116,11 @@ export function IndicationManagement() {
       const descontoTotalAplicado = discountsData?.reduce((sum, d) => sum + (d.discount_percentage || 0), 0) || 0;
       const receitaImpactada = descontoTotalAplicado * 100; // Estimativa
 
-      setIndications(indicationsWithDetails?.map(compatIndication) || []);
+      setIndications(indicationsWithDetails?.map(indication => ({
+        ...compatIndication(indication),
+        indicador: indication.indicador,
+        indicado: indication.indicado
+      })) || []);
       setMetrics({
         total_indicacoes: totalIndicacoes,
         indicacoes_confirmadas: indicacoesConfirmadas,

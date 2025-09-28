@@ -38,7 +38,7 @@ export function useNotifications() {
         return;
       }
 
-      setNotifications(data || []);
+      setNotifications(asNotificationArray(data || []));
       setUnreadCount((data || []).filter(n => !n.read).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);

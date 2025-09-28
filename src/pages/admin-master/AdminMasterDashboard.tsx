@@ -72,14 +72,16 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
       const usersWithEmails = await Promise.all(
         profiles.map(async (profile) => {
           try {
-            const { data: authData } = await supabase.auth.admin.getUserById(profile.user_id);
+            const { data: authData } = await supabase.auth.admin.getUserById(profile.id);
             return {
               ...profile,
+              user_id: profile.id, // Compatibilidade
               email: authData.user?.email || 'N/A'
             };
           } catch {
             return {
               ...profile,
+              user_id: profile.id, // Compatibilidade
               email: 'N/A'
             };
           }

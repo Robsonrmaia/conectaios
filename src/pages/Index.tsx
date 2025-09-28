@@ -41,13 +41,8 @@ const Index = () => {
   }, []);
 
   const fetchBanners = async () => {
-    const { data } = await supabase
-      .from('banners')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    
-    if (data) setBanners(data);
+    // Temporariamente desabilitado - tabela banners não existe
+    setBanners([]);
   };
 
   const fetchPartnerships = async () => {

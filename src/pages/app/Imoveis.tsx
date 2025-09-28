@@ -177,12 +177,29 @@ export default function Imoveis() {
       
       const startIndex = (page - 1) * pageSize;
       
-      // Query with all essential fields to ensure fresh data after saves
+      // Query com campos corretos da tabela imoveis
       const { data, error, count } = await supabase
-        .from('properties')
+        .from('imoveis')
         .select(`
           id,
-          titulo,
+          title,
+          description,
+          price,
+          city,
+          neighborhood,
+          bedrooms,
+          bathrooms,
+          area_built,
+          area_total,
+          owner_id,
+          created_at,
+          updated_at,
+          is_public,
+          visibility,
+          purpose,
+          type,
+          status
+        `, { count: 'exact' })
           valor,
           area,
           quartos,

@@ -125,15 +125,21 @@ export function usePropertyQuality() {
   const fetchDatabaseQuality = async (propertyId: string): Promise<number> => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .rpc('calc_imovel_quality', { imovel_id: propertyId });
+      // Calculadora de qualidade simples baseada nos dados do imóvel
+      const { data: propertyData, error } = await supabase
+        .from('imoveis')
+        .select('*')
+        .eq('id', propertyId)
+        .single();
 
       if (error) {
-        console.error('Error fetching quality:', error);
+        console.error('Error fetching property:', error);
         return 0;
       }
 
-      return data || 0;
+      // Calcular qualidade baseado nos dados disponíveis
+      const quality = calculateQualityAnalysis(propertyData);
+      return quality.score;
     } catch (error) {
       console.error('Error fetching quality:', error);
       return 0;
