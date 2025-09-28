@@ -6,11 +6,8 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { useBroker } from "@/hooks/useBroker";
-
-// Create stub providers for compatibility
-const BrokerProvider = ({ children }: { children: React.ReactNode }) => children;
-const MinisiteProvider = ({ children }: { children: React.ReactNode }) => children;
+import { BrokerProvider, useBroker } from "@/hooks/useBroker";
+import { MinisiteProvider } from "@/hooks/useMinisite";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

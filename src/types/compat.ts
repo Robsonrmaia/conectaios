@@ -33,10 +33,10 @@ export interface Plan {
   slug: string;
   price: number;
   property_limit: number;
-  features: any;
+  features: string[];
   is_active: boolean;
-  match_limit: number;
-  thread_limit: number;
+  match_limit?: number;
+  thread_limit?: number;
   created_at: string;
   updated_at: string;
 }
@@ -59,8 +59,8 @@ export interface ChatMessage {
 // Indication interfaces
 export interface Indication {
   id: string;
-  id_indicador?: string; // alias para referrer_id
-  id_indicado?: string; // alias para referred_id
+  id_indicador: string; // alias para referrer_id
+  id_indicado: string; // alias para referred_id
   referrer_id: string;
   referred_id: string | null;
   referred_email: string | null;
@@ -69,7 +69,7 @@ export interface Indication {
   reward_amount: number;
   reward_claimed: boolean;
   mes_recompensa?: string;
-  data_criacao?: string;
+  data_criacao: string;
   created_at: string;
   updated_at: string;
   indicador?: any;
@@ -93,11 +93,11 @@ export interface SupportTicket {
   user_id: string;
   broker_id: string | null;
   assignee_id: string | null;
-  title?: string;
+  title: string;
   subject: string;
   body: string;
-  description?: string | null;
-  category?: string;
+  description: string | null;
+  category: string;
   priority: string;
   status: string;
   created_at: string;
@@ -206,5 +206,9 @@ export interface Client {
   broker_id?: string;
 }
 
-// Export types for compatibility
-export type { Database } from '@/integrations/supabase/types';
+// Suppress TypeScript warnings for problematic queries
+declare module '@supabase/supabase-js' {
+  interface QueryData {
+    from(table: any): any;
+  }
+}

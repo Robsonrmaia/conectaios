@@ -230,9 +230,9 @@ export default function XMLImportExport() {
     
     try {
       const { data: properties, error } = await supabase
-        .from('imoveis')
+        .from('properties')
         .select('*')
-        .eq('owner_id', user.id)
+        .eq('user_id', user.id)
         .eq('is_public', true);
 
       if (error) {

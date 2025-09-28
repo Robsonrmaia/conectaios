@@ -46,67 +46,31 @@ export type Database = {
       }
       brokers: {
         Row: {
-          avatar_url: string | null
           bio: string | null
-          cover_url: string | null
-          cpf_cnpj: string | null
           created_at: string | null
           creci: string | null
-          email: string | null
           id: string
           minisite_slug: string | null
-          name: string | null
-          phone: string | null
-          plan_id: string | null
-          referral_code: string | null
-          region_id: string | null
-          status: string | null
-          subscription_expires_at: string | null
-          subscription_status: string | null
           updated_at: string | null
           user_id: string
           whatsapp: string | null
         }
         Insert: {
-          avatar_url?: string | null
           bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
           created_at?: string | null
           creci?: string | null
-          email?: string | null
           id?: string
           minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          plan_id?: string | null
-          referral_code?: string | null
-          region_id?: string | null
-          status?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?: string | null
           updated_at?: string | null
           user_id: string
           whatsapp?: string | null
         }
         Update: {
-          avatar_url?: string | null
           bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
           created_at?: string | null
           creci?: string | null
-          email?: string | null
           id?: string
           minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          plan_id?: string | null
-          referral_code?: string | null
-          region_id?: string | null
-          status?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
           whatsapp?: string | null
@@ -1432,18 +1396,13 @@ export type Database = {
       }
       minisite_configs: {
         Row: {
-          broker_id: string | null
-          config_data: Json | null
           created_at: string
           custom_domain: string | null
-          description: string | null
           id: string
-          is_active: boolean | null
           primary_color: string | null
           secondary_color: string | null
           show_about: boolean | null
           show_contact: boolean | null
-          show_contact_form: boolean | null
           show_properties: boolean | null
           template_id: string | null
           title: string | null
@@ -1451,18 +1410,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          broker_id?: string | null
-          config_data?: Json | null
           created_at?: string
           custom_domain?: string | null
-          description?: string | null
           id?: string
-          is_active?: boolean | null
           primary_color?: string | null
           secondary_color?: string | null
           show_about?: boolean | null
           show_contact?: boolean | null
-          show_contact_form?: boolean | null
           show_properties?: boolean | null
           template_id?: string | null
           title?: string | null
@@ -1470,18 +1424,13 @@ export type Database = {
           user_id: string
         }
         Update: {
-          broker_id?: string | null
-          config_data?: Json | null
           created_at?: string
           custom_domain?: string | null
-          description?: string | null
           id?: string
-          is_active?: boolean | null
           primary_color?: string | null
           secondary_color?: string | null
           show_about?: boolean | null
           show_contact?: boolean | null
-          show_contact_form?: boolean | null
           show_properties?: boolean | null
           template_id?: string | null
           title?: string | null
@@ -1642,12 +1591,10 @@ export type Database = {
           features: Json
           id: string
           is_active: boolean
-          match_limit: number | null
           name: string
           price: number
           property_limit: number
           slug: string
-          thread_limit: number | null
           updated_at: string
         }
         Insert: {
@@ -1655,12 +1602,10 @@ export type Database = {
           features?: Json
           id?: string
           is_active?: boolean
-          match_limit?: number | null
           name: string
           price?: number
           property_limit?: number
           slug: string
-          thread_limit?: number | null
           updated_at?: string
         }
         Update: {
@@ -1668,12 +1613,10 @@ export type Database = {
           features?: Json
           id?: string
           is_active?: boolean
-          match_limit?: number | null
           name?: string
           price?: number
           property_limit?: number
           slug?: string
-          thread_limit?: number | null
           updated_at?: string
         }
         Relationships: []
@@ -2113,14 +2056,11 @@ export type Database = {
           assignee_id: string | null
           body: string
           broker_id: string | null
-          category: string | null
           created_at: string
-          description: string | null
           id: string
           priority: string
           status: string
           subject: string
-          title: string | null
           updated_at: string
           user_id: string | null
         }
@@ -2128,14 +2068,11 @@ export type Database = {
           assignee_id?: string | null
           body: string
           broker_id?: string | null
-          category?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           priority?: string
           status?: string
           subject: string
-          title?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -2143,14 +2080,11 @@ export type Database = {
           assignee_id?: string | null
           body?: string
           broker_id?: string | null
-          category?: string | null
           created_at?: string
-          description?: string | null
           id?: string
           priority?: string
           status?: string
           subject?: string
-          title?: string | null
           updated_at?: string
           user_id?: string | null
         }
@@ -2254,33 +2188,6 @@ export type Database = {
           published?: boolean
           rating?: number | null
           source?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_onboarding: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          id: string
-          tour_completed: boolean
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          tour_completed?: boolean
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          id?: string
-          tour_completed?: boolean
           updated_at?: string
           user_id?: string
         }

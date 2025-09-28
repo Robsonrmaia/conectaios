@@ -30,28 +30,23 @@ interface Broker {
 export function EnhancedMessaging() {
   const { user } = useAuth();
   const { broker } = useBroker();
-  const chat = useEnhancedChat();
-  
-  // Add missing properties for compatibility
   const {
     threads,
     messages,
     presence,
+    typingUsers,
     loading,
     activeThread,
+    unreadCounts,
     setActiveThread,
     createOrGetThread,
     createGroup,
     sendMessage,
     markAsRead,
     startTyping,
-    stopTyping
-  } = chat;
-  
-  // Mock missing properties
-  const typingUsers: Record<string, string[]> = {};
-  const unreadCounts: Record<string, number> = {};
-  const refreshThreads = async () => {};
+    stopTyping,
+    refreshThreads
+  } = useEnhancedChat();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [newMessage, setNewMessage] = useState('');
