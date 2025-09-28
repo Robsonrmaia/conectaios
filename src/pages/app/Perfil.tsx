@@ -348,6 +348,10 @@ export default function Perfil() {
                   <Button 
                     onClick={async () => {
                       try {
+                        if (import.meta.env.DEV) {
+                          console.log('💾 Perfil: Saving profile changes...');
+                        }
+                        
                         await updateBrokerProfile({
                           name: profile.name,
                           email: profile.email,
@@ -356,11 +360,19 @@ export default function Perfil() {
                           creci: profile.creci,
                           username: profile.username
                         });
+                        
+                        if (import.meta.env.DEV) {
+                          console.log('✅ Perfil: Profile saved successfully');
+                        }
+                        
                         toast({
                           title: "Perfil atualizado!",
                           description: "Suas informações foram salvas com sucesso.",
                         });
                       } catch (error) {
+                        if (import.meta.env.DEV) {
+                          console.error('❌ Perfil save error:', error);
+                        }
                         console.error('Erro ao salvar perfil:', error);
                         toast({
                           title: "Erro",

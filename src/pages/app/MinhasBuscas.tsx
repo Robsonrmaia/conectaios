@@ -14,13 +14,14 @@ import { formatCurrency } from '@/lib/utils';
 
 interface ClientSearch {
   id: string;
-  title: string;
+  title?: string;
+  name?: string;
   client_name?: string;
   client_phone?: string;
   client_email?: string;
-  property_type: string;
-  listing_type: string;
-  max_price: number;
+  property_type?: string;
+  listing_type?: string;
+  max_price?: number;
   min_price?: number;
   min_bedrooms?: number;
   max_bedrooms?: number;
@@ -31,9 +32,12 @@ interface ClientSearch {
   max_area?: number;
   is_active: boolean;
   last_match_at?: string;
-  match_count: number;
+  match_count?: number;
   created_at: string;
   updated_at: string;
+  filters?: any;
+  broker_id?: string;
+  client_id?: string;
 }
 
 interface PropertyMatch {
@@ -91,15 +95,30 @@ export default function MinhasBuscas() {
   }, []);
 
   const fetchSearches = async () => {
+    if (!user?.id) return;
+    
     try {
+      if (import.meta.env.DEV) {
+        console.log('📋 MinhasBuscas: Loading searches for user:', user.id);
+      }
+      
       const { data: searchData, error } = await supabase
         .from('client_searches')
-        .select('*')
-        .eq('user_id', user?.id)
+        .select('id,title,filters,is_active,created_at,updated_at,broker_id,client_id,name,match_count')
+        .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        if (import.meta.env.DEV) {
+          console.error('❌ MinhasBuscas fetch error:', { status: error.code, message: error.message });
+        }
+        throw error;
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('✅ MinhasBuscas: Loaded', searchData?.length || 0, 'searches');
+      }
 
       setSearches(searchData || []);
     } catch (error) {
@@ -124,21 +143,31 @@ export default function MinhasBuscas() {
       return;
     }
 
+    if (!user?.id) {
+      toast({
+        title: 'Erro', 
+        description: 'Usuário não autenticado',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     try {
       const { data: searchData, error } = await supabase
         .from('client_searches')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           title: newSearch.title,
-          property_type: newSearch.property_type,
-          listing_type: newSearch.listing_type,
-          max_price: parseFloat(newSearch.max_price.replace(/\./g, '').replace(',', '.')),
-          min_bedrooms: parseInt(newSearch.min_bedrooms) || null,
-          neighborhood: newSearch.neighborhood || null,
-          city: newSearch.city || null,
-          min_area: parseFloat(newSearch.min_area) || null,
-          is_active: true,
-          match_count: 0
+          filters: {
+            property_type: newSearch.property_type,
+            listing_type: newSearch.listing_type,
+            max_price: parseFloat(newSearch.max_price.replace(/\./g, '').replace(',', '.')),
+            min_bedrooms: parseInt(newSearch.min_bedrooms) || null,
+            neighborhood: newSearch.neighborhood || null,
+            city: newSearch.city || null,
+            min_area: parseFloat(newSearch.min_area) || null
+          },
+          is_active: true
         })
         .select()
         .single();

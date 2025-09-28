@@ -156,35 +156,80 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
     if (!config || !broker) return;
 
     try {
-      const { error } = await supabase
-        .from('minisite_configs')
-        .update({
-          title: config.title,
-          description: config.description,
-          primary_color: config.primary_color,
-          secondary_color: config.secondary_color,
-          template_id: config.template_id,
-          show_properties: config.show_properties,
-          show_contact_form: config.show_contact_form,
-          show_about: config.show_about,
-          phone: config.phone,
-          email: config.email,
-          whatsapp: config.whatsapp,
-          custom_message: config.custom_message,
-          is_active: config.is_active,
-          config_data: config.config_data,
-          custom_domain: config.custom_domain,
-          domain_verified: config.domain_verified
-        })
-        .eq('id', config.id);
+      if (import.meta.env.DEV) {
+        console.log('💾 Minisite: Saving config for user:', broker.user_id);
+      }
 
-      if (error) throw error;
+      // Upsert: Create if not exists, update if exists
+      const { data: existing } = await supabase
+        .from('minisite_configs')
+        .select('id')
+        .eq('user_id', broker.user_id)
+        .maybeSingle();
+
+      if (!existing) {
+        // Insert new config
+        const { error: insertError } = await supabase
+          .from('minisite_configs')
+          .insert({
+            user_id: broker.user_id,
+            title: config.title,
+            description: config.description,
+            primary_color: config.primary_color,
+            secondary_color: config.secondary_color,
+            template_id: config.template_id,
+            show_properties: config.show_properties,
+            show_contact_form: config.show_contact_form,
+            show_about: config.show_about,
+            phone: config.phone,
+            email: config.email,
+            whatsapp: config.whatsapp,
+            custom_message: config.custom_message,
+            is_active: config.is_active,
+            config_data: config.config_data,
+            custom_domain: config.custom_domain
+          });
+
+        if (insertError) throw insertError;
+      } else {
+        // Update existing config  
+        const { error: updateError } = await supabase
+          .from('minisite_configs')
+          .update({
+            title: config.title,
+            description: config.description,
+            primary_color: config.primary_color,
+            secondary_color: config.secondary_color,
+            template_id: config.template_id,
+            show_properties: config.show_properties,
+            show_contact_form: config.show_contact_form,
+            show_about: config.show_about,
+            phone: config.phone,
+            email: config.email,
+            whatsapp: config.whatsapp,
+            custom_message: config.custom_message,
+            is_active: config.is_active,
+            config_data: config.config_data,
+            custom_domain: config.custom_domain,
+            domain_verified: config.domain_verified
+          })
+          .eq('user_id', broker.user_id);
+
+        if (updateError) throw updateError;
+      }
+
+      if (import.meta.env.DEV) {
+        console.log('✅ Minisite: Config saved successfully');
+      }
 
       toast({
         title: "Configurações salvas!",
         description: "Seu minisite foi atualizado com sucesso.",
       });
     } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('❌ Minisite save error:', error);
+      }
       console.error('Error saving config:', error);
       toast({
         title: "Erro",
