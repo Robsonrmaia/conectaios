@@ -206,9 +206,5 @@ export interface Client {
   broker_id?: string;
 }
 
-// Suppress TypeScript warnings for problematic queries
-declare module '@supabase/supabase-js' {
-  interface QueryData {
-    from(table: any): any;
-  }
-}
+// Export types for compatibility
+export type { Database } from '@/integrations/supabase/types';

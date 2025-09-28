@@ -17,5 +17,5 @@ export default function AdminMaster() {
     return <AdminMasterLogin onLogin={handleLogin} />;
   }
 
-  return <AdminMasterDashboard onLogout={handleLogout} />;
+  return <AdminMasterDashboard />;
 }
