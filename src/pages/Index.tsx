@@ -414,18 +414,66 @@ const Index = () => {
               <SaibaMaisDialog />
             </div>
 
-            {/* Vídeo Menor Mobile */}
+            {/* Seção Vídeos Mobile - Grid 2x3 (2 colunas, 3 linhas no mobile) */}
             <div className="mt-8">
-              <div className="text-center mb-4">
+              <div className="text-center mb-6">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-blue-500/10 text-primary rounded-full text-xs font-medium border border-primary/20">
                   <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse"></div>
-                  Demonstração
+                  Veja como funciona
                 </div>
               </div>
               
-              <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/20">
-                {/* Embed nativo do Wistia para mobile */}
-                <wistia-player media-id="57t2gkpop2" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+              {/* Grid Mobile - 2 colunas */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Vídeo 1 */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-primary/10">
+                  <wistia-player media-id="k3abf93ih1" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                </div>
+
+                {/* Vídeo 2 */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-primary/10">
+                  <wistia-player media-id="hczxrata2s" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                </div>
+
+                {/* Vídeo 3 - Placeholder */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="w-8 h-8 mx-auto mb-1 bg-gray-300 rounded-full flex items-center justify-center">
+                      <Building2 className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs font-medium">Em breve</p>
+                  </div>
+                </div>
+
+                {/* Vídeo 4 - Placeholder */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="w-8 h-8 mx-auto mb-1 bg-gray-300 rounded-full flex items-center justify-center">
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs font-medium">Em breve</p>
+                  </div>
+                </div>
+
+                {/* Vídeo 5 - Placeholder */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="w-8 h-8 mx-auto mb-1 bg-gray-300 rounded-full flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs font-medium">Em breve</p>
+                  </div>
+                </div>
+
+                {/* Vídeo 6 - Placeholder */}
+                <div className="aspect-video rounded-lg overflow-hidden shadow-md ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <div className="w-8 h-8 mx-auto mb-1 bg-gray-300 rounded-full flex items-center justify-center">
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <p className="text-xs font-medium">Em breve</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
