@@ -223,18 +223,36 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateBrokerProfile = async (data: any) => {
-    if (!broker) throw new Error('No broker profile found');
+    if (!user) throw new Error('User not authenticated');
 
     try {
+      console.log('🔄 Updating broker profile:', data);
+      
+      // Always include user_id in the payload for upsert
+      const payload = {
+        user_id: user.id,
+        ...data,
+      };
+
       const { data: updatedBroker, error } = await supabase
         .from('brokers')
-        .update(data as any)
-        .eq('user_id', broker.user_id)
+        .upsert(payload, { onConflict: 'user_id' })
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[useBroker] upsert brokers error:', {
+          error,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          message: error.message
+        });
+        throw error;
+      }
+      
       setBroker(updatedBroker as any);
+      console.log('✅ Broker profile updated successfully');
       
       // Refresh broker profile to ensure we have the latest data
       await fetchBrokerProfile();

@@ -32,6 +32,7 @@ interface MinisiteContextType {
   updateConfig: (updates: Partial<MinisiteConfig>) => Promise<void>;
   saveConfig: () => Promise<void>;
   generateUrl: () => Promise<string | null>;
+  ensureMinisiteConfig: (userId: string, profile?: any) => Promise<void>;
 }
 
 const MinisiteContext = createContext<MinisiteContextType | undefined>(undefined);
@@ -160,62 +161,39 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
         console.log('💾 Minisite: Saving config for user:', broker.user_id);
       }
 
-      // Upsert: Create if not exists, update if exists
-      const { data: existing } = await supabase
+      // Use upsert with onConflict for user_id
+      const configPayload = {
+        user_id: broker.user_id,
+        title: config.title,
+        description: config.description,
+        primary_color: config.primary_color,
+        secondary_color: config.secondary_color,
+        template_id: config.template_id,
+        show_properties: config.show_properties,
+        show_contact_form: config.show_contact_form,
+        show_about: config.show_about,
+        phone: config.phone,
+        email: config.email,
+        whatsapp: config.whatsapp,
+        custom_message: config.custom_message,
+        is_active: config.is_active,
+        config_data: config.config_data,
+        custom_domain: config.custom_domain
+      };
+
+      const { error } = await supabase
         .from('minisite_configs')
-        .select('id')
-        .eq('user_id', broker.user_id)
-        .maybeSingle();
+        .upsert(configPayload, { onConflict: 'user_id' });
 
-      if (!existing) {
-        // Insert new config
-        const { error: insertError } = await supabase
-          .from('minisite_configs')
-          .insert({
-            user_id: broker.user_id,
-            title: config.title,
-            description: config.description,
-            primary_color: config.primary_color,
-            secondary_color: config.secondary_color,
-            template_id: config.template_id,
-            show_properties: config.show_properties,
-            show_contact_form: config.show_contact_form,
-            show_about: config.show_about,
-            phone: config.phone,
-            email: config.email,
-            whatsapp: config.whatsapp,
-            custom_message: config.custom_message,
-            is_active: config.is_active,
-            config_data: config.config_data,
-            custom_domain: config.custom_domain
-          });
-
-        if (insertError) throw insertError;
-      } else {
-        // Update existing config  
-        const { error: updateError } = await supabase
-          .from('minisite_configs')
-          .update({
-            title: config.title,
-            description: config.description,
-            primary_color: config.primary_color,
-            secondary_color: config.secondary_color,
-            template_id: config.template_id,
-            show_properties: config.show_properties,
-            show_contact_form: config.show_contact_form,
-            show_about: config.show_about,
-            phone: config.phone,
-            email: config.email,
-            whatsapp: config.whatsapp,
-            custom_message: config.custom_message,
-            is_active: config.is_active,
-            config_data: config.config_data,
-            custom_domain: config.custom_domain,
-            domain_verified: config.domain_verified
-          })
-          .eq('user_id', broker.user_id);
-
-        if (updateError) throw updateError;
+      if (error) {
+        console.error('[useMinisite] upsert error:', {
+          error,
+          code: error.code,
+          details: error.details,
+          hint: error.hint,
+          message: error.message
+        });
+        throw error;
       }
 
       if (import.meta.env.DEV) {
@@ -236,6 +214,39 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
         description: "Erro ao salvar configurações.",
         variant: "destructive",
       });
+      throw error;
+    }
+  };
+
+  const ensureMinisiteConfig = async (userId: string, profile?: any) => {
+    try {
+      const { data: exists } = await supabase
+        .from('minisite_configs')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (!exists) {
+        const { error } = await supabase.from('minisite_configs').insert({
+          user_id: userId,
+          title: profile?.name || 'Meu Minisite',
+          template_id: 'default',
+          show_properties: true,
+          show_contact: true,
+          show_about: true,
+          primary_color: '#3B82F6',
+          secondary_color: '#EF4444',
+        });
+        
+        if (error) {
+          console.error('[useMinisite] Error creating minisite config:', error);
+          throw error;
+        }
+        
+        console.log('✅ Minisite config created for user:', userId);
+      }
+    } catch (error) {
+      console.error('Error ensuring minisite config:', error);
       throw error;
     }
   };
@@ -272,7 +283,8 @@ export function MinisiteProvider({ children }: { children: ReactNode }) {
       loading,
       updateConfig,
       saveConfig,
-      generateUrl
+      generateUrl,
+      ensureMinisiteConfig
     }}>
       {children}
     </MinisiteContext.Provider>

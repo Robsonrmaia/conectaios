@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useBroker } from '@/hooks/useBroker';
+import { useMinisite } from '@/hooks/useMinisite';
 import BrokerSetup from '@/components/BrokerSetup';
 import { MinisiteEditorIntegrated } from '@/components/MinisiteEditorIntegrated';
 import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
@@ -33,6 +34,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
+  const { ensureMinisiteConfig } = useMinisite();
   const { createFileInput, isUploading } = useImageUpload();
   
   const [profile, setProfile] = useState({
@@ -357,57 +359,31 @@ export default function Perfil() {
                         const { data: { user } } = await supabase.auth.getUser();
                         if (!user) throw new Error('User not authenticated');
 
-                        // Update profiles table (id = auth.uid)
-                        const profilePayload = {
-                          name: profile.name,
-                          phone: profile.phone,
-                          bio: profile.bio
-                        };
-
-                        const { error: profileError } = await supabase
-                          .from('profiles')
-                          .update(profilePayload)
-                          .eq('id', user.id);
-
-                        if (profileError) {
-                          console.error('[Perfil] update profiles error:', {
-                            error: profileError,
-                            code: profileError.code,
-                            details: profileError.details,
-                            hint: profileError.hint,
-                            message: profileError.message
-                          });
-                          throw profileError;
-                        }
-
-                        // Upsert brokers table (user_id = auth.uid)
+                        // Prepare broker payload with all fields and always include user_id
                         const brokerPayload = {
                           user_id: user.id,
-                          name: profile.name,
-                          email: profile.email,
-                          phone: profile.phone,
-                          bio: profile.bio,
-                          creci: profile.creci,
-                          website: profile.website,
-                          instagram: profile.instagram,
-                          linkedin: profile.linkedin,
-                          specialties: profile.specialties,
-                          updated_at: new Date().toISOString()
+                          name: profile.name?.trim() || null,
+                          email: profile.email?.trim() || null,
+                          phone: profile.phone?.trim() || null,
+                          bio: profile.bio?.trim() || null,
+                          creci: profile.creci?.trim() || null,
+                          username: profile.username?.trim() || null,
+                          website: profile.website?.trim() || null,
+                          instagram: profile.instagram?.trim() || null,
+                          linkedin: profile.linkedin?.trim() || null,
+                          specialties: profile.specialties?.trim() || null,
+                          avatar_url: profile.avatar || null,
                         };
 
-                        const { error: brokerError } = await supabase
-                          .from('brokers')
-                          .upsert(brokerPayload, { onConflict: 'user_id' });
+                        // Use updateBrokerProfile hook which handles upsert
+                        await updateBrokerProfile(brokerPayload);
 
-                        if (brokerError) {
-                          console.error('[Perfil] upsert brokers error:', {
-                            error: brokerError,
-                            code: brokerError.code,
-                            details: brokerError.details,
-                            hint: brokerError.hint,
-                            message: brokerError.message
-                          });
-                          throw brokerError;
+                        // After saving broker, ensure minisite config exists (best-effort)
+                        try {
+                          await ensureMinisiteConfig(user.id, profile);
+                        } catch (minisiteError) {
+                          console.warn('[Perfil] Minisite config creation failed (non-blocking):', minisiteError);
+                          // Don't throw - this is best-effort provisioning
                         }
                         
                         if (import.meta.env.DEV) {
