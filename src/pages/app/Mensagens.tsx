@@ -54,11 +54,36 @@ export default function Mensagens() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-muted-foreground">Carregando conversas...</p>
-        </div>
+      <div className="flex flex-col lg:flex-row h-[600px] gap-4">
+        <Card className="w-full lg:w-1/3">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5" />
+              Conversas
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center h-96">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4" />
+                <p className="text-muted-foreground">Carregando conversas...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="flex-1">
+          <CardHeader>
+            <CardTitle>Selecione uma conversa</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center h-[500px]">
+              <div className="text-center">
+                <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                <p className="text-muted-foreground">Carregando...</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -75,12 +100,14 @@ export default function Mensagens() {
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[500px]">
+            <div className="mb-4">
+              <NewConversationModal onThreadCreated={handleThreadCreated} />
+            </div>
             <div className="space-y-2">
               {threads.length === 0 ? (
                 <div className="text-center py-8">
                   <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <p className="text-muted-foreground mb-4">Nenhuma conversa encontrada</p>
-                  <NewConversationModal onThreadCreated={handleThreadCreated} />
+                  <p className="text-muted-foreground">Nenhuma conversa encontrada</p>
                 </div>
               ) : (
                 threads.map((thread) => (

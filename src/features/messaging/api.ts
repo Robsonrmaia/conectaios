@@ -1,8 +1,8 @@
 import { supabase } from '@/integrations/supabase/client'
 
 export async function startOneToOneThread(otherUserId: string) {
-  const { data: threadId, error } = await supabase.rpc('start_or_get_thread', {
-    target_user: otherUserId
+  const { data: threadId, error } = await supabase.rpc('msg_create_or_get_direct', {
+    target_user_id: otherUserId
   })
   if (error) throw new Error(error.message || 'Failed to create thread')
   return threadId as string
@@ -22,9 +22,9 @@ export async function listThreads() {
 }
 
 export async function sendMessage(threadId: string, text: string) {
-  const { data, error } = await supabase.rpc('send_message', {
-    p_thread_id: threadId,
-    p_body: text
+  const { data, error } = await supabase.rpc('msg_send_message', {
+    thread_id: threadId,
+    content: text
   })
   if (error) throw new Error(error.message || 'Failed to send message')
   return data

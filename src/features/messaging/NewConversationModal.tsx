@@ -52,12 +52,12 @@ export function NewConversationModal({ onThreadCreated }: NewConversationModalPr
         description: "Conversa criada!",
       });
     } catch (error: any) {
-      const errorMessage = error.message?.includes('other_user_id_required') 
-        ? 'ID do usuário é obrigatório'
-        : error.message?.includes('self_not_allowed')
+      console.error('Error creating conversation:', error);
+      
+      const errorMessage = error.message?.includes('cannot_create_chat_with_self') 
         ? 'Não é possível criar conversa consigo mesmo'
-        : error.message?.includes('rpc_fail')
-        ? 'Erro interno na criação da conversa'
+        : error.message?.includes('unauthenticated')
+        ? 'Você precisa estar logado para criar conversas'
         : 'Erro ao criar conversa';
       
       toast({

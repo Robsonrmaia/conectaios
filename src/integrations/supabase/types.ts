@@ -147,6 +147,7 @@ export type Database = {
         Row: {
           attachments: Json | null
           body: string | null
+          content: string | null
           created_at: string | null
           id: string
           reply_to_id: string | null
@@ -157,6 +158,7 @@ export type Database = {
         Insert: {
           attachments?: Json | null
           body?: string | null
+          content?: string | null
           created_at?: string | null
           id?: string
           reply_to_id?: string | null
@@ -167,6 +169,7 @@ export type Database = {
         Update: {
           attachments?: Json | null
           body?: string | null
+          content?: string | null
           created_at?: string | null
           id?: string
           reply_to_id?: string | null
@@ -297,6 +300,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_group: boolean | null
+          last_message_at: string | null
           title: string | null
           updated_at: string | null
         }
@@ -305,6 +309,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_group?: boolean | null
+          last_message_at?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -313,6 +318,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_group?: boolean | null
+          last_message_at?: string | null
           title?: string | null
           updated_at?: string | null
         }
@@ -3111,6 +3117,18 @@ export type Database = {
         }
         Returns: undefined
       }
+      msg_create_group: {
+        Args: { participant_ids: string[]; title: string }
+        Returns: string
+      }
+      msg_create_or_get_direct: {
+        Args: { target_user_id: string }
+        Returns: string
+      }
+      msg_send_message: {
+        Args: { content: string; thread_id: string }
+        Returns: string
+      }
       search_imoveis: {
         Args: {
           city_filter?: string
@@ -3200,6 +3218,7 @@ export type Database = {
         Returns: {
           attachments: Json | null
           body: string | null
+          content: string | null
           created_at: string | null
           id: string
           reply_to_id: string | null
