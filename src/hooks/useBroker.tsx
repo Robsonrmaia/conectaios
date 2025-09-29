@@ -84,6 +84,13 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       console.log('🔄 Fetching broker profile for user:', user.id);
       
+      // Fetch profiles data first (avatar_url, etc.)
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('id,email,name,avatar_url,phone,bio')
+        .eq('id', user.id)
+        .maybeSingle();
+
       // Fetch broker profile with ORDER BY to handle any potential duplicates
       const { data: brokerData, error: brokerError } = await supabase
         .from('brokers')
@@ -100,7 +107,19 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       if (brokerData) {
         console.log('✅ Broker profile loaded:', brokerData.id);
-        setBroker(brokerData);
+        
+        // Merge profiles and brokers data
+        const unifiedBroker = {
+          ...brokerData,
+          // Override with profiles data when available
+          name: profileData?.name || brokerData.name,
+          email: profileData?.email || brokerData.email,
+          phone: profileData?.phone || brokerData.phone,
+          bio: profileData?.bio || brokerData.bio,
+          avatar_url: profileData?.avatar_url || brokerData.avatar_url,
+        };
+        
+        setBroker(unifiedBroker);
 
         // Fetch plan details if broker has plan_id
         if (brokerData.plan_id) {

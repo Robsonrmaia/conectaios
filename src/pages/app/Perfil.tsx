@@ -357,28 +357,49 @@ export default function Perfil() {
                         const { data: { user } } = await supabase.auth.getUser();
                         if (!user) throw new Error('User not authenticated');
 
-                        // Save everything to brokers table (user_id = auth.uid)
-                        const { error } = await supabase
-                          .from('brokers')
-                          .update({
-                            name: profile.name,
-                            email: profile.email,
-                            phone: profile.phone,
-                            bio: profile.bio,
-                            creci: profile.creci,
-                            website: profile.website,
-                            instagram: profile.instagram,
-                            linkedin: profile.linkedin,
-                            specialties: profile.specialties,
-                            updated_at: new Date().toISOString()
-                          })
-                          .eq('user_id', user.id);
+                        // Update profiles table (id = auth.uid)
+                        const profilePayload = {
+                          name: profile.name,
+                          phone: profile.phone,
+                          bio: profile.bio
+                        };
 
-                        if (error) {
+                        const { error: profileError } = await supabase
+                          .from('profiles')
+                          .update(profilePayload)
+                          .eq('id', user.id);
+
+                        if (profileError) {
                           if (import.meta.env.DEV) {
-                            console.error('/* DEBUG */ update brokers error', error);
+                            console.error('/* DEBUG */ update profiles error', profileError);
                           }
-                          throw error;
+                          throw profileError;
+                        }
+
+                        // Upsert brokers table (user_id = auth.uid)
+                        const brokerPayload = {
+                          user_id: user.id,
+                          name: profile.name,
+                          email: profile.email,
+                          phone: profile.phone,
+                          bio: profile.bio,
+                          creci: profile.creci,
+                          website: profile.website,
+                          instagram: profile.instagram,
+                          linkedin: profile.linkedin,
+                          specialties: profile.specialties,
+                          updated_at: new Date().toISOString()
+                        };
+
+                        const { error: brokerError } = await supabase
+                          .from('brokers')
+                          .upsert(brokerPayload, { onConflict: 'user_id' });
+
+                        if (brokerError) {
+                          if (import.meta.env.DEV) {
+                            console.error('/* DEBUG */ upsert brokers error', brokerError);
+                          }
+                          throw brokerError;
                         }
                         
                         if (import.meta.env.DEV) {

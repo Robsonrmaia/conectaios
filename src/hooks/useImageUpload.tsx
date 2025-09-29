@@ -8,37 +8,43 @@ export function useImageUpload() {
   const { broker, updateBrokerProfile } = useBroker();
 
   const uploadImage = async (file: File, type: 'avatar' | 'cover' | 'logo') => {
-    if (!broker) {
-      throw new Error('Broker profile not found');
-    }
-
     setIsUploading(true);
     try {
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${broker.id}-${type}-${Date.now()}.${fileExt}`;
-      
-      // Upload to Supabase Storage
+      // Get user session
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Generate filename with user ID
+      const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
+      const path = `public/${user.id}/avatar.${ext}`;
+
+      // Upload to avatars bucket with upsert
       const { error: uploadError } = await supabase.storage
-        .from('property-images')
-        .upload(`${type}s/${fileName}`, file);
+        .from('avatars')
+        .upload(path, file, { upsert: true });
 
       if (uploadError) throw uploadError;
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('property-images')
-        .getPublicUrl(`${type}s/${fileName}`);
+        .from('avatars')
+        .getPublicUrl(path);
 
-      // Update broker profile based on image type
-      const updateData: any = {};
-      if (type === 'avatar' || type === 'logo') {
-        updateData.avatar_url = publicUrl;
-      } else if (type === 'cover') {
-        updateData.cover_url = publicUrl;
+      // Update both profiles.avatar_url and brokers.avatar_url
+      if (type === 'avatar') {
+        // Update profiles table
+        await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', user.id);
+
+        // Update brokers table if broker exists
+        if (broker) {
+          await updateBrokerProfile({ avatar_url: publicUrl });
+        }
+      } else if (type === 'cover' && broker) {
+        await updateBrokerProfile({ cover_url: publicUrl });
       }
-
-      await updateBrokerProfile(updateData);
 
       toast({
         title: "Imagem enviada!",
@@ -47,7 +53,7 @@ export function useImageUpload() {
 
       return publicUrl;
     } catch (error) {
-      console.error(`Error uploading ${type}:`, error);
+      console.error(`/* DEBUG */ Error uploading ${type}:`, error);
       toast({
         title: "Erro",
         description: `Erro ao enviar ${type === 'avatar' ? 'foto de perfil' : type === 'cover' ? 'capa' : 'logo'}. Tente novamente.`,
