@@ -103,11 +103,11 @@ export default function BrokerMinisite() {
       
       console.log('🚀 BrokerMinisite: Starting data fetch for username:', cleanUsername);
 
-      // 1) Busca corretor por username na TABELA CERTA (only public-safe fields)
+      // 1) Busca corretor por username na tabela brokers com case-insensitive
       const bq = await supabase
-        .from("conectaios_brokers")
+        .from("brokers")
         .select("id, user_id, username, name, avatar_url, cover_url, bio, status, phone, email, creci, region_id")
-        .eq("username", cleanUsername)
+        .ilike("username", cleanUsername)
         .maybeSingle();
 
       console.log('📊 Broker query result:', {
