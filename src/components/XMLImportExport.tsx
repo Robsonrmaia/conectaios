@@ -13,6 +13,88 @@ import { useBroker } from '@/hooks/useBroker';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Download, Upload, ExternalLink, CheckCircle, AlertTriangle, Clock } from 'lucide-react';
 
+// Target table for import/export
+const TARGET_TABLE = 'imoveis' as const;
+
+// Helper functions for parsing CNM feed data
+const toNumber = (v: any) =>
+  v == null || v === ''
+    ? null
+    : Number(String(v).replace(/[^\d,.-]/g, '').replace(/\.(?=.*\.)/g, '').replace(',', '.'));
+
+const toInt = (v: any) =>
+  v == null || v === ''
+    ? null
+    : parseInt(String(v).replace(/[^\d-]/g, ''), 10);
+
+const toBool = (v: any) => {
+  if (v === true) return true;
+  const s = String(v ?? '').toLowerCase();
+  return s === 'true' || s === 'sim' || s === '1';
+};
+
+// Map CNM feed item to imoveis table structure
+function mapCnmItemToImovel(item: any, ownerId: string) {
+  const e = item?.endereco ?? {}; // some feeds nest address data
+
+  return {
+    owner_id: ownerId,
+
+    // external identifier from feed (multiple possible names)
+    external_id:
+      item?.codigo ??
+      item?.id ??
+      item?.imovel_id ??
+      item?.codigoImovel ??
+      item?.CodImovel ??
+      null,
+
+    // basic info
+    title: item?.titulo ?? item?.title ?? null,
+    description: item?.descricao ?? null,
+    price: toNumber(item?.preco_venda ?? item?.preco ?? item?.valor),
+
+    // address (your table has these fields)
+    address: e?.logradouro ?? item?.logradouro ?? null,
+    street: e?.logradouro ?? item?.logradouro ?? null,
+    number: e?.numero ?? item?.numero ?? null,
+    neighborhood: e?.bairro ?? item?.bairro ?? null,
+    city: e?.cidade ?? item?.cidade ?? null,
+    state: e?.estado ?? e?.uf ?? item?.estado ?? null,
+    zipcode: e?.cep ?? item?.cep ?? null,
+
+    // areas – your table doesn't have 'area', but has these:
+    area_total: toNumber(item?.area_total ?? item?.area),
+    area_privativa: toNumber(item?.area_privativa ?? item?.areaUtil),
+    area_built: toNumber(item?.area_construida),
+
+    // quantities
+    bedrooms: toInt(item?.qtd_dormitorios ?? item?.quartos),
+    bathrooms: toInt(item?.qtd_banheiros ?? item?.banheiros),
+    suites: toInt(item?.qtd_suites ?? item?.suites),
+    parking: toInt(item?.qtd_vagas ?? item?.vagas_garagem ?? item?.vagas),
+
+    // classification
+    property_type: item?.tipo_imovel ?? item?.tipo ?? null,
+    purpose: item?.finalidade ?? item?.categoria ?? null, // sale/rent
+    status: item?.status ?? null,
+
+    // location
+    latitude: toNumber(item?.latitude),
+    longitude: toNumber(item?.longitude),
+
+    // extra values
+    condo_fee: toNumber(item?.valor_condominio),
+    iptu: toNumber(item?.valor_iptu ?? item?.iptu),
+
+    // flags
+    is_furnished: toBool(item?.mobiliado),
+
+    // tracking
+    source: 'cnm'
+  } as any;
+}
+
 interface Property {
   id: string;
   titulo: string;
@@ -185,41 +267,47 @@ export default function XMLImportExport() {
         throw new Error('Nenhum imóvel encontrado no arquivo XML');
       }
       
-      for (const property of properties) {
-        const { error } = await supabase
-          .from('imoveis')
-          .insert({
-            owner_id: user.id, // Use owner_id instead of user_id
-            titulo: (property as any).titulo || (property as any).title,
-            descricao: (property as any).descricao || (property as any).description,
-            valor: (property as any).valor || (property as any).price,
-            area: property.area,
-            quartos: property.quartos,
-            bathrooms: property.banheiros, // Map banheiros -> bathrooms
-            parking_spots: property.vagas, // Map vagas -> parking_spots  
-            address: property.endereco, // Map endereco -> address
-            city: property.city,
-            state: property.state,
-            zipcode: property.cep, // Map cep -> zipcode
-            property_type: property.property_type,
-            listing_type: property.transaction_type, // Map transaction_type -> listing_type
-            fotos: property.photos || [], // Map photos -> fotos
-            visibility: 'public_site',
-            is_public: true
-          });
+      // Get current user
+      const { data: userData } = await supabase.auth.getUser();
+      const ownerId = userData.user!.id;
 
-        if (error) {
-          console.error('Erro ao inserir propriedade:', error);
-          toast.error(`Erro ao inserir imóvel: ${property.titulo}`);
+      // Map properties using CNM mapper
+      const payload = properties.map((it: any) => mapCnmItemToImovel(it, ownerId));
+
+      // Filter out items without external_id (log them)
+      const validPayload = payload.filter((item: any) => {
+        if (!item.external_id) {
+          console.warn('Skipping item without external_id:', item);
+          return false;
         }
+        return true;
+      });
+
+      if (validPayload.length === 0) {
+        throw new Error('Nenhum imóvel válido encontrado (todos sem external_id)');
       }
 
-      toast.success(`${properties.length} imóveis importados com sucesso!`);
+      // Upsert with conflict resolution
+      const { data, error } = await supabase
+        .from(TARGET_TABLE)
+        .upsert(validPayload, { 
+          onConflict: 'owner_id,external_id', 
+          ignoreDuplicates: false 
+        })
+        .select();
+
+      if (error) {
+        console.error('Erro ao salvar:', error);
+        toast.error(`Erro ao salvar: ${error.message}`);
+      } else {
+        toast.success(`Importação concluída: ${data?.length ?? validPayload.length} itens processados`);
+      }
+
       event.target.value = '';
       
     } catch (error) {
       console.error('Erro na importação:', error);
-      toast.error('Erro ao importar arquivo XML');
+      toast.error('Erro ao importar arquivo XML: ' + (error as Error).message);
     } finally {
       setIsImporting(false);
     }
@@ -229,10 +317,10 @@ export default function XMLImportExport() {
     setIsExporting(true);
     
     try {
-      const { data: properties, error } = await (supabase as any)
-        .from('properties')
+      const { data: properties, error } = await supabase
+        .from(TARGET_TABLE)
         .select('*')
-        .eq('user_id', user.id)
+        .eq('owner_id', user.id)
         .eq('is_public', true);
 
       if (error) {

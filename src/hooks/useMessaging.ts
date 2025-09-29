@@ -64,7 +64,9 @@ export function useMessaging() {
         setMessages(prev => [...prev, newMsg]);
       });
 
-      return unsub;
+      return () => {
+        unsub();
+      };
     }
   }, [activeThreadId]);
 
