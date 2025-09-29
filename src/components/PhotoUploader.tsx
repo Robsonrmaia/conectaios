@@ -171,6 +171,12 @@ export function PhotoUploader({
     setUploading(true);
 
     try {
+      // ✅ FIX: pegar auth.uid() para criar caminho correto
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+
       const uploadedUrls: string[] = [];
       let successCount = 0;
       let errorCount = 0;
@@ -204,13 +210,18 @@ export function PhotoUploader({
         }
         
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        const timestamp = Date.now();
+        const randomId = Math.random().toString(36).substring(2);
+        const fileName = `${timestamp}-${randomId}.${fileExt}`;
         
-        console.log(`📸 Fazendo upload para: property-images/${fileName}`);
+        // ✅ FIX: usar bucket 'imoveis' e estrutura correta de pastas: imoveis/{auth.uid()}/{filename}
+        const filePath = `${user.id}/${fileName}`;
+        
+        console.log(`📸 Fazendo upload para bucket 'imoveis': ${filePath}`);
         
         const { data, error } = await supabase.storage
-          .from('property-images')
-          .upload(fileName, file, {
+          .from('imoveis') // ✅ FIX: usar bucket 'imoveis' em vez de 'property-images'
+          .upload(filePath, file, {
             cacheControl: '3600',
             upsert: false
           });
@@ -228,9 +239,10 @@ export function PhotoUploader({
 
         console.log('✅ Upload realizado com sucesso:', data);
 
+        // ✅ FIX: gerar URL pública usando o caminho correto
         const { data: urlData } = supabase.storage
-          .from('property-images')
-          .getPublicUrl(fileName);
+          .from('imoveis') // ✅ FIX: usar bucket 'imoveis'
+          .getPublicUrl(filePath);
         
         console.log('📸 URL pública gerada:', urlData.publicUrl);
         uploadedUrls.push(urlData.publicUrl);

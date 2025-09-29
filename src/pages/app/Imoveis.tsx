@@ -322,30 +322,30 @@ export default function Imoveis() {
       console.log('Fotos validadas:', photosArray.length);
       
       const propertyData = {
-        user_id: user.id,
-        titulo: formData.titulo.trim(),
-        valor: parsedValue,
-        area: parsedArea,
-        quartos: parsedQuartos,
-        bathrooms: parsedBathrooms,
-        parking_spots: parsedParkingSpots,
-        listing_type: formData.listing_type,
+        owner_id: user.id, // ✅ FIX: usar owner_id em vez de user_id
+        title: formData.titulo.trim(), // ✅ FIX: mapear para 'title' da tabela imoveis
+        price: parsedValue, // ✅ FIX: mapear para 'price' da tabela imoveis
+        area_total: parsedArea, // ✅ FIX: mapear para 'area_total' da tabela imoveis
+        bedrooms: parsedQuartos, // ✅ FIX: mapear para 'bedrooms' da tabela imoveis
+        bathrooms: parsedBathrooms, // ✅ OK: bathrooms existe
+        parking: parsedParkingSpots, // ✅ FIX: mapear para 'parking' da tabela imoveis
+        purpose: formData.listing_type, // ✅ FIX: mapear listing_type para 'purpose' da tabela imoveis
         property_type: formData.property_type,
         visibility: formData.visibility,
-        broker_minisite_enabled: formData.broker_minisite_enabled,
-        descricao: formData.descricao,
-        fotos: photosArray,
-        videos: formData.videos ? formData.videos.split(',').map(v => v.trim()).filter(v => v) : [],
+        description: formData.descricao, // ✅ FIX: mapear para 'description' da tabela imoveis
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
-        zipcode: formData.zipcode, // ✅ FIX: CEP agora será salvo no banco
-        condominium_fee: parsedCondominiumFee,
+        state: formData.state,
+        zipcode: formData.zipcode,
+        condo_fee: parsedCondominiumFee, // ✅ FIX: mapear para 'condo_fee' da tabela imoveis
         iptu: parsedIptu,
-        banner_type: (formData.banner_type === "none" || formData.banner_type === "" || !formData.banner_type) ? null : formData.banner_type,
+        is_furnished: formData.is_furnished,
         furnishing_type: formData.furnishing_type,
         sea_distance: parsedSeaDistance,
         year_built: parsedYearBuilt,
+        is_public: formData.visibility === 'public_site',
+        status: 'available' // ✅ Definir status padrão
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
@@ -357,17 +357,17 @@ export default function Imoveis() {
         // Editar imóvel existente
         console.log('=== EDITANDO IMÓVEL EXISTENTE ===', selectedProperty.id);
         result = await supabase
-          .from('properties')
+          .from('imoveis') // ✅ FIX: usar 'imoveis' em vez de 'properties'
           .update(propertyData)
           .eq('id', selectedProperty.id)
           .select()
           .single();
       } else {
-        // Adicionar novo imóvel - gera código automaticamente no banco via trigger
+        // Adicionar novo imóvel - usar INSERT simples (sem external_id para cadastro manual)
         console.log('=== CRIANDO NOVO IMÓVEL ===');
         result = await supabase
-          .from('properties')
-          .insert(propertyData)
+          .from('imoveis') // ✅ FIX: usar 'imoveis' em vez de 'properties'
+          .insert([propertyData]) // ✅ FIX: usar array e INSERT simples
           .select()
           .single();
       }
@@ -383,9 +383,10 @@ export default function Imoveis() {
         console.error('Error details:', result.error.details);
         console.error('Error hint:', result.error.hint);
         
+        // ✅ FIX: mostrar erro completo do Supabase sem mascarar
         toast({
           title: "Erro ao salvar imóvel",
-          description: `Erro Supabase: ${result.error.message || 'Erro desconhecido'}`,
+          description: `${result.error.message || 'Erro desconhecido'}`,
           variant: "destructive",
         });
         
@@ -522,7 +523,7 @@ export default function Imoveis() {
   const handleDeleteProperty = async (id: string) => {
     try {
       const { error } = await supabase
-        .from('properties')
+        .from('imoveis') // ✅ FIX: usar 'imoveis' em vez de 'properties'
         .delete()
         .eq('id', id);
 
