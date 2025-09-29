@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MessageCircle, Send, Users, UserPlus } from 'lucide-react';
+import { MessageCircle, Send, Users } from 'lucide-react';
 import { useChat } from '@/hooks/useChat';
-import { ChatAPI } from '@/data/chat';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
+import { NewConversationModal } from '@/features/messaging/NewConversationModal';
 
 export default function Mensagens() {
   const { user } = useAuth();
@@ -35,22 +35,9 @@ export default function Mensagens() {
     }
   };
 
-  const createNewDM = async (peerUserId: string) => {
-    try {
-      const threadId = await ChatAPI.getOrCreateDM(peerUserId);
-      setActiveThreadId(threadId);
-      refreshThreads();
-      toast({
-        title: "Sucesso",
-        description: "Conversa criada!",
-      });
-    } catch (error) {
-      toast({
-        title: "Erro", 
-        description: "Erro ao criar conversa",
-        variant: "destructive",
-      });
-    }
+  const handleThreadCreated = (threadId: string) => {
+    setActiveThreadId(threadId);
+    refreshThreads();
   };
 
   const getThreadTitle = (thread: any) => {
@@ -88,21 +75,7 @@ export default function Mensagens() {
                 <div className="text-center py-8">
                   <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
                   <p className="text-muted-foreground mb-4">Nenhuma conversa encontrada</p>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => {
-                      // Exemplo: criar DM com user fictício
-                      // createNewDM('user-id-aqui');
-                      toast({
-                        title: "Info",
-                        description: "Implemente a seleção de usuário para criar nova conversa",
-                      });
-                    }}
-                  >
-                    <UserPlus className="h-4 w-4 mr-2" />
-                    Nova Conversa
-                  </Button>
+                  <NewConversationModal onThreadCreated={handleThreadCreated} />
                 </div>
               ) : (
                 threads.map((thread) => (
