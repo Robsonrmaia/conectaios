@@ -174,7 +174,15 @@ export type Database = {
           thread_id?: string
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_messages_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_participants: {
         Row: {
@@ -201,7 +209,15 @@ export type Database = {
           thread_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_participants_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_presence: {
         Row: {
@@ -258,7 +274,22 @@ export type Database = {
           thread_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_receipts_message"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_receipts_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_threads: {
         Row: {
@@ -2986,6 +3017,10 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+      }
+      find_or_create_dm: {
+        Args: { user_a: string; user_b: string }
+        Returns: string
       }
       find_property_matches: {
         Args: {
