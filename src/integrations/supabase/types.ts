@@ -185,6 +185,13 @@ export type Database = {
             referencedRelation: "chat_threads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_messages_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       chat_participants: {
@@ -218,6 +225,13 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_participants_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_view"
             referencedColumns: ["id"]
           },
         ]
@@ -292,10 +306,19 @@ export type Database = {
             referencedRelation: "chat_threads"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_receipts_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       chat_threads: {
         Row: {
+          a_user_id: string | null
+          b_user_id: string | null
           created_at: string | null
           created_by: string | null
           id: string
@@ -305,6 +328,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          a_user_id?: string | null
+          b_user_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -314,6 +339,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          a_user_id?: string | null
+          b_user_id?: string | null
           created_at?: string | null
           created_by?: string | null
           id?: string
@@ -2589,6 +2616,39 @@ export type Database = {
           sort_order: number | null
           title: string | null
           updated_at: string | null
+        }
+        Relationships: []
+      }
+      chat_threads_view: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          is_group: boolean | null
+          last_message_at: string | null
+          last_text: string | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string | null
+          is_group?: boolean | null
+          last_message_at?: string | null
+          last_text?: never
+          title?: string | null
+          type?: never
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string | null
+          is_group?: boolean | null
+          last_message_at?: string | null
+          last_text?: never
+          title?: string | null
+          type?: never
+          updated_at?: string | null
         }
         Relationships: []
       }

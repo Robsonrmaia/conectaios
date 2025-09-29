@@ -46,10 +46,10 @@ export default function Mensagens() {
   };
 
   const getThreadTitle = (thread: any) => {
-    if (thread.is_group) {
+    if (thread.type === 'group') {
       return thread.title || 'Grupo';
     }
-    return 'Chat 1:1';
+    return thread.title || 'Chat 1:1';
   };
 
   if (loading) {
@@ -120,7 +120,7 @@ export default function Mensagens() {
                   >
                     <div className="flex items-center space-x-3">
                       <Avatar className="h-10 w-10">
-                        {thread.is_group ? (
+                        {thread.type === 'group' ? (
                           <AvatarFallback>
                             <Users className="h-5 w-5" />
                           </AvatarFallback>
@@ -134,12 +134,19 @@ export default function Mensagens() {
                         <p className="text-sm font-medium truncate">
                           {getThreadTitle(thread)}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(thread.updated_at), { 
-                            addSuffix: true, 
-                            locale: ptBR 
-                          })}
-                        </p>
+                        {thread.last_text && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {thread.last_text}
+                          </p>
+                        )}
+                        {thread.last_message_at && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(thread.last_message_at), { 
+                              addSuffix: true, 
+                              locale: ptBR 
+                            })}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -54,11 +54,9 @@ export function NewConversationModal({ onThreadCreated }: NewConversationModalPr
     } catch (error: any) {
       console.error('Error creating conversation:', error);
       
-      const errorMessage = error.message?.includes('cannot_create_chat_with_self') 
-        ? 'Não é possível criar conversa consigo mesmo'
-        : error.message?.includes('unauthenticated')
+      const errorMessage = error.message?.includes('not_authenticated')
         ? 'Você precisa estar logado para criar conversas'
-        : 'Erro ao criar conversa';
+        : error.message || 'Erro ao criar conversa';
       
       toast({
         title: "Erro",
