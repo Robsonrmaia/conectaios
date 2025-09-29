@@ -5,9 +5,8 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageCircle, Send, Users } from 'lucide-react';
-import { useChat } from '@/hooks/useChat';
+import { useMessaging } from '@/hooks/useMessaging';
 import { useAuth } from '@/hooks/useAuth';
-import { useBroker } from '@/hooks/useBroker';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from '@/hooks/use-toast';
@@ -15,16 +14,22 @@ import { NewConversationModal } from '@/features/messaging/NewConversationModal'
 
 export default function Mensagens() {
   const { user } = useAuth();
-  const { broker } = useBroker();
-  const [activeThreadId, setActiveThreadId] = useState<string>();
   const [newMessage, setNewMessage] = useState('');
-  const { threads, messages, loading, send, refreshThreads } = useChat(activeThreadId);
+  const { 
+    threads, 
+    messages, 
+    loading, 
+    activeThreadId, 
+    setActiveThreadId,
+    sendMessage,
+    loadThreads 
+  } = useMessaging();
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || !activeThreadId) return;
     
     try {
-      await send(newMessage);
+      await sendMessage(activeThreadId, newMessage);
       setNewMessage('');
     } catch (error) {
       toast({
@@ -37,7 +42,7 @@ export default function Mensagens() {
 
   const handleThreadCreated = (threadId: string) => {
     setActiveThreadId(threadId);
-    refreshThreads();
+    loadThreads();
   };
 
   const getThreadTitle = (thread: any) => {

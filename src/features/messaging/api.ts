@@ -52,11 +52,6 @@ export async function searchBrokers(q: string, currentUserId: string) {
 
   if (error) throw error
 
-  // Remove duplicates by id and filter out current user
-  const unique = Array.from(new Map((data ?? [])
-    .filter(u => u.id !== currentUserId)
-    .map(u => [u.id, u])
-  ).values())
-  
-  return unique
+  // Return unique profiles excluding current user
+  return (data ?? []).filter(u => u.id !== currentUserId)
 }

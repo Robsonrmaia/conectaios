@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, UserPlus } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { searchBrokers, startOneToOneThread } from './api';
+import { useMessaging } from '@/hooks/useMessaging';
 import { toast } from '@/hooks/use-toast';
 
 interface NewConversationModalProps {
@@ -14,6 +14,7 @@ interface NewConversationModalProps {
 
 export function NewConversationModal({ onThreadCreated }: NewConversationModalProps) {
   const { user } = useAuth();
+  const { searchUsers, startOneToOneThread } = useMessaging();
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [brokers, setBrokers] = useState<any[]>([]);
@@ -25,7 +26,7 @@ export function NewConversationModal({ onThreadCreated }: NewConversationModalPr
     
     setLoading(true);
     try {
-      const results = await searchBrokers(query, user.id);
+      const results = await searchUsers(query);
       setBrokers(results);
     } catch (error) {
       toast({
@@ -105,9 +106,9 @@ export function NewConversationModal({ onThreadCreated }: NewConversationModalPr
             <div className="space-y-2 max-h-60 overflow-y-auto">
               {brokers.map((broker) => (
                 <div
-                  key={broker.user_id}
+                  key={broker.id}
                   className="flex items-center justify-between p-2 hover:bg-muted rounded-lg cursor-pointer"
-                  onClick={() => handleCreateConversation(broker.user_id)}
+                  onClick={() => handleCreateConversation(broker.id)}
                 >
                   <div className="flex items-center space-x-3">
                     <Avatar className="h-8 w-8">
@@ -117,7 +118,7 @@ export function NewConversationModal({ onThreadCreated }: NewConversationModalPr
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="text-sm font-medium">{broker.name}</p>
+                      <p className="text-sm font-medium">{broker.name || 'Usuário'}</p>
                       <p className="text-xs text-muted-foreground">{broker.email}</p>
                     </div>
                   </div>
