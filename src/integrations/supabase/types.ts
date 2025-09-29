@@ -3195,6 +3195,19 @@ export type Database = {
           zipcode: string | null
         }[]
       }
+      send_message: {
+        Args: { p_body: string; p_reply_to?: string; p_thread_id: string }
+        Returns: {
+          attachments: Json | null
+          body: string | null
+          created_at: string | null
+          id: string
+          reply_to_id: string | null
+          sender_id: string
+          thread_id: string
+          updated_at: string | null
+        }
+      }
       set_limit: {
         Args: { "": number }
         Returns: number
@@ -3244,6 +3257,10 @@ export type Database = {
       social_publish_post: {
         Args: { p_post_id: string }
         Returns: boolean
+      }
+      start_or_get_thread: {
+        Args: { target_user: string }
+        Returns: string
       }
     }
     Enums: {
