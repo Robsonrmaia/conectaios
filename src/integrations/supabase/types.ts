@@ -1006,6 +1006,7 @@ export type Database = {
       }
       imoveis: {
         Row: {
+          address: string | null
           area_built: number | null
           area_total: number | null
           bathrooms: number | null
@@ -1015,6 +1016,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           distancia_mar: number | null
+          external_id: string | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -1027,6 +1029,7 @@ export type Database = {
           price: number | null
           purpose: string
           search_vector: unknown | null
+          source: string | null
           state: string | null
           status: string | null
           street: string | null
@@ -1039,6 +1042,7 @@ export type Database = {
           zipcode: string | null
         }
         Insert: {
+          address?: string | null
           area_built?: number | null
           area_total?: number | null
           bathrooms?: number | null
@@ -1048,6 +1052,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           distancia_mar?: number | null
+          external_id?: string | null
           id?: string
           iptu?: number | null
           is_furnished?: boolean | null
@@ -1060,6 +1065,7 @@ export type Database = {
           price?: number | null
           purpose: string
           search_vector?: unknown | null
+          source?: string | null
           state?: string | null
           status?: string | null
           street?: string | null
@@ -1072,6 +1078,7 @@ export type Database = {
           zipcode?: string | null
         }
         Update: {
+          address?: string | null
           area_built?: number | null
           area_total?: number | null
           bathrooms?: number | null
@@ -1081,6 +1088,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           distancia_mar?: number | null
+          external_id?: string | null
           id?: string
           iptu?: number | null
           is_furnished?: boolean | null
@@ -1093,6 +1101,7 @@ export type Database = {
           price?: number | null
           purpose?: string
           search_vector?: unknown | null
+          source?: string | null
           state?: string | null
           status?: string | null
           street?: string | null
@@ -2692,113 +2701,96 @@ export type Database = {
       }
       properties: {
         Row: {
+          address: string | null
           area: number | null
+          bairro: string | null
           bathrooms: number | null
-          city: string | null
-          condominium_fee: number | null
+          bedrooms: number | null
+          cep: string | null
+          cidade: string | null
           created_at: string | null
-          descricao: string | null
-          fotos: Json | null
-          has_sea_view: boolean | null
+          description: string | null
+          external_id: string | null
+          garages: number | null
           id: string | null
-          iptu: number | null
-          is_furnished: boolean | null
-          is_public: boolean | null
-          listing_type: string | null
-          neighborhood: string | null
+          is_published: boolean | null
+          lat: number | null
+          lng: number | null
+          logradouro: string | null
+          numero: string | null
           owner_id: string | null
-          parking_spots: number | null
-          property_type: string | null
-          quartos: number | null
-          sea_distance: number | null
+          price: number | null
+          source: string | null
+          status: string | null
           thumb_url: string | null
-          titulo: string | null
+          tipo: string | null
+          title: string | null
+          uf: string | null
           updated_at: string | null
-          user_id: string | null
-          valor: number | null
-          videos: Json | null
-          visibility: string | null
-          zipcode: string | null
         }
         Insert: {
+          address?: string | null
           area?: number | null
+          bairro?: string | null
           bathrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
+          bedrooms?: number | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
-          descricao?: string | null
-          fotos?: never
-          has_sea_view?: boolean | null
+          description?: string | null
+          external_id?: string | null
+          garages?: number | null
           id?: string | null
-          iptu?: number | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
-          listing_type?: string | null
-          neighborhood?: string | null
+          is_published?: boolean | null
+          lat?: never
+          lng?: never
+          logradouro?: string | null
+          numero?: string | null
           owner_id?: string | null
-          parking_spots?: number | null
-          property_type?: string | null
-          quartos?: number | null
-          sea_distance?: number | null
+          price?: number | null
+          source?: string | null
+          status?: string | null
           thumb_url?: never
-          titulo?: string | null
+          tipo?: string | null
+          title?: string | null
+          uf?: string | null
           updated_at?: string | null
-          user_id?: string | null
-          valor?: number | null
-          videos?: never
-          visibility?: string | null
-          zipcode?: string | null
         }
         Update: {
+          address?: string | null
           area?: number | null
+          bairro?: string | null
           bathrooms?: number | null
-          city?: string | null
-          condominium_fee?: number | null
+          bedrooms?: number | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
-          descricao?: string | null
-          fotos?: never
-          has_sea_view?: boolean | null
+          description?: string | null
+          external_id?: string | null
+          garages?: number | null
           id?: string | null
-          iptu?: number | null
-          is_furnished?: boolean | null
-          is_public?: boolean | null
-          listing_type?: string | null
-          neighborhood?: string | null
+          is_published?: boolean | null
+          lat?: never
+          lng?: never
+          logradouro?: string | null
+          numero?: string | null
           owner_id?: string | null
-          parking_spots?: number | null
-          property_type?: string | null
-          quartos?: number | null
-          sea_distance?: number | null
+          price?: number | null
+          source?: string | null
+          status?: string | null
           thumb_url?: never
-          titulo?: string | null
+          tipo?: string | null
+          title?: string | null
+          uf?: string | null
           updated_at?: string | null
-          user_id?: string | null
-          valor?: number | null
-          videos?: never
-          visibility?: string | null
-          zipcode?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "imoveis_owner_fk"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_fk"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_social_broker_card"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_fk"
@@ -2809,24 +2801,10 @@ export type Database = {
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_social_broker_card"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
@@ -3051,6 +3029,7 @@ export type Database = {
           p_query?: string
         }
         Returns: {
+          address: string | null
           area_built: number | null
           area_total: number | null
           bathrooms: number | null
@@ -3060,6 +3039,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           distancia_mar: number | null
+          external_id: string | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -3072,6 +3052,7 @@ export type Database = {
           price: number | null
           purpose: string
           search_vector: unknown | null
+          source: string | null
           state: string | null
           status: string | null
           street: string | null
@@ -3096,6 +3077,7 @@ export type Database = {
           p_offset?: number
         }
         Returns: {
+          address: string | null
           area_built: number | null
           area_total: number | null
           bathrooms: number | null
@@ -3105,6 +3087,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           distancia_mar: number | null
+          external_id: string | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -3117,6 +3100,7 @@ export type Database = {
           price: number | null
           purpose: string
           search_vector: unknown | null
+          source: string | null
           state: string | null
           status: string | null
           street: string | null
@@ -3198,6 +3182,7 @@ export type Database = {
           q?: string
         }
         Returns: {
+          address: string | null
           area_built: number | null
           area_total: number | null
           bathrooms: number | null
@@ -3207,6 +3192,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           distancia_mar: number | null
+          external_id: string | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -3219,6 +3205,7 @@ export type Database = {
           price: number | null
           purpose: string
           search_vector: unknown | null
+          source: string | null
           state: string | null
           status: string | null
           street: string | null
@@ -3240,6 +3227,7 @@ export type Database = {
           q?: string
         }
         Returns: {
+          address: string | null
           area_built: number | null
           area_total: number | null
           bathrooms: number | null
@@ -3249,6 +3237,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           distancia_mar: number | null
+          external_id: string | null
           id: string
           iptu: number | null
           is_furnished: boolean | null
@@ -3261,6 +3250,7 @@ export type Database = {
           price: number | null
           purpose: string
           search_vector: unknown | null
+          source: string | null
           state: string | null
           status: string | null
           street: string | null
