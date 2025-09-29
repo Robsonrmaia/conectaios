@@ -370,9 +370,13 @@ export default function Perfil() {
                           .eq('id', user.id);
 
                         if (profileError) {
-                          if (import.meta.env.DEV) {
-                            console.error('/* DEBUG */ update profiles error', profileError);
-                          }
+                          console.error('[Perfil] update profiles error:', {
+                            error: profileError,
+                            code: profileError.code,
+                            details: profileError.details,
+                            hint: profileError.hint,
+                            message: profileError.message
+                          });
                           throw profileError;
                         }
 
@@ -396,9 +400,13 @@ export default function Perfil() {
                           .upsert(brokerPayload, { onConflict: 'user_id' });
 
                         if (brokerError) {
-                          if (import.meta.env.DEV) {
-                            console.error('/* DEBUG */ upsert brokers error', brokerError);
-                          }
+                          console.error('[Perfil] upsert brokers error:', {
+                            error: brokerError,
+                            code: brokerError.code,
+                            details: brokerError.details,
+                            hint: brokerError.hint,
+                            message: brokerError.message
+                          });
                           throw brokerError;
                         }
                         
@@ -410,13 +418,17 @@ export default function Perfil() {
                           title: "Perfil atualizado!",
                           description: "Suas informações foram salvas com sucesso.",
                         });
-                      } catch (error) {
-                        if (import.meta.env.DEV) {
-                          console.error('/* DEBUG */ Perfil save error:', error);
-                        }
+                      } catch (error: any) {
+                        console.error('[Perfil] save error:', {
+                          error,
+                          message: error?.message,
+                          code: error?.code,
+                          details: error?.details,
+                          hint: error?.hint
+                        });
                         toast({
                           title: "Erro",
-                          description: "Erro ao salvar as alterações.",
+                          description: error?.message || "Erro ao salvar as alterações.",
                           variant: "destructive",
                         });
                       }

@@ -14,33 +14,56 @@ export function useImageUpload() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
-      // Generate filename with user ID
+      // Generate filename with user ID and UUID for uniqueness
       const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
-      const path = `public/${user.id}/avatar.${ext}`;
+      const uuid = crypto.randomUUID();
+      const path = `public/avatars/${user.id}/${uuid}.${ext}`;
 
-      // Upload to avatars bucket with upsert
+      console.log('[ImageUpload] Uploading to assets bucket:', { path, type });
+
+      // Upload to assets bucket with upsert
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
+        .from('assets')
         .upload(path, file, { upsert: true });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('[ImageUpload] Upload error:', uploadError);
+        throw uploadError;
+      }
 
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
+        .from('assets')
         .getPublicUrl(path);
+
+      console.log('[ImageUpload] Public URL generated:', publicUrl);
 
       // Update both profiles.avatar_url and brokers.avatar_url
       if (type === 'avatar') {
+        console.log('[ImageUpload] Updating avatar_url in profiles and brokers');
+        
         // Update profiles table
-        await supabase
+        const { error: profileError } = await supabase
           .from('profiles')
           .update({ avatar_url: publicUrl })
           .eq('id', user.id);
 
+        if (profileError) {
+          console.error('[ImageUpload] Error updating profiles.avatar_url:', profileError);
+          throw profileError;
+        }
+
         // Update brokers table if broker exists
         if (broker) {
-          await updateBrokerProfile({ avatar_url: publicUrl });
+          const { error: brokerError } = await supabase
+            .from('brokers')
+            .update({ avatar_url: publicUrl })
+            .eq('user_id', user.id);
+
+          if (brokerError) {
+            console.error('[ImageUpload] Error updating brokers.avatar_url:', brokerError);
+            throw brokerError;
+          }
         }
       } else if (type === 'cover' && broker) {
         await updateBrokerProfile({ cover_url: publicUrl });
