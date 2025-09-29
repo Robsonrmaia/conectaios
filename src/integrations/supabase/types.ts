@@ -68,6 +68,7 @@ export type Database = {
           subscription_status: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
           website: string | null
           whatsapp: string | null
         }
@@ -94,6 +95,7 @@ export type Database = {
           subscription_status?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -120,6 +122,7 @@ export type Database = {
           subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
           website?: string | null
           whatsapp?: string | null
         }
