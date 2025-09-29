@@ -202,7 +202,35 @@ export default function Imoveis() {
         throw error;
       }
       
-      // Map data simples para evitar erros
+      // ✅ FIX: Buscar imagens de cada imóvel
+      const propertyIds = (data || []).map(p => p.id);
+      let imagesMap: Record<string, string[]> = {};
+      
+      if (propertyIds.length > 0) {
+        console.log('📸 [ADMIN] Buscando imagens para', propertyIds.length, 'imóveis');
+        
+        const { data: imagesData, error: imagesError } = await supabase
+          .from('imovel_images')
+          .select('imovel_id, url, position, is_cover')
+          .in('imovel_id', propertyIds)
+          .order('position', { ascending: true });
+        
+        if (imagesError) {
+          console.error('❌ [ADMIN] Erro ao buscar imagens:', imagesError);
+        } else {
+          console.log('✅ [ADMIN] Imagens carregadas:', imagesData?.length);
+          
+          // Agrupar imagens por imovel_id
+          imagesData?.forEach(img => {
+            if (!imagesMap[img.imovel_id]) {
+              imagesMap[img.imovel_id] = [];
+            }
+            imagesMap[img.imovel_id].push(img.url);
+          });
+        }
+      }
+      
+      // Map data com fotos carregadas do banco
       const mappedData = (data || []).map(prop => ({
         id: prop.id,
         titulo: prop.title || 'Sem título',
@@ -214,7 +242,7 @@ export default function Imoveis() {
         listing_type: 'venda',
         property_type: 'apartamento',
         visibility: prop.visibility || 'public_site',
-        fotos: [],
+        fotos: imagesMap[prop.id] || [], // ✅ FIX: carregar fotos do banco
         videos: [],
         descricao: '',
         banner_type: null,
@@ -229,6 +257,8 @@ export default function Imoveis() {
         watermark_enabled: true,
         created_at: prop.created_at
       }));
+      
+      console.log('📊 [ADMIN] Propriedades mapeadas com fotos:', mappedData.map(p => ({ id: p.id, fotos: p.fotos.length })));
       
       setProperties(mappedData);
       
@@ -405,6 +435,60 @@ export default function Imoveis() {
 
       console.log('=== SALVAMENTO BEM-SUCEDIDO ===');
       console.log('Property saved successfully:', result.data);
+
+      // ✅ FIX: Salvar imagens na tabela imovel_images após criar/editar o imóvel
+      if (result.data?.id && photosArray.length > 0) {
+        console.log('=== SALVANDO IMAGENS NA TABELA ===');
+        console.log('Property ID:', result.data.id);
+        console.log('Total de fotos:', photosArray.length);
+        
+        try {
+          // Preparar registros de imagens
+          const imageRecords = photosArray.map((url, index) => ({
+            imovel_id: result.data.id,
+            url: url,
+            storage_path: url.includes('supabase.co/storage') ? url.split('/storage/v1/object/public/imoveis/')[1] : null,
+            position: index,
+            is_cover: index === 0,
+            created_at: new Date().toISOString()
+          }));
+
+          console.log('📸 Registros de imagens preparados:', imageRecords);
+
+          // Se for edição, remover imagens antigas primeiro
+          if (selectedProperty) {
+            const { error: deleteError } = await supabase
+              .from('imovel_images')
+              .delete()
+              .eq('imovel_id', result.data.id);
+            
+            if (deleteError) {
+              console.error('❌ Erro ao remover imagens antigas:', deleteError);
+            } else {
+              console.log('✅ Imagens antigas removidas');
+            }
+          }
+
+          // Inserir novos registros de imagens
+          const { data: insertedImages, error: imagesError } = await supabase
+            .from('imovel_images')
+            .insert(imageRecords)
+            .select();
+
+          if (imagesError) {
+            console.error('❌ Erro ao salvar imagens:', imagesError);
+            toast({
+              title: "Aviso",
+              description: "Imóvel salvo, mas houve erro ao salvar algumas imagens",
+              variant: "destructive",
+            });
+          } else {
+            console.log('✅ Imagens salvas com sucesso:', insertedImages);
+          }
+        } catch (imageError) {
+          console.error('❌ Erro inesperado ao salvar imagens:', imageError);
+        }
+      }
 
       // Calculate quality and show suggestions
       const qualityAnalysis = calculateQualityAnalysis(result.data);
