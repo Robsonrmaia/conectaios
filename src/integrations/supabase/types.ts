@@ -375,6 +375,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "client_searches_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+          {
             foreignKeyName: "client_searches_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -541,6 +548,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_clients_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
           },
         ]
       }
@@ -1340,6 +1354,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "leads_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+          {
             foreignKeyName: "leads_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
@@ -1902,6 +1923,13 @@ export type Database = {
             referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "property_submissions_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
         ]
       }
       social_banners: {
@@ -2341,6 +2369,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "conectaios_brokers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
           },
           {
             foreignKeyName: "support_tickets_user_id_fkey"
@@ -2853,6 +2888,35 @@ export type Database = {
         }
         Relationships: []
       }
+      vw_current_broker: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          broker_id: string | null
+          creci: string | null
+          display_name: string | null
+          phone: string | null
+          user_id: string | null
+          username: string | null
+          whatsapp: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_change_user_role: {
@@ -2963,6 +3027,16 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+      }
+      fn_profile_save: {
+        Args: {
+          p_avatar_url?: string
+          p_bio?: string
+          p_name: string
+          p_phone?: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
       generate_referral_code: {
         Args: { user_uuid?: string }

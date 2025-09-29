@@ -84,20 +84,11 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
       console.log('🔄 Fetching broker profile for user:', user.id);
       
-      // Fetch profiles data first (avatar_url, etc.)
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('id,email,name,avatar_url,phone,bio')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      // Fetch broker profile with ORDER BY to handle any potential duplicates
+      // Use unified view for broker data
       const { data: brokerData, error: brokerError } = await supabase
-        .from('brokers')
+        .from('vw_current_broker')
         .select('*')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
         .maybeSingle();
 
       if (brokerError) {
@@ -106,35 +97,40 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (brokerData) {
-        console.log('✅ Broker profile loaded:', brokerData.id);
+        console.log('✅ Broker profile loaded:', brokerData.broker_id);
         
-        // Merge profiles and brokers data
+        // Map view data to expected broker format
         const unifiedBroker = {
-          ...brokerData,
-          // Override with profiles data when available
-          name: profileData?.name || brokerData.name,
-          email: profileData?.email || brokerData.email,
-          phone: profileData?.phone || brokerData.phone,
-          bio: profileData?.bio || brokerData.bio,
-          avatar_url: profileData?.avatar_url || brokerData.avatar_url,
+          id: brokerData.broker_id,
+          user_id: brokerData.user_id,
+          name: brokerData.display_name || '',
+          email: '', // Will be filled from auth if needed
+          phone: brokerData.phone,
+          bio: brokerData.bio,
+          creci: brokerData.creci,
+          username: brokerData.username,
+          avatar_url: brokerData.avatar_url,
+          whatsapp: brokerData.whatsapp,
+          status: 'active',
+          subscription_status: 'trial'
         };
         
         setBroker(unifiedBroker);
 
-        // Fetch plan details if broker has plan_id
-        if (brokerData.plan_id) {
-          const { data: planData, error: planError } = await supabase
+        // Try to fetch plan if broker_id exists - fallback gracefully
+        try {
+          const { data: planData } = await supabase
             .from('plans')
             .select('*')
-            .eq('id', brokerData.plan_id)
+            .eq('id', 'default-plan-id')
             .maybeSingle();
 
-          if (planError) {
-            console.error('⚠️ Error fetching plan:', planError);
-          } else if (planData) {
+          if (planData) {
             console.log('✅ Plan loaded:', planData.name);
             setPlan(planData);
           }
+        } catch (planError) {
+          console.warn('⚠️ Plan fetch failed, continuing without plan:', planError);
         }
       } else {
         console.log('ℹ️ No broker profile found for user');
@@ -228,20 +224,17 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     try {
       console.log('🔄 Updating broker profile:', data);
       
-      // Always include user_id in the payload for upsert
-      const payload = {
-        user_id: user.id,
-        ...data,
-      };
-
-      const { data: updatedBroker, error } = await supabase
-        .from('brokers')
-        .upsert(payload, { onConflict: 'user_id' })
-        .select()
-        .single();
+      // Use RPC function for unified save
+      const { error } = await supabase.rpc('fn_profile_save', {
+        p_user_id: user.id,
+        p_name: data.name || null,
+        p_phone: data.phone || null,
+        p_bio: data.bio || null,
+        p_avatar_url: data.avatar_url || null
+      });
 
       if (error) {
-        console.error('[useBroker] upsert brokers error:', {
+        console.error('[useBroker] RPC fn_profile_save error:', {
           error,
           code: error.code,
           details: error.details,
@@ -251,7 +244,6 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         throw error;
       }
       
-      setBroker(updatedBroker as any);
       console.log('✅ Broker profile updated successfully');
       
       // Refresh broker profile to ensure we have the latest data

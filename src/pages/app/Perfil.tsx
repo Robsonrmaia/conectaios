@@ -359,26 +359,18 @@ export default function Perfil() {
                         const { data: { user } } = await supabase.auth.getUser();
                         if (!user) throw new Error('User not authenticated');
 
-                        // Prepare broker payload with all fields and always include user_id
-                        const brokerPayload = {
-                          user_id: user.id,
-                          name: profile.name?.trim() || null,
-                          email: profile.email?.trim() || null,
-                          phone: profile.phone?.trim() || null,
-                          bio: profile.bio?.trim() || null,
-                          creci: profile.creci?.trim() || null,
-                          username: profile.username?.trim() || null,
-                          website: profile.website?.trim() || null,
-                          instagram: profile.instagram?.trim() || null,
-                          linkedin: profile.linkedin?.trim() || null,
-                          specialties: profile.specialties?.trim() || null,
-                          avatar_url: profile.avatar || null,
-                        };
+                        // Use RPC function for unified save
+                        const { error } = await supabase.rpc('fn_profile_save', {
+                          p_user_id: user.id,
+                          p_name: profile.name?.trim() || null,
+                          p_phone: profile.phone?.trim() || null,
+                          p_bio: profile.bio?.trim() || null,
+                          p_avatar_url: profile.avatar || null
+                        });
 
-                        // Use updateBrokerProfile hook which handles upsert
-                        await updateBrokerProfile(brokerPayload);
+                        if (error) throw error;
 
-                        // After saving broker, ensure minisite config exists (best-effort)
+                        // After saving profile, ensure minisite config exists (best-effort)
                         try {
                           await ensureMinisiteConfig(user.id, profile);
                         } catch (minisiteError) {
