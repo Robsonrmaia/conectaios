@@ -1008,6 +1008,7 @@ export type Database = {
         Row: {
           address: string | null
           area_built: number | null
+          area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
@@ -1021,12 +1022,16 @@ export type Database = {
           iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
           neighborhood: string | null
           norm_title: string | null
           number: string | null
           owner_id: string
           parking: number | null
           price: number | null
+          property_type: string | null
           purpose: string
           search_vector: unknown | null
           source: string | null
@@ -1044,6 +1049,7 @@ export type Database = {
         Insert: {
           address?: string | null
           area_built?: number | null
+          area_privativa?: number | null
           area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -1057,12 +1063,16 @@ export type Database = {
           iptu?: number | null
           is_furnished?: boolean | null
           is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
           neighborhood?: string | null
           norm_title?: string | null
           number?: string | null
           owner_id: string
           parking?: number | null
           price?: number | null
+          property_type?: string | null
           purpose: string
           search_vector?: unknown | null
           source?: string | null
@@ -1080,6 +1090,7 @@ export type Database = {
         Update: {
           address?: string | null
           area_built?: number | null
+          area_privativa?: number | null
           area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
@@ -1093,12 +1104,16 @@ export type Database = {
           iptu?: number | null
           is_furnished?: boolean | null
           is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
           neighborhood?: string | null
           norm_title?: string | null
           number?: string | null
           owner_id?: string
           parking?: number | null
           price?: number | null
+          property_type?: string | null
           purpose?: string
           search_vector?: unknown | null
           source?: string | null
@@ -2702,95 +2717,112 @@ export type Database = {
       properties: {
         Row: {
           address: string | null
-          area: number | null
-          bairro: string | null
+          area_privativa: number | null
+          area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
-          cep: string | null
-          cidade: string | null
+          city: string | null
+          condo_fee: number | null
           created_at: string | null
           description: string | null
           external_id: string | null
-          garages: number | null
           id: string | null
-          is_published: boolean | null
-          lat: number | null
-          lng: number | null
-          logradouro: string | null
-          numero: string | null
+          iptu: number | null
+          is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
+          neighborhood: string | null
           owner_id: string | null
+          parking: number | null
           price: number | null
+          property_type: string | null
           source: string | null
-          status: string | null
-          thumb_url: string | null
-          tipo: string | null
+          state: string | null
           title: string | null
-          uf: string | null
           updated_at: string | null
+          user_id: string | null
+          visibility: string | null
         }
         Insert: {
           address?: string | null
-          area?: number | null
-          bairro?: string | null
+          area_privativa?: number | null
+          area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
-          cep?: string | null
-          cidade?: string | null
+          city?: string | null
+          condo_fee?: number | null
           created_at?: string | null
           description?: string | null
           external_id?: string | null
-          garages?: number | null
           id?: string | null
-          is_published?: boolean | null
-          lat?: never
-          lng?: never
-          logradouro?: string | null
-          numero?: string | null
+          iptu?: number | null
+          is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
           owner_id?: string | null
+          parking?: number | null
           price?: number | null
+          property_type?: string | null
           source?: string | null
-          status?: string | null
-          thumb_url?: never
-          tipo?: string | null
+          state?: string | null
           title?: string | null
-          uf?: string | null
           updated_at?: string | null
+          user_id?: string | null
+          visibility?: string | null
         }
         Update: {
           address?: string | null
-          area?: number | null
-          bairro?: string | null
+          area_privativa?: number | null
+          area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
-          cep?: string | null
-          cidade?: string | null
+          city?: string | null
+          condo_fee?: number | null
           created_at?: string | null
           description?: string | null
           external_id?: string | null
-          garages?: number | null
           id?: string | null
-          is_published?: boolean | null
-          lat?: never
-          lng?: never
-          logradouro?: string | null
-          numero?: string | null
+          iptu?: number | null
+          is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
           owner_id?: string | null
+          parking?: number | null
           price?: number | null
+          property_type?: string | null
           source?: string | null
-          status?: string | null
-          thumb_url?: never
-          tipo?: string | null
+          state?: string | null
           title?: string | null
-          uf?: string | null
           updated_at?: string | null
+          user_id?: string | null
+          visibility?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_fk"
@@ -2801,10 +2833,24 @@ export type Database = {
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
@@ -3031,6 +3077,7 @@ export type Database = {
         Returns: {
           address: string | null
           area_built: number | null
+          area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
@@ -3044,12 +3091,16 @@ export type Database = {
           iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
           neighborhood: string | null
           norm_title: string | null
           number: string | null
           owner_id: string
           parking: number | null
           price: number | null
+          property_type: string | null
           purpose: string
           search_vector: unknown | null
           source: string | null
@@ -3079,6 +3130,7 @@ export type Database = {
         Returns: {
           address: string | null
           area_built: number | null
+          area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
@@ -3092,12 +3144,16 @@ export type Database = {
           iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
           neighborhood: string | null
           norm_title: string | null
           number: string | null
           owner_id: string
           parking: number | null
           price: number | null
+          property_type: string | null
           purpose: string
           search_vector: unknown | null
           source: string | null
@@ -3184,6 +3240,7 @@ export type Database = {
         Returns: {
           address: string | null
           area_built: number | null
+          area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
@@ -3197,12 +3254,16 @@ export type Database = {
           iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
           neighborhood: string | null
           norm_title: string | null
           number: string | null
           owner_id: string
           parking: number | null
           price: number | null
+          property_type: string | null
           purpose: string
           search_vector: unknown | null
           source: string | null
@@ -3229,6 +3290,7 @@ export type Database = {
         Returns: {
           address: string | null
           area_built: number | null
+          area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
@@ -3242,12 +3304,16 @@ export type Database = {
           iptu: number | null
           is_furnished: boolean | null
           is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
           neighborhood: string | null
           norm_title: string | null
           number: string | null
           owner_id: string
           parking: number | null
           price: number | null
+          property_type: string | null
           purpose: string
           search_vector: unknown | null
           source: string | null
