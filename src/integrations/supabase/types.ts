@@ -130,14 +130,14 @@ export type Database = {
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
           },
@@ -2545,14 +2545,14 @@ export type Database = {
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
           },
