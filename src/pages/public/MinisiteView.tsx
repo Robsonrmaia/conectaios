@@ -194,15 +194,15 @@ export default function MinisiteView() {
             
             // Query properties with comprehensive error handling
             const { data: propertiesData, error: propertiesError } = await supabase
-              .from('properties')
+              .from('imoveis')
               .select(`
-                id, titulo, valor, quartos, area, fotos, neighborhood, city, 
-                descricao, bathrooms, parking_spots, listing_type, property_type,
-                address, state, features, created_at, updated_at, reference_code,
-                furnishing_type, condominium_fee, iptu, price_per_m2, has_sea_view,
-                sea_distance, year_built, zipcode, is_public, visibility
+                id, title, price, bedrooms, area_total, neighborhood, city, 
+                description, bathrooms, parking, purpose, property_type,
+                address, state, created_at, updated_at,
+                is_furnished, condo_fee, iptu, vista_mar,
+                distancia_mar, year_built, zipcode, is_public, visibility
               `)
-              .eq('user_id', brokerData.user_id)
+              .eq('owner_id', brokerData.user_id)
               .eq('is_public', true)
               .in('visibility', ['public_site', 'both'])
               .order('created_at', { ascending: false })
@@ -211,20 +211,20 @@ export default function MinisiteView() {
             console.log('🎯 MinisiteView Properties query completed:', {
               found: propertiesData?.length || 0,
               error: propertiesError,
-              user_id: brokerData.user_id,
+              owner_id: brokerData.user_id,
               broker_id: finalConfig.broker_id,
               firstProperty: propertiesData?.[0] ? {
                 id: propertiesData[0].id,
-                titulo: propertiesData[0].titulo,
+                title: propertiesData[0].title,
                 is_public: propertiesData[0].is_public,
                 visibility: propertiesData[0].visibility
               } : null,
               query_details: {
-                table: 'properties',
+                table: 'imoveis',
                 filters: {
-                  user_id: brokerData.user_id,
+                  owner_id: brokerData.user_id,
                   is_public: true,
-                  visibility: 'public_site'
+                  visibility: ['public_site', 'both']
                 }
               }
             });
@@ -233,11 +233,55 @@ export default function MinisiteView() {
               console.error('❌ Error fetching properties:', propertiesError);
               setProperties([]);
               setFilteredProperties([]);
-            } else {
+            } else if (propertiesData && propertiesData.length > 0) {
               console.log('✅ Properties fetched successfully:', propertiesData?.length || 0);
-              const validProperties = propertiesData || [];
-              setProperties(validProperties);
-              setFilteredProperties(validProperties);
+              
+              // Buscar imagens para todos os imóveis
+              const propertyIds = propertiesData.map(p => p.id);
+              const { data: imagesData } = await supabase
+                .from('imovel_images')
+                .select('imovel_id, url')
+                .in('imovel_id', propertyIds)
+                .order('position', { ascending: true });
+
+              // Criar map de imagens por imóvel
+              const imagesMap: Record<string, string[]> = {};
+              imagesData?.forEach(img => {
+                if (!imagesMap[img.imovel_id]) {
+                  imagesMap[img.imovel_id] = [];
+                }
+                imagesMap[img.imovel_id].push(img.url);
+              });
+
+              // Mapear dados do banco para interface Property
+              const mappedProperties = propertiesData.map(prop => ({
+                id: prop.id,
+                titulo: prop.title || '',
+                valor: prop.price || 0,
+                quartos: prop.bedrooms || 0,
+                area: prop.area_total || 0,
+                fotos: imagesMap[prop.id] || [],
+                neighborhood: prop.neighborhood || '',
+                city: prop.city || '',
+                descricao: prop.description || '',
+                bathrooms: prop.bathrooms || 0,
+                parking_spots: prop.parking || 0,
+                listing_type: prop.purpose || '',
+                property_type: prop.property_type || '',
+                address: prop.address || '',
+                state: prop.state || '',
+                features: {},
+                furnishing_type: prop.is_furnished ? 'furnished' : 'none',
+                condominium_fee: prop.condo_fee,
+                iptu: prop.iptu,
+                has_sea_view: prop.vista_mar,
+                sea_distance: prop.distancia_mar,
+                year_built: prop.year_built,
+                zipcode: prop.zipcode
+              }));
+
+              setProperties(mappedProperties);
+              setFilteredProperties(mappedProperties);
             }
           } else {
             console.warn('⚠️ No user_id found for broker');

@@ -427,8 +427,9 @@ export default function Imoveis() {
         condo_fee: parsedCondominiumFee,
         iptu: parsedIptu,
         is_furnished: formData.is_furnished,
-        vista_mar: formData.has_sea_view, // ✅ Adicionar vista_mar
+        vista_mar: formData.has_sea_view,
         distancia_mar: parsedSeaDistance,
+        year_built: parseInt(formData.year_built) || null,
         is_public: mappedVisibility === 'public_site',
         status: 'available'
       };
@@ -770,7 +771,7 @@ export default function Imoveis() {
 
       console.log('✅ Visibilidade atualizada:', data[0]);
 
-      // Update local state
+      // Update local state and refresh
       setProperties(prev => 
         prev.map(prop => 
           prop.id === propertyId 
@@ -783,6 +784,11 @@ export default function Imoveis() {
         title: "Visibilidade atualizada",
         description: "A visibilidade do imóvel foi alterada com sucesso.",
       });
+
+      // Refresh properties to ensure consistency
+      setTimeout(() => {
+        fetchProperties(1);
+      }, 500);
     } catch (error: any) {
       console.error('❌ Error updating visibility:', error);
       
