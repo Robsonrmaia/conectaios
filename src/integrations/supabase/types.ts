@@ -3221,6 +3221,10 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      is_thread_participant: {
+        Args: { p_thread_id: string; p_user_id: string }
+        Returns: boolean
+      }
       log_audit_event: {
         Args: {
           _action: string

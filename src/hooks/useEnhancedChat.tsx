@@ -237,29 +237,27 @@ export function useEnhancedChat() {
 
     try {
       console.log('Creating/getting thread for peer:', peerUserId);
-      console.log('User ID:', user?.id);
-      console.log('Calling edge function with body:', { peer_user_id: peerUserId });
       
-      const { data, error } = await supabase.functions.invoke('chat-create-or-get-thread', {
-        body: { peer_user_id: peerUserId }
+      // Use RPC function directly instead of edge function
+      const { data: threadId, error } = await supabase.rpc('msg_create_or_get_direct', {
+        target_user_id: peerUserId
       });
 
-      console.log('Edge function response - data:', data);
-      console.log('Edge function response - error:', error);
+      console.log('RPC response - threadId:', threadId);
+      console.log('RPC response - error:', error);
 
       if (error) {
-        console.error('Edge function error details:', JSON.stringify(error, null, 2));
-        throw new Error(`Edge function error: ${error.message || JSON.stringify(error)}`);
+        console.error('RPC error:', error);
+        throw new Error(error.message || 'Failed to create/get thread');
       }
 
-      if (!data || !data.thread_id) {
-        console.error('Invalid response data:', data);
-        throw new Error('No thread ID returned from server');
+      if (!threadId) {
+        throw new Error('No thread ID returned from database');
       }
 
-      console.log('Thread created/found:', data.thread_id);
+      console.log('Thread created/found:', threadId);
       await fetchThreads();
-      return data.thread_id;
+      return threadId;
     } catch (error) {
       console.error('Error creating thread:', error);
       toast({
@@ -278,26 +276,24 @@ export function useEnhancedChat() {
     try {
       console.log('Creating group:', title, 'with members:', memberIds);
       
-      const { data, error } = await supabase.functions.invoke('chat-create-thread', {
-        body: { 
-          is_group: true,
-          title,
-          members: memberIds
-        }
+      // Use RPC function directly instead of edge function
+      const { data: threadId, error } = await supabase.rpc('msg_create_group', {
+        title: title,
+        participant_ids: memberIds
       });
 
       if (error) {
-        console.error('Edge function error:', error);
-        throw new Error(`Failed to create group: ${error.message || 'Unknown error'}`);
+        console.error('RPC error:', error);
+        throw new Error(error.message || 'Failed to create group');
       }
 
-      if (!data || !data.thread_id) {
-        throw new Error('No thread ID returned from server');
+      if (!threadId) {
+        throw new Error('No thread ID returned from database');
       }
 
-      console.log('Group created:', data.thread_id);
+      console.log('Group created:', threadId);
       await fetchThreads();
-      return data.thread_id;
+      return threadId;
     } catch (error) {
       console.error('Error creating group:', error);
       toast({
