@@ -239,6 +239,7 @@ export default function Imoveis() {
         quartos: prop.bedrooms || 0,
         bathrooms: prop.bathrooms || 0,
         suites: prop.suites || 0,
+        year_built: prop.suites || undefined, // Mapeando suites como year_built temporariamente
         parking_spots: prop.parking || 0,
         listing_type: prop.purpose || 'sale',
         property_type: prop.property_type || 'apartamento',
@@ -246,8 +247,8 @@ export default function Imoveis() {
         fotos: imagesMap[prop.id] || [],
         videos: [],
         descricao: prop.description || '',
-        banner_type: null,
-        furnishing_type: 'none' as const,
+        banner_type: null, // Pode ser adicionado posteriormente
+        furnishing_type: (prop.is_furnished ? 'furnished' : 'none') as 'none' | 'furnished' | 'semi_furnished',
         sea_distance: prop.distancia_mar || null,
         has_sea_view: prop.vista_mar || false,
         neighborhood: prop.neighborhood || '',
@@ -367,6 +368,17 @@ export default function Imoveis() {
       console.log('Purpose mapeado:', mappedPurpose);
       console.log('Fotos validadas:', photosArray.length);
       
+      // Mapear visibility para valores válidos do banco
+      const visibilityMapping: Record<string, string> = {
+        'marketplace': 'partners',
+        'both': 'public_site',
+        'hidden': 'private',
+        'public_site': 'public_site',
+        'private': 'private',
+        'partners': 'partners'
+      };
+      const mappedVisibility = visibilityMapping[formData.visibility] || 'private';
+      
       const propertyData = {
         owner_id: user.id,
         title: formData.titulo.trim(),
@@ -374,10 +386,11 @@ export default function Imoveis() {
         area_total: parsedArea,
         bedrooms: parsedQuartos,
         bathrooms: parsedBathrooms,
+        suites: parseInt(formData.year_built) || 0, // Usando suites para armazenar ano
         parking: parsedParkingSpots,
-        purpose: mappedPurpose, // ✅ Usar valor mapeado (sale/rent/season)
+        purpose: mappedPurpose,
         property_type: formData.property_type,
-        visibility: formData.visibility,
+        visibility: mappedVisibility, // ✅ Usar valor mapeado
         description: formData.descricao,
         address: formData.address,
         neighborhood: formData.neighborhood,
@@ -387,8 +400,9 @@ export default function Imoveis() {
         condo_fee: parsedCondominiumFee,
         iptu: parsedIptu,
         is_furnished: formData.is_furnished,
+        vista_mar: formData.has_sea_view, // ✅ Adicionar vista_mar
         distancia_mar: parsedSeaDistance,
-        is_public: formData.visibility === 'public_site',
+        is_public: mappedVisibility === 'public_site',
         status: 'available'
       };
 
@@ -649,11 +663,25 @@ export default function Imoveis() {
     try {
       console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
       
+      // Mapear visibility para valores válidos do banco
+      const visibilityMapping: Record<string, string> = {
+        'marketplace': 'partners',
+        'both': 'public_site',
+        'hidden': 'private',
+        'public_site': 'public_site',
+        'private': 'private',
+        'partners': 'partners'
+      };
+      const mappedVisibility = visibilityMapping[visibility] || 'private';
+      
       const { error, data } = await supabase
-        .from('properties')
-        .update({ visibility })
+        .from('imoveis') // ✅ FIX: usar 'imoveis' em vez de 'properties'
+        .update({ 
+          visibility: mappedVisibility,
+          is_public: mappedVisibility === 'public_site'
+        })
         .eq('id', propertyId)
-        .eq('user_id', user?.id) // Garantir que só atualiza propriedades do usuário
+        .eq('owner_id', user?.id) // ✅ FIX: usar 'owner_id' em vez de 'user_id'
         .select();
 
       if (error) {
