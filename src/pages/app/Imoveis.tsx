@@ -204,13 +204,15 @@ export default function Imoveis() {
         throw error;
       }
       
-      // ✅ FIX: Buscar imagens de cada imóvel
+      // ✅ FIX: Buscar imagens e features de cada imóvel
       const propertyIds = (data || []).map(p => p.id);
       let imagesMap: Record<string, string[]> = {};
+      let featuresMap: Record<string, Record<string, string>> = {};
       
       if (propertyIds.length > 0) {
         console.log('📸 [ADMIN] Buscando imagens para', propertyIds.length, 'imóveis');
         
+        // Buscar imagens
         const { data: imagesData, error: imagesError } = await supabase
           .from('imovel_images')
           .select('imovel_id, url, position, is_cover')
@@ -230,40 +232,64 @@ export default function Imoveis() {
             imagesMap[img.imovel_id].push(img.url);
           });
         }
+        
+        // Buscar features (banner_type, furnishing_type)
+        const { data: featuresData, error: featuresError } = await supabase
+          .from('imovel_features')
+          .select('imovel_id, key, value')
+          .in('imovel_id', propertyIds)
+          .in('key', ['banner_type', 'furnishing_type']);
+        
+        if (featuresError) {
+          console.error('❌ [ADMIN] Erro ao buscar features:', featuresError);
+        } else {
+          console.log('✅ [ADMIN] Features carregadas:', featuresData?.length);
+          
+          // Agrupar features por imovel_id
+          featuresData?.forEach(feature => {
+            if (!featuresMap[feature.imovel_id]) {
+              featuresMap[feature.imovel_id] = {};
+            }
+            featuresMap[feature.imovel_id][feature.key] = feature.value;
+          });
+        }
       }
       
-      // Map data com fotos e todos os dados carregados do banco
-      const mappedData = (data || []).map(prop => ({
-        id: prop.id,
-        titulo: prop.title || 'Sem título',
-        valor: prop.price || 0,
-        area: prop.area_total || 0,
-        quartos: prop.bedrooms || 0,
-        bathrooms: prop.bathrooms || 0,
-        suites: prop.suites || 0,
-        parking_spots: prop.parking || 0,
-        listing_type: prop.purpose || 'sale',
-        property_type: prop.property_type || 'apartamento',
-        visibility: prop.visibility || 'public_site',
-        fotos: imagesMap[prop.id] || [],
-        videos: [],
-        descricao: prop.description || '',
-        banner_type: null, // Pode ser adicionado posteriormente
-        furnishing_type: (prop.is_furnished ? 'furnished' : 'none') as 'none' | 'furnished' | 'semi_furnished',
-        sea_distance: prop.distancia_mar || null,
-        has_sea_view: prop.vista_mar || false,
-        neighborhood: prop.neighborhood || '',
-        city: prop.city || '',
-        address: prop.address || '',
-        state: prop.state || '',
-        zipcode: prop.zipcode || '',
-        condominium_fee: prop.condo_fee || null,
-        iptu: prop.iptu || null,
-        is_furnished: prop.is_furnished || false,
-        watermark_enabled: true,
-        created_at: prop.created_at,
-        status: prop.status || 'available'
-      }));
+      // Map data com fotos, features e todos os dados carregados do banco
+      const mappedData = (data || []).map(prop => {
+        const features = featuresMap[prop.id] || {};
+        return {
+          id: prop.id,
+          titulo: prop.title || 'Sem título',
+          valor: prop.price || 0,
+          area: prop.area_total || 0,
+          quartos: prop.bedrooms || 0,
+          bathrooms: prop.bathrooms || 0,
+          suites: prop.suites || 0,
+          parking_spots: prop.parking || 0,
+          listing_type: prop.purpose || 'sale',
+          property_type: prop.property_type || 'apartamento',
+          visibility: prop.visibility || 'public_site',
+          fotos: imagesMap[prop.id] || [],
+          videos: [],
+          descricao: prop.description || '',
+          banner_type: features.banner_type || null,
+          furnishing_type: (features.furnishing_type || (prop.is_furnished ? 'furnished' : 'none')) as 'none' | 'furnished' | 'semi_furnished',
+          sea_distance: prop.distancia_mar || null,
+          has_sea_view: prop.vista_mar || false,
+          neighborhood: prop.neighborhood || '',
+          city: prop.city || '',
+          address: prop.address || '',
+          state: prop.state || '',
+          zipcode: prop.zipcode || '',
+          condominium_fee: prop.condo_fee || null,
+          iptu: prop.iptu || null,
+          is_furnished: prop.is_furnished || false,
+          watermark_enabled: true,
+          created_at: prop.created_at,
+          status: prop.status || 'available'
+        };
+      });
       
       console.log('📊 [ADMIN] Propriedades mapeadas com fotos:', mappedData.map(p => ({ id: p.id, fotos: p.fotos.length })));
       
@@ -516,6 +542,53 @@ export default function Imoveis() {
           }
         } catch (imageError) {
           console.error('❌ Erro inesperado ao salvar imagens:', imageError);
+        }
+      }
+
+      // ✅ Salvar banner_type e furnishing_type na tabela imovel_features
+      if (result.data?.id && (formData.banner_type || formData.furnishing_type)) {
+        console.log('=== SALVANDO FEATURES ADICIONAIS ===');
+        
+        try {
+          // Remover features antigas se for edição
+          if (selectedProperty) {
+            await supabase
+              .from('imovel_features')
+              .delete()
+              .eq('imovel_id', result.data.id)
+              .in('key', ['banner_type', 'furnishing_type']);
+          }
+
+          // Preparar features para salvar
+          const featuresToSave = [];
+          if (formData.banner_type) {
+            featuresToSave.push({
+              imovel_id: result.data.id,
+              key: 'banner_type',
+              value: formData.banner_type
+            });
+          }
+          if (formData.furnishing_type && formData.furnishing_type !== 'none') {
+            featuresToSave.push({
+              imovel_id: result.data.id,
+              key: 'furnishing_type',
+              value: formData.furnishing_type
+            });
+          }
+
+          if (featuresToSave.length > 0) {
+            const { error: featuresError } = await supabase
+              .from('imovel_features')
+              .insert(featuresToSave);
+
+            if (featuresError) {
+              console.error('❌ Erro ao salvar features:', featuresError);
+            } else {
+              console.log('✅ Features salvas com sucesso:', featuresToSave);
+            }
+          }
+        } catch (featuresError) {
+          console.error('❌ Erro inesperado ao salvar features:', featuresError);
         }
       }
 
