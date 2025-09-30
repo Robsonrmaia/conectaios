@@ -368,11 +368,10 @@ export default function Imoveis() {
         city: formData.city,
         state: formData.state,
         zipcode: formData.zipcode,
-        condo_fee: parsedCondominiumFee, // ✅ FIX: mapear para 'condo_fee' da tabela imoveis
+        condo_fee: parsedCondominiumFee,
         iptu: parsedIptu,
         is_furnished: formData.is_furnished,
-        sea_distance: parsedSeaDistance,
-        year_built: parsedYearBuilt,
+        distancia_mar: parsedSeaDistance,
         is_public: formData.visibility === 'public_site',
         status: 'available' // ✅ Definir status padrão
       };
