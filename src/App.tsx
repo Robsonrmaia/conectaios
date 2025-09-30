@@ -41,7 +41,7 @@ import AIAssistant from "./pages/app/AIAssistant";
 import AuditLogs from "./pages/app/AuditLogs";
 import Perfil from "./pages/app/Perfil";
 import Admin from "./pages/app/Admin";
-import Mensagens from "./pages/app/Mensagens";
+
 import AdminMaster from "./pages/AdminMaster";
 import NotFound from "./pages/NotFound";
 import PropertyDetail from "@/pages/public/PropertyDetail";
@@ -151,7 +151,7 @@ const App = () => (
                           <Route path="deals" element={<Deals />} />
                           <Route path="inbox" element={<Inbox />} />
                            <Route path="crm" element={<CRM />} />
-                           <Route path="mensagens" element={<Mensagens />} />
+                           <Route path="mensagens" element={<Navigate to="/app/inbox" replace />} />
                            <Route path="envios-proprietarios" element={<PropertySubmissions />} />
                            <Route path="ferramentas" element={<Ferramentas />} />
                           <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />
