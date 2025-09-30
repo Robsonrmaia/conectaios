@@ -28,28 +28,16 @@ import logoSvg from '@/assets/logo.svg';
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [banners, setBanners] = useState<any[]>([]);
   const [partnerships, setPartnerships] = useState<any[]>([]);
 
   // Removido redirecionamento automático para permitir visualização da página inicial
 
   useEffect(() => {
-    fetchBanners();
     fetchPartnerships();
     // Initialize parallax effect
     const cleanup = initParallax();
     return cleanup;
   }, []);
-
-  const fetchBanners = async () => {
-    const { data } = await supabase
-      .from('banners')
-      .select('*')
-      .eq('is_active', true)
-      .order('sort_order');
-    
-    if (data) setBanners(data);
-  };
 
   const fetchPartnerships = async () => {
     // Filtered partnerships as requested
@@ -475,44 +463,6 @@ const Index = () => {
 
       <div className="container mx-auto px-4 py-8 sm:py-16">
         <div className="max-w-4xl mx-auto">
-          {/* Banners Section - Carousel */}
-          {banners.length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-center mb-8 text-primary">Destaques & Empreendimentos</h2>
-              <Carousel className="w-full max-w-5xl mx-auto">
-                <CarouselContent className="-ml-1">
-                  {banners.slice(0, 3).map((banner) => (
-                    <CarouselItem key={banner.id} className="pl-1 md:basis-1/2 lg:basis-1/3">
-                      <div className="group relative overflow-hidden rounded-xl border bg-card hover:shadow-lg transition-all duration-300 hover:scale-105">
-                        <img 
-                          src={banner.image_url} 
-                          alt={banner.title}
-                          className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                        <div className="p-6">
-                          <h3 className="text-xl font-semibold mb-2">{banner.title}</h3>
-                          {banner.link_url && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => window.open(banner.link_url, '_blank')}
-                              className="w-full"
-                            >
-                              Ver mais
-                              <ExternalLink className="ml-2 h-4 w-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
-          )}
-
           {/* Features Grid - Principais Diferenciais */}
           <div className="mb-16">
             <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
