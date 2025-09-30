@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2 } from 'lucide-react';
@@ -65,6 +66,7 @@ interface Property {
   listing_type: string;
   property_type: string;
   visibility: string;
+  show_on_site?: boolean;
   descricao: string;
   fotos: string[];
   videos: string[];
@@ -154,7 +156,8 @@ export default function Imoveis() {
     parking_spots: '',
     listing_type: 'venda',
     property_type: 'apartamento',
-    visibility: 'public_site',
+    showOnSite: false,
+    showOnMarketplace: false,
     broker_minisite_enabled: false,
     descricao: '',
     fotos: [] as string[],
@@ -397,11 +400,35 @@ export default function Imoveis() {
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
       
-      // Usar adaptador para converter valores do formulário
-      const dbVisibility = toDbVisibility(formData.visibility);
+      // Calcular visibility e flags baseado nos checkboxes
+      let dbVisibility: string;
+      let isPublic: boolean;
+      let showOnSiteDb: boolean;
+      
+      if (!formData.showOnSite && !formData.showOnMarketplace) {
+        // Oculto
+        dbVisibility = 'private';
+        isPublic = false;
+        showOnSiteDb = false;
+      } else if (formData.showOnSite && !formData.showOnMarketplace) {
+        // Apenas Site
+        dbVisibility = 'public_site';
+        isPublic = true;
+        showOnSiteDb = true;
+      } else if (!formData.showOnSite && formData.showOnMarketplace) {
+        // Apenas Marketplace
+        dbVisibility = 'partners';
+        isPublic = true;
+        showOnSiteDb = false;
+      } else {
+        // Ambos
+        dbVisibility = 'partners';
+        isPublic = true;
+        showOnSiteDb = true;
+      }
+      
       const dbStatus = toDbStatus('active');
       const dbPurpose = toDbPurpose(formData.listing_type);
-      const isPublic = getIsPublic(dbVisibility);
       
       const propertyData = {
         owner_id: user.id,
@@ -633,7 +660,8 @@ export default function Imoveis() {
         parking_spots: '',
         listing_type: 'venda',
         property_type: 'apartamento',
-        visibility: 'public_site',
+        showOnSite: false,
+        showOnMarketplace: false,
         broker_minisite_enabled: false,
         descricao: '',
         fotos: [],
@@ -732,19 +760,52 @@ export default function Imoveis() {
     }
   };
 
-  const updatePropertyVisibility = async (propertyId: string, visibility: string) => {
+  const updatePropertyVisibility = async (
+    propertyId: string, 
+    showOnSite: boolean, 
+    showOnMarketplace: boolean
+  ) => {
     try {
-      console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
+      console.log('🔄 Atualizando visibilidade:', { propertyId, showOnSite, showOnMarketplace });
       
-      // Usar adaptador para garantir valores aceitos pelo banco
-      const dbVisibility = toDbVisibility(visibility);
-      const isPublic = getIsPublic(dbVisibility);
+      // Lógica de mapeamento:
+      // Oculto: nenhum marcado -> private, is_public=false
+      // Site apenas: site marcado -> public_site, is_public=true, show_on_site=true
+      // Marketplace apenas: marketplace marcado -> partners, is_public=true, show_on_site=false
+      // Ambos: ambos marcados -> partners, is_public=true, show_on_site=true
+      
+      let visibility: string;
+      let isPublic: boolean;
+      let showOnSiteDb: boolean;
+      
+      if (!showOnSite && !showOnMarketplace) {
+        // Oculto
+        visibility = 'private';
+        isPublic = false;
+        showOnSiteDb = false;
+      } else if (showOnSite && !showOnMarketplace) {
+        // Apenas Site
+        visibility = 'public_site';
+        isPublic = true;
+        showOnSiteDb = true;
+      } else if (!showOnSite && showOnMarketplace) {
+        // Apenas Marketplace
+        visibility = 'partners';
+        isPublic = true;
+        showOnSiteDb = false;
+      } else {
+        // Ambos
+        visibility = 'partners';
+        isPublic = true;
+        showOnSiteDb = true;
+      }
       
       const { error, data } = await supabase
         .from('imoveis')
         .update({ 
-          visibility: dbVisibility,
-          is_public: isPublic
+          visibility,
+          is_public: isPublic,
+          show_on_site: showOnSiteDb
         })
         .eq('id', propertyId)
         .eq('owner_id', user?.id)
@@ -765,7 +826,7 @@ export default function Imoveis() {
       setProperties(prev => 
         prev.map(prop => 
           prop.id === propertyId 
-            ? { ...prop, visibility: data[0].visibility, is_public: data[0].is_public }
+            ? { ...prop, visibility: data[0].visibility, is_public: data[0].is_public, show_on_site: data[0].show_on_site }
             : prop
         )
       );
@@ -1292,29 +1353,57 @@ export default function Imoveis() {
                 </div>
               )}
 
-              <div className="space-y-4">
-                <div>
-                  <Label>Visibilidade do Imóvel</Label>
-                  <Select value={formData.visibility} onValueChange={(value) => setFormData({...formData, visibility: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione onde mostrar" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="public_site">Site Público</SelectItem>
-                      <SelectItem value="partners">Marketplace</SelectItem>
-                      <SelectItem value="private">Oculto</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-3">
+                <Label>Visibilidade do Imóvel</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="show-on-site"
+                      checked={formData.showOnSite || false}
+                      onCheckedChange={(checked) => 
+                        setFormData({ ...formData, showOnSite: checked === true })
+                      }
+                    />
+                    <label
+                      htmlFor="show-on-site"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      <Globe className="h-4 w-4 inline mr-1" />
+                      Mostrar no Site Público
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="show-on-marketplace"
+                      checked={formData.showOnMarketplace || false}
+                      onCheckedChange={(checked) => 
+                        setFormData({ ...formData, showOnMarketplace: checked === true })
+                      }
+                    />
+                    <label
+                      htmlFor="show-on-marketplace"
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      <Eye className="h-4 w-4 inline mr-1" />
+                      Mostrar no Marketplace
+                    </label>
+                  </div>
+                  {!formData.showOnSite && !formData.showOnMarketplace && (
+                    <p className="text-xs text-muted-foreground">
+                      <EyeOff className="h-3 w-3 inline mr-1" />
+                      Imóvel ficará oculto (não aparece em nenhum lugar)
+                    </p>
+                  )}
                 </div>
+              </div>
                 
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="minisite"
-                    checked={formData.broker_minisite_enabled}
-                    onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
-                  />
-                  <Label htmlFor="minisite">Mostrar no Meu Site</Label>
-                </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="minisite"
+                  checked={formData.broker_minisite_enabled}
+                  onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
+                />
+                <Label htmlFor="minisite">Mostrar no Meu Site</Label>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -1682,6 +1771,11 @@ export default function Imoveis() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
+                          // Converter visibilidade do banco para checkboxes
+                          const showOnSite = property.visibility === 'public_site' || 
+                                             (property.visibility === 'partners' && property.show_on_site);
+                          const showOnMarketplace = property.visibility === 'partners';
+                          
                           // Preenche o formulário com os dados do imóvel selecionado
                           setFormData({
                             titulo: property.titulo,
@@ -1692,7 +1786,8 @@ export default function Imoveis() {
                             parking_spots: property.parking_spots.toString(),
                             listing_type: property.listing_type,
                             property_type: property.property_type,
-                            visibility: property.visibility,
+                            showOnSite,
+                            showOnMarketplace,
                             broker_minisite_enabled: false,
                             descricao: property.descricao || '',
                             fotos: Array.isArray(property.fotos) ? property.fotos : [],
@@ -1746,7 +1841,9 @@ export default function Imoveis() {
                         variant={property.visibility === 'partners' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          updatePropertyVisibility(property.id, 'partners');
+                          const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
+                          const currentShowMarket = property.visibility === 'partners';
+                          updatePropertyVisibility(property.id, currentShowSite, !currentShowMarket);
                         }}
                         title="Marketplace - Imóvel aparece no marketplace"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1756,10 +1853,12 @@ export default function Imoveis() {
                       </Button>
                       <Button
                         size="sm"
-                        variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                        variant={(property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site)) ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          updatePropertyVisibility(property.id, 'public_site');
+                          const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
+                          const currentShowMarket = property.visibility === 'partners';
+                          updatePropertyVisibility(property.id, !currentShowSite, currentShowMarket);
                         }}
                         title="Site Público - Imóvel aparece no site público e minisite"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1772,7 +1871,7 @@ export default function Imoveis() {
                         variant={property.visibility === 'private' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          updatePropertyVisibility(property.id, 'private');
+                          updatePropertyVisibility(property.id, false, false);
                         }}
                         title="Oculto - Visível apenas para você no painel"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1954,6 +2053,11 @@ export default function Imoveis() {
                     <h3 className="font-semibold mb-2">Ações</h3>
                     <div className="space-y-2">
                       <Button className="w-full" variant="outline" onClick={() => {
+                          // Converter visibilidade do banco para checkboxes
+                          const showOnSite = selectedProperty.visibility === 'public_site' || 
+                                             (selectedProperty.visibility === 'partners' && selectedProperty.show_on_site);
+                          const showOnMarketplace = selectedProperty.visibility === 'partners';
+                          
                           // Preenche o formulário com os dados do imóvel selecionado
                            setFormData({
                              titulo: selectedProperty.titulo,
@@ -1965,7 +2069,8 @@ export default function Imoveis() {
                              parking_spots: selectedProperty.parking_spots.toString(),
                              listing_type: selectedProperty.listing_type,
                              property_type: selectedProperty.property_type,
-                             visibility: fromDbVisibility(selectedProperty.visibility || 'private'),
+                             showOnSite,
+                             showOnMarketplace,
                              broker_minisite_enabled: false,
                              descricao: selectedProperty.descricao || '',
                              fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],

@@ -200,12 +200,12 @@ export default function MinisiteView() {
                 description, bathrooms, parking, purpose, property_type,
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
-                distancia_mar, construction_year, zipcode, is_public, visibility, status
+                distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, status
               `)
               .eq('owner_id', brokerData.user_id)
               .eq('status', 'available')
               .eq('is_public', true)
-              .in('visibility', ['public_site', 'partners'])
+              .or('visibility.eq.public_site,and(visibility.eq.partners,show_on_site.eq.true)')
               .order('created_at', { ascending: false })
               .limit(50);
 

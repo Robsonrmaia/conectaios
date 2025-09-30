@@ -106,7 +106,7 @@ export default function PropertyDetail() {
         .select('*')
         .eq('id', id)
         .eq('is_public', true)
-        .in('visibility', ['public_site', 'partners'])
+        .or('visibility.eq.public_site,and(visibility.eq.partners,show_on_site.eq.true)')
         .eq('status', 'available')
         .single();
 

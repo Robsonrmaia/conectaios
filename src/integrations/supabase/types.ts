@@ -1035,6 +1035,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_site: boolean
           source: string | null
           state: string | null
           status: string | null
@@ -1077,6 +1078,7 @@ export type Database = {
           property_type?: string | null
           purpose: string
           search_vector?: unknown | null
+          show_on_site?: boolean
           source?: string | null
           state?: string | null
           status?: string | null
@@ -1119,6 +1121,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string
           search_vector?: unknown | null
+          show_on_site?: boolean
           source?: string | null
           state?: string | null
           status?: string | null
@@ -3111,6 +3114,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_site: boolean
           source: string | null
           state: string | null
           status: string | null
@@ -3165,6 +3169,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_site: boolean
           source: string | null
           state: string | null
           status: string | null
@@ -3276,6 +3281,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_site: boolean
           source: string | null
           state: string | null
           status: string | null
@@ -3327,6 +3333,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_site: boolean
           source: string | null
           state: string | null
           status: string | null
