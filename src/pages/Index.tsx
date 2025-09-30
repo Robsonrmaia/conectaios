@@ -260,14 +260,9 @@ const Index = () => {
                     <wistia-player media-id="hczxrata2s" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
 
-                  {/* Vídeo 3 - Placeholder */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
-                        <Building2 className="w-6 h-6" />
-                      </div>
-                      <p className="text-sm font-medium">Em breve</p>
-                    </div>
+                  {/* Vídeo 3 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
+                    <wistia-player media-id="wsl23th2kq" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
 
                   {/* Vídeo 4 - Placeholder */}

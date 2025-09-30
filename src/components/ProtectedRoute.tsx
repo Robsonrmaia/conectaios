@@ -18,7 +18,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <img 
-            src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/property-images/logonova.png" 
+            src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/logonova.png" 
             alt="ConectaIOS Logo" 
             className="h-8 w-8 animate-spin mx-auto mb-4"
           />
