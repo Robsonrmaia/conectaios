@@ -19,6 +19,19 @@ import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
+
+// Funções para formatação monetária BR
+const parseCurrencyBR = (raw: string): number | null => {
+  if (!raw || typeof raw !== 'string') return null;
+  const cleaned = raw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? num : null;
+};
+
+const formatCurrencyBR = (n?: number | null): string => {
+  if (typeof n !== 'number' || !Number.isFinite(n)) return '';
+  return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+};
 import { PhotoUploader } from '@/components/PhotoUploader';
 import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
@@ -390,18 +403,18 @@ export default function Imoveis() {
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
       
-      // Lógica de visibilidade conforme especificação
-      let visibility: string;
+      // Lógica de visibilidade conforme especificação do banco
+      let visibility: 'public_site' | 'private' | 'partners';
       let is_public: boolean;
       
       if (formData.visibility === 'both') {
-        visibility = 'both';
+        visibility = 'public_site';
         is_public = true;
       } else if (formData.visibility === 'public_site') {
-        visibility = 'site';
-        is_public = true;
-      } else if (formData.visibility === 'marketplace' || formData.visibility === 'partners') {
-        visibility = 'marketplace';
+        visibility = 'public_site';
+        is_public = formData.broker_minisite_enabled;
+      } else if (formData.visibility === 'match_only' || formData.visibility === 'partners') {
+        visibility = 'partners';
         is_public = false;
       } else {
         visibility = 'private';
@@ -411,8 +424,8 @@ export default function Imoveis() {
       const propertyData = {
         owner_id: user.id,
         title: formData.titulo.trim(),
-        price: parsedValue,
-        area_total: parsedArea,
+        price: parseCurrencyBR(formData.valor),
+        area_total: parseCurrencyBR(formData.area) || null,
         bedrooms: parsedQuartos,
         bathrooms: parsedBathrooms,
         suites: parseInt(formData.suites) || 0,
@@ -426,14 +439,14 @@ export default function Imoveis() {
         city: formData.city,
         state: formData.state,
         zipcode: formData.zipcode,
-        condo_fee: parsedCondominiumFee,
-        iptu: parsedIptu,
+        condo_fee: parseCurrencyBR(formData.condominium_fee) || null,
+        iptu: parseCurrencyBR(formData.iptu) || null,
         is_furnished: formData.is_furnished,
         vista_mar: formData.has_sea_view,
         distancia_mar: parsedSeaDistance,
         construction_year: parseInt(formData.year_built) || null,
         is_public: is_public,
-        status: 'active'
+        status: 'available'
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
@@ -741,18 +754,18 @@ export default function Imoveis() {
     try {
       console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
       
-      // Lógica de visibilidade conforme especificação
-      let dbVisibility: string;
+      // Lógica de visibilidade conforme especificação do banco
+      let dbVisibility: 'public_site' | 'private' | 'partners';
       let isPublic: boolean;
       
       if (visibility === 'both') {
-        dbVisibility = 'both';
+        dbVisibility = 'public_site';
         isPublic = true;
       } else if (visibility === 'public_site') {
-        dbVisibility = 'site';
+        dbVisibility = 'public_site';
         isPublic = true;
-      } else if (visibility === 'marketplace' || visibility === 'partners') {
-        dbVisibility = 'marketplace';
+      } else if (visibility === 'match_only' || visibility === 'partners') {
+        dbVisibility = 'partners';
         isPublic = false;
       } else {
         dbVisibility = 'private';
@@ -1707,14 +1720,10 @@ export default function Imoveis() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          // Formatação de valores monetários
-                          const formatCurrency = (n?: number | null) =>
-                            typeof n === 'number' ? n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
-                          
                           // Preenche o formulário com os dados do imóvel selecionado
                           setFormData({
                             titulo: property.titulo,
-                            valor: formatCurrency(property.valor),
+                            valor: formatCurrencyBR(property.valor),
                             area: property.area.toString(),
                             quartos: property.quartos.toString(),
                             bathrooms: property.bathrooms.toString(),
@@ -1731,8 +1740,8 @@ export default function Imoveis() {
                             city: property.city || '',
                             state: property.state || '',
                             zipcode: property.zipcode || '',
-                            condominium_fee: formatCurrency(property.condominium_fee),
-                            iptu: formatCurrency(property.iptu),
+                            condominium_fee: formatCurrencyBR(property.condominium_fee),
+                            iptu: formatCurrencyBR(property.iptu),
                             commission_percentage: property.listing_type === "venda" ? 5 : property.listing_type === "locacao" ? 100 : 20,
                             commission_value: 0,
                             commission_split_type: '50/50',
@@ -2002,49 +2011,49 @@ export default function Imoveis() {
                   <div>
                     <h3 className="font-semibold mb-2">Ações</h3>
                     <div className="space-y-2">
-                     <Button className="w-full" variant="outline" onClick={() => {
-                         // Preenche o formulário com os dados do imóvel selecionado
-                          setFormData({
-                            titulo: selectedProperty.titulo,
-                            valor: selectedProperty.valor.toString(),
-                            area: selectedProperty.area.toString(),
-                            quartos: selectedProperty.quartos.toString(),
-                            bathrooms: selectedProperty.bathrooms.toString(),
-                            suites: selectedProperty.suites ? String(selectedProperty.suites) : '',
-                            parking_spots: selectedProperty.parking_spots.toString(),
-                            listing_type: selectedProperty.listing_type,
-                            property_type: selectedProperty.property_type,
-                            visibility: selectedProperty.visibility,
-                            broker_minisite_enabled: false,
-                            descricao: selectedProperty.descricao || '',
-                            fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                            videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
-                            address: selectedProperty.address || '',
-                            neighborhood: selectedProperty.neighborhood || '',
-                            city: selectedProperty.city || '',
-                            state: selectedProperty.state || '',
-                            zipcode: selectedProperty.zipcode || '',
-                           condominium_fee: '',
-                           iptu: '',
-                            commission_percentage: 6,
-                            commission_value: 0,
-                            commission_split_type: '50/50',
-                            commission_buyer_split: 50,
-                            commission_seller_split: 50,
-                            banner_type: selectedProperty.banner_type || 'none',
-                            is_furnished: selectedProperty.is_furnished || false,
-                            has_sea_view: selectedProperty.has_sea_view || false,
-                            watermark_enabled: selectedProperty.watermark_enabled || false,
-                            furnishing_type: (selectedProperty.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
-                            sea_distance: selectedProperty.sea_distance ? String(selectedProperty.sea_distance) : '',
-                            year_built: selectedProperty.year_built ? String(selectedProperty.year_built) : '',
-                          });
-                         setIsDetailDialogOpen(false);
-                         setIsAddDialogOpen(true);
-                       }}>
-                         <Edit className="h-4 w-4 mr-2" />
-                         Editar Imóvel
-                       </Button>
+                      <Button className="w-full" variant="outline" onClick={() => {
+                          // Preenche o formulário com os dados do imóvel selecionado
+                           setFormData({
+                             titulo: selectedProperty.titulo,
+                             valor: formatCurrencyBR(selectedProperty.valor),
+                             area: selectedProperty.area.toString(),
+                             quartos: selectedProperty.quartos.toString(),
+                             bathrooms: selectedProperty.bathrooms.toString(),
+                             suites: selectedProperty.suites ? String(selectedProperty.suites) : '',
+                             parking_spots: selectedProperty.parking_spots.toString(),
+                             listing_type: selectedProperty.listing_type,
+                             property_type: selectedProperty.property_type,
+                             visibility: selectedProperty.visibility,
+                             broker_minisite_enabled: false,
+                             descricao: selectedProperty.descricao || '',
+                             fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
+                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
+                             address: selectedProperty.address || '',
+                             neighborhood: selectedProperty.neighborhood || '',
+                             city: selectedProperty.city || '',
+                             state: selectedProperty.state || '',
+                             zipcode: selectedProperty.zipcode || '',
+                            condominium_fee: formatCurrencyBR(selectedProperty.condominium_fee),
+                            iptu: formatCurrencyBR(selectedProperty.iptu),
+                             commission_percentage: 6,
+                             commission_value: 0,
+                             commission_split_type: '50/50',
+                             commission_buyer_split: 50,
+                             commission_seller_split: 50,
+                             banner_type: selectedProperty.banner_type || 'none',
+                             is_furnished: selectedProperty.is_furnished || false,
+                             has_sea_view: selectedProperty.has_sea_view || false,
+                             watermark_enabled: selectedProperty.watermark_enabled || false,
+                             furnishing_type: (selectedProperty.furnishing_type as 'none' | 'furnished' | 'semi_furnished') || 'none',
+                             sea_distance: selectedProperty.sea_distance ? String(selectedProperty.sea_distance) : '',
+                             year_built: selectedProperty.year_built ? String(selectedProperty.year_built) : '',
+                           });
+                          setIsDetailDialogOpen(false);
+                          setIsAddDialogOpen(true);
+                         }}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar Imóvel
+                        </Button>
                         <Button 
                           className="w-full" 
                           variant="destructive"
