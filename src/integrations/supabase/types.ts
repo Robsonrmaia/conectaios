@@ -3058,6 +3058,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      calc_imovel_quality: {
+        Args: { imovel_id: string }
+        Returns: number
+      }
       ensure_broker_for_user: {
         Args: { p_user: string }
         Returns: string

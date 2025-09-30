@@ -19,7 +19,7 @@ import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
-import { toDbVisibility, toDbStatus, toDbPurpose, getIsPublic, toNumber } from '@/lib/imoveis/fieldAdapters';
+import { toDbVisibility, toDbStatus, toDbPurpose, fromDbVisibility, fromDbPurpose, getIsPublic, toNumber } from '@/lib/imoveis/fieldAdapters';
 
 // Função para formatação monetária BR (mantida para compatibilidade)
 const formatCurrencyBR = (n?: number | null): string => {
@@ -761,11 +761,11 @@ export default function Imoveis() {
 
       console.log('✅ Visibilidade atualizada:', data[0]);
 
-      // Update local state and refresh
+      // Update local state with the database value returned
       setProperties(prev => 
         prev.map(prop => 
           prop.id === propertyId 
-            ? { ...prop, visibility }
+            ? { ...prop, visibility: data[0].visibility, is_public: data[0].is_public }
             : prop
         )
       );
@@ -1301,9 +1301,8 @@ export default function Imoveis() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="public_site">Site Público</SelectItem>
-                      <SelectItem value="match_only">Apenas Marketplace</SelectItem>
-                      <SelectItem value="both">Site e Marketplace</SelectItem>
-                      <SelectItem value="hidden">Oculto</SelectItem>
+                      <SelectItem value="partners">Marketplace</SelectItem>
+                      <SelectItem value="private">Oculto</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -1520,7 +1519,7 @@ export default function Imoveis() {
                     </div>
                     
                     {/* Visibility Status */}
-                    {property.visibility === 'marketplace' ? (
+                    {property.visibility === 'partners' ? (
                       <Badge variant="default" className="text-xs">
                         <Target className="h-3 w-3 mr-1" />
                         Marketplace
@@ -1529,11 +1528,6 @@ export default function Imoveis() {
                       <Badge variant="default" className="text-xs">
                         <Globe className="h-3 w-3 mr-1" />
                         Site Público
-                      </Badge>
-                    ) : property.visibility === 'both' ? (
-                      <Badge variant="default" className="text-xs">
-                        <Eye className="h-3 w-3 mr-1" />
-                        Site + Market
                       </Badge>
                     ) : (
                       <Badge variant="outline" className="text-xs">
@@ -1749,20 +1743,10 @@ export default function Imoveis() {
                     <div className="grid grid-cols-3 gap-2 mt-3">
                       <Button
                         size="sm"
-                        variant={property.visibility === 'marketplace' || property.visibility === 'both' ? 'default' : 'outline'}
+                        variant={property.visibility === 'partners' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          let newVisibility = property.visibility;
-                          if (property.visibility === 'marketplace') {
-                            newVisibility = 'hidden';
-                          } else if (property.visibility === 'public_site') {
-                            newVisibility = 'both';
-                          } else if (property.visibility === 'both') {
-                            newVisibility = 'public_site';
-                          } else {
-                            newVisibility = 'marketplace';
-                          }
-                          updatePropertyVisibility(property.id, newVisibility);
+                          updatePropertyVisibility(property.id, 'partners');
                         }}
                         title="Marketplace - Imóvel aparece no marketplace"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1772,20 +1756,10 @@ export default function Imoveis() {
                       </Button>
                       <Button
                         size="sm"
-                        variant={property.visibility === 'public_site' || property.visibility === 'both' ? 'default' : 'outline'}
+                        variant={property.visibility === 'public_site' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          let newVisibility = property.visibility;
-                          if (property.visibility === 'public_site') {
-                            newVisibility = 'hidden';
-                          } else if (property.visibility === 'marketplace') {
-                            newVisibility = 'both';
-                          } else if (property.visibility === 'both') {
-                            newVisibility = 'marketplace';
-                          } else {
-                            newVisibility = 'public_site';
-                          }
-                          updatePropertyVisibility(property.id, newVisibility);
+                          updatePropertyVisibility(property.id, 'public_site');
                         }}
                         title="Site Público - Imóvel aparece no site público e minisite"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1795,10 +1769,10 @@ export default function Imoveis() {
                       </Button>
                       <Button
                         size="sm"
-                        variant={property.visibility === 'hidden' ? 'default' : 'outline'}
+                        variant={property.visibility === 'private' ? 'default' : 'outline'}
                         onClick={(e) => {
                           e.stopPropagation();
-                          updatePropertyVisibility(property.id, 'hidden');
+                          updatePropertyVisibility(property.id, 'private');
                         }}
                         title="Oculto - Visível apenas para você no painel"
                         className="text-xs h-6 flex items-center justify-center"
@@ -1991,7 +1965,7 @@ export default function Imoveis() {
                              parking_spots: selectedProperty.parking_spots.toString(),
                              listing_type: selectedProperty.listing_type,
                              property_type: selectedProperty.property_type,
-                             visibility: selectedProperty.visibility,
+                             visibility: fromDbVisibility(selectedProperty.visibility || 'private'),
                              broker_minisite_enabled: false,
                              descricao: selectedProperty.descricao || '',
                              fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],

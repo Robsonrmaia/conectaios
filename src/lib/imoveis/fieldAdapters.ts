@@ -14,7 +14,7 @@ export const toDbVisibility = (uiValue: string): Visibility => {
     'private': 'private',
     'public_site': 'public_site',
     'site': 'public_site',
-    'both': 'public_site',
+    'both': 'partners',  // "both" = visible em marketplace E site
     'match_only': 'partners',
     'partners': 'partners',
     'marketplace': 'partners',
@@ -25,11 +25,11 @@ export const toDbVisibility = (uiValue: string): Visibility => {
 // Valor do banco -> label para UI
 export const fromDbVisibility = (dbValue: string): string => {
   const map: Record<Visibility, string> = {
-    private: 'hidden',
+    private: 'private',
     public_site: 'public_site',
-    partners: 'match_only',
+    partners: 'partners',
   };
-  return map[(dbValue as Visibility)] ?? 'hidden';
+  return map[(dbValue as Visibility)] ?? 'private';
 };
 
 // Status: UI label -> valor do banco

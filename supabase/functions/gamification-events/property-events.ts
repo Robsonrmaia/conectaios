@@ -12,7 +12,7 @@ export async function processPropertyEvent(
 
     // Get property details
     const { data: property, error: propError } = await supabase
-      .from('properties')
+      .from('imoveis')
       .select('*')
       .eq('id', propertyId)
       .single();
@@ -26,7 +26,14 @@ export async function processPropertyEvent(
     if (qualityError) throw qualityError;
 
     const qualityPercentage = qualityResult || 0;
-    const hasEightPhotos = (property.fotos || []).length >= 8;
+    
+    // Get photo count
+    const { data: photos } = await supabase
+      .from('imovel_images')
+      .select('id')
+      .eq('imovel_id', propertyId);
+    
+    const hasEightPhotos = (photos || []).length >= 8;
 
     // Award points based on events
     if (eventType === 'created' || eventType === 'updated') {
@@ -52,7 +59,7 @@ export async function processPropertyEvent(
           p_pontos: 2,
           p_ref_tipo: 'imovel',
           p_ref_id: propertyId,
-          p_meta: { photo_count: (property.fotos || []).length }
+          p_meta: { photo_count: (photos || []).length }
         });
         events.push('imovel_8_fotos');
         totalPoints += 2;
@@ -65,7 +72,7 @@ export async function processPropertyEvent(
         p_pontos: 50,
         p_ref_tipo: 'imovel',
         p_ref_id: propertyId,
-        p_meta: { sale_value: property.valor }
+        p_meta: { sale_value: property.price }
       });
       events.push('imovel_vendido');
       totalPoints += 50;
