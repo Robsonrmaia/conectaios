@@ -53,6 +53,7 @@ interface Property {
   area: number;
   quartos: number;
   bathrooms: number;
+  suites?: number;
   parking_spots: number;
   listing_type: string;
   property_type: string;
@@ -142,6 +143,7 @@ export default function Imoveis() {
     area: '',
     quartos: '',
     bathrooms: '',
+    suites: '',
     parking_spots: '',
     listing_type: 'venda',
     property_type: 'apartamento',
@@ -157,6 +159,7 @@ export default function Imoveis() {
     zipcode: '',
     condominium_fee: '',
     iptu: '',
+    year_built: '',
     commission_percentage: 5,
     commission_value: 0,
     commission_split_type: '50/50',
@@ -168,7 +171,6 @@ export default function Imoveis() {
     watermark_enabled: true,
     furnishing_type: 'none' as 'none' | 'furnished' | 'semi_furnished',
     sea_distance: '',
-    year_built: '',
   });
 
   const fetchProperties = useCallback(async (page = 1, pageSize = 20) => {
@@ -239,7 +241,6 @@ export default function Imoveis() {
         quartos: prop.bedrooms || 0,
         bathrooms: prop.bathrooms || 0,
         suites: prop.suites || 0,
-        year_built: prop.suites || undefined, // Mapeando suites como year_built temporariamente
         parking_spots: prop.parking || 0,
         listing_type: prop.purpose || 'sale',
         property_type: prop.property_type || 'apartamento',
@@ -386,7 +387,7 @@ export default function Imoveis() {
         area_total: parsedArea,
         bedrooms: parsedQuartos,
         bathrooms: parsedBathrooms,
-        suites: parseInt(formData.year_built) || 0, // Usando suites para armazenar ano
+        suites: parseInt(formData.suites) || 0,
         parking: parsedParkingSpots,
         purpose: mappedPurpose,
         property_type: formData.property_type,
@@ -557,6 +558,7 @@ export default function Imoveis() {
         area: '',
         quartos: '',
         bathrooms: '',
+        suites: '',
         parking_spots: '',
         listing_type: 'venda',
         property_type: 'apartamento',
@@ -905,19 +907,30 @@ export default function Imoveis() {
                      className="h-11"
                    />
                  </div>
-               </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
-                    <Label htmlFor="parking_spots">Vagas</Label>
+                    <Label htmlFor="suites">Suítes</Label>
                     <Input
-                      id="parking_spots"
+                      id="suites"
                       type="number"
-                      value={formData.parking_spots}
-                      onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
-                      placeholder="1"
+                      value={formData.suites}
+                      onChange={(e) => setFormData({...formData, suites: e.target.value})}
+                      placeholder="0"
+                      className="h-11"
                     />
                   </div>
+                </div>
+
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                   <div>
+                     <Label htmlFor="parking_spots">Vagas</Label>
+                     <Input
+                       id="parking_spots"
+                       type="number"
+                       value={formData.parking_spots}
+                       onChange={(e) => setFormData({...formData, parking_spots: e.target.value})}
+                       placeholder="1"
+                     />
+                   </div>
                   <div>
                     <Label htmlFor="listing_type">Finalidade</Label>
                     <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
@@ -1633,6 +1646,7 @@ export default function Imoveis() {
                             commission_split_type: '50/50',
                             commission_buyer_split: 50,
                             commission_seller_split: 50,
+                            suites: property.suites ? String(property.suites) : '',
                             banner_type: property.banner_type || null,
                             is_furnished: property.is_furnished || false,
                             has_sea_view: property.has_sea_view || false,
@@ -1904,6 +1918,7 @@ export default function Imoveis() {
                             area: selectedProperty.area.toString(),
                             quartos: selectedProperty.quartos.toString(),
                             bathrooms: selectedProperty.bathrooms.toString(),
+                            suites: selectedProperty.suites ? String(selectedProperty.suites) : '',
                             parking_spots: selectedProperty.parking_spots.toString(),
                             listing_type: selectedProperty.listing_type,
                             property_type: selectedProperty.property_type,
