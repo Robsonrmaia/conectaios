@@ -200,11 +200,12 @@ export default function MinisiteView() {
                 description, bathrooms, parking, purpose, property_type,
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
-                distancia_mar, year_built, zipcode, is_public, visibility
+                distancia_mar, construction_year, zipcode, is_public, visibility, status
               `)
               .eq('owner_id', brokerData.user_id)
+              .eq('status', 'active')
               .eq('is_public', true)
-              .in('visibility', ['public_site', 'both'])
+              .in('visibility', ['site', 'both'])
               .order('created_at', { ascending: false })
               .limit(50);
 
@@ -219,14 +220,15 @@ export default function MinisiteView() {
                 is_public: propertiesData[0].is_public,
                 visibility: propertiesData[0].visibility
               } : null,
-              query_details: {
-                table: 'imoveis',
-                filters: {
-                  owner_id: brokerData.user_id,
-                  is_public: true,
-                  visibility: ['public_site', 'both']
+                query_details: {
+                  table: 'imoveis',
+                  filters: {
+                    owner_id: brokerData.user_id,
+                    is_public: true,
+                    status: 'active',
+                    visibility: ['site', 'both']
+                  }
                 }
-              }
             });
 
             if (propertiesError) {
@@ -276,7 +278,7 @@ export default function MinisiteView() {
                 iptu: prop.iptu,
                 has_sea_view: prop.vista_mar,
                 sea_distance: prop.distancia_mar,
-                year_built: prop.year_built,
+                year_built: prop.construction_year,
                 zipcode: prop.zipcode
               }));
 

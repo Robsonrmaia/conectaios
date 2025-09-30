@@ -1014,6 +1014,7 @@ export type Database = {
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
           distancia_mar: number | null
@@ -1055,6 +1056,7 @@ export type Database = {
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          construction_year?: number | null
           created_at?: string | null
           description?: string | null
           distancia_mar?: number | null
@@ -1096,6 +1098,7 @@ export type Database = {
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          construction_year?: number | null
           created_at?: string | null
           description?: string | null
           distancia_mar?: number | null
@@ -3083,6 +3086,7 @@ export type Database = {
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
           distancia_mar: number | null
@@ -3136,6 +3140,7 @@ export type Database = {
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
           distancia_mar: number | null
@@ -3246,6 +3251,7 @@ export type Database = {
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
           distancia_mar: number | null
@@ -3296,6 +3302,7 @@ export type Database = {
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
           distancia_mar: number | null

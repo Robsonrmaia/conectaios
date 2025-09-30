@@ -186,7 +186,7 @@ export default function Imoveis() {
       // Query corrigida: buscar todos os campos necessários
       const { data, error, count } = await supabase
         .from('imoveis')
-        .select('id,title,price,city,neighborhood,is_public,visibility,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status', { count: 'exact' })
+        .select('id,title,price,city,neighborhood,is_public,visibility,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status,construction_year', { count: 'exact' })
         .eq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
@@ -269,7 +269,7 @@ export default function Imoveis() {
           parking_spots: prop.parking || 0,
           listing_type: prop.purpose || 'sale',
           property_type: prop.property_type || 'apartamento',
-          visibility: prop.visibility || 'public_site',
+          visibility: prop.visibility || 'private',
           fotos: imagesMap[prop.id] || [],
           videos: [],
           descricao: prop.description || '',
@@ -286,6 +286,7 @@ export default function Imoveis() {
           iptu: prop.iptu || null,
           is_furnished: prop.is_furnished || false,
           watermark_enabled: true,
+          year_built: prop.construction_year || null,
           created_at: prop.created_at,
           status: prop.status || 'available'
         };
@@ -389,22 +390,23 @@ export default function Imoveis() {
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
       
-      console.log('=== SALVANDO IMÓVEL ===');
-      console.log('Título:', formData.titulo);
-      console.log('Valor parseado:', parsedValue);
-      console.log('Purpose mapeado:', mappedPurpose);
-      console.log('Fotos validadas:', photosArray.length);
+      // Lógica de visibilidade conforme especificação
+      let visibility: string;
+      let is_public: boolean;
       
-      // Mapear visibility para valores válidos do banco
-      const visibilityMapping: Record<string, string> = {
-        'marketplace': 'partners',
-        'both': 'public_site',
-        'hidden': 'private',
-        'public_site': 'public_site',
-        'private': 'private',
-        'partners': 'partners'
-      };
-      const mappedVisibility = visibilityMapping[formData.visibility] || 'private';
+      if (formData.visibility === 'both') {
+        visibility = 'both';
+        is_public = true;
+      } else if (formData.visibility === 'public_site') {
+        visibility = 'site';
+        is_public = true;
+      } else if (formData.visibility === 'marketplace' || formData.visibility === 'partners') {
+        visibility = 'marketplace';
+        is_public = false;
+      } else {
+        visibility = 'private';
+        is_public = false;
+      }
       
       const propertyData = {
         owner_id: user.id,
@@ -417,7 +419,7 @@ export default function Imoveis() {
         parking: parsedParkingSpots,
         purpose: mappedPurpose,
         property_type: formData.property_type,
-        visibility: mappedVisibility, // ✅ Usar valor mapeado
+        visibility: visibility,
         description: formData.descricao,
         address: formData.address,
         neighborhood: formData.neighborhood,
@@ -429,9 +431,9 @@ export default function Imoveis() {
         is_furnished: formData.is_furnished,
         vista_mar: formData.has_sea_view,
         distancia_mar: parsedSeaDistance,
-        year_built: parseInt(formData.year_built) || null,
-        is_public: mappedVisibility === 'public_site',
-        status: 'available'
+        construction_year: parseInt(formData.year_built) || null,
+        is_public: is_public,
+        status: 'active'
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
@@ -739,25 +741,32 @@ export default function Imoveis() {
     try {
       console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
       
-      // Mapear visibility para valores válidos do banco
-      const visibilityMapping: Record<string, string> = {
-        'marketplace': 'partners',
-        'both': 'public_site',
-        'hidden': 'private',
-        'public_site': 'public_site',
-        'private': 'private',
-        'partners': 'partners'
-      };
-      const mappedVisibility = visibilityMapping[visibility] || 'private';
+      // Lógica de visibilidade conforme especificação
+      let dbVisibility: string;
+      let isPublic: boolean;
+      
+      if (visibility === 'both') {
+        dbVisibility = 'both';
+        isPublic = true;
+      } else if (visibility === 'public_site') {
+        dbVisibility = 'site';
+        isPublic = true;
+      } else if (visibility === 'marketplace' || visibility === 'partners') {
+        dbVisibility = 'marketplace';
+        isPublic = false;
+      } else {
+        dbVisibility = 'private';
+        isPublic = false;
+      }
       
       const { error, data } = await supabase
-        .from('imoveis') // ✅ FIX: usar 'imoveis' em vez de 'properties'
+        .from('imoveis')
         .update({ 
-          visibility: mappedVisibility,
-          is_public: mappedVisibility === 'public_site'
+          visibility: dbVisibility,
+          is_public: isPublic
         })
         .eq('id', propertyId)
-        .eq('owner_id', user?.id) // ✅ FIX: usar 'owner_id' em vez de 'user_id'
+        .eq('owner_id', user?.id)
         .select();
 
       if (error) {
@@ -1698,10 +1707,14 @@ export default function Imoveis() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
+                          // Formatação de valores monetários
+                          const formatCurrency = (n?: number | null) =>
+                            typeof n === 'number' ? n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+                          
                           // Preenche o formulário com os dados do imóvel selecionado
                           setFormData({
                             titulo: property.titulo,
-                            valor: property.valor.toString(),
+                            valor: formatCurrency(property.valor),
                             area: property.area.toString(),
                             quartos: property.quartos.toString(),
                             bathrooms: property.bathrooms.toString(),
@@ -1718,8 +1731,8 @@ export default function Imoveis() {
                             city: property.city || '',
                             state: property.state || '',
                             zipcode: property.zipcode || '',
-                            condominium_fee: property.condominium_fee ? property.condominium_fee.toString() : '',
-                            iptu: property.iptu ? property.iptu.toString() : '',
+                            condominium_fee: formatCurrency(property.condominium_fee),
+                            iptu: formatCurrency(property.iptu),
                             commission_percentage: property.listing_type === "venda" ? 5 : property.listing_type === "locacao" ? 100 : 20,
                             commission_value: 0,
                             commission_split_type: '50/50',
