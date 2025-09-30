@@ -371,7 +371,6 @@ export default function Imoveis() {
         condo_fee: parsedCondominiumFee, // ✅ FIX: mapear para 'condo_fee' da tabela imoveis
         iptu: parsedIptu,
         is_furnished: formData.is_furnished,
-        furnishing_type: formData.furnishing_type,
         sea_distance: parsedSeaDistance,
         year_built: parsedYearBuilt,
         is_public: formData.visibility === 'public_site',
