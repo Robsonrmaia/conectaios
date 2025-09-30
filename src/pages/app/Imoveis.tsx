@@ -181,10 +181,10 @@ export default function Imoveis() {
         console.log('🔄 [ADMIN] Carregando imóveis do usuário:', user?.id);
       }
       
-      // Query corrigida: usar apenas campos que existem na tabela imoveis
+      // Query corrigida: buscar todos os campos necessários
       const { data, error, count } = await supabase
         .from('imoveis')
-        .select('id,title,price,city,neighborhood,is_public,visibility,created_at', { count: 'exact' })
+        .select('id,title,price,city,neighborhood,is_public,visibility,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status', { count: 'exact' })
         .eq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
@@ -230,32 +230,37 @@ export default function Imoveis() {
         }
       }
       
-      // Map data com fotos carregadas do banco
+      // Map data com fotos e todos os dados carregados do banco
       const mappedData = (data || []).map(prop => ({
         id: prop.id,
         titulo: prop.title || 'Sem título',
         valor: prop.price || 0,
-        area: 0, // Default
-        quartos: 0, // Default
-        bathrooms: 0,
-        parking_spots: 0,
-        listing_type: 'venda',
-        property_type: 'apartamento',
+        area: prop.area_total || 0,
+        quartos: prop.bedrooms || 0,
+        bathrooms: prop.bathrooms || 0,
+        suites: prop.suites || 0,
+        parking_spots: prop.parking || 0,
+        listing_type: prop.purpose || 'sale',
+        property_type: prop.property_type || 'apartamento',
         visibility: prop.visibility || 'public_site',
-        fotos: imagesMap[prop.id] || [], // ✅ FIX: carregar fotos do banco
+        fotos: imagesMap[prop.id] || [],
         videos: [],
-        descricao: '',
+        descricao: prop.description || '',
         banner_type: null,
         furnishing_type: 'none' as const,
-        sea_distance: null,
-        has_sea_view: false,
+        sea_distance: prop.distancia_mar || null,
+        has_sea_view: prop.vista_mar || false,
         neighborhood: prop.neighborhood || '',
-        zipcode: '',
-        condominium_fee: null,
-        iptu: null,
-        is_furnished: false,
+        city: prop.city || '',
+        address: prop.address || '',
+        state: prop.state || '',
+        zipcode: prop.zipcode || '',
+        condominium_fee: prop.condo_fee || null,
+        iptu: prop.iptu || null,
+        is_furnished: prop.is_furnished || false,
         watermark_enabled: true,
-        created_at: prop.created_at
+        created_at: prop.created_at,
+        status: prop.status || 'available'
       }));
       
       console.log('📊 [ADMIN] Propriedades mapeadas com fotos:', mappedData.map(p => ({ id: p.id, fotos: p.fotos.length })));
