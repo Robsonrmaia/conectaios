@@ -331,7 +331,6 @@ export default function Imoveis() {
       const parsedCondominiumFee = formData.condominium_fee ? parseValueInput(formData.condominium_fee) : null;
       const parsedIptu = formData.iptu ? parseValueInput(formData.iptu) : null;
       const parsedSeaDistance = formData.sea_distance ? parseInt(formData.sea_distance) : null;
-      const parsedYearBuilt = formData.year_built ? parseInt(formData.year_built) : null;
       
       // Validar dados numéricos
       if (parsedValue <= 0) {
