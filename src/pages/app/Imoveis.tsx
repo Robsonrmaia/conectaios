@@ -332,6 +332,17 @@ export default function Imoveis() {
       const parsedIptu = formData.iptu ? parseValueInput(formData.iptu) : null;
       const parsedSeaDistance = formData.sea_distance ? parseInt(formData.sea_distance) : null;
       
+      // Mapear listing_type do formulário para purpose do banco (português -> inglês)
+      const purposeMapping: Record<string, string> = {
+        'venda': 'sale',
+        'aluguel': 'rent',
+        'temporada': 'season',
+        'sale': 'sale',
+        'rent': 'rent',
+        'season': 'season'
+      };
+      const mappedPurpose = purposeMapping[formData.listing_type] || 'sale';
+      
       // Validar dados numéricos
       if (parsedValue <= 0) {
         toast({
@@ -348,20 +359,21 @@ export default function Imoveis() {
       console.log('=== SALVANDO IMÓVEL ===');
       console.log('Título:', formData.titulo);
       console.log('Valor parseado:', parsedValue);
+      console.log('Purpose mapeado:', mappedPurpose);
       console.log('Fotos validadas:', photosArray.length);
       
       const propertyData = {
-        owner_id: user.id, // ✅ FIX: usar owner_id em vez de user_id
-        title: formData.titulo.trim(), // ✅ FIX: mapear para 'title' da tabela imoveis
-        price: parsedValue, // ✅ FIX: mapear para 'price' da tabela imoveis
-        area_total: parsedArea, // ✅ FIX: mapear para 'area_total' da tabela imoveis
-        bedrooms: parsedQuartos, // ✅ FIX: mapear para 'bedrooms' da tabela imoveis
-        bathrooms: parsedBathrooms, // ✅ OK: bathrooms existe
-        parking: parsedParkingSpots, // ✅ FIX: mapear para 'parking' da tabela imoveis
-        purpose: formData.listing_type, // ✅ FIX: mapear listing_type para 'purpose' da tabela imoveis
+        owner_id: user.id,
+        title: formData.titulo.trim(),
+        price: parsedValue,
+        area_total: parsedArea,
+        bedrooms: parsedQuartos,
+        bathrooms: parsedBathrooms,
+        parking: parsedParkingSpots,
+        purpose: mappedPurpose, // ✅ Usar valor mapeado (sale/rent/season)
         property_type: formData.property_type,
         visibility: formData.visibility,
-        description: formData.descricao, // ✅ FIX: mapear para 'description' da tabela imoveis
+        description: formData.descricao,
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
@@ -372,7 +384,7 @@ export default function Imoveis() {
         is_furnished: formData.is_furnished,
         distancia_mar: parsedSeaDistance,
         is_public: formData.visibility === 'public_site',
-        status: 'available' // ✅ Definir status padrão
+        status: 'available'
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
