@@ -273,7 +273,7 @@ export default function Imoveis() {
           fotos: imagesMap[prop.id] || [],
           videos: [],
           descricao: prop.description || '',
-          banner_type: features.banner_type || null,
+          banner_type: features.banner_type || 'none',
           furnishing_type: (features.furnishing_type || (prop.is_furnished ? 'furnished' : 'none')) as 'none' | 'furnished' | 'semi_furnished',
           sea_distance: prop.distancia_mar || null,
           has_sea_view: prop.vista_mar || false,
@@ -561,7 +561,7 @@ export default function Imoveis() {
 
           // Preparar features para salvar
           const featuresToSave = [];
-          if (formData.banner_type) {
+          if (formData.banner_type && formData.banner_type !== 'none') {
             featuresToSave.push({
               imovel_id: result.data.id,
               key: 'banner_type',
@@ -652,7 +652,7 @@ export default function Imoveis() {
         commission_split_type: '50/50',
         commission_buyer_split: 50,
         commission_seller_split: 50,
-        banner_type: null,
+        banner_type: 'none',
         is_furnished: false,
         has_sea_view: false,
         watermark_enabled: true,
@@ -1720,7 +1720,7 @@ export default function Imoveis() {
                             commission_buyer_split: 50,
                             commission_seller_split: 50,
                             suites: property.suites ? String(property.suites) : '',
-                            banner_type: property.banner_type || null,
+                            banner_type: property.banner_type || 'none',
                             is_furnished: property.is_furnished || false,
                             has_sea_view: property.has_sea_view || false,
                             watermark_enabled: true,
@@ -2012,7 +2012,7 @@ export default function Imoveis() {
                             commission_split_type: '50/50',
                             commission_buyer_split: 50,
                             commission_seller_split: 50,
-                            banner_type: selectedProperty.banner_type || null,
+                            banner_type: selectedProperty.banner_type || 'none',
                             is_furnished: selectedProperty.is_furnished || false,
                             has_sea_view: selectedProperty.has_sea_view || false,
                             watermark_enabled: selectedProperty.watermark_enabled || false,
