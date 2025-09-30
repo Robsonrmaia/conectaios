@@ -265,34 +265,19 @@ const Index = () => {
                     <wistia-player media-id="wsl23th2kq" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
 
-                  {/* Vídeo 4 - Placeholder */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
-                        <Users className="w-6 h-6" />
-                      </div>
-                      <p className="text-sm font-medium">Em breve</p>
-                    </div>
+                  {/* Vídeo 4 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
+                    <wistia-player media-id="e4dk8u41uq" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
 
-                  {/* Vídeo 5 - Placeholder */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
-                        <MessageSquare className="w-6 h-6" />
-                      </div>
-                      <p className="text-sm font-medium">Em breve</p>
-                    </div>
+                  {/* Vídeo 5 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
+                    <wistia-player media-id="5t311sebkh" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
 
-                  {/* Vídeo 6 - Placeholder */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 bg-gray-100 flex items-center justify-center">
-                    <div className="text-center text-gray-500">
-                      <div className="w-12 h-12 mx-auto mb-2 bg-gray-300 rounded-full flex items-center justify-center">
-                        <TrendingUp className="w-6 h-6" />
-                      </div>
-                      <p className="text-sm font-medium">Em breve</p>
-                    </div>
+                  {/* Vídeo 6 */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
+                    <wistia-player media-id="rd3fb1xgqj" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
                   </div>
                 </div>
               </div>
