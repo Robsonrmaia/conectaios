@@ -310,17 +310,16 @@ export function useEnhancedChat() {
     if (!user?.id || (!body && (!attachments || attachments.length === 0))) return;
 
     try {
-      const { data, error } = await supabase.functions.invoke('chat-send-message', {
-        body: {
+      // Usar RPC ao invés de edge function para evitar problemas de autenticação
+      const { data: messageId, error } = await supabase
+        .rpc('msg_send_message', {
           thread_id: threadId,
-          body,
-          attachments: attachments || []
-        }
-      });
+          content: body || ''
+        });
 
       if (error) throw error;
 
-      return data.message_id;
+      return messageId;
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
