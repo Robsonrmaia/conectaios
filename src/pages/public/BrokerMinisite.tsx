@@ -170,8 +170,8 @@ export default function BrokerMinisite() {
           `)
           .eq("user_id", bq.data.user_id)
           .eq("is_public", true)
-          .in("visibility", ["public_site", "both"])
-          .neq("status", "INATIVO")
+          .in("visibility", ["public_site", "partners"])
+          .eq("status", "available")
           .order("created_at", { ascending: false })
           .limit(50);
 

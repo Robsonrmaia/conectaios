@@ -102,10 +102,12 @@ export default function PropertyDetail() {
     try {
       // Fetch property
       const { data: propertyData, error: propertyError } = await supabase
-        .from('properties')
+        .from('imoveis')
         .select('*')
         .eq('id', id)
-        .eq('visibility', 'public_site')
+        .eq('is_public', true)
+        .in('visibility', ['public_site', 'partners'])
+        .eq('status', 'available')
         .single();
 
       if (propertyError) throw propertyError;

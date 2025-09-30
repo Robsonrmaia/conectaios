@@ -203,9 +203,9 @@ export default function MinisiteView() {
                 distancia_mar, construction_year, zipcode, is_public, visibility, status
               `)
               .eq('owner_id', brokerData.user_id)
-              .eq('status', 'active')
+              .eq('status', 'available')
               .eq('is_public', true)
-              .in('visibility', ['site', 'both'])
+              .in('visibility', ['public_site', 'partners'])
               .order('created_at', { ascending: false })
               .limit(50);
 

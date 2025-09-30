@@ -132,7 +132,8 @@ export default function Marketplace() {
           .from('imoveis')
           .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
           .eq('is_public', true)
-          .eq('visibility', 'public_site')
+          .in('visibility', ['public_site', 'partners'])
+          .eq('status', 'available')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
@@ -186,7 +187,8 @@ export default function Marketplace() {
           .from('imoveis')
           .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
           .eq('is_public', true)
-          .eq('visibility', 'public_site')
+          .in('visibility', ['public_site', 'partners'])
+          .eq('status', 'available')
           .order('created_at', { ascending: false })
           .range(offset, offset + pageSize - 1);
           

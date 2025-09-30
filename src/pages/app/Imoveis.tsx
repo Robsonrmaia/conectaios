@@ -19,15 +19,9 @@ import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
+import { toDbVisibility, toDbStatus, toDbPurpose, getIsPublic, toNumber } from '@/lib/imoveis/fieldAdapters';
 
-// Funções para formatação monetária BR
-const parseCurrencyBR = (raw: string): number | null => {
-  if (!raw || typeof raw !== 'string') return null;
-  const cleaned = raw.replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
-  const num = Number(cleaned);
-  return Number.isFinite(num) ? num : null;
-};
-
+// Função para formatação monetária BR (mantida para compatibilidade)
 const formatCurrencyBR = (n?: number | null): string => {
   if (typeof n !== 'number' || !Number.isFinite(n)) return '';
   return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -403,50 +397,38 @@ export default function Imoveis() {
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
       
-      // Lógica de visibilidade conforme especificação do banco
-      let visibility: 'public_site' | 'private' | 'partners';
-      let is_public: boolean;
-      
-      if (formData.visibility === 'both') {
-        visibility = 'public_site';
-        is_public = true;
-      } else if (formData.visibility === 'public_site') {
-        visibility = 'public_site';
-        is_public = formData.broker_minisite_enabled;
-      } else if (formData.visibility === 'match_only' || formData.visibility === 'partners') {
-        visibility = 'partners';
-        is_public = false;
-      } else {
-        visibility = 'private';
-        is_public = false;
-      }
+      // Usar adaptador para converter valores do formulário
+      const dbVisibility = toDbVisibility(formData.visibility);
+      const dbStatus = toDbStatus('active');
+      const dbPurpose = toDbPurpose(formData.listing_type);
+      const isPublic = getIsPublic(dbVisibility);
       
       const propertyData = {
         owner_id: user.id,
         title: formData.titulo.trim(),
-        price: parseCurrencyBR(formData.valor),
-        area_total: parseCurrencyBR(formData.area) || null,
+        price: toNumber(formData.valor),
+        area_total: toNumber(formData.area),
         bedrooms: parsedQuartos,
         bathrooms: parsedBathrooms,
         suites: parseInt(formData.suites) || 0,
         parking: parsedParkingSpots,
-        purpose: mappedPurpose,
+        purpose: dbPurpose,
         property_type: formData.property_type,
-        visibility: visibility,
+        visibility: dbVisibility,
         description: formData.descricao,
         address: formData.address,
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
         zipcode: formData.zipcode,
-        condo_fee: parseCurrencyBR(formData.condominium_fee) || null,
-        iptu: parseCurrencyBR(formData.iptu) || null,
+        condo_fee: toNumber(formData.condominium_fee),
+        iptu: toNumber(formData.iptu),
         is_furnished: formData.is_furnished,
         vista_mar: formData.has_sea_view,
         distancia_mar: parsedSeaDistance,
         construction_year: parseInt(formData.year_built) || null,
-        is_public: is_public,
-        status: 'available'
+        is_public: isPublic,
+        status: dbStatus
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');
@@ -754,23 +736,9 @@ export default function Imoveis() {
     try {
       console.log('🔄 Atualizando visibilidade:', { propertyId, visibility });
       
-      // Lógica de visibilidade conforme especificação do banco
-      let dbVisibility: 'public_site' | 'private' | 'partners';
-      let isPublic: boolean;
-      
-      if (visibility === 'both') {
-        dbVisibility = 'public_site';
-        isPublic = true;
-      } else if (visibility === 'public_site') {
-        dbVisibility = 'public_site';
-        isPublic = true;
-      } else if (visibility === 'match_only' || visibility === 'partners') {
-        dbVisibility = 'partners';
-        isPublic = false;
-      } else {
-        dbVisibility = 'private';
-        isPublic = false;
-      }
+      // Usar adaptador para garantir valores aceitos pelo banco
+      const dbVisibility = toDbVisibility(visibility);
+      const isPublic = getIsPublic(dbVisibility);
       
       const { error, data } = await supabase
         .from('imoveis')
