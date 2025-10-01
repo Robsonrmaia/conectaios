@@ -417,22 +417,21 @@ All colors MUST be HSL.
 
   /* Animated gradient text */
   .animate-gradient-text {
+    display: inline-block;
     background: linear-gradient(
-      135deg,
-      #60A5FA 0%,
-      #3B82F6 15%,
-      #1E40AF 30%,
-      #8B5CF6 50%,
-      #EC4899 70%,
-      #EF4444 85%,
-      #60A5FA 100%
+      90deg,
+      #60A5FA,
+      #3B82F6,
+      #8B5CF6,
+      #EC4899,
+      #EF4444,
+      #60A5FA
     );
-    background-size: 400% 400%;
+    background-size: 300% 100%;
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-clip: text;
-    color: transparent;
-    animation: gradient-shift 15s ease-in-out infinite;
+    animation: gradient-shift 8s linear infinite;
   }
 }
 
