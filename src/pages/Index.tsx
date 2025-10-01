@@ -54,18 +54,13 @@ const Index = () => {
     
     console.log('Hero animation: Initialized successfully');
     
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      
+    const applyTransform = (x: number, y: number, rect: DOMRect) => {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
       const rotateX = ((y - centerY) / centerY) * 25;
       const rotateY = ((x - centerX) / centerX) * -25;
       
-      // Apply transform in single line for better performance
       wrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
       wrapper.style.transformStyle = 'preserve-3d';
       
@@ -75,11 +70,27 @@ const Index = () => {
       shadow.style.width = `${80 - Math.abs(rotateY) / 2}%`;
     };
     
-    const handleMouseLeave = () => {
+    const resetTransform = () => {
       wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
       wrapper.style.transformStyle = 'preserve-3d';
       shadow.style.transform = 'translateX(-50%) translateY(0)';
       shadow.style.width = '80%';
+    };
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      applyTransform(x, y, rect);
+    };
+    
+    const handleTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const rect = container.getBoundingClientRect();
+      const touch = e.touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      applyTransform(x, y, rect);
     };
     
     const handleClick = () => {
@@ -91,15 +102,24 @@ const Index = () => {
       }, 150);
     };
     
+    // Mouse events
     container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
+    container.addEventListener('mouseleave', resetTransform);
+    
+    // Touch events for mobile
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    container.addEventListener('touchend', resetTransform);
+    
+    // Click/tap event
     wrapper.addEventListener('click', handleClick);
     
-    console.log('Hero animation: Event listeners attached');
+    console.log('Hero animation: Event listeners attached (mouse + touch)');
     
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mouseleave', resetTransform);
+      container.removeEventListener('touchmove', handleTouchMove);
+      container.removeEventListener('touchend', resetTransform);
       wrapper.removeEventListener('click', handleClick);
       if (cleanup) cleanup();
     };
