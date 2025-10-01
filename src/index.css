@@ -441,6 +441,70 @@ All colors MUST be HSL.
     animation: gradient-shift 3s linear infinite;
     will-change: background-position;
   }
+
+  /* Animated gradient text with staggered delays */
+  .animate-gradient-text-1 {
+    display: inline-block;
+    background: linear-gradient(
+      45deg,
+      #00d4ff 0%,
+      #0ea5e9 20%,
+      #3b82f6 40%,
+      #8b5cf6 60%,
+      #a855f7 80%,
+      #00d4ff 100%
+    );
+    background-size: 500% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #3b82f6;
+    animation: gradient-shift 3s linear infinite;
+    animation-delay: 0s;
+    will-change: background-position;
+  }
+
+  .animate-gradient-text-2 {
+    display: inline-block;
+    background: linear-gradient(
+      45deg,
+      #00d4ff 0%,
+      #0ea5e9 20%,
+      #3b82f6 40%,
+      #8b5cf6 60%,
+      #a855f7 80%,
+      #00d4ff 100%
+    );
+    background-size: 500% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #3b82f6;
+    animation: gradient-shift 3s linear infinite;
+    animation-delay: 1s;
+    will-change: background-position;
+  }
+
+  .animate-gradient-text-3 {
+    display: inline-block;
+    background: linear-gradient(
+      45deg,
+      #00d4ff 0%,
+      #0ea5e9 20%,
+      #3b82f6 40%,
+      #8b5cf6 60%,
+      #a855f7 80%,
+      #00d4ff 100%
+    );
+    background-size: 500% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: #3b82f6;
+    animation: gradient-shift 3s linear infinite;
+    animation-delay: 2s;
+    will-change: background-position;
+  }
 }
 
 @layer components {

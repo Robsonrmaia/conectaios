@@ -105,9 +105,9 @@ const Index = () => {
 
                 <div className="space-y-6">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
-                    Sua rotina <span className="animate-gradient-text">imobiliária</span><br />
-                    <span className="animate-gradient-text">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                    e <span className="animate-gradient-text">Inteligente</span>
+                    Sua rotina <span className="animate-gradient-text-1">imobiliária</span><br />
+                    <span className="animate-gradient-text-2">simplificada</span>, <span className="text-foreground">Organizada</span><br />
+                    e <span className="animate-gradient-text-3">Inteligente</span>
                   </h1>
                   
                   <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
