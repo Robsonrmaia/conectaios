@@ -268,7 +268,6 @@ const Index = () => {
                       className="w-full h-full"
                       preload="metadata"
                       playsinline
-                      muted
                     ></wistia-player>
                   </div>
 
