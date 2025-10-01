@@ -67,6 +67,7 @@ export function EnhancedMessaging() {
   }, [user]);
 
   const fetchAvailableBrokers = async () => {
+    console.log('🔵 EnhancedMessaging: Loading brokers for user', user?.id);
     try {
       const { data: brokersData, error } = await supabase
         .from('conectaios_brokers')
@@ -75,7 +76,12 @@ export function EnhancedMessaging() {
         .neq('user_id', user?.id)
         .order('name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('🔴 Error loading brokers:', error);
+        throw error;
+      }
+      
+      console.log('✅ Raw brokers loaded:', brokersData?.length || 0);
       
       const uniqueBrokers = brokersData?.reduce((acc: Broker[], broker) => {
         if (!acc.some(b => b.email === broker.email)) {
@@ -84,9 +90,10 @@ export function EnhancedMessaging() {
         return acc;
       }, []) || [];
       
+      console.log('✅ Unique brokers filtered:', uniqueBrokers.length);
       setAvailableBrokers(uniqueBrokers);
     } catch (error) {
-      console.error('Error fetching brokers:', error);
+      console.error('🔴 Error fetching brokers:', error);
     }
   };
 

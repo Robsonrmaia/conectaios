@@ -53,7 +53,11 @@ export function useEnhancedChat() {
 
   // Fetch threads
   const fetchThreads = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.log('🔴 fetchThreads: No user ID');
+      return;
+    }
+    console.log('🔵 fetchThreads: Starting for user', user.id);
 
     try {
       const { data: threadsData, error } = await supabase
@@ -61,7 +65,12 @@ export function useEnhancedChat() {
         .select('*')
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('🔴 Error fetching threads:', error);
+        throw error;
+      }
+      
+      console.log('✅ Raw threads fetched:', threadsData?.length || 0);
 
       // Filter threads where user is participant
       const userThreads = [];
@@ -148,6 +157,7 @@ export function useEnhancedChat() {
         }
       }
 
+      console.log('✅ Filtered user threads:', userThreads.length);
       setThreads(userThreads);
       
       // Update unread counts
