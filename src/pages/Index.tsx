@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,11 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [partnerships, setPartnerships] = useState<any[]>([]);
+  
+  // Refs for 3D animation
+  const containerRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const shadowRef = useRef<HTMLDivElement>(null);
 
   // Removido redirecionamento automático para permitir visualização da página inicial
 
@@ -36,7 +41,79 @@ const Index = () => {
     fetchPartnerships();
     // Initialize parallax effect
     const cleanup = initParallax();
-    return cleanup;
+    
+    // 3D Hero Image Animation
+    const container = containerRef.current;
+    const wrapper = wrapperRef.current;
+    const shadow = shadowRef.current;
+    
+    if (!container || !wrapper || !shadow) return cleanup;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotateX = ((y - centerY) / centerY) * 25;
+      const rotateY = ((x - centerX) / centerX) * -25;
+      
+      wrapper.style.transform = `
+        perspective(1000px)
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        scale3d(1.08, 1.08, 1.08)
+      `;
+      
+      const shadowX = rotateY * 2.5;
+      const shadowY = -rotateX * 2.5;
+      shadow.style.transform = `
+        translateX(calc(-50% + ${shadowX}px))
+        translateY(${shadowY}px)
+      `;
+      shadow.style.width = `${80 - Math.abs(rotateY) / 2}%`;
+    };
+    
+    const handleMouseLeave = () => {
+      wrapper.style.transform = `
+        perspective(1000px)
+        rotateX(0deg)
+        rotateY(0deg)
+        scale3d(1, 1, 1)
+      `;
+      shadow.style.transform = 'translateX(-50%) translateY(0)';
+      shadow.style.width = '80%';
+    };
+    
+    const handleClick = () => {
+      wrapper.style.transform = `
+        perspective(1000px)
+        rotateX(0deg)
+        rotateY(0deg)
+        scale3d(0.95, 0.95, 0.95)
+      `;
+      setTimeout(() => {
+        wrapper.style.transform = `
+          perspective(1000px)
+          rotateX(0deg)
+          rotateY(0deg)
+          scale3d(1, 1, 1)
+        `;
+      }, 150);
+    };
+    
+    container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
+    wrapper.addEventListener('click', handleClick);
+    
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove);
+      container.removeEventListener('mouseleave', handleMouseLeave);
+      wrapper.removeEventListener('click', handleClick);
+      if (cleanup) cleanup();
+    };
   }, []);
 
   const fetchPartnerships = async () => {
@@ -215,12 +292,21 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="relative z-10">
-                  <img 
-                    src={garotonectaImg} 
-                    alt="Profissional ConectaIOS" 
-                    className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain drop-shadow-2xl"
-                  />
+                <div className="relative z-10 flex justify-center">
+                  <div className="hero-image-container" ref={containerRef}>
+                    <div className="image-wrapper" ref={wrapperRef}>
+                      <div className="hero-glow"></div>
+                      <div className="hero-layer hero-layer-2"></div>
+                      <img 
+                        src={garotonectaImg} 
+                        alt="Profissional ConectaIOS" 
+                        className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain"
+                      />
+                      <div className="hero-layer hero-layer-1"></div>
+                      <div className="hero-shine"></div>
+                      <div className="hero-shadow" ref={shadowRef}></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
