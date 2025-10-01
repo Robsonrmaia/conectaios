@@ -420,14 +420,12 @@ All colors MUST be HSL.
     display: inline-block;
     background: linear-gradient(
       110deg,
-      #ef4444 0%,
-      #f59e0b 15%,
-      #10b981 30%,
-      #3b82f6 45%,
-      #8b5cf6 60%,
-      #ec4899 75%,
-      #ef4444 90%,
-      #f59e0b 100%
+      #0ea5e9 0%,
+      #06b6d4 20%,
+      #3b82f6 40%,
+      #6366f1 60%,
+      #8b5cf6 80%,
+      #06b6d4 100%
     );
     background-size: 400% 100%;
     -webkit-background-clip: text;
