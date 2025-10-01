@@ -185,7 +185,7 @@ export function EnhancedMessaging() {
     const userPresence = presence[userId];
     if (!userPresence) return 'offline';
     
-    const lastSeen = new Date(userPresence.last_seen_at);
+    const lastSeen = new Date(userPresence.last_seen);
     const now = new Date();
     const diffMinutes = (now.getTime() - lastSeen.getTime()) / (1000 * 60);
     

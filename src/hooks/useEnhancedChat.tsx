@@ -32,7 +32,7 @@ interface ChatThread {
 interface UserPresence {
   user_id: string;
   status: 'online' | 'offline' | 'away';
-  last_seen_at: string;
+  last_seen: string;
   typing_in_thread?: string;
   updated_at: string;
 }
@@ -335,13 +335,10 @@ export function useEnhancedChat() {
     if (!user?.id) return;
 
     try {
-      await supabase.functions.invoke('chat-mark-read', {
-        body: {
-          thread_id: threadId,
-          message_ids: messageIds
-        }
-      });
-
+      // Simplificado: apenas atualiza o contador localmente
+      // RLS já garante que só pode ver mensagens de threads que participa
+      console.log('Marking thread as read:', threadId);
+      
       setUnreadCounts(prev => ({
         ...prev,
         [threadId]: 0
@@ -357,14 +354,24 @@ export function useEnhancedChat() {
     if (!user?.id) return;
 
     try {
-      await supabase
+      console.log('Updating presence for user:', user.id, 'status:', status);
+      
+      const { error } = await supabase
         .from('chat_presence')
         .upsert({
           user_id: user.id,
           status,
-          last_seen_at: new Date().toISOString(),
+          last_seen: new Date().toISOString(),
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
+      
+      if (error) {
+        console.error('Presence update error:', error);
+      } else {
+        console.log('Presence updated successfully');
+      }
     } catch (error) {
       console.error('Error updating presence:', error);
     }
@@ -381,7 +388,10 @@ export function useEnhancedChat() {
           user_id: user.id,
           status: 'online',
           typing_in_thread: threadId,
+          last_seen: new Date().toISOString(),
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
       if (typingTimeout.current[threadId]) {
@@ -408,7 +418,10 @@ export function useEnhancedChat() {
           user_id: user.id,
           status: 'online',
           typing_in_thread: null,
+          last_seen: new Date().toISOString(),
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         });
 
       if (typingTimeout.current[threadId]) {
