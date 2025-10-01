@@ -54,29 +54,55 @@ const Index = () => {
     
     console.log('Hero animation: Initialized successfully');
     
+    // Detectar mobile
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const sensitivity = isMobile ? 15 : 25; // Sensibilidade reduzida no mobile
+    
+    let rafId: number | null = null;
+    let isAnimating = false;
+    
     const applyTransform = (x: number, y: number, rect: DOMRect) => {
       const centerX = rect.width / 2;
       const centerY = rect.height / 2;
       
-      const rotateX = ((y - centerY) / centerY) * 25;
-      const rotateY = ((x - centerX) / centerX) * -25;
+      const rotateX = ((y - centerY) / centerY) * sensitivity;
+      const rotateY = ((x - centerX) / centerX) * -sensitivity;
       
-      wrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
-      wrapper.style.transformStyle = 'preserve-3d';
+      if (rafId) cancelAnimationFrame(rafId);
       
-      const shadowX = rotateY * 2.5;
-      const shadowY = -rotateX * 2.5;
-      shadow.style.transform = `translateX(calc(-50% + ${shadowX}px)) translateY(${shadowY}px)`;
-      shadow.style.width = `${80 - Math.abs(rotateY) / 2}%`;
+      rafId = requestAnimationFrame(() => {
+        wrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
+        wrapper.style.transformStyle = 'preserve-3d';
+        
+        const shadowX = rotateY * 2.5;
+        const shadowY = -rotateX * 2.5;
+        shadow.style.transform = `translateX(calc(-50% + ${shadowX}px)) translateY(${shadowY}px)`;
+        shadow.style.width = `${80 - Math.abs(rotateY) / 2}%`;
+      });
     };
     
     const resetTransform = () => {
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      isAnimating = false;
+      
+      wrapper.style.transition = 'transform 0.5s ease-out';
+      shadow.style.transition = 'all 0.5s ease-out';
+      
       wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
       wrapper.style.transformStyle = 'preserve-3d';
       shadow.style.transform = 'translateX(-50%) translateY(0)';
       shadow.style.width = '80%';
+      
+      setTimeout(() => {
+        wrapper.style.transition = '';
+        shadow.style.transition = '';
+      }, 500);
     };
     
+    // Mouse events
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
       const x = e.clientX - rect.left;
@@ -84,13 +110,26 @@ const Index = () => {
       applyTransform(x, y, rect);
     };
     
+    // Touch events com melhor handling
+    const handleTouchStart = (e: TouchEvent) => {
+      isAnimating = true;
+      wrapper.style.transition = '';
+      shadow.style.transition = '';
+    };
+    
     const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
+      if (!isAnimating) return;
+      
       const rect = container.getBoundingClientRect();
       const touch = e.touches[0];
       const x = touch.clientX - rect.left;
       const y = touch.clientY - rect.top;
-      applyTransform(x, y, rect);
+      
+      // Verificar se touch está dentro da área
+      if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+        e.preventDefault(); // Só prevenir se estiver dentro da área
+        applyTransform(x, y, rect);
+      }
     };
     
     const handleClick = () => {
@@ -102,24 +141,29 @@ const Index = () => {
       }, 150);
     };
     
-    // Mouse events
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', resetTransform);
+    // Adicionar event listeners
+    if (!isMobile) {
+      container.addEventListener('mousemove', handleMouseMove);
+      container.addEventListener('mouseleave', resetTransform);
+    } else {
+      container.addEventListener('touchstart', handleTouchStart, { passive: true });
+      container.addEventListener('touchmove', handleTouchMove, { passive: false });
+      container.addEventListener('touchend', resetTransform);
+      container.addEventListener('touchcancel', resetTransform);
+    }
     
-    // Touch events for mobile
-    container.addEventListener('touchmove', handleTouchMove, { passive: false });
-    container.addEventListener('touchend', resetTransform);
-    
-    // Click/tap event
     wrapper.addEventListener('click', handleClick);
     
-    console.log('Hero animation: Event listeners attached (mouse + touch)');
+    console.log(`Hero animation: Event listeners attached (${isMobile ? 'touch' : 'mouse'})`);
     
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       container.removeEventListener('mousemove', handleMouseMove);
       container.removeEventListener('mouseleave', resetTransform);
+      container.removeEventListener('touchstart', handleTouchStart);
       container.removeEventListener('touchmove', handleTouchMove);
       container.removeEventListener('touchend', resetTransform);
+      container.removeEventListener('touchcancel', resetTransform);
       wrapper.removeEventListener('click', handleClick);
       if (cleanup) cleanup();
     };

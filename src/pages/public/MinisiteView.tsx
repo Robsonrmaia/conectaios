@@ -192,7 +192,24 @@ export default function MinisiteView() {
           } else if (brokerData?.user_id) {
             console.log('🔍 Fetching properties for user_id:', brokerData.user_id);
             
-            // Query properties with comprehensive error handling
+            // Limpar cache do minisite antes de carregar
+            const clearMinisiteCache = () => {
+              const keys = Object.keys(localStorage);
+              keys.forEach(key => {
+                if (key.startsWith('minisite_')) {
+                  localStorage.removeItem(key);
+                }
+              });
+            };
+            clearMinisiteCache();
+            
+            // Query properties with comprehensive error handling and detailed logging
+            console.log('🔄 [MINISITE] Iniciando query de imóveis com filtros:', {
+              owner_id: brokerData.user_id,
+              is_public: true,
+              status: 'available'
+            });
+            
             const { data: propertiesData, error: propertiesError } = await supabase
               .from('imoveis')
               .select(`
@@ -205,30 +222,23 @@ export default function MinisiteView() {
               .eq('owner_id', brokerData.user_id)
               .eq('status', 'available')
               .eq('is_public', true)
-              .or('visibility.eq.public_site,and(visibility.eq.partners,show_on_site.eq.true)')
+              .in('visibility', ['public_site', 'partners'])
               .order('created_at', { ascending: false })
               .limit(50);
 
-            console.log('🎯 MinisiteView Properties query completed:', {
+            console.log('📊 [MINISITE] Resultado da query:', {
+              status: propertiesError ? 'error' : 'success',
+              error: propertiesError?.message,
               found: propertiesData?.length || 0,
-              error: propertiesError,
               owner_id: brokerData.user_id,
               broker_id: finalConfig.broker_id,
               firstProperty: propertiesData?.[0] ? {
                 id: propertiesData[0].id,
                 title: propertiesData[0].title,
                 is_public: propertiesData[0].is_public,
-                visibility: propertiesData[0].visibility
-              } : null,
-                query_details: {
-                  table: 'imoveis',
-                  filters: {
-                    owner_id: brokerData.user_id,
-                    is_public: true,
-                    status: 'active',
-                    visibility: ['site', 'both']
-                  }
-                }
+                visibility: propertiesData[0].visibility,
+                status: propertiesData[0].status
+              } : null
             });
 
             if (propertiesError) {
