@@ -239,13 +239,27 @@ const Index = () => {
                 {/* Grid de Vídeos - 3 colunas e 2 linhas */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Vídeo 1 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl">
-                    <wistia-player media-id="k3abf93ih1" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform">
+                    <wistia-player 
+                      media-id="k3abf93ih1" 
+                      aspect="1.7777777777777777" 
+                      className="w-full h-full"
+                      preload="metadata"
+                      playsinline
+                      muted
+                    ></wistia-player>
                   </div>
 
                   {/* Vídeo 2 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl">
-                    <wistia-player media-id="hczxrata2s" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform">
+                    <wistia-player 
+                      media-id="hczxrata2s" 
+                      aspect="1.7777777777777777" 
+                      className="w-full h-full"
+                      preload="metadata"
+                      playsinline
+                      muted
+                    ></wistia-player>
                   </div>
 
                   {/* Vídeo 3 */}
@@ -261,18 +275,39 @@ const Index = () => {
                   </div>
 
                   {/* Vídeo 4 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
-                    <wistia-player media-id="e4dk8u41uq" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 will-change-transform">
+                    <wistia-player 
+                      media-id="e4dk8u41uq" 
+                      aspect="1.7777777777777777" 
+                      className="w-full h-full"
+                      preload="metadata"
+                      playsinline
+                      muted
+                    ></wistia-player>
                   </div>
 
                   {/* Vídeo 5 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
-                    <wistia-player media-id="5t311sebkh" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 will-change-transform">
+                    <wistia-player 
+                      media-id="5t311sebkh" 
+                      aspect="1.7777777777777777" 
+                      className="w-full h-full"
+                      preload="metadata"
+                      playsinline
+                      muted
+                    ></wistia-player>
                   </div>
 
                   {/* Vídeo 6 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200">
-                    <wistia-player media-id="rd3fb1xgqj" aspect="1.7777777777777777" className="w-full h-full"></wistia-player>
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 will-change-transform">
+                    <wistia-player 
+                      media-id="rd3fb1xgqj" 
+                      aspect="1.7777777777777777" 
+                      className="w-full h-full"
+                      preload="metadata"
+                      playsinline
+                      muted
+                    ></wistia-player>
                   </div>
                 </div>
               </div>
