@@ -556,17 +556,18 @@ All colors MUST be HSL.
 .hero-image-container {
     max-width: 600px;
     width: 100%;
-    perspective: 1000px;
+    perspective: 1000px !important;
     cursor: pointer;
     animation: pulse-in 1s ease-out;
 }
 
 .image-wrapper {
     position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.05s ease-out;
+    transform-style: preserve-3d !important;
+    transition: transform 0.05s ease-out !important;
     border-radius: 30px;
     overflow: visible;
+    will-change: transform;
 }
 
 .image-wrapper img {
@@ -577,6 +578,7 @@ All colors MUST be HSL.
     position: relative;
     z-index: 2;
     transition: transform 0.3s ease;
+    transform: translateZ(0) !important;
 }
 
 .hero-layer {

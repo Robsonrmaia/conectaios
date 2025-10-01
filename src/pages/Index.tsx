@@ -47,7 +47,12 @@ const Index = () => {
     const wrapper = wrapperRef.current;
     const shadow = shadowRef.current;
     
-    if (!container || !wrapper || !shadow) return cleanup;
+    if (!container || !wrapper || !shadow) {
+      console.log('Hero animation: Elements not found');
+      return cleanup;
+    }
+    
+    console.log('Hero animation: Initialized successfully');
     
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
@@ -60,53 +65,37 @@ const Index = () => {
       const rotateX = ((y - centerY) / centerY) * 25;
       const rotateY = ((x - centerX) / centerX) * -25;
       
-      wrapper.style.transform = `
-        perspective(1000px)
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        scale3d(1.08, 1.08, 1.08)
-      `;
+      // Apply transform in single line for better performance
+      wrapper.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.08, 1.08, 1.08)`;
+      wrapper.style.transformStyle = 'preserve-3d';
       
       const shadowX = rotateY * 2.5;
       const shadowY = -rotateX * 2.5;
-      shadow.style.transform = `
-        translateX(calc(-50% + ${shadowX}px))
-        translateY(${shadowY}px)
-      `;
+      shadow.style.transform = `translateX(calc(-50% + ${shadowX}px)) translateY(${shadowY}px)`;
       shadow.style.width = `${80 - Math.abs(rotateY) / 2}%`;
     };
     
     const handleMouseLeave = () => {
-      wrapper.style.transform = `
-        perspective(1000px)
-        rotateX(0deg)
-        rotateY(0deg)
-        scale3d(1, 1, 1)
-      `;
+      wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+      wrapper.style.transformStyle = 'preserve-3d';
       shadow.style.transform = 'translateX(-50%) translateY(0)';
       shadow.style.width = '80%';
     };
     
     const handleClick = () => {
-      wrapper.style.transform = `
-        perspective(1000px)
-        rotateX(0deg)
-        rotateY(0deg)
-        scale3d(0.95, 0.95, 0.95)
-      `;
+      wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(0.95, 0.95, 0.95)';
+      wrapper.style.transformStyle = 'preserve-3d';
       setTimeout(() => {
-        wrapper.style.transform = `
-          perspective(1000px)
-          rotateX(0deg)
-          rotateY(0deg)
-          scale3d(1, 1, 1)
-        `;
+        wrapper.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        wrapper.style.transformStyle = 'preserve-3d';
       }, 150);
     };
     
     container.addEventListener('mousemove', handleMouseMove);
     container.addEventListener('mouseleave', handleMouseLeave);
     wrapper.addEventListener('click', handleClick);
+    
+    console.log('Hero animation: Event listeners attached');
     
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
@@ -546,7 +535,6 @@ const Index = () => {
                     className="w-full h-full"
                     preload="metadata"
                     playsinline
-                    muted
                   ></wistia-player>
                 </div>
 
