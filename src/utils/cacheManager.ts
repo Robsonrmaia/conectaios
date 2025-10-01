@@ -101,4 +101,25 @@ export class CacheManager {
       console.error('Error invalidating minisite cache:', error);
     }
   }
+
+  static invalidatePropertyCache() {
+    try {
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('property_') || key.startsWith('imovel_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      console.log('🔄 Property cache invalidated');
+    } catch (error) {
+      console.error('Error invalidating property cache:', error);
+    }
+  }
+
+  static addCacheBusting(url: string): string {
+    if (!url) return url;
+    const timestamp = Date.now();
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${timestamp}`;
+  }
 }

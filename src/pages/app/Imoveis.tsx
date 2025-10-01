@@ -21,6 +21,7 @@ import { FavoritesManager } from '@/components/FavoritesManager';
 import { ShareButton } from '@/components/ShareButton';
 import { formatCurrency, parseValueInput } from '@/lib/utils';
 import { toDbVisibility, toDbStatus, toDbPurpose, fromDbVisibility, fromDbPurpose, getIsPublic, toNumber } from '@/lib/imoveis/fieldAdapters';
+import { CacheManager } from '@/utils/cacheManager';
 
 // Função para formatação monetária BR (mantida para compatibilidade)
 const formatCurrencyBR = (n?: number | null): string => {
@@ -183,9 +184,15 @@ export default function Imoveis() {
     sea_distance: '',
   });
 
-  const fetchProperties = useCallback(async (page = 1, pageSize = 20) => {
+  const fetchProperties = useCallback(async (page = 1, pageSize = 20, forceRefresh = false) => {
     try {
       setIsLoading(true);
+      
+      // Invalidar cache se forçado
+      if (forceRefresh) {
+        CacheManager.invalidatePropertyCache();
+        console.log('🔄 Força refresh: cache de propriedades invalidado');
+      }
       
       const startIndex = (page - 1) * pageSize;
       
@@ -234,12 +241,14 @@ export default function Imoveis() {
         } else {
           console.log('✅ [ADMIN] Imagens carregadas:', imagesData?.length);
           
-          // Agrupar imagens por imovel_id
+          // Agrupar imagens por imovel_id com cache busting
           imagesData?.forEach(img => {
             if (!imagesMap[img.imovel_id]) {
               imagesMap[img.imovel_id] = [];
             }
-            imagesMap[img.imovel_id].push(img.url);
+            // Adicionar cache busting timestamp na URL
+            const urlWithCacheBust = CacheManager.addCacheBusting(img.url);
+            imagesMap[img.imovel_id].push(urlWithCacheBust);
           });
         }
         
@@ -707,10 +716,11 @@ export default function Imoveis() {
         }
       }
       
-      // Add delay to ensure database has processed the save
+      // Invalidar cache e forçar refresh com delay maior
+      CacheManager.invalidatePropertyCache();
       setTimeout(() => {
-        fetchProperties(1);
-      }, 500);
+        fetchProperties(1, 20, true); // forceRefresh = true
+      }, 1000); // Aumentado para 1 segundo
     } catch (error: any) {
       console.error('=== ERRO GERAL NO SALVAMENTO ===');
       console.error('Error type:', typeof error);
@@ -746,10 +756,11 @@ export default function Imoveis() {
         title: "Sucesso",
         description: "Imóvel excluído com sucesso!",
       });
-      // Add delay to ensure database has processed the delete
+      // Invalidar cache e forçar refresh
+      CacheManager.invalidatePropertyCache();
       setTimeout(() => {
-        fetchProperties(1);
-      }, 500);
+        fetchProperties(1, 20, true);
+      }, 1000);
     } catch (error) {
       console.error('Error deleting property:', error);
       toast({
