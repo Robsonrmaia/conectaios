@@ -103,36 +103,38 @@ export default function Videos() {
             alt={video.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-            <Button size="lg" className="rounded-full">
-              <Play className="h-6 w-6" />
+          <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer">
+            <Button size="lg" className="rounded-full pointer-events-none">
+              <Play className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
           </div>
-          <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs">
+          <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs font-medium">
             {video.duration}
           </div>
         </div>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 p-3 sm:p-6">
           <div className="flex items-start justify-between gap-2">
-            <CardTitle className="text-lg leading-tight">{video.title}</CardTitle>
-            <Badge variant="secondary" className="shrink-0">
+            <CardTitle className="text-base sm:text-lg leading-tight line-clamp-2">{video.title}</CardTitle>
+            <Badge variant="secondary" className="shrink-0 text-xs">
               {video.category}
             </Badge>
           </div>
-          <CardDescription className="text-sm">
+          <CardDescription className="text-xs sm:text-sm line-clamp-2">
             {video.description}
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-4">
+        <CardContent className="pt-0 p-3 sm:p-6 sm:pt-0">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
+            <div className="flex items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-1">
                 <Eye className="h-3 w-3" />
-                {video.views.toLocaleString()}
+                <span className="hidden sm:inline">{video.views.toLocaleString()}</span>
+                <span className="sm:hidden">{video.views > 999 ? `${(video.views/1000).toFixed(1)}k` : video.views}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
-                {new Date(video.date).toLocaleDateString('pt-BR')}
+                <span className="hidden sm:inline">{new Date(video.date).toLocaleDateString('pt-BR')}</span>
+                <span className="sm:hidden">{new Date(video.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</span>
               </div>
             </div>
           </div>
@@ -159,51 +161,51 @@ export default function Videos() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-3 sm:p-4">
             <div className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-primary" />
+              <Video className="h-4 w-4 sm:h-5 sm:w-5 text-primary shrink-0" />
               <div>
-                <div className="text-2xl font-bold">{videos.length}</div>
-                <div className="text-sm text-muted-foreground">Vídeos Disponíveis</div>
+                <div className="text-xl sm:text-2xl font-bold">{videos.length}</div>
+                <div className="text-xs sm:text-sm text-muted-foreground">Vídeos Disponíveis</div>
               </div>
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-primary">
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-xl sm:text-2xl font-bold text-primary">
               {Math.floor(videos.reduce((total, video) => {
                 const [min, sec] = video.duration.split(':').map(Number);
                 return total + min + sec / 60;
               }, 0))}h
             </div>
-            <div className="text-sm text-muted-foreground">Horas de Conteúdo</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Horas de Conteúdo</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-2xl font-bold text-success">
+          <CardContent className="p-3 sm:p-4">
+            <div className="text-xl sm:text-2xl font-bold text-success">
               {videos.reduce((total, video) => total + video.views, 0).toLocaleString()}
             </div>
-            <div className="text-sm text-muted-foreground">Visualizações Totais</div>
+            <div className="text-xs sm:text-sm text-muted-foreground">Visualizações Totais</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Search and Filters */}
-      <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Buscar vídeos..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 text-sm sm:text-base"
           />
         </div>
-        <Button variant="outline">
+        <Button variant="outline" className="w-full sm:w-auto">
           <Filter className="h-4 w-4 mr-2" />
           Filtros
         </Button>
@@ -223,7 +225,7 @@ export default function Videos() {
 
         {categories.map((category) => (
           <TabsContent key={category} value={category} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filterVideos(category).map(video => (
                 <VideoCard key={video.id} video={video} />
               ))}

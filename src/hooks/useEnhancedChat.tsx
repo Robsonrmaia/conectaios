@@ -10,6 +10,7 @@ interface ChatMessage {
   thread_id: string;
   sender_id: string;
   body: string | null;
+  content?: string | null;
   attachments: any[];
   created_at: string;
   edited_at: string | null;
@@ -134,6 +135,7 @@ export function useEnhancedChat() {
         thread_id: msg.thread_id,
         sender_id: msg.sender_id,
         body: msg.content,
+        content: msg.content,
         created_at: msg.created_at,
         updated_at: msg.updated_at,
         edited_at: msg.updated_at,
@@ -392,6 +394,7 @@ export function useEnhancedChat() {
             ...(prev[newMessage.thread_id] || []),
             {
               ...newMessage,
+              body: newMessage.content || newMessage.body,
               sender_name: 'Loading...',
               attachments: Array.isArray(newMessage.attachments) ? newMessage.attachments : []
             }
@@ -403,7 +406,7 @@ export function useEnhancedChat() {
         if (newMessage.sender_id !== user.id) {
           toast({
             title: "Nova mensagem",
-            description: newMessage.body ? newMessage.body.substring(0, 50) + '...' : 'Anexo recebido',
+            description: newMessage.content ? newMessage.content.substring(0, 50) + '...' : 'Anexo recebido',
           });
         }
       })
