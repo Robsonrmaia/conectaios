@@ -51,7 +51,7 @@ export function useEnhancedChat() {
   const presenceChannel = useRef<any>(null);
   const typingTimeout = useRef<{ [threadId: string]: NodeJS.Timeout }>({});
 
-  // Fetch threads
+  // Fetch threads - OTIMIZADO com RPC
   const fetchThreads = useCallback(async () => {
     if (!user?.id) {
       console.log('🔴 fetchThreads: No user ID');
@@ -60,104 +60,42 @@ export function useEnhancedChat() {
     console.log('🔵 fetchThreads: Starting for user', user.id);
 
     try {
+      // Usa a função RPC otimizada que retorna tudo em uma única query
       const { data: threadsData, error } = await supabase
-        .from('chat_threads')
-        .select('*')
-        .order('updated_at', { ascending: false });
+        .rpc('msg_get_user_threads', { p_user_id: user.id });
 
       if (error) {
         console.error('🔴 Error fetching threads:', error);
         throw error;
       }
       
-      console.log('✅ Raw threads fetched:', threadsData?.length || 0);
+      console.log('✅ Threads fetched via RPC:', threadsData?.length || 0);
 
-      // Filter threads where user is participant
-      const userThreads = [];
-      for (const thread of threadsData || []) {
-        const { data: participant } = await supabase
-          .from('chat_participants')
-          .select('*')
-          .eq('thread_id', thread.id)
-          .eq('user_id', user.id)
-          .is('left_at', null)
-          .single();
+      // Mapeia os dados do RPC para o formato esperado
+      const userThreads = (threadsData || []).map((thread: any) => ({
+        id: thread.thread_id,
+        is_group: thread.is_group,
+        title: thread.title,
+        created_at: thread.created_at,
+        updated_at: thread.updated_at,
+        last_message: thread.last_message_content ? {
+          id: thread.last_message_id,
+          body: thread.last_message_content,
+          created_at: thread.last_message_at,
+          sender_id: thread.last_message_sender_id,
+          sender_name: thread.last_message_sender_name
+        } : null,
+        unread_count: thread.unread_count,
+        // Para threads 1:1, usa o nome do outro participante
+        other_participant: thread.other_participant_id ? {
+          id: thread.other_participant_id,
+          name: thread.other_participant_name,
+          avatar_url: thread.other_participant_avatar,
+          is_online: thread.other_participant_online
+        } : null
+      }));
 
-        if (participant) {
-          // Get participants info
-          const { data: participants } = await supabase
-            .from('chat_participants')
-            .select(`
-              user_id,
-              role,
-              joined_at
-            `)
-            .eq('thread_id', thread.id)
-            .is('left_at', null);
-
-          // Get participant names
-          const participantsWithNames = await Promise.all(
-            (participants || []).map(async (p) => {
-              const { data: brokerInfo } = await supabase
-                .from('conectaios_brokers')
-                .select('name, avatar_url')
-                .eq('user_id', p.user_id)
-                .single();
-
-              if (!brokerInfo) {
-                const { data: profileInfo } = await supabase
-                  .from('profiles')
-                  .select('nome')
-                  .eq('user_id', p.user_id)
-                  .single();
-
-                return {
-                  ...p,
-                  name: profileInfo?.nome || 'Unknown User',
-                  avatar_url: null
-                };
-              }
-
-              return {
-                ...p,
-                name: brokerInfo.name,
-                avatar_url: brokerInfo.avatar_url
-              };
-            })
-          );
-
-          // Get last message
-          const { data: lastMessage } = await supabase
-            .from('chat_messages')
-            .select('*')
-            .eq('thread_id', thread.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
-
-          // Calculate unread count (simplified)
-          const { data: unreadMessages } = await supabase
-            .from('chat_messages')
-            .select('id')
-            .eq('thread_id', thread.id)
-            .neq('sender_id', user.id);
-
-          const unreadCount = unreadMessages?.length || 0;
-
-          userThreads.push({
-            ...thread,
-            participants: participantsWithNames,
-            last_message: lastMessage,
-            unread_count: unreadCount,
-            // Generate title for 1:1 chats
-            title: thread.is_group 
-              ? thread.title 
-              : participantsWithNames?.find(p => p.user_id !== user.id)?.name || 'Chat'
-          });
-        }
-      }
-
-      console.log('✅ Filtered user threads:', userThreads.length);
+      console.log('✅ Mapped threads:', userThreads.length);
       setThreads(userThreads);
       
       // Update unread counts
@@ -174,58 +112,40 @@ export function useEnhancedChat() {
     }
   }, [user?.id]);
 
-  // Fetch messages for a specific thread
+  // Fetch messages for a specific thread - OTIMIZADO com RPC
   const fetchMessages = useCallback(async (threadId: string) => {
     if (!user?.id) return;
 
     try {
+      // Usa a função RPC otimizada que retorna mensagens com info do remetente
       const { data, error } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('thread_id', threadId)
-        .order('created_at', { ascending: true });
+        .rpc('msg_get_thread_messages', {
+          p_thread_id: threadId,
+          p_user_id: user.id,
+          p_limit: 50,
+          p_offset: 0
+        });
 
       if (error) throw error;
 
-      // Add sender names
-      const messagesWithInfo = await Promise.all(
-        (data || []).map(async (msg) => {
-          const { data: senderInfo } = await supabase
-            .from('conectaios_brokers')
-            .select('name, avatar_url')
-            .eq('user_id', msg.sender_id)
-            .single();
-
-          if (!senderInfo) {
-            const { data: profileInfo } = await supabase
-              .from('profiles')
-              .select('nome')
-              .eq('user_id', msg.sender_id)
-              .single();
-
-            return {
-              ...msg,
-              sender_name: profileInfo?.nome || 'Unknown User',
-              sender_avatar: null,
-            attachments: Array.isArray(msg.attachments) ? msg.attachments : []
-            };
-          }
-
-          return {
-            ...msg,
-            sender_name: senderInfo.name,
-            sender_avatar: senderInfo.avatar_url,
-            attachments: Array.isArray(msg.attachments) ? msg.attachments : []
-          };
-        })
-      );
+      // Mapeia os dados do RPC para o formato esperado
+      const messagesWithInfo = (data || []).map((msg: any) => ({
+        id: msg.id,
+        thread_id: msg.thread_id,
+        sender_id: msg.sender_id,
+        body: msg.content,
+        created_at: msg.created_at,
+        updated_at: msg.updated_at,
+        edited_at: msg.updated_at,
+        sender_name: msg.sender_name,
+        sender_avatar: msg.sender_avatar,
+        is_read: msg.is_read,
+        attachments: []
+      }));
 
       setMessages(prev => ({
         ...prev,
-        [threadId]: messagesWithInfo.map(msg => ({
-          ...msg,
-          edited_at: (msg as any).edited_at || (msg as any).updated_at || (msg as any).created_at
-        })) as any[]
+        [threadId]: messagesWithInfo
       }));
 
     } catch (error) {
@@ -340,19 +260,28 @@ export function useEnhancedChat() {
     }
   }, [user?.id]);
 
-  // Mark messages as read
+  // Mark messages as read - OTIMIZADO com RPC
   const markAsRead = useCallback(async (threadId: string, messageIds?: string[]) => {
     if (!user?.id) return;
 
     try {
-      // Simplificado: apenas atualiza o contador localmente
-      // RLS já garante que só pode ver mensagens de threads que participa
       console.log('Marking thread as read:', threadId);
       
-      setUnreadCounts(prev => ({
-        ...prev,
-        [threadId]: 0
-      }));
+      // Usa a função RPC que marca em batch todas as mensagens como lidas
+      const { error } = await supabase.rpc('msg_mark_messages_read', {
+        p_thread_id: threadId,
+        p_user_id: user.id
+      });
+
+      if (error) {
+        console.error('Error marking as read:', error);
+      } else {
+        // Atualiza o contador localmente após sucesso
+        setUnreadCounts(prev => ({
+          ...prev,
+          [threadId]: 0
+        }));
+      }
 
     } catch (error) {
       console.error('Error marking as read:', error);
