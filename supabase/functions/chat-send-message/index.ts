@@ -40,7 +40,7 @@ serve(async (req) => {
     const requestBody = await req.json();
     console.log('Request body:', JSON.stringify(requestBody, null, 2));
     
-    const { thread_id, body, attachments, reply_to_id } = requestBody;
+    const { thread_id, content, attachments, reply_to_id } = requestBody;
 
     if (!thread_id) {
       console.log('Missing thread_id');
@@ -50,9 +50,9 @@ serve(async (req) => {
       });
     }
 
-    if (!body && (!attachments || attachments.length === 0)) {
+    if (!content && (!attachments || attachments.length === 0)) {
       console.log('Missing message content');
-      return new Response(JSON.stringify({ error: 'Message must have body or attachments' }), {
+      return new Response(JSON.stringify({ error: 'Message must have content or attachments' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -80,12 +80,14 @@ serve(async (req) => {
       .insert({
         thread_id,
         sender_id: user.id,
-        body: body || null,
+        content: content || null,
         attachments: attachments || [],
         reply_to_id: reply_to_id || null
       })
       .select()
       .single();
+    
+    console.log('Message inserted:', message);
 
     if (messageError) {
       console.error('Error creating message:', messageError);
@@ -105,7 +107,7 @@ serve(async (req) => {
 
     // Get sender info
     const { data: senderInfo } = await supabaseClient
-      .from('conectaios_brokers')
+      .from('brokers')
       .select('name')
       .eq('user_id', user.id)
       .single();
@@ -118,7 +120,7 @@ serve(async (req) => {
         user_id: p.user_id,
         type: 'chat:new_message',
         title: `${senderName}`,
-        body: body ? (body.length > 50 ? body.substring(0, 50) + '...' : body) : 'Sent an attachment',
+        body: content ? (content.length > 50 ? content.substring(0, 50) + '...' : content) : 'Sent an attachment',
         meta: {
           thread_id,
           message_id: message.id,

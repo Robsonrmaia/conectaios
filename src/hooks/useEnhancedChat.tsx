@@ -270,15 +270,22 @@ export function useEnhancedChat() {
     if (!user?.id || (!body && (!attachments || attachments.length === 0))) return;
 
     try {
+      console.log('Sending message:', { threadId, body });
+      
       const { data, error } = await supabase.functions.invoke('chat-send-message', {
         body: {
           thread_id: threadId,
-          body: body || '',
+          content: body || '',
           attachments: attachments || []
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error from edge function:', error);
+        throw error;
+      }
+
+      console.log('Message sent successfully:', data);
 
       // Atualiza mensagens localmente
       await fetchMessages(threadId);
