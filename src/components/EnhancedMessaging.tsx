@@ -406,7 +406,7 @@ export function EnhancedMessaging() {
                       </div>
                       <div className="flex items-center justify-between">
                         <p className="text-xs text-muted-foreground truncate">
-                          {thread.last_message?.body || 'Nenhuma mensagem'}
+                          {thread.last_message?.content || 'Nenhuma mensagem'}
                         </p>
                         <p className="text-xs text-muted-foreground ml-2">
                           {thread.last_message && formatDistanceToNow(new Date(thread.last_message.created_at), { 
@@ -501,7 +501,7 @@ export function EnhancedMessaging() {
                             {message.sender_name}
                           </p>
                         )}
-                        <p className="text-sm whitespace-pre-wrap">{message.body}</p>
+                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                         <div className="flex items-center justify-between mt-1">
                           <p className="text-xs opacity-70">
                             {formatDistanceToNow(new Date(message.created_at), { 
