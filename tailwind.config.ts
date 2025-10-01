@@ -73,6 +73,17 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			keyframes: {
+				'gradient-shift': {
+					'0%': {
+						'background-position': '0% 50%'
+					},
+					'50%': {
+						'background-position': '100% 50%'
+					},
+					'100%': {
+						'background-position': '0% 50%'
+					}
+				},
 				'accordion-down': {
 					from: {
 						height: '0'
@@ -128,6 +139,7 @@ export default {
 				}
 			},
 			animation: {
+				'gradient-shift': 'gradient-shift 10s ease-in-out infinite',
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'line-draw': 'line-draw 8s ease-in-out infinite',

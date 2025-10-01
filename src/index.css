@@ -414,6 +414,24 @@ All colors MUST be HSL.
   .animate-scale-heartbeat {
     animation: scale-heartbeat 2s ease-in-out infinite;
   }
+
+  /* Animated gradient text */
+  .animate-gradient-text {
+    background: linear-gradient(
+      90deg,
+      #60A5FA 0%,
+      #3B82F6 20%,
+      #1E40AF 40%,
+      #8B5CF6 60%,
+      #EC4899 80%,
+      #60A5FA 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-shift 10s ease-in-out infinite;
+  }
 }
 
 @layer components {

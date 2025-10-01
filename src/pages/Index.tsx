@@ -105,9 +105,9 @@ const Index = () => {
 
                 <div className="space-y-6">
                   <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold leading-[1.1] tracking-tight">
-                    Sua rotina <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">imobiliária</span><br />
-                    <span className="text-primary bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">simplificada</span>, <span className="text-foreground">Organizada</span><br />
-                    e <span className="text-primary bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">Inteligente</span>
+                    Sua rotina <span className="animate-gradient-text">imobiliária</span><br />
+                    <span className="animate-gradient-text">simplificada</span>, <span className="text-foreground">Organizada</span><br />
+                    e <span className="animate-gradient-text">Inteligente</span>
                   </h1>
                   
                   <p className="text-lg xl:text-xl text-muted-foreground leading-relaxed max-w-lg">
@@ -465,7 +465,7 @@ const Index = () => {
         <div className="max-w-4xl mx-auto">
           {/* Features Grid - Principais Diferenciais */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-12">Principais Diferenciais</h2>
+            <h2 className="text-3xl font-bold text-center mb-12 animate-gradient-text">Principais Diferenciais</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <FeatureDetailDialog
                 title="CRM Completo"
@@ -903,7 +903,7 @@ const Index = () => {
 
           {/* Por que o ConectaIOS é diferente? */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Por que o ConectaIOS é diferente?</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 animate-gradient-text">Por que o ConectaIOS é diferente?</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-5xl mx-auto">
               <div 
                 className="text-center p-6 rounded-xl bg-card/50 backdrop-blur-sm border hover:shadow-lg transition-all duration-300 hover:scale-105 group"
@@ -955,7 +955,7 @@ const Index = () => {
 
           {/* Planos e Assinatura */}
           <div className="mt-16">
-            <h2 className="text-3xl font-bold text-center mb-8">Planos & Assinatura</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 animate-gradient-text">Planos & Assinatura</h2>
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               
               {/* Plano Básico */}
@@ -1097,7 +1097,7 @@ const Index = () => {
             </div>
           </div>
           <div className="mt-16 overflow-hidden">
-            <h2 className="text-3xl font-bold text-center mb-8">Parceiros & Convênios</h2>
+            <h2 className="text-3xl font-bold text-center mb-8 animate-gradient-text">Parceiros & Convênios</h2>
             <div className="relative">
               <div className="flex animate-[scroll_20s_linear_infinite] gap-6">
                 {/* First set of partnerships */}
