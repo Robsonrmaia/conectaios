@@ -265,39 +265,51 @@ export function useEnhancedChat() {
     }
   }, [user?.id, fetchThreads]);
 
-  // Send message usando edge function
+  // Send message usando insert direto
   const sendMessage = useCallback(async (threadId: string, body?: string, attachments?: any[]) => {
-    if (!user?.id || (!body && (!attachments || attachments.length === 0))) return;
+    if (!user?.id) return;
+    if (!body?.trim() && (!attachments || attachments.length === 0)) return;
 
     try {
-      console.log('Sending message:', { threadId, body });
+      console.log('📤 Sending message:', { threadId, body, attachments });
       
-      const { data, error } = await supabase.functions.invoke('chat-send-message', {
-        body: {
-          thread_id: threadId,
-          content: body || '',
-          attachments: attachments || []
-        }
-      });
-
-      if (error) {
-        console.error('Error from edge function:', error);
-        throw error;
+      // Get authenticated user
+      const { data: authData } = await supabase.auth.getUser();
+      if (!authData?.user?.id) {
+        throw new Error('not-authenticated');
       }
 
-      console.log('Message sent successfully:', data);
+      // Insert message directly using Supabase client
+      const { data, error } = await supabase
+        .from('chat_messages')
+        .insert({
+          thread_id: threadId,
+          sender_id: authData.user.id,
+          body: body?.trim() || '',
+          type: 'text',
+          status: 'sent'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('❌ RLS or insert error:', error);
+        throw error;
+      }
+      
+      console.log('✅ Message sent successfully:', data);
 
       // Atualiza mensagens localmente
       await fetchMessages(threadId);
       await fetchThreads();
 
-      return data?.message_id;
+      return data.id;
       
-    } catch (error) {
-      console.error('Error sending message:', error);
+    } catch (error: any) {
+      console.error('❌ Error sending message:', error);
       toast({
-        title: "Erro",
-        description: "Erro ao enviar mensagem",
+        title: "Erro ao enviar",
+        description: error.message || "Erro ao enviar mensagem",
         variant: "destructive",
       });
     }
