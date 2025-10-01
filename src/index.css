@@ -418,19 +418,21 @@ All colors MUST be HSL.
   /* Animated gradient text */
   .animate-gradient-text {
     background: linear-gradient(
-      90deg,
+      135deg,
       #60A5FA 0%,
-      #3B82F6 20%,
-      #1E40AF 40%,
-      #8B5CF6 60%,
-      #EC4899 80%,
+      #3B82F6 15%,
+      #1E40AF 30%,
+      #8B5CF6 50%,
+      #EC4899 70%,
+      #EF4444 85%,
       #60A5FA 100%
     );
-    background-size: 200% auto;
+    background-size: 400% 400%;
     -webkit-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: gradient-shift 10s ease-in-out infinite;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-shift 15s ease-in-out infinite;
   }
 }
 
