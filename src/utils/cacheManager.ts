@@ -1,5 +1,5 @@
 // Cache management utility to prevent loading issues
-const CACHE_VERSION = '1.0.0';
+const CACHE_VERSION = '1.0.1';
 const CACHE_VERSION_KEY = 'conectaios_cache_version';
 
 export class CacheManager {
