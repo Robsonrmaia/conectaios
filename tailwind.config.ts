@@ -78,7 +78,7 @@ export default {
 						'background-position': '0% center'
 					},
 					'100%': {
-						'background-position': '400% center'
+						'background-position': '500% center'
 					}
 				},
 				'accordion-down': {
