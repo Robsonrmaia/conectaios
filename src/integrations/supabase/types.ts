@@ -283,24 +283,30 @@ export type Database = {
       chat_receipts: {
         Row: {
           created_at: string | null
+          delivered_at: string | null
           id: string
           message_id: string
+          read_at: string | null
           status: string | null
           thread_id: string
           user_id: string
         }
         Insert: {
           created_at?: string | null
+          delivered_at?: string | null
           id?: string
           message_id: string
+          read_at?: string | null
           status?: string | null
           thread_id: string
           user_id: string
         }
         Update: {
           created_at?: string | null
+          delivered_at?: string | null
           id?: string
           message_id?: string
+          read_at?: string | null
           status?: string | null
           thread_id?: string
           user_id?: string
@@ -3336,6 +3342,7 @@ export type Database = {
           created_at: string
           id: string
           is_read: boolean
+          read_at: string
           sender_avatar: string
           sender_id: string
           sender_name: string
