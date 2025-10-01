@@ -1,21 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import type { ChatMessageCompat } from '@/types/compat';
 import { useAuth } from './useAuth';
-import { useBroker } from './useBroker';
 import { toast } from '@/hooks/use-toast';
 
 interface ChatMessage {
   id: string;
   thread_id: string;
   sender_id: string;
-  body: string | null;
-  content?: string | null;
+  content: string;
   attachments: any[];
   created_at: string;
-  edited_at: string | null;
+  updated_at: string;
   sender_name?: string;
   sender_avatar?: string;
+  is_read?: boolean;
 }
 
 interface ChatThread {
@@ -28,6 +26,12 @@ interface ChatThread {
   participants?: any[];
   last_message?: ChatMessage;
   unread_count?: number;
+  other_participant?: {
+    id: string;
+    name: string;
+    avatar_url?: string;
+    is_online?: boolean;
+  };
 }
 
 interface UserPresence {
@@ -40,7 +44,6 @@ interface UserPresence {
 
 export function useEnhancedChat() {
   const { user } = useAuth();
-  const { broker } = useBroker();
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [messages, setMessages] = useState<{ [threadId: string]: ChatMessage[] }>({});
   const [presence, setPresence] = useState<{ [userId: string]: UserPresence }>({});
@@ -52,54 +55,44 @@ export function useEnhancedChat() {
   const presenceChannel = useRef<any>(null);
   const typingTimeout = useRef<{ [threadId: string]: NodeJS.Timeout }>({});
 
-  // Fetch threads - OTIMIZADO com RPC
+  // Fetch threads usando RPC otimizado
   const fetchThreads = useCallback(async () => {
-    if (!user?.id) {
-      console.log('🔴 fetchThreads: No user ID');
-      return;
-    }
-    console.log('🔵 fetchThreads: Starting for user', user.id);
-
+    if (!user?.id) return;
+    
     try {
-      // Usa a função RPC otimizada que retorna tudo em uma única query
       const { data: threadsData, error } = await supabase
         .rpc('msg_get_user_threads', { p_user_id: user.id });
 
-      if (error) {
-        console.error('🔴 Error fetching threads:', error);
-        throw error;
-      }
-      
-      console.log('✅ Threads fetched via RPC:', threadsData?.length || 0);
+      if (error) throw error;
 
-      // Mapeia os dados do RPC para o formato esperado
       const userThreads = (threadsData || []).map((thread: any) => ({
         id: thread.thread_id,
         is_group: thread.is_group,
         title: thread.title,
         created_at: thread.created_at,
         updated_at: thread.updated_at,
+        created_by: thread.created_by || user.id,
         last_message: thread.last_message_content ? {
           id: thread.last_message_id,
-          body: thread.last_message_content,
+          content: thread.last_message_content,
           created_at: thread.last_message_at,
           sender_id: thread.last_message_sender_id,
-          sender_name: thread.last_message_sender_name
-        } : null,
-        unread_count: thread.unread_count,
-        // Para threads 1:1, usa o nome do outro participante
+          sender_name: thread.last_message_sender_name,
+          thread_id: thread.thread_id,
+          attachments: [],
+          updated_at: thread.last_message_at
+        } : undefined,
+        unread_count: thread.unread_count || 0,
         other_participant: thread.other_participant_id ? {
           id: thread.other_participant_id,
           name: thread.other_participant_name,
           avatar_url: thread.other_participant_avatar,
           is_online: thread.other_participant_online
-        } : null
+        } : undefined
       }));
 
-      console.log('✅ Mapped threads:', userThreads.length);
       setThreads(userThreads);
       
-      // Update unread counts
       const counts: { [key: string]: number } = {};
       userThreads.forEach(thread => {
         counts[thread.id] = thread.unread_count || 0;
@@ -113,12 +106,11 @@ export function useEnhancedChat() {
     }
   }, [user?.id]);
 
-  // Fetch messages for a specific thread - OTIMIZADO com RPC
+  // Fetch messages usando RPC otimizado
   const fetchMessages = useCallback(async (threadId: string) => {
     if (!user?.id) return;
 
     try {
-      // Usa a função RPC otimizada que retorna mensagens com info do remetente
       const { data, error } = await supabase
         .rpc('msg_get_thread_messages', {
           p_thread_id: threadId,
@@ -129,16 +121,13 @@ export function useEnhancedChat() {
 
       if (error) throw error;
 
-      // Mapeia os dados do RPC para o formato esperado
       const messagesWithInfo = (data || []).map((msg: any) => ({
         id: msg.id,
         thread_id: msg.thread_id,
         sender_id: msg.sender_id,
-        body: msg.content,
         content: msg.content,
         created_at: msg.created_at,
         updated_at: msg.updated_at,
-        edited_at: msg.updated_at,
         sender_name: msg.sender_name,
         sender_avatar: msg.sender_avatar,
         is_read: msg.is_read,
@@ -155,10 +144,9 @@ export function useEnhancedChat() {
     }
   }, [user?.id]);
 
-  // Create or get 1:1 thread
+  // Create or get 1:1 thread usando edge function
   const createOrGetThread = useCallback(async (peerUserId: string) => {
     if (!user?.id) {
-      console.error('No authenticated user found');
       toast({
         title: "Erro",
         description: "É necessário fazer login para iniciar uma conversa",
@@ -168,33 +156,63 @@ export function useEnhancedChat() {
     }
 
     try {
-      console.log('Creating/getting thread for peer:', peerUserId);
-      
-      // Use RPC function directly instead of edge function
-      const { data: threadId, error } = await supabase.rpc('msg_create_or_get_direct', {
-        target_user_id: peerUserId
-      });
+      // Primeiro tenta encontrar thread existente
+      const { data: existingThread } = await supabase
+        .from('chat_threads')
+        .select(`
+          id,
+          chat_participants!inner(user_id)
+        `)
+        .eq('is_group', false)
+        .eq('chat_participants.user_id', user.id)
+        .limit(1)
+        .single();
 
-      console.log('RPC response - threadId:', threadId);
-      console.log('RPC response - error:', error);
+      if (existingThread) {
+        // Verifica se o outro usuário também está na thread
+        const { data: participants } = await supabase
+          .from('chat_participants')
+          .select('user_id')
+          .eq('thread_id', existingThread.id)
+          .in('user_id', [user.id, peerUserId]);
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw new Error(error.message || 'Failed to create/get thread');
+        if (participants && participants.length === 2) {
+          await fetchThreads();
+          return existingThread.id;
+        }
       }
 
-      if (!threadId) {
-        throw new Error('No thread ID returned from database');
-      }
+      // Se não existe, cria nova thread
+      const { data: newThread, error: threadError } = await supabase
+        .from('chat_threads')
+        .insert({
+          is_group: false,
+          created_by: user.id,
+          last_message_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-      console.log('Thread created/found:', threadId);
+      if (threadError) throw threadError;
+
+      // Adiciona participantes
+      const { error: participantsError } = await supabase
+        .from('chat_participants')
+        .insert([
+          { thread_id: newThread.id, user_id: user.id, role: 'member' },
+          { thread_id: newThread.id, user_id: peerUserId, role: 'member' }
+        ]);
+
+      if (participantsError) throw participantsError;
+
       await fetchThreads();
-      return threadId;
+      return newThread.id;
+      
     } catch (error) {
       console.error('Error creating thread:', error);
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao criar conversa",
+        description: "Erro ao criar conversa",
         variant: "destructive",
       });
       return null;
@@ -206,52 +224,68 @@ export function useEnhancedChat() {
     if (!user?.id) return null;
 
     try {
-      console.log('Creating group:', title, 'with members:', memberIds);
-      
-      // Use RPC function directly instead of edge function
-      const { data: threadId, error } = await supabase.rpc('msg_create_group', {
-        title: title,
-        participant_ids: memberIds
-      });
+      // Cria nova thread de grupo
+      const { data: newThread, error: threadError } = await supabase
+        .from('chat_threads')
+        .insert({
+          is_group: true,
+          title: title,
+          created_by: user.id,
+          last_message_at: new Date().toISOString()
+        })
+        .select()
+        .single();
 
-      if (error) {
-        console.error('RPC error:', error);
-        throw new Error(error.message || 'Failed to create group');
-      }
+      if (threadError) throw threadError;
 
-      if (!threadId) {
-        throw new Error('No thread ID returned from database');
-      }
+      // Adiciona todos os participantes
+      const participants = [user.id, ...memberIds].map(userId => ({
+        thread_id: newThread.id,
+        user_id: userId,
+        role: 'member'
+      }));
 
-      console.log('Group created:', threadId);
+      const { error: participantsError } = await supabase
+        .from('chat_participants')
+        .insert(participants);
+
+      if (participantsError) throw participantsError;
+
       await fetchThreads();
-      return threadId;
+      return newThread.id;
+      
     } catch (error) {
       console.error('Error creating group:', error);
       toast({
         title: "Erro",
-        description: error instanceof Error ? error.message : "Erro ao criar grupo",
+        description: "Erro ao criar grupo",
         variant: "destructive",
       });
       return null;
     }
   }, [user?.id, fetchThreads]);
 
-  // Send message
+  // Send message usando edge function
   const sendMessage = useCallback(async (threadId: string, body?: string, attachments?: any[]) => {
     if (!user?.id || (!body && (!attachments || attachments.length === 0))) return;
 
     try {
-      // Usar RPC ao invés de edge function para evitar problemas de autenticação
-      const { data: messageId, error } = await supabase
-        .rpc('msg_send_message', {
+      const { data, error } = await supabase.functions.invoke('chat-send-message', {
+        body: {
           thread_id: threadId,
-          content: body || ''
-        });
+          body: body || '',
+          attachments: attachments || []
+        }
+      });
 
       if (error) throw error;
 
-      return messageId;
+      // Atualiza mensagens localmente
+      await fetchMessages(threadId);
+      await fetchThreads();
+
+      return data?.message_id;
+      
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -260,30 +294,26 @@ export function useEnhancedChat() {
         variant: "destructive",
       });
     }
-  }, [user?.id]);
+  }, [user?.id, fetchMessages, fetchThreads]);
 
-  // Mark messages as read - OTIMIZADO com RPC
+  // Mark messages as read usando edge function
   const markAsRead = useCallback(async (threadId: string, messageIds?: string[]) => {
     if (!user?.id) return;
 
     try {
-      console.log('Marking thread as read:', threadId);
-      
-      // Usa a função RPC que marca em batch todas as mensagens como lidas
-      const { error } = await supabase.rpc('msg_mark_messages_read', {
-        p_thread_id: threadId,
-        p_user_id: user.id
+      const { error } = await supabase.functions.invoke('chat-mark-read', {
+        body: {
+          thread_id: threadId,
+          message_ids: messageIds
+        }
       });
 
-      if (error) {
-        console.error('Error marking as read:', error);
-      } else {
-        // Atualiza o contador localmente após sucesso
-        setUnreadCounts(prev => ({
-          ...prev,
-          [threadId]: 0
-        }));
-      }
+      if (error) throw error;
+
+      setUnreadCounts(prev => ({
+        ...prev,
+        [threadId]: 0
+      }));
 
     } catch (error) {
       console.error('Error marking as read:', error);
@@ -295,9 +325,7 @@ export function useEnhancedChat() {
     if (!user?.id) return;
 
     try {
-      console.log('Updating presence for user:', user.id, 'status:', status);
-      
-      const { error } = await supabase
+      await supabase
         .from('chat_presence')
         .upsert({
           user_id: user.id,
@@ -307,12 +335,6 @@ export function useEnhancedChat() {
         }, {
           onConflict: 'user_id'
         });
-      
-      if (error) {
-        console.error('Presence update error:', error);
-      } else {
-        console.log('Presence updated successfully');
-      }
     } catch (error) {
       console.error('Error updating presence:', error);
     }
@@ -394,7 +416,6 @@ export function useEnhancedChat() {
             ...(prev[newMessage.thread_id] || []),
             {
               ...newMessage,
-              body: newMessage.content || newMessage.body,
               sender_name: 'Loading...',
               attachments: Array.isArray(newMessage.attachments) ? newMessage.attachments : []
             }
