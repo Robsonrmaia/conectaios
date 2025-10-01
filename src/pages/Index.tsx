@@ -284,15 +284,11 @@ const Index = () => {
                 <div className="relative z-10 flex justify-center">
                   <div className="hero-image-container" ref={containerRef}>
                     <div className="image-wrapper" ref={wrapperRef}>
-                      <div className="hero-glow"></div>
-                      <div className="hero-layer hero-layer-2"></div>
                       <img 
                         src={garotonectaImg} 
                         alt="Profissional ConectaIOS" 
                         className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain"
                       />
-                      <div className="hero-layer hero-layer-1"></div>
-                      <div className="hero-shine"></div>
                       <div className="hero-shadow" ref={shadowRef}></div>
                     </div>
                   </div>
