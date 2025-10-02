@@ -265,45 +265,53 @@ export function useEnhancedChat() {
     }
   }, [user?.id, fetchThreads]);
 
-  // Send message usando insert direto
+  // Send message usando RPC
   const sendMessage = useCallback(async (threadId: string, body?: string, attachments?: any[]) => {
     if (!user?.id) return;
     if (!body?.trim() && (!attachments || attachments.length === 0)) return;
 
     try {
-      console.log('📤 Sending message:', { threadId, body, attachments });
+      console.log('📤 Sending message:', { threadId, body });
       
-      // Get authenticated user
-      const { data: authData } = await supabase.auth.getUser();
-      if (!authData?.user?.id) {
-        throw new Error('not-authenticated');
-      }
-
-      // Insert message directly using Supabase client
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .insert({
-          thread_id: threadId,
-          sender_id: authData.user.id,
-          body: body?.trim() || '',
-          type: 'text',
-          status: 'sent'
-        })
-        .select()
-        .single();
+      // Use RPC function that handles everything
+      const { data, error } = await supabase.rpc('send_message_new', {
+        p_thread_id: threadId,
+        p_body: body?.trim() || '',
+        p_reply_to: null
+      });
 
       if (error) {
-        console.error('❌ RLS or insert error:', error);
+        console.error('❌ RPC error:', error);
         throw error;
       }
       
       console.log('✅ Message sent successfully:', data);
 
-      // Atualiza mensagens localmente
-      await fetchMessages(threadId);
-      await fetchThreads();
+      // Adiciona mensagem otimisticamente ao state local
+      if (data) {
+        setMessages(prev => {
+          const threadMessages = prev[threadId] || [];
+          // Evita duplicação
+          if (threadMessages.some(m => m.id === data.id)) {
+            return prev;
+          }
+          return {
+            ...prev,
+            [threadId]: [...threadMessages, {
+              id: data.id,
+              thread_id: data.thread_id,
+              sender_id: data.sender_id,
+              content: data.body || data.content,
+              created_at: data.created_at,
+              updated_at: data.updated_at,
+              sender_name: user.email || 'Você',
+              attachments: []
+            }]
+          };
+        });
+      }
 
-      return data.id;
+      return data?.id;
       
     } catch (error: any) {
       console.error('❌ Error sending message:', error);
@@ -313,7 +321,7 @@ export function useEnhancedChat() {
         variant: "destructive",
       });
     }
-  }, [user?.id, fetchMessages, fetchThreads]);
+  }, [user?.id, user?.email]);
 
   // Mark messages as read usando edge function
   const markAsRead = useCallback(async (threadId: string, messageIds?: string[]) => {
@@ -416,41 +424,70 @@ export function useEnhancedChat() {
     }
   }, [user?.id]);
 
-  // Real-time subscriptions
+  // Real-time subscriptions - por thread ativa
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || !activeThread) return;
 
+    console.log('🔄 Setting up realtime for thread:', activeThread);
+    
+    // Canal único e específico por thread
     const messagesChannel = supabase
-      .channel('chat-messages-realtime')
+      .channel(`chat_thread_${activeThread}`)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
-        table: 'chat_messages'
+        table: 'chat_messages',
+        filter: `thread_id=eq.${activeThread}`
       }, (payload) => {
         const newMessage = payload.new as any;
+        console.log('📨 New message received via realtime:', newMessage.id);
         
-        setMessages(prev => ({
-          ...prev,
-          [newMessage.thread_id]: [
-            ...(prev[newMessage.thread_id] || []),
-            {
-              ...newMessage,
-              sender_name: 'Loading...',
-              attachments: Array.isArray(newMessage.attachments) ? newMessage.attachments : []
-            }
-          ]
-        }));
+        // Adiciona apenas se não existir (evita duplicação)
+        setMessages(prev => {
+          const threadMessages = prev[newMessage.thread_id] || [];
+          if (threadMessages.some(m => m.id === newMessage.id)) {
+            console.log('⚠️ Message already exists, skipping:', newMessage.id);
+            return prev;
+          }
+          
+          return {
+            ...prev,
+            [newMessage.thread_id]: [
+              ...threadMessages,
+              {
+                id: newMessage.id,
+                thread_id: newMessage.thread_id,
+                sender_id: newMessage.sender_id,
+                content: newMessage.body || newMessage.content,
+                created_at: newMessage.created_at,
+                updated_at: newMessage.updated_at,
+                sender_name: newMessage.sender_id === user.id ? 'Você' : 'Loading...',
+                attachments: Array.isArray(newMessage.attachments) ? newMessage.attachments : []
+              }
+            ]
+          };
+        });
 
-        fetchThreads();
-
+        // Atualiza lista de threads apenas se mensagem de outro usuário
         if (newMessage.sender_id !== user.id) {
+          fetchThreads();
           toast({
             title: "Nova mensagem",
-            description: newMessage.content ? newMessage.content.substring(0, 50) + '...' : 'Anexo recebido',
+            description: (newMessage.body || newMessage.content || '').substring(0, 50) + '...',
           });
         }
       })
       .subscribe();
+
+    return () => {
+      console.log('🔌 Cleaning up realtime for thread:', activeThread);
+      supabase.removeChannel(messagesChannel);
+    };
+  }, [user?.id, activeThread, fetchThreads]);
+
+  // Presence realtime subscription
+  useEffect(() => {
+    if (!user?.id) return;
 
     presenceChannel.current = supabase
       .channel('chat-presence-realtime')
@@ -489,14 +526,13 @@ export function useEnhancedChat() {
     updatePresence('online');
 
     return () => {
-      supabase.removeChannel(messagesChannel);
       if (presenceChannel.current) {
         supabase.removeChannel(presenceChannel.current);
       }
       Object.values(typingTimeout.current).forEach(timeout => clearTimeout(timeout));
       updatePresence('offline');
     };
-  }, [user?.id, fetchThreads, updatePresence]);
+  }, [user?.id, updatePresence]);
 
   useEffect(() => {
     if (user?.id) {
