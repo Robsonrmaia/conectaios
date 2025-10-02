@@ -248,6 +248,111 @@ export function EnhancedMessaging() {
               className="pl-9"
             />
           </div>
+          
+          <div className="flex gap-2 mt-3">
+            <Dialog open={showNewChatDialog} onOpenChange={setShowNewChatDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="flex-1">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Nova Conversa
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Nova Conversa</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Buscar corretor..."
+                      className="pl-9"
+                    />
+                  </div>
+                  <ScrollArea className="max-h-48">
+                    <div className="space-y-2">
+                      {availableBrokers.map(broker => (
+                        <div 
+                          key={broker.id}
+                          className="flex items-center space-x-3 p-3 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors"
+                          onClick={() => createNewChat([broker.user_id])}
+                        >
+                          <div className="relative">
+                            <Avatar className="h-8 w-8">
+                              <AvatarImage src={broker.avatar_url} />
+                              <AvatarFallback>{broker.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${
+                              getPresenceStatus(broker.user_id) === 'online' ? 'bg-green-500' :
+                              getPresenceStatus(broker.user_id) === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
+                            }`} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{broker.name}</p>
+                            <p className="text-xs text-muted-foreground">{broker.email}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </div>
+              </DialogContent>
+            </Dialog>
+            
+            <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
+              <DialogTrigger asChild>
+                <Button size="sm" variant="outline" className="flex-1">
+                  <Users className="h-4 w-4 mr-2" />
+                  Novo Grupo
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Novo Grupo</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <Input
+                    placeholder="Nome do grupo..."
+                    value={groupTitle}
+                    onChange={(e) => setGroupTitle(e.target.value)}
+                  />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Selecionar membros:</p>
+                    <ScrollArea className="max-h-48">
+                      <div className="space-y-2">
+                        {availableBrokers.map(broker => (
+                          <div key={broker.id} className="flex items-center space-x-3 p-2 hover:bg-muted/50 rounded">
+                            <Checkbox
+                              checked={selectedBrokers.includes(broker.user_id)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedBrokers([...selectedBrokers, broker.user_id]);
+                                } else {
+                                  setSelectedBrokers(selectedBrokers.filter(id => id !== broker.user_id));
+                                }
+                              }}
+                            />
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={broker.avatar_url} />
+                              <AvatarFallback>{broker.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <span className="text-sm">{broker.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                  <Button 
+                    onClick={() => createNewChat(selectedBrokers)}
+                    disabled={selectedBrokers.length === 0}
+                    className="w-full"
+                  >
+                    Criar Grupo ({selectedBrokers.length} membros)
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         
         <ScrollArea className="flex-1">
@@ -255,111 +360,7 @@ export function EnhancedMessaging() {
             {filteredThreads.length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                <p className="text-muted-foreground mb-4">Nenhuma conversa encontrada</p>
-                <div className="flex gap-2 justify-center">
-                  <Dialog open={showNewChatDialog} onOpenChange={setShowNewChatDialog}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Nova Conversa
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Nova Conversa</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Buscar corretor..."
-                            className="pl-9"
-                          />
-                        </div>
-                        <ScrollArea className="max-h-48">
-                          <div className="space-y-2">
-                            {availableBrokers.map(broker => (
-                              <div 
-                                key={broker.id}
-                                className="flex items-center space-x-3 p-3 hover:bg-muted/50 rounded-lg cursor-pointer transition-colors"
-                                onClick={() => createNewChat([broker.user_id])}
-                              >
-                                <div className="relative">
-                                  <Avatar className="h-8 w-8">
-                                    <AvatarImage src={broker.avatar_url} />
-                                    <AvatarFallback>{broker.name.charAt(0)}</AvatarFallback>
-                                  </Avatar>
-                                  <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-background ${
-                                    getPresenceStatus(broker.user_id) === 'online' ? 'bg-green-500' :
-                                    getPresenceStatus(broker.user_id) === 'away' ? 'bg-yellow-500' : 'bg-gray-400'
-                                  }`} />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium">{broker.name}</p>
-                                  <p className="text-xs text-muted-foreground">{broker.email}</p>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </ScrollArea>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  
-                  <Dialog open={showNewGroupDialog} onOpenChange={setShowNewGroupDialog}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <Users className="h-4 w-4 mr-2" />
-                        Novo Grupo
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Novo Grupo</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <Input
-                          placeholder="Nome do grupo..."
-                          value={groupTitle}
-                          onChange={(e) => setGroupTitle(e.target.value)}
-                        />
-                        <div className="space-y-2">
-                          <p className="text-sm font-medium">Selecionar membros:</p>
-                          <ScrollArea className="max-h-48">
-                            <div className="space-y-2">
-                              {availableBrokers.map(broker => (
-                                <div key={broker.id} className="flex items-center space-x-3 p-2 hover:bg-muted/50 rounded">
-                                  <Checkbox
-                                    checked={selectedBrokers.includes(broker.user_id)}
-                                    onCheckedChange={(checked) => {
-                                      if (checked) {
-                                        setSelectedBrokers([...selectedBrokers, broker.user_id]);
-                                      } else {
-                                        setSelectedBrokers(selectedBrokers.filter(id => id !== broker.user_id));
-                                      }
-                                    }}
-                                  />
-                                  <Avatar className="h-6 w-6">
-                                    <AvatarImage src={broker.avatar_url} />
-                                    <AvatarFallback>{broker.name.charAt(0)}</AvatarFallback>
-                                  </Avatar>
-                                  <span className="text-sm">{broker.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </ScrollArea>
-                        </div>
-                        <Button 
-                          onClick={() => createNewChat(selectedBrokers)}
-                          disabled={selectedBrokers.length === 0}
-                          className="w-full"
-                        >
-                          Criar Grupo ({selectedBrokers.length} membros)
-                        </Button>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                <p className="text-muted-foreground">Nenhuma conversa encontrada</p>
               </div>
             ) : (
               filteredThreads.map((thread) => (
