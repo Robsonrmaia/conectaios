@@ -166,7 +166,7 @@ export function useEnhancedChat() {
         .eq('is_group', false)
         .eq('chat_participants.user_id', user.id)
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (existingThread) {
         // Verifica se o outro usuário também está na thread
