@@ -227,8 +227,45 @@ export default function BrokerMinisite() {
         }));
         console.log('✅ Valid properties after filtering:', validProps.length);
         
+        // Buscar imagens para todas as propriedades
+        const propertyIds = validProps.map(p => p.id);
+        console.log('📸 Fetching images for properties:', propertyIds);
+
+        const { data: imagesData, error: imagesError } = await supabase
+          .from('imovel_images')
+          .select('imovel_id, url, position, is_cover')
+          .in('imovel_id', propertyIds)
+          .order('position', { ascending: true });
+
+        console.log('📊 Images result:', {
+          found: imagesData?.length || 0,
+          error: imagesError
+        });
+
+        // Criar map de imagens por imóvel (filtrar URLs inválidas)
+        const imagesMap: Record<string, string[]> = {};
+        imagesData?.forEach(img => {
+          // ✅ Validar que é uma URL válida do storage (não base64)
+          if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
+            if (!imagesMap[img.imovel_id]) {
+              imagesMap[img.imovel_id] = [];
+            }
+            imagesMap[img.imovel_id].push(img.url);
+          }
+        });
+
+        console.log('📸 Images map created:', Object.keys(imagesMap).length, 'properties with images');
+
+        // Atualizar validProps com as fotos
+        const propsWithImages = validProps.map(p => ({
+          ...p,
+          fotos: imagesMap[p.id] || []
+        }));
+
+        console.log('✅ Properties with images:', propsWithImages.filter(p => p.fotos.length > 0).length);
+        
         if (!mounted) return;
-        setProperties(validProps);
+        setProperties(propsWithImages);
         
       } catch (error) {
         console.error('❌ Properties fetch error:', error);
