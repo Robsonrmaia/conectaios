@@ -1853,7 +1853,7 @@ export default function Imoveis() {
                         onClick={(e) => {
                           e.stopPropagation();
                           const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
-                          const currentShowMarket = property.visibility === 'partners' && !property.show_on_site;
+                          const currentShowMarket = property.visibility === 'partners';
                           // Alterna apenas marketplace, mantém site como está
                           updatePropertyVisibility(property.id, currentShowSite, !currentShowMarket);
                         }}
@@ -1869,7 +1869,7 @@ export default function Imoveis() {
                         onClick={(e) => {
                           e.stopPropagation();
                           const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
-                          const currentShowMarket = property.visibility === 'partners' && !property.show_on_site;
+                          const currentShowMarket = property.visibility === 'partners';
                           // Alterna apenas site, mantém marketplace como está
                           updatePropertyVisibility(property.id, !currentShowSite, currentShowMarket);
                         }}
