@@ -241,14 +241,19 @@ export default function Imoveis() {
         } else {
           console.log('✅ [ADMIN] Imagens carregadas:', imagesData?.length);
           
-          // Agrupar imagens por imovel_id com cache busting
+          // Agrupar imagens por imovel_id com cache busting e validação de URL
           imagesData?.forEach(img => {
             if (!imagesMap[img.imovel_id]) {
               imagesMap[img.imovel_id] = [];
             }
-            // Adicionar cache busting timestamp na URL
-            const urlWithCacheBust = CacheManager.addCacheBusting(img.url);
-            imagesMap[img.imovel_id].push(urlWithCacheBust);
+            // ✅ Validar que é uma URL válida do storage (não base64)
+            if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
+              // Adicionar cache busting timestamp na URL
+              const urlWithCacheBust = CacheManager.addCacheBusting(img.url);
+              imagesMap[img.imovel_id].push(urlWithCacheBust);
+            } else {
+              console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
+            }
           });
         }
         
@@ -939,17 +944,9 @@ export default function Imoveis() {
 
   return (
     <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/app')}
-              className="flex items-center gap-2 w-fit"
-            >
-              <Home className="h-4 w-4" />
-              Dashboard
-            </Button>
-            <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-primary">
                 Imóveis
               </h1>

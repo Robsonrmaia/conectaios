@@ -21,6 +21,21 @@ export function PhotoOrderManager({
 }: PhotoOrderManagerProps) {
   const [isDragging, setIsDragging] = useState(false);
 
+  // ✅ Validar que é uma URL válida do Supabase Storage
+  const isValidStorageUrl = (url: string) => {
+    return url && 
+           (url.startsWith('http://') || url.startsWith('https://')) && 
+           !url.startsWith('data:');
+  };
+
+  // Filtrar apenas fotos com URLs válidas
+  const validPhotos = photos.filter(isValidStorageUrl);
+
+  // Avisar se houver fotos inválidas
+  if (validPhotos.length !== photos.length) {
+    console.warn(`⚠️ ${photos.length - validPhotos.length} fotos com URLs inválidas foram filtradas`);
+  }
+
   const handleDragStart = () => {
     setIsDragging(true);
   };
@@ -39,7 +54,7 @@ export function PhotoOrderManager({
       return;
     }
 
-    const reorderedPhotos = Array.from(photos);
+    const reorderedPhotos = Array.from(validPhotos);
     const [removed] = reorderedPhotos.splice(sourceIndex, 1);
     reorderedPhotos.splice(destinationIndex, 0, removed);
 
@@ -82,11 +97,13 @@ export function PhotoOrderManager({
     });
   };
 
-  if (photos.length === 0) {
+  if (validPhotos.length === 0) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Adicione fotos para organizar e selecionar a capa
+          {photos.length > 0 
+            ? 'Nenhuma foto válida encontrada. Use apenas URLs do Supabase Storage.' 
+            : 'Adicione fotos para organizar e selecionar a capa'}
         </CardContent>
       </Card>
     );
@@ -98,7 +115,7 @@ export function PhotoOrderManager({
         <CardTitle className="flex items-center gap-2">
           <Move className="h-5 w-5" />
           Organizar Fotos
-          <Badge variant="secondary">{photos.length} fotos</Badge>
+          <Badge variant="secondary">{validPhotos.length} fotos</Badge>
         </CardTitle>
         <div className="flex gap-2">
           <Button
@@ -128,7 +145,7 @@ export function PhotoOrderManager({
                     snapshot.isDraggingOver ? 'bg-muted/50 rounded-lg p-2' : ''
                   }`}
                 >
-                  {photos.map((photo, index) => (
+                  {validPhotos.map((photo, index) => (
                     <Draggable key={photo} draggableId={photo} index={index}>
                       {(provided, snapshot) => (
                         <div
