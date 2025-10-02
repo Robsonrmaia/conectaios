@@ -1069,6 +1069,8 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_marketplace: boolean
+          show_on_minisite: boolean
           show_on_site: boolean
           source: string | null
           state: string | null
@@ -1112,6 +1114,8 @@ export type Database = {
           property_type?: string | null
           purpose: string
           search_vector?: unknown | null
+          show_on_marketplace?: boolean
+          show_on_minisite?: boolean
           show_on_site?: boolean
           source?: string | null
           state?: string | null
@@ -1155,6 +1159,8 @@ export type Database = {
           property_type?: string | null
           purpose?: string
           search_vector?: unknown | null
+          show_on_marketplace?: boolean
+          show_on_minisite?: boolean
           show_on_site?: boolean
           source?: string | null
           state?: string | null
@@ -3201,6 +3207,8 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_marketplace: boolean
+          show_on_minisite: boolean
           show_on_site: boolean
           source: string | null
           state: string | null
@@ -3214,6 +3222,10 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+      }
+      find_or_create_direct_thread: {
+        Args: { user_a: string; user_b: string }
+        Returns: string
       }
       find_or_create_dm: {
         Args: { user_a: string; user_b: string }
@@ -3256,6 +3268,8 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_marketplace: boolean
+          show_on_minisite: boolean
           show_on_site: boolean
           source: string | null
           state: string | null
@@ -3416,6 +3430,8 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_marketplace: boolean
+          show_on_minisite: boolean
           show_on_site: boolean
           source: string | null
           state: string | null
@@ -3468,6 +3484,8 @@ export type Database = {
           property_type: string | null
           purpose: string
           search_vector: unknown | null
+          show_on_marketplace: boolean
+          show_on_minisite: boolean
           show_on_site: boolean
           source: string | null
           state: string | null
@@ -3483,6 +3501,20 @@ export type Database = {
         }[]
       }
       send_message: {
+        Args: { p_body: string; p_reply_to?: string; p_thread_id: string }
+        Returns: {
+          attachments: Json | null
+          body: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          reply_to_id: string | null
+          sender_id: string
+          thread_id: string
+          updated_at: string | null
+        }
+      }
+      send_message_new: {
         Args: { p_body: string; p_reply_to?: string; p_thread_id: string }
         Returns: {
           attachments: Json | null

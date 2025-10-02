@@ -130,9 +130,9 @@ export default function Marketplace() {
         // Para primeira página: buscar mais dados para implementar round-robin
         const { data: allProperties, error } = await supabase
           .from('imoveis')
-          .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
+          .select('id,title,price,city,neighborhood,is_public,visibility,show_on_marketplace,created_at,owner_id')
           .eq('is_public', true)
-          .in('visibility', ['public_site', 'partners'])
+          .eq('show_on_marketplace', true)
           .eq('status', 'available')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin

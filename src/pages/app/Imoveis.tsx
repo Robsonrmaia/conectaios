@@ -200,10 +200,10 @@ export default function Imoveis() {
         console.log('🔄 [ADMIN] Carregando imóveis do usuário:', user?.id);
       }
       
-      // Query corrigida: buscar todos os campos necessários
+      // Query corrigida: buscar todos os campos necessários incluindo show_on_marketplace e show_on_minisite
       const { data, error, count } = await supabase
         .from('imoveis')
-        .select('id,title,price,city,neighborhood,is_public,visibility,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status,construction_year', { count: 'exact' })
+        .select('id,title,price,city,neighborhood,is_public,visibility,show_on_marketplace,show_on_minisite,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status,construction_year,show_on_site', { count: 'exact' })
         .eq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
@@ -289,6 +289,9 @@ export default function Imoveis() {
           listing_type: prop.purpose || 'sale',
           property_type: prop.property_type || 'apartamento',
           visibility: prop.visibility || 'private',
+          show_on_site: prop.show_on_site || false,
+          show_on_marketplace: prop.show_on_marketplace || false,
+          show_on_minisite: prop.show_on_minisite || false,
           fotos: imagesMap[prop.id] || [],
           videos: [],
           descricao: prop.description || '',
@@ -413,27 +416,37 @@ export default function Imoveis() {
       let dbVisibility: string;
       let isPublic: boolean;
       let showOnSiteDb: boolean;
+      let showOnMarketplaceDb: boolean;
+      let showOnMinisiteDb: boolean;
       
       if (!formData.showOnSite && !formData.showOnMarketplace) {
         // Oculto
         dbVisibility = 'private';
         isPublic = false;
         showOnSiteDb = false;
+        showOnMarketplaceDb = false;
+        showOnMinisiteDb = false;
       } else if (formData.showOnSite && !formData.showOnMarketplace) {
         // Apenas Site
         dbVisibility = 'public_site';
         isPublic = true;
         showOnSiteDb = true;
+        showOnMarketplaceDb = false;
+        showOnMinisiteDb = true; // Site público = minisite
       } else if (!formData.showOnSite && formData.showOnMarketplace) {
         // Apenas Marketplace
         dbVisibility = 'partners';
         isPublic = true;
         showOnSiteDb = false;
+        showOnMarketplaceDb = true;
+        showOnMinisiteDb = false;
       } else {
         // Ambos
         dbVisibility = 'partners';
         isPublic = true;
         showOnSiteDb = true;
+        showOnMarketplaceDb = true;
+        showOnMinisiteDb = true;
       }
       
       const dbStatus = toDbStatus('active');
@@ -464,7 +477,10 @@ export default function Imoveis() {
         distancia_mar: parsedSeaDistance,
         construction_year: parseInt(formData.year_built) || null,
         is_public: isPublic,
-        status: dbStatus
+        status: dbStatus,
+        show_on_site: showOnSiteDb,
+        show_on_marketplace: showOnMarketplaceDb,
+        show_on_minisite: showOnMinisiteDb
       };
 
       console.log('=== DADOS PREPARADOS PARA SALVAMENTO ===');

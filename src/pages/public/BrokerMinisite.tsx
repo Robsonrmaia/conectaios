@@ -161,16 +161,16 @@ export default function BrokerMinisite() {
       
       try {
         const { data: props, error: propsErr } = await supabase
-          .from("properties")
+          .from("imoveis")
           .select(`
-            id, titulo, valor, quartos, bathrooms, area, fotos, 
-            property_type, listing_type, finalidade, descricao, address,
-            neighborhood, city, state, features, parking_spots, created_at, updated_at,
-            is_public, visibility, status
+            id, title, price, bedrooms, bathrooms, area_total, 
+            property_type, purpose, description, address,
+            neighborhood, city, state, parking, created_at, updated_at,
+            is_public, visibility, status, show_on_minisite
           `)
-          .eq("user_id", bq.data.user_id)
+          .eq("owner_id", bq.data.user_id)
           .eq("is_public", true)
-          .in("visibility", ["public_site", "partners"])
+          .eq("show_on_minisite", true)
           .eq("status", "available")
           .order("created_at", { ascending: false })
           .limit(50);
@@ -182,18 +182,18 @@ export default function BrokerMinisite() {
           broker_username: cleanUsername,
           properties_sample: props?.slice(0, 3).map(p => ({
             id: p.id,
-            titulo: p.titulo,
+            titulo: p.title,
             is_public: p.is_public,
             visibility: p.visibility,
             status: p.status
           })),
           query_details: {
-            table: 'properties',
+            table: 'imoveis',
             filters: {
-              user_id: bq.data.user_id,
+              owner_id: bq.data.user_id,
               is_public: true,
-              visibility: ['public_site', 'both'],
-              status_not: 'INATIVO'
+              show_on_minisite: true,
+              status: 'available'
             }
           },
           // 🔥 Debug crítico - força refresh de cache
@@ -206,8 +206,25 @@ export default function BrokerMinisite() {
           // Continue with empty array
         }
         
-        // Validate properties data
-        const validProps = (props || []).filter(p => p && p.id && p.titulo);
+        // Validate and map properties data
+        const validProps = (props || []).filter(p => p && p.id && p.title).map(p => ({
+          id: p.id,
+          titulo: p.title,
+          valor: p.price,
+          area: p.area_total,
+          quartos: p.bedrooms,
+          bathrooms: p.bathrooms,
+          parking_spots: p.parking,
+          listing_type: p.purpose,
+          property_type: p.property_type,
+          descricao: p.description,
+          address: p.address,
+          neighborhood: p.neighborhood,
+          city: p.city,
+          state: p.state,
+          created_at: p.created_at,
+          user_id: bq.data.user_id
+        }));
         console.log('✅ Valid properties after filtering:', validProps.length);
         
         if (!mounted) return;
