@@ -1854,6 +1854,7 @@ export default function Imoveis() {
                           e.stopPropagation();
                           const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
                           const currentShowMarket = property.visibility === 'partners';
+                          // Alterna apenas marketplace, mantém site como está
                           updatePropertyVisibility(property.id, currentShowSite, !currentShowMarket);
                         }}
                         title="Marketplace - Imóvel aparece no marketplace"
@@ -1869,6 +1870,7 @@ export default function Imoveis() {
                           e.stopPropagation();
                           const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
                           const currentShowMarket = property.visibility === 'partners';
+                          // Alterna apenas site, mantém marketplace como está
                           updatePropertyVisibility(property.id, !currentShowSite, currentShowMarket);
                         }}
                         title="Site Público - Imóvel aparece no site público e minisite"

@@ -257,7 +257,7 @@ export default function Marketplace() {
           user_id: property.owner_id,
           listing_type: 'venda',
           property_type: 'apartamento',
-          conectaios_brokers: brokersMap.get(property.owner_id) || null
+          conectaios_brokers: brokersMap.get(property.user_id) || null
         }))
         .filter(property => property.conectaios_brokers); // Only show properties with valid brokers
 
