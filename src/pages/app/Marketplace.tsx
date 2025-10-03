@@ -261,7 +261,7 @@ export default function Marketplace() {
           property_type: 'apartamento',
           brokers: brokersMap.get(property.owner_id) || null
         }))
-        .filter(property => property.title && property.price); // Filter valid properties
+        .filter(property => property.titulo && property.valor); // Filter valid properties
 
       if (page === 0) {
         setProperties(validProperties as Property[]);
