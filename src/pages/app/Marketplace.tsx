@@ -57,7 +57,7 @@ interface Property {
   profiles?: {
     nome: string;
   } | null;
-  conectaios_brokers?: {
+  brokers?: {
     id: string;
     name: string;
     avatar_url?: string;
@@ -188,6 +188,7 @@ export default function Marketplace() {
           .from('imoveis')
           .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
           .eq('is_public', true)
+          .eq('show_on_marketplace', true)
           .in('visibility', ['public_site', 'partners'])
           .eq('status', 'available')
           .order('created_at', { ascending: false })
@@ -221,7 +222,7 @@ export default function Marketplace() {
       }
 
       const { data: brokersData, error: brokersError } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('user_id, id, name, avatar_url, creci, status')
         .in('user_id', userIds)
         .eq('status', 'active');
@@ -258,7 +259,7 @@ export default function Marketplace() {
           user_id: property.owner_id,
           listing_type: 'venda',
           property_type: 'apartamento',
-          conectaios_brokers: brokersMap.get(property.owner_id) || null
+          brokers: brokersMap.get(property.owner_id) || null
         }))
         .filter(property => property.title && property.price); // Filter valid properties
 
@@ -268,7 +269,7 @@ export default function Marketplace() {
         
         // Calculate broker stats para debug
         const stats = validProperties.reduce((acc, prop) => {
-          const brokerName = prop.conectaios_brokers?.name || 'Sem corretor';
+          const brokerName = prop.brokers?.name || 'Sem corretor';
           acc[brokerName] = (acc[brokerName] || 0) + 1;
           return acc;
         }, {} as {[key: string]: number});
@@ -845,10 +846,10 @@ export default function Marketplace() {
                    )}
 
                    <div className="flex items-center gap-2 text-sm text-muted-foreground border-t pt-3">
-                     {property.conectaios_brokers?.avatar_url ? (
+                     {property.brokers?.avatar_url ? (
                        <img 
-                         src={property.conectaios_brokers.avatar_url} 
-                         alt={property.conectaios_brokers.name}
+                         src={property.brokers.avatar_url} 
+                         alt={property.brokers.name}
                          className="w-6 h-6 rounded-full object-cover border border-slate-200"
                          onError={(e) => {
                            // Hide image if it fails to load and show fallback
@@ -857,13 +858,13 @@ export default function Marketplace() {
                        />
                      ) : (
                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium text-primary">
-                         {property.conectaios_brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
+                         {property.brokers?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || '👤'}
                        </div>
                      )}
                      <div className="flex-1 min-w-0">
-                       <span>Corretor: {property.conectaios_brokers?.name || property.profiles?.nome || 'Não informado'}</span>
-                       {property.conectaios_brokers?.creci && (
-                         <span className="block text-xs text-muted-foreground/70">CRECI: {property.conectaios_brokers.creci}</span>
+                       <span>Corretor: {property.brokers?.name || property.profiles?.nome || 'Não informado'}</span>
+                       {property.brokers?.creci && (
+                         <span className="block text-xs text-muted-foreground/70">CRECI: {property.brokers.creci}</span>
                        )}
                      </div>
                    </div>
@@ -1181,7 +1182,7 @@ export default function Marketplace() {
                           className="w-full px-3 sm:px-4 text-sm" 
                           variant="outline"
                           onClick={() => {
-                            const phone = selectedProperty.conectaios_brokers?.name ? '5511999999999' : '';
+                            const phone = selectedProperty.brokers?.name ? '5511999999999' : '';
                             const message = `Olá! Vi seu imóvel "${selectedProperty.titulo}" no marketplace e gostaria de mais informações.`;
                             if (phone) {
                               window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
