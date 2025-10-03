@@ -75,7 +75,7 @@ Lembre-se: você é um consultor profissional, não um vendedor agressivo. Foque
       body: JSON.stringify({
         model: 'gpt-5-mini-2025-08-07',
         messages: messages,
-        max_completion_tokens: 400,
+        max_completion_tokens: 1200,
       }),
     });
 
