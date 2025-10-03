@@ -157,7 +157,7 @@ INSTRUÇÕES:
       body: JSON.stringify({
         model: 'gpt-5-nano-2025-08-07',
         messages: messages,
-        max_completion_tokens: 1000,
+        max_completion_tokens: 2500,
       }),
     });
 
