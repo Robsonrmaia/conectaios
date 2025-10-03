@@ -20,6 +20,7 @@ import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
+import { ConectaAIChat } from '@/components/ConectaAIChat';
 
 const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png?t=' + Date.now();
 import logoconectaiosImg from '@/assets/logoconectaios.png';
@@ -1341,6 +1342,9 @@ const Index = () => {
         </div>
       </footer>
       </div>
+
+      {/* AI Assistente de Vendas ConectaIOS */}
+      <ConectaAIChat />
     </PageWrapper>
   );
 };
