@@ -184,7 +184,7 @@ Qual é mais importante pra você: maior área construída ou melhor retorno de 
       body: JSON.stringify({
         model: 'gpt-5-nano-2025-08-07',
         messages: messages,
-        max_completion_tokens: 1500,
+        max_completion_tokens: 3000,
       }),
     });
 

@@ -128,14 +128,43 @@ export default function MinisiteView() {
       console.log('All minisites in database:', allMinisites);
       console.log('All minisites error:', allError);
       
-      // Fetch minisite config with broker data
+      // 1. Buscar broker pelo username
+      const { data: brokerData, error: brokerError } = await supabase
+        .from('brokers')
+        .select('id, user_id, name, bio, avatar_url, creci')
+        .eq('username', urlToFind)
+        .maybeSingle();
+
+      console.log('Broker data:', brokerData);
+      console.log('Broker error:', brokerError);
+
+      let finalBrokerData = brokerData;
+
+      // Try alternative search without @ prefix if not found
+      if (!brokerData) {
+        const altUrlToFind = username?.startsWith('@') ? username.substring(1) : username;
+        console.log('Trying alternative username:', altUrlToFind);
+        
+        const { data: altBrokerData, error: altBrokerError } = await supabase
+          .from('brokers')
+          .select('id, user_id, name, bio, avatar_url, creci')
+          .eq('username', altUrlToFind)
+          .maybeSingle();
+        
+        console.log('Alternative broker data:', altBrokerData);
+        
+        if (!altBrokerData) {
+          throw new Error('Minisite não encontrado');
+        }
+        
+        finalBrokerData = altBrokerData;
+      }
+
+      // 2. Buscar minisite_config pelo broker_id
       const { data: configData, error: configError } = await supabase
         .from('minisite_configs')
-        .select(`
-          *,
-          broker:conectaios_brokers(name, bio, avatar_url, creci)
-        `)
-        .eq('generated_url', urlToFind)
+        .select('*')
+        .eq('broker_id', finalBrokerData.id)
         .eq('is_active', true)
         .maybeSingle();
 
@@ -145,53 +174,26 @@ export default function MinisiteView() {
       if (configError) throw configError;
       
       if (!configData) {
-        // Try alternative search without @ prefix
-        const altUrlToFind = username?.startsWith('@') ? username.substring(1) : username;
-        console.log('Trying alternative URL:', altUrlToFind);
-        
-        const { data: altConfigData, error: altConfigError } = await supabase
-          .from('minisite_configs')
-          .select(`
-            *,
-            broker:conectaios_brokers(name, bio, avatar_url, creci)
-          `)
-          .eq('generated_url', altUrlToFind)
-          .eq('is_active', true)
-          .maybeSingle();
-        
-        console.log('Alternative config data:', altConfigData);
-        
-        if (altConfigData) {
-          setConfig(altConfigData);
-        } else {
-          throw new Error('Minisite não encontrado');
-        }
-      } else {
-        setConfig(configData);
+        throw new Error('Minisite não encontrado');
       }
 
+      // 3. Adicionar dados do broker ao config
+      setConfig({
+        ...configData,
+        broker: {
+          name: finalBrokerData.name,
+          bio: finalBrokerData.bio,
+          avatar_url: finalBrokerData.avatar_url,
+          creci: finalBrokerData.creci
+        }
+      });
+
       // Fetch broker's properties if show_properties is enabled
-      const finalConfig = configData || (configData === null ? null : configData);
-      
-      if (finalConfig?.show_properties && finalConfig.broker_id) {
-        console.log('🏠 Fetching properties for broker_id:', finalConfig.broker_id);
+      if (configData?.show_properties && finalBrokerData?.user_id) {
+        console.log('🏠 Fetching properties for user_id:', finalBrokerData.user_id);
         
         try {
-          // First get broker info to find the correct user_id
-          const { data: brokerData, error: brokerError } = await supabase
-            .from('conectaios_brokers')
-            .select('user_id')
-            .eq('id', finalConfig.broker_id)
-            .single();
-
-          console.log('👤 Broker data result:', { brokerData, brokerError });
-
-          if (brokerError) {
-            console.error('❌ Error fetching broker data:', brokerError);
-            setProperties([]);
-            setFilteredProperties([]);
-          } else if (brokerData?.user_id) {
-            console.log('🔍 Fetching properties for user_id:', brokerData.user_id);
+          console.log('🔍 Fetching properties for user_id:', finalBrokerData.user_id);
             
             // Limpar cache do minisite antes de carregar
             const clearMinisiteCache = () => {
@@ -206,8 +208,9 @@ export default function MinisiteView() {
             
             // Query properties with comprehensive error handling and detailed logging
             console.log('🔄 [MINISITE] Iniciando query de imóveis com filtros:', {
-              owner_id: brokerData.user_id,
+              owner_id: finalBrokerData.user_id,
               is_public: true,
+              show_on_minisite: true,
               status: 'available'
             });
             
@@ -218,11 +221,12 @@ export default function MinisiteView() {
                 description, bathrooms, parking, purpose, property_type,
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
-                distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, status
+                distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, show_on_minisite, status
               `)
-              .eq('owner_id', brokerData.user_id)
+              .eq('owner_id', finalBrokerData.user_id)
               .eq('status', 'available')
               .eq('is_public', true)
+              .eq('show_on_minisite', true)
               .in('visibility', ['public_site', 'partners'])
               .order('created_at', { ascending: false })
               .limit(50);
@@ -231,13 +235,14 @@ export default function MinisiteView() {
               status: propertiesError ? 'error' : 'success',
               error: propertiesError?.message,
               found: propertiesData?.length || 0,
-              owner_id: brokerData.user_id,
-              broker_id: finalConfig.broker_id,
+              owner_id: finalBrokerData.user_id,
+              broker_id: configData.broker_id,
               firstProperty: propertiesData?.[0] ? {
                 id: propertiesData[0].id,
                 title: propertiesData[0].title,
                 is_public: propertiesData[0].is_public,
                 visibility: propertiesData[0].visibility,
+                show_on_minisite: propertiesData[0].show_on_minisite,
                 status: propertiesData[0].status
               } : null
             });
@@ -296,20 +301,15 @@ export default function MinisiteView() {
               setProperties(mappedProperties);
               setFilteredProperties(mappedProperties);
             }
-          } else {
-            console.warn('⚠️ No user_id found for broker');
-            setProperties([]);
-            setFilteredProperties([]);
-          }
         } catch (error) {
           console.error('💥 Error in properties fetch process:', error);
           setProperties([]);
           setFilteredProperties([]);
         }
       } else {
-        console.log('🚫 Properties disabled or no broker_id:', {
-          show_properties: finalConfig?.show_properties,
-          broker_id: finalConfig?.broker_id
+        console.log('🚫 Properties disabled or no user_id:', {
+          show_properties: configData?.show_properties,
+          user_id: finalBrokerData?.user_id
         });
         setProperties([]);
         setFilteredProperties([]);
