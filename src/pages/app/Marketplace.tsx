@@ -133,6 +133,7 @@ export default function Marketplace() {
           .select('id,title,price,city,neighborhood,is_public,visibility,show_on_marketplace,created_at,owner_id')
           .eq('is_public', true)
           .eq('show_on_marketplace', true)
+          .in('visibility', ['public_site', 'partners'])
           .eq('status', 'available')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
