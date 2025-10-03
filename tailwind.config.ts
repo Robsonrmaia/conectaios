@@ -112,8 +112,12 @@ export default {
 					}
 				},
 				'pulse-gentle': {
-					'0%, 100%': { opacity: '0.1' },
-					'50%': { opacity: '0.2' }
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.8' }
+				},
+				'typing-dot': {
+					'0%, 80%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+					'40%': { opacity: '1', transform: 'scale(1.2)' }
 				},
 				'neural-glow': {
 					'0%, 100%': { 
@@ -141,6 +145,7 @@ export default {
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'line-draw': 'line-draw 8s ease-in-out infinite',
 				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite',
+				'typing-dot': 'typing-dot 1.4s ease-in-out infinite',
 				'neural-glow': 'neural-glow 4s ease-in-out infinite',
 				'network-line': 'network-line 3s ease-in-out infinite',
 				'neural-float': 'neural-float 6s ease-in-out infinite'

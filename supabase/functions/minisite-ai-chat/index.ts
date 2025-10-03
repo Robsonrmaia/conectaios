@@ -163,7 +163,7 @@ INSTRUÇÕES:
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('AI Gateway error:', aiResponse.status, errorText);
+      console.error('OpenAI API error:', aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
         return new Response(
@@ -179,15 +179,17 @@ INSTRUÇÕES:
         );
       }
 
-      throw new Error(`AI Gateway error: ${aiResponse.status}`);
+      throw new Error(`OpenAI API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    const responseText = aiData.choices?.[0]?.message?.content;
+    console.log('OpenAI response:', JSON.stringify(aiData, null, 2));
+    
+    const responseText = aiData.choices?.[0]?.message?.content || 
+                         aiData.choices?.[0]?.message?.text ||
+                         'Desculpe, não consegui gerar uma resposta. Tente novamente.';
 
-    if (!responseText) {
-      throw new Error('Resposta vazia da IA');
-    }
+    console.log('Response text:', responseText);
 
     return new Response(
       JSON.stringify({ response: responseText }),

@@ -71,7 +71,7 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
           "hover:from-blue-600 hover:to-purple-700",
           "shadow-lg hover:shadow-xl",
           "transition-all duration-300",
-          "animate-pulse hover:animate-none"
+          "animate-pulse-gentle hover:animate-none"
         )}
         size="icon"
       >
@@ -154,9 +154,9 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
                   </Avatar>
                   <div className="bg-muted rounded-lg px-3 py-2 text-sm">
                     <div className="flex gap-1">
-                      <span className="animate-bounce">●</span>
-                      <span className="animate-bounce delay-100">●</span>
-                      <span className="animate-bounce delay-200">●</span>
+                      <span className="w-2 h-2 bg-muted-foreground rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite]" />
+                      <span className="w-2 h-2 bg-muted-foreground rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite] delay-200" />
+                      <span className="w-2 h-2 bg-muted-foreground rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite] delay-[400ms]" />
                     </div>
                   </div>
                 </div>

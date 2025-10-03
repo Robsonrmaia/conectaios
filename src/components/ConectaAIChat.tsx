@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Sparkles, X, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { useConectaAIChat } from '@/hooks/useConectaAIChat';
 import { cn } from '@/lib/utils';
@@ -65,11 +65,14 @@ export function ConectaAIChat() {
           "hover:from-emerald-600 hover:to-blue-700",
           "shadow-lg hover:shadow-xl",
           "transition-all duration-300",
-          "animate-pulse hover:animate-none"
+          "animate-pulse-gentle hover:animate-none"
         )}
         size="icon"
       >
-        <Sparkles className="w-6 h-6 text-white" />
+        <Avatar className="w-10 h-10">
+          <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+          <AvatarFallback className="bg-transparent text-white text-xs">CI</AvatarFallback>
+        </Avatar>
       </Button>
 
       {/* Sheet do Chat */}
@@ -82,6 +85,7 @@ export function ConectaAIChat() {
           <SheetHeader className="px-4 py-3 border-b bg-gradient-to-r from-emerald-500 to-blue-600">
             <div className="flex items-center gap-3">
               <Avatar className="w-10 h-10 border-2 border-white">
+                <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
                 <AvatarFallback className="bg-white text-emerald-600 font-bold">
                   CI
                 </AvatarFallback>
@@ -98,7 +102,10 @@ export function ConectaAIChat() {
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="text-center py-8">
-                  <Sparkles className="w-12 h-12 mx-auto mb-3 text-emerald-500 opacity-50" />
+                  <Avatar className="w-16 h-16 mx-auto mb-3">
+                    <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+                    <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-blue-600 text-white">CI</AvatarFallback>
+                  </Avatar>
                   <p className="text-sm text-muted-foreground">
                     Olá! 👋 Sou o assistente de vendas do ConectaIOS.
                     <br />
@@ -117,6 +124,7 @@ export function ConectaAIChat() {
                 >
                   {msg.role === 'assistant' && (
                     <Avatar className="w-8 h-8 mt-1 border border-emerald-200">
+                      <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
                       <AvatarFallback className="text-xs bg-gradient-to-br from-emerald-100 to-blue-100 text-emerald-700">
                         CI
                       </AvatarFallback>
@@ -141,15 +149,16 @@ export function ConectaAIChat() {
               {loading && (
                 <div className="flex gap-2 justify-start">
                   <Avatar className="w-8 h-8 mt-1 border border-emerald-200">
+                    <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
                     <AvatarFallback className="text-xs bg-gradient-to-br from-emerald-100 to-blue-100 text-emerald-700">
                       CI
                     </AvatarFallback>
                   </Avatar>
                   <div className="bg-muted rounded-lg px-3 py-2 text-sm border border-emerald-100">
                     <div className="flex gap-1">
-                      <span className="animate-bounce text-emerald-500">●</span>
-                      <span className="animate-bounce delay-100 text-blue-500">●</span>
-                      <span className="animate-bounce delay-200 text-emerald-500">●</span>
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite]" />
+                      <span className="w-2 h-2 bg-blue-500 rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite] delay-200" />
+                      <span className="w-2 h-2 bg-emerald-500 rounded-full animate-[typing-dot_1.4s_ease-in-out_infinite] delay-[400ms]" />
                     </div>
                   </div>
                 </div>
