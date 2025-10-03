@@ -61,26 +61,20 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
 
   return (
     <>
-      {/* Botão Flutuante */}
-      <Button
+      {/* Botão Flutuante - Só o robô */}
+      <button
         onClick={() => setIsOpen(true)}
         className={cn(
           "fixed bottom-6 right-6 z-50",
-          "w-14 h-14 rounded-full p-0",
-          "bg-gradient-to-br from-blue-500 to-purple-600",
-          "hover:from-blue-600 hover:to-purple-700",
-          "shadow-lg hover:shadow-xl",
-          "transition-all duration-300",
-          "animate-pulse-gentle hover:animate-none"
+          "hover:opacity-80 transition-opacity animate-pulse-gentle hover:animate-none"
         )}
-        size="icon"
       >
         <img 
           src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
-          alt="AI Assistant"
-          className="w-8 h-8"
+          alt="Assistente IA"
+          className="w-16 h-16"
         />
-      </Button>
+      </button>
 
       {/* Sheet do Chat */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>

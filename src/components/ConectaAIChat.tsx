@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useConectaAIChat } from '@/hooks/useConectaAIChat';
 import { cn } from '@/lib/utils';
 
-export function ConectaAIChat() {
+export function ConectaAIChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const { messages, loading, sendMessage, error } = useConectaAIChat();
@@ -55,26 +55,17 @@ export function ConectaAIChat() {
 
   return (
     <>
-      {/* Botão Flutuante - Bottom Left */}
-      <Button
+      {/* Botão do Header - Só o robô */}
+      <button
         onClick={() => setIsOpen(true)}
-        className={cn(
-          "fixed bottom-6 left-6 z-50",
-          "w-14 h-14 rounded-full p-0",
-          "bg-gradient-to-br from-emerald-500 to-blue-600",
-          "hover:from-emerald-600 hover:to-blue-700",
-          "shadow-lg hover:shadow-xl",
-          "transition-all duration-300",
-          "animate-pulse-gentle hover:animate-none"
-        )}
-        size="icon"
+        className="hover:opacity-80 transition-opacity"
       >
         <img 
           src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
-          alt="ConectaIOS AI"
-          className="w-10 h-10 rounded-full"
+          alt="Assistente IA"
+          className="w-12 h-12"
         />
-      </Button>
+      </button>
 
       {/* Sheet do Chat */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>

@@ -20,7 +20,7 @@ import { SaibaMaisDialog } from '@/components/SaibaMaisDialog';
 import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
-import { ConectaAIChat } from '@/components/ConectaAIChat';
+import { ConectaAIChatButton } from '@/components/ConectaAIChat';
 
 const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png?t=' + Date.now();
 import logoconectaiosImg from '@/assets/logoconectaios.png';
@@ -199,13 +199,16 @@ const Index = () => {
                 className="h-10 w-auto object-contain" 
               />
             </div>
-            <Button 
-              onClick={() => navigate('/auth')}
-              className="bg-primary hover:bg-primary/90 text-white"
-            >
-              Entrar
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-3">
+              <ConectaAIChatButton />
+              <Button 
+                onClick={() => navigate('/auth')}
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
+                Entrar
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -1342,9 +1345,6 @@ const Index = () => {
         </div>
       </footer>
       </div>
-
-      {/* AI Assistente de Vendas ConectaIOS */}
-      <ConectaAIChat />
     </PageWrapper>
   );
 };
