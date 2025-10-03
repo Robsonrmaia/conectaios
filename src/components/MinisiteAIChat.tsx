@@ -103,7 +103,7 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
                 <div className="text-center py-8 text-muted-foreground">
                   <Bot className="w-12 h-12 mx-auto mb-3 opacity-50" />
                   <p className="text-sm">
-                    Olá! 👋 Sou o assistente virtual.
+                    Olá! 👋 Sou o assistente virtual do {brokerName}.
                     <br />
                     Como posso ajudar você hoje?
                   </p>
@@ -188,7 +188,7 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Powered by IA • GPT-5 Nano
+              Assistente Virtual • Powered by IA
             </p>
           </div>
         </SheetContent>

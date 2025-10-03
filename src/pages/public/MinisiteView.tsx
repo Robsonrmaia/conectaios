@@ -773,6 +773,17 @@ export default function MinisiteView() {
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* WhatsApp Button - Destaque no topo */}
+            {config.whatsapp && (
+              <Button 
+                onClick={openWhatsApp}
+                className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all bg-green-600 hover:bg-green-700"
+              >
+                <MessageCircle className="h-5 w-5 mr-2" />
+                Falar no WhatsApp
+              </Button>
+            )}
+            
             {/* Contact Info */}
             <Card>
               <CardHeader>
@@ -790,15 +801,6 @@ export default function MinisiteView() {
                     <Mail className="h-5 w-5 text-primary" />
                     <span>{config.email}</span>
                   </div>
-                )}
-                {config.whatsapp && (
-                  <Button 
-                    onClick={openWhatsApp}
-                    className="w-full bg-green-600 hover:bg-green-700"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
-                  </Button>
                 )}
               </CardContent>
             </Card>
