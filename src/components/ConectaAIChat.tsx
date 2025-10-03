@@ -76,8 +76,8 @@ export function ConectaAIChatButton() {
           {/* Header */}
           <SheetHeader className="px-4 py-3 border-b bg-gradient-to-r from-emerald-500 to-blue-600">
             <div className="flex items-center gap-3">
-              <Avatar className="w-10 h-10 border-2 border-white">
-                <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+              <Avatar className="w-10 h-10 border-2 border-white bg-white">
+                <AvatarImage src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/logonova.png" alt="ConectaIOS" />
                 <AvatarFallback className="bg-white text-emerald-600 font-bold">
                   CI
                 </AvatarFallback>
@@ -94,8 +94,8 @@ export function ConectaAIChatButton() {
             <div className="space-y-4">
               {messages.length === 0 && (
                 <div className="text-center py-8">
-                  <Avatar className="w-16 h-16 mx-auto mb-3">
-                    <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+                  <Avatar className="w-16 h-16 mx-auto mb-3 bg-white">
+                    <AvatarImage src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/logonova.png" alt="ConectaIOS" />
                     <AvatarFallback className="bg-gradient-to-br from-emerald-500 to-blue-600 text-white">CI</AvatarFallback>
                   </Avatar>
                   <p className="text-sm text-muted-foreground">
@@ -115,8 +115,8 @@ export function ConectaAIChatButton() {
                   )}
                 >
                   {msg.role === 'assistant' && (
-                    <Avatar className="w-8 h-8 mt-1 border border-emerald-200">
-                      <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+                    <Avatar className="w-8 h-8 mt-1 border border-emerald-200 bg-white">
+                      <AvatarImage src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/logonova.png" alt="ConectaIOS" />
                       <AvatarFallback className="text-xs bg-gradient-to-br from-emerald-100 to-blue-100 text-emerald-700">
                         CI
                       </AvatarFallback>
@@ -140,8 +140,8 @@ export function ConectaAIChatButton() {
 
               {loading && (
                 <div className="flex gap-2 justify-start">
-                  <Avatar className="w-8 h-8 mt-1 border border-emerald-200">
-                    <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
+                  <Avatar className="w-8 h-8 mt-1 border border-emerald-200 bg-white">
+                    <AvatarImage src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/logonova.png" alt="ConectaIOS" />
                     <AvatarFallback className="text-xs bg-gradient-to-br from-emerald-100 to-blue-100 text-emerald-700">
                       CI
                     </AvatarFallback>
