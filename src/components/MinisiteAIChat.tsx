@@ -75,7 +75,11 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
         )}
         size="icon"
       >
-        <Bot className="w-6 h-6 text-white" />
+        <img 
+          src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
+          alt="AI Assistant"
+          className="w-8 h-8"
+        />
       </Button>
 
       {/* Sheet do Chat */}

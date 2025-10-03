@@ -69,10 +69,11 @@ export function ConectaAIChat() {
         )}
         size="icon"
       >
-        <Avatar className="w-10 h-10">
-          <AvatarImage src="/logoconectaios.png" alt="ConectaIOS" />
-          <AvatarFallback className="bg-transparent text-white text-xs">CI</AvatarFallback>
-        </Avatar>
+        <img 
+          src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
+          alt="ConectaIOS AI"
+          className="w-10 h-10 rounded-full"
+        />
       </Button>
 
       {/* Sheet do Chat */}
