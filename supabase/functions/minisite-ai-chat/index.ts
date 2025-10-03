@@ -21,11 +21,13 @@ serve(async (req) => {
       );
     }
 
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
-    if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    if (!OPENAI_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
       console.error('Missing environment variables:', { 
+        hasOpenAI: !!OPENAI_API_KEY, 
         hasSupabaseUrl: !!SUPABASE_URL, 
         hasServiceRole: !!SUPABASE_SERVICE_ROLE_KEY 
       });
@@ -171,33 +173,24 @@ Qual é mais importante pra você: maior área construída ou melhor retorno de 
       { role: 'user', content: message }
     ];
 
-    // 6. Chamar Lovable AI Gateway com Gemini Flash (gratuito)
-    console.log('Calling Lovable AI with', messages.length, 'messages');
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    
-    if (!LOVABLE_API_KEY) {
-      console.error('Missing LOVABLE_API_KEY');
-      return new Response(
-        JSON.stringify({ error: 'Configuração do servidor incompleta' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    // 6. Chamar OpenAI API com GPT-5 Nano (limite aumentado)
+    console.log('Calling OpenAI API with', messages.length, 'messages');
+    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gpt-5-nano-2025-08-07',
         messages: messages,
+        max_completion_tokens: 500,
       }),
     });
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();
-      console.error('Lovable AI error:', aiResponse.status, errorText);
+      console.error('OpenAI API error:', aiResponse.status, errorText);
       
       if (aiResponse.status === 429) {
         return new Response(
@@ -213,11 +206,11 @@ Qual é mais importante pra você: maior área construída ou melhor retorno de 
         );
       }
 
-      throw new Error(`Lovable AI error: ${aiResponse.status}`);
+      throw new Error(`OpenAI API error: ${aiResponse.status}`);
     }
 
     const aiData = await aiResponse.json();
-    console.log('Lovable AI response:', JSON.stringify(aiData, null, 2));
+    console.log('OpenAI response:', JSON.stringify(aiData, null, 2));
     
     const responseText = aiData.choices?.[0]?.message?.content || 
                          aiData.choices?.[0]?.message?.text ||
