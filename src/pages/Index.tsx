@@ -57,7 +57,7 @@ const Index = () => {
     
     // Detectar mobile
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const sensitivity = isMobile ? 15 : 25; // Sensibilidade reduzida no mobile
+    const sensitivity = isMobile ? 8 : 25; // Sensibilidade reduzida no mobile para melhor performance
     
     let rafId: number | null = null;
     let isAnimating = false;
@@ -126,11 +126,8 @@ const Index = () => {
       const x = touch.clientX - rect.left;
       const y = touch.clientY - rect.top;
       
-      // Verificar se touch está dentro da área
-      if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
-        e.preventDefault(); // Só prevenir se estiver dentro da área
-        applyTransform(x, y, rect);
-      }
+      // Aplicar transformação diretamente sem verificação de área
+      applyTransform(x, y, rect);
     };
     
     const handleClick = () => {
