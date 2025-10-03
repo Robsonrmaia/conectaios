@@ -11,6 +11,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { PropertySearch, SearchFilters } from "@/components/PropertySearch";
 import { MinisiteDebugPanel } from "@/components/MinisiteDebugPanel";
 import { PropertyDetailModal } from "@/components/PropertyDetailModal";
+import { MinisiteAIChat } from "@/components/MinisiteAIChat";
 
 type Broker = {
   id: string;
@@ -1082,6 +1083,15 @@ export default function BrokerMinisite() {
           open={!!selectedProperty}
           onOpenChange={(open) => !open && setSelectedProperty(null)}
           primaryColor={primaryColor}
+        />
+      )}
+
+      {/* AI Chat Assistant */}
+      {broker && (
+        <MinisiteAIChat 
+          brokerId={broker.id}
+          brokerName={broker.name}
+          brokerAvatar={broker.avatar_url}
         />
       )}
 

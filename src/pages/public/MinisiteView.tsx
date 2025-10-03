@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { ShareButton } from '@/components/ShareButton';
 import { PropertyPresentation } from '@/components/PropertyPresentation';
+import { MinisiteAIChat } from '@/components/MinisiteAIChat';
 
 interface MinisiteConfig {
   id: string;
@@ -858,6 +859,15 @@ export default function MinisiteView() {
           </div>
         </div>
       </div>
+
+      {/* AI Chat Assistant */}
+      {config?.broker_id && (
+        <MinisiteAIChat 
+          brokerId={config.broker_id}
+          brokerName={config.broker?.name || 'Corretor'}
+          brokerAvatar={config.broker?.avatar_url}
+        />
+      )}
 
       {/* Footer */}
       <footer className="text-center py-6 border-t">
