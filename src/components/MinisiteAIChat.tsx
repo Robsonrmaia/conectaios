@@ -72,7 +72,7 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
         <img 
           src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
           alt="Assistente IA"
-          className="w-[70px] h-[70px] object-contain"
+          className="w-[70px] h-auto object-contain"
         />
       </button>
 
