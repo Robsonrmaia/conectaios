@@ -12,7 +12,11 @@ const questions = [
   "Como funciona o ConectaIOS?",
   "Se eu assinar tenho um site?",
   "Como funciona o CRM?",
-  "Posso integrar com outros sistemas?"
+  "Posso integrar com outros sistemas?",
+  "Quanto custa a assinatura?",
+  "Tem período de teste grátis?",
+  "Posso personalizar meu site?",
+  "Como faço para começar?"
 ];
 
 export function ConectaAIChatButton() {
@@ -78,9 +82,9 @@ export function ConectaAIChatButton() {
           key={currentQuestion}
           className="absolute -left-4 top-1/2 -translate-y-1/2 -translate-x-full mr-2 animate-in fade-in slide-in-from-right-5 duration-500 pointer-events-none hidden lg:block"
         >
-          <div className="bg-white rounded-2xl shadow-2xl p-3 max-w-[240px] border-2 border-primary/30 relative">
+          <div className="bg-white rounded-2xl shadow-2xl p-2.5 max-w-[220px] border-2 border-primary/30 relative">
             <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/30 transform rotate-45"></div>
-            <p className="text-sm font-semibold text-primary">
+            <p className="text-xs font-semibold text-primary leading-tight">
               {questions[currentQuestion]}
             </p>
           </div>

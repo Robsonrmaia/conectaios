@@ -591,15 +591,7 @@ export default function MinisiteView() {
                     )}
                   </div>
 
-                  {!properties || properties.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel encontrado</h3>
-                      <p className="text-muted-foreground">
-                        Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.
-                      </p>
-                    </div>
-                  ) : filteredProperties.length === 0 ? (
+                  {filteredProperties.length === 0 ? (
                     <div className="text-center py-8">
                       <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-medium mb-2">Nenhum imóvel corresponde aos filtros</h3>
