@@ -1856,55 +1856,6 @@ export default function Imoveis() {
                         Excluir
                       </Button>
                     </div>
-
-                    {/* Visibility Toggle Buttons */}
-                    <div className="grid grid-cols-3 gap-2 mt-3">
-                      <Button
-                        size="sm"
-                        variant={property.visibility === 'partners' ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
-                          const currentShowMarket = property.visibility === 'partners';
-                          // Alterna apenas marketplace, mantém site como está
-                          updatePropertyVisibility(property.id, currentShowSite, !currentShowMarket);
-                        }}
-                        title="Marketplace - Imóvel aparece no marketplace"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <Target className="h-2 w-2 mr-1" />
-                        Market
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={(property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site)) ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const currentShowSite = property.visibility === 'public_site' || (property.visibility === 'partners' && property.show_on_site);
-                          const currentShowMarket = property.visibility === 'partners';
-                          // Alterna apenas site, mantém marketplace como está
-                          updatePropertyVisibility(property.id, !currentShowSite, currentShowMarket);
-                        }}
-                        title="Site Público - Imóvel aparece no site público e minisite"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <Globe className="h-2 w-2 mr-1" />
-                        Site
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant={property.visibility === 'private' ? 'default' : 'outline'}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          updatePropertyVisibility(property.id, false, false);
-                        }}
-                        title="Oculto - Visível apenas para você no painel"
-                        className="text-xs h-6 flex items-center justify-center"
-                      >
-                        <EyeOff className="h-2 w-2 mr-1" />
-                        Oculto
-                      </Button>
-                    </div>
                   </div>
                 )}
             </CardContent>

@@ -317,8 +317,10 @@ export default function Marketplace() {
           // Extrair banner_type configurado das features
           const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
           
-          // Usar apenas o banner_type configurado nas features
-          const bannerType = configuredBannerType || null;
+          // Se não tem banner configurado E não é "none", usar listing_type
+          const bannerType = (configuredBannerType && configuredBannerType !== 'none') 
+            ? configuredBannerType 
+            : property.listing_type || null;
           
           return {
             id: property.id,
@@ -862,8 +864,9 @@ export default function Marketplace() {
                   <div className="absolute top-2 right-2 flex gap-1">
                     <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
                       <Badge variant="secondary" className="text-xs">
-                        {property.listing_type === 'venda' ? 'Venda' : 
-                         property.listing_type === 'aluguel' ? 'Aluguel' : 'Temporada'}
+                        {property.listing_type === 'sale' || property.listing_type === 'venda' ? 'Venda' : 
+                         property.listing_type === 'rent' || property.listing_type === 'locacao' || property.listing_type === 'aluguel' ? 'Aluguel' : 
+                         property.listing_type === 'season' || property.listing_type === 'temporada' ? 'Temporada' : 'Venda'}
                       </Badge>
                     </div>
                     {property.verified && (
