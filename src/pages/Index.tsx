@@ -400,7 +400,7 @@ const Index = () => {
                   {/* Vídeo 3 - CRM Inteligente */}
                   <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform relative">
                     <wistia-player 
-                      media-id="wsl23th2kq" 
+                      media-id="fhy0p70oxg"
                       aspect="1.7777777777777777" 
                       className="w-full h-full"
                       preload="metadata"
