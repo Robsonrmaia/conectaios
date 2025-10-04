@@ -17,17 +17,20 @@ export function useAdminAuth() {
       }
 
       try {
+        // Usar user_roles ao invés de profiles.role
         const { data, error } = await supabase
-          .from('profiles')
+          .from('user_roles')
           .select('role')
-          .eq('id', user.id)  // usar id ao invés de user_id
-          .single();
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
 
         if (error) {
           console.error('Error checking admin role:', error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(safeUserRole(data) === 'admin');
+          // Se encontrou um registro com role='admin', o usuário é admin
+          setIsAdmin(!!data);
         }
       } catch (error) {
         console.error('Error checking admin role:', error);

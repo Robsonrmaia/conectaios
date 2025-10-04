@@ -2237,7 +2237,6 @@ export type Database = {
           name: string | null
           nome: string | null
           phone: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
           updated_at: string | null
         }
         Insert: {
@@ -2251,7 +2250,6 @@ export type Database = {
           name?: string | null
           nome?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
         Update: {
@@ -2265,7 +2263,6 @@ export type Database = {
           name?: string | null
           nome?: string | null
           phone?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
           updated_at?: string | null
         }
         Relationships: []
@@ -3891,6 +3888,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: {
+        Args: { check_user_id?: string }
+        Returns: boolean
+      }
       is_member: {
         Args: { conv_id: string; uid: string }
         Returns: boolean
@@ -4164,6 +4165,12 @@ export type Database = {
       start_or_get_thread: {
         Args: { target_user: string }
         Returns: string
+      }
+      user_thread_ids: {
+        Args: { p_user_id: string }
+        Returns: {
+          thread_id: string
+        }[]
       }
     }
     Enums: {

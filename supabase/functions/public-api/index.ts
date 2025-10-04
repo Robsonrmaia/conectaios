@@ -1,51 +1,47 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+console.log("Public API Function Started");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL') as string;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') as string;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 interface PropertyResponse {
   id: string;
-  titulo: string;
-  property_type: string;
-  listing_type: string;
-  valor: number;
-  quartos: number;
-  area: number;
-  neighborhood: string;
-  city: string;
-  state: string;
-  fotos: string[];
+  title: string;
+  property_type?: string;
+  purpose: string;
+  price?: number;
+  bedrooms?: number;
+  area_total?: number;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  cover_image?: string;
   broker: {
-    name: string;
-    phone: string;
-    email: string;
-    username: string;
+    name?: string;
+    username?: string;
   };
 }
 
 interface BrokerResponse {
   id: string;
-  name: string;
-  username: string;
-  bio: string;
-  avatar_url: string;
-  phone: string;
-  email: string;
-  properties_count: number;
+  name?: string;
+  username?: string;
+  bio?: string;
+  avatar_url?: string;
+  creci?: string;
 }
 
 serve(async (req) => {
-  // Handle CORS preflight requests
+  // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -53,116 +49,110 @@ serve(async (req) => {
   try {
     const url = new URL(req.url);
     const pathname = url.pathname;
-    const searchParams = url.searchParams;
 
-    console.log(`Public API request: ${req.method} ${pathname}`);
+    console.log('Public API Request:', {
+      method: req.method,
+      pathname,
+      params: Object.fromEntries(url.searchParams)
+    });
 
-    // GET /properties - List public properties
+    // GET /properties - List public properties with filters
     if (pathname === '/properties' && req.method === 'GET') {
-      const page = parseInt(searchParams.get('page') || '1');
-      const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
-      const propertyType = searchParams.get('property_type');
-      const listingType = searchParams.get('listing_type');
-      const city = searchParams.get('city');
-      const minPrice = searchParams.get('min_price');
-      const maxPrice = searchParams.get('max_price');
-      const minBedrooms = searchParams.get('min_bedrooms');
+      const cityFilter = url.searchParams.get('city');
+      const purposeFilter = url.searchParams.get('purpose');
+      const minPrice = url.searchParams.get('min_price');
+      const maxPrice = url.searchParams.get('max_price');
+      const bedrooms = url.searchParams.get('bedrooms');
+      const limit = parseInt(url.searchParams.get('limit') || '50');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
 
       let query = supabase
-        .from('properties')
+        .from('imoveis')
         .select(`
           id,
-          titulo,
+          title,
           property_type,
-          listing_type,
-          valor,
-          quartos,
-          area,
+          purpose,
+          price,
+          bedrooms,
+          area_total,
           neighborhood,
           city,
-          state,
-          fotos,
-          conectaios_brokers!properties_user_id_fkey (
-            name,
-            phone,
-            email,
-            username
-          )
+          state
         `)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
       // Apply filters
-      if (propertyType) query = query.eq('property_type', propertyType);
-      if (listingType) query = query.eq('listing_type', listingType);
-      if (city) query = query.ilike('city', `%${city}%`);
-      if (minPrice) query = query.gte('valor', parseFloat(minPrice));
-      if (maxPrice) query = query.lte('valor', parseFloat(maxPrice));
-      if (minBedrooms) query = query.gte('quartos', parseInt(minBedrooms));
-
-      // Pagination
-      const offset = (page - 1) * limit;
-      query = query.range(offset, offset + limit - 1);
+      if (cityFilter) query = query.eq('city', cityFilter);
+      if (purposeFilter) query = query.eq('purpose', purposeFilter);
+      if (minPrice) query = query.gte('price', parseFloat(minPrice));
+      if (maxPrice) query = query.lte('price', parseFloat(maxPrice));
+      if (bedrooms) query = query.eq('bedrooms', parseInt(bedrooms));
 
       const { data: properties, error, count } = await query;
 
       if (error) {
         console.error('Error fetching properties:', error);
-        throw error;
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to fetch properties'
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
-      const formattedProperties: PropertyResponse[] = properties?.map(prop => ({
-        id: prop.id,
-        titulo: prop.titulo,
-        property_type: prop.property_type,
-        listing_type: prop.listing_type,
-        valor: prop.valor,
-        quartos: prop.quartos,
-        area: prop.area,
-        neighborhood: prop.neighborhood,
-        city: prop.city,
-        state: prop.state,
-        fotos: prop.fotos || [],
-        broker: {
-          name: prop.conectaios_brokers?.name || '',
-          phone: prop.conectaios_brokers?.phone || '',
-          email: prop.conectaios_brokers?.email || '',
-          username: prop.conectaios_brokers?.username || ''
-        }
-      })) || [];
+      // Get cover images for each property
+      const propertiesWithImages = await Promise.all(
+        (properties || []).map(async (property) => {
+          const { data: images } = await supabase
+            .from('imovel_images')
+            .select('url')
+            .eq('imovel_id', property.id)
+            .eq('is_cover', true)
+            .limit(1);
+
+          // Get broker info
+          const { data: broker } = await supabase
+            .from('brokers')
+            .select('name, username')
+            .eq('user_id', property.owner_id)
+            .single();
+
+          return {
+            ...property,
+            cover_image: images?.[0]?.url || null,
+            broker: {
+              name: broker?.name,
+              username: broker?.username
+            }
+          };
+        })
+      );
 
       return new Response(JSON.stringify({
         success: true,
-        data: formattedProperties,
+        data: propertiesWithImages,
         pagination: {
-          page,
-          limit,
           total: count || 0,
-          pages: Math.ceil((count || 0) / limit)
+          limit,
+          offset
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // GET /properties/:id - Get specific property
+    // GET /properties/:id - Get single property details
     if (pathname.startsWith('/properties/') && req.method === 'GET') {
       const propertyId = pathname.split('/')[2];
 
       const { data: property, error } = await supabase
-        .from('properties')
-        .select(`
-          *,
-          conectaios_brokers!properties_user_id_fkey (
-            name,
-            phone,
-            email,
-            username,
-            bio,
-            avatar_url
-          )
-        `)
+        .from('imoveis')
+        .select('*')
         .eq('id', propertyId)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
@@ -178,20 +168,26 @@ serve(async (req) => {
         });
       }
 
-      // Increment view count
-      await supabase
-        .from('properties')
-        .update({
-          views_count: (property.views_count || 0) + 1,
-          last_viewed_at: new Date().toISOString()
-        })
-        .eq('id', propertyId);
+      // Get images
+      const { data: images } = await supabase
+        .from('imovel_images')
+        .select('url, position, is_cover')
+        .eq('imovel_id', propertyId)
+        .order('position');
+
+      // Get broker info (ONLY public fields)
+      const { data: broker } = await supabase
+        .from('brokers')
+        .select('name, username, bio, avatar_url, creci')
+        .eq('user_id', property.owner_id)
+        .single();
 
       return new Response(JSON.stringify({
         success: true,
         data: {
           ...property,
-          broker: property.conectaios_brokers
+          images: images || [],
+          broker: broker || null
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -201,39 +197,26 @@ serve(async (req) => {
     // GET /brokers - List active brokers
     if (pathname === '/brokers' && req.method === 'GET') {
       const { data: brokers, error } = await supabase
-        .from('conectaios_brokers')
-        .select(`
-          id,
-          name,
-          username,
-          bio,
-          avatar_url,
-          phone,
-          email,
-          properties:properties(count)
-        `)
+        .from('brokers')
+        .select('id, name, username, bio, avatar_url, creci')
         .eq('status', 'active')
+        .not('username', 'is', null)
         .order('name');
 
       if (error) {
         console.error('Error fetching brokers:', error);
-        throw error;
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to fetch brokers'
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
-
-      const formattedBrokers: BrokerResponse[] = brokers?.map(broker => ({
-        id: broker.id,
-        name: broker.name,
-        username: broker.username,
-        bio: broker.bio,
-        avatar_url: broker.avatar_url,
-        phone: broker.phone,
-        email: broker.email,
-        properties_count: broker.properties?.[0]?.count || 0
-      })) || [];
 
       return new Response(JSON.stringify({
         success: true,
-        data: formattedBrokers
+        data: brokers
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -244,8 +227,8 @@ serve(async (req) => {
       const username = pathname.split('/')[2];
 
       const { data: broker, error: brokerError } = await supabase
-        .from('conectaios_brokers')
-        .select('*')
+        .from('brokers')
+        .select('id, user_id, name, username, bio, avatar_url, creci')
         .eq('username', username)
         .eq('status', 'active')
         .single();
@@ -261,9 +244,9 @@ serve(async (req) => {
       }
 
       const { data: properties, error: propertiesError } = await supabase
-        .from('properties')
-        .select('id, titulo, property_type, listing_type, valor, quartos, area, neighborhood, city, fotos')
-        .eq('user_id', broker.user_id)
+        .from('imoveis')
+        .select('id, title, property_type, purpose, price, bedrooms, area_total, neighborhood, city')
+        .eq('owner_id', broker.user_id)
         .eq('is_public', true)
         .eq('visibility', 'public_site')
         .order('created_at', { ascending: false });
@@ -272,11 +255,28 @@ serve(async (req) => {
         console.error('Error fetching broker properties:', propertiesError);
       }
 
+      // Get cover images
+      const propertiesWithImages = await Promise.all(
+        (properties || []).map(async (property) => {
+          const { data: images } = await supabase
+            .from('imovel_images')
+            .select('url')
+            .eq('imovel_id', property.id)
+            .eq('is_cover', true)
+            .limit(1);
+
+          return {
+            ...property,
+            cover_image: images?.[0]?.url || null
+          };
+        })
+      );
+
       return new Response(JSON.stringify({
         success: true,
         data: {
           broker,
-          properties: properties || []
+          properties: propertiesWithImages
         }
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -286,40 +286,43 @@ serve(async (req) => {
     // POST /leads - Capture lead information
     if (pathname === '/leads' && req.method === 'POST') {
       const body = await req.json();
-      const { nome, telefone, email, interesse, property_id, broker_id } = body;
+      const { name, email, phone, message, property_id, broker_id } = body;
 
-      if (!nome || !telefone || !interesse) {
+      if (!name || !email) {
         return new Response(JSON.stringify({
           success: false,
-          error: 'Nome, telefone e interesse são obrigatórios'
+          error: 'Name and email are required'
         }), {
           status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
 
-      const { data: contact, error } = await supabase
+      const { error } = await supabase
         .from('contacts')
         .insert({
-          nome,
-          telefone,
+          name,
           email,
-          interesse,
-          ip_address: req.headers.get('x-forwarded-for') || 'unknown',
-          user_agent: req.headers.get('user-agent') || 'unknown'
-        })
-        .select()
-        .single();
+          phone,
+          message,
+          broker_id,
+          source: property_id ? `property_${property_id}` : 'public_api'
+        });
 
       if (error) {
         console.error('Error creating lead:', error);
-        throw error;
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Failed to save lead'
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
 
       return new Response(JSON.stringify({
         success: true,
-        data: contact,
-        message: 'Lead cadastrado com sucesso! Entraremos em contato em breve.'
+        message: 'Lead captured successfully'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -332,8 +335,8 @@ serve(async (req) => {
         { count: brokersCount },
         { count: leadsCount }
       ] = await Promise.all([
-        supabase.from('properties').select('*', { count: 'exact', head: true }).eq('is_public', true),
-        supabase.from('conectaios_brokers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('imoveis').select('*', { count: 'exact', head: true }).eq('is_public', true).eq('visibility', 'public_site'),
+        supabase.from('brokers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
         supabase.from('contacts').select('*', { count: 'exact', head: true })
       ]);
 
@@ -349,28 +352,20 @@ serve(async (req) => {
       });
     }
 
-    // Route not found
+    // 404 for undefined endpoints
     return new Response(JSON.stringify({
       success: false,
-      error: 'Endpoint not found',
-      available_endpoints: [
-        'GET /properties',
-        'GET /properties/:id',
-        'GET /brokers',
-        'GET /brokers/:username',
-        'POST /leads',
-        'GET /stats'
-      ]
+      error: 'Endpoint not found'
     }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
-  } catch (error) {
-    console.error('Error in public-api function:', error);
+  } catch (error: any) {
+    console.error('API Error:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message || 'Internal server error'
+      error: 'Internal server error'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

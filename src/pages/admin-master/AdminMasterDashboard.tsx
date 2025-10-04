@@ -97,13 +97,20 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
 
   const fetchStats = async () => {
     try {
-      // Count users by role
+      // Count total users
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('role');
+        .select('id');
 
       const totalUsers = profiles?.length || 0;
-      const adminUsers = profiles?.filter(p => p.role === 'admin')?.length || 0;
+
+      // Count admins from user_roles
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      const adminUsers = adminRoles?.length || 0;
       const regularUsers = totalUsers - adminUsers;
 
       // ⚠️ ATENÇÃO: Count de imóveis - usa tabela 'imoveis'
