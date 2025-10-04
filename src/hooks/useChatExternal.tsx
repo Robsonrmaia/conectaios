@@ -13,22 +13,39 @@ export function useChatExternal() {
    */
   const getChatUrl = async (property?: PropertyLite): Promise<string> => {
     try {
-      const { data } = await supabase.auth.getSession();
+      console.log("🔗 Gerando URL do chat externo...");
+      const { data, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error("❌ Erro ao obter sessão:", error);
+        return "https://chat.conectaios.com.br/";
+      }
+
       const access = data.session?.access_token;
       const refresh = data.session?.refresh_token;
       const userId = data.session?.user?.id ?? "";
 
+      console.log("🔐 Sessão encontrada:", {
+        hasAccess: !!access,
+        hasRefresh: !!refresh,
+        userId: userId || "sem userId"
+      });
+
       // Se não houver tokens, retornar URL base do chat
       if (!access || !refresh) {
-        console.warn("⚠️ Sessão não encontrada, abrindo chat sem autenticação");
+        console.warn("⚠️ Tokens não encontrados, abrindo chat sem autenticação");
+        console.warn("⚠️ Faça login em https://www.conectaios.com.br primeiro");
         return "https://chat.conectaios.com.br/";
       }
 
-      return buildChatUrl(access, refresh, {
+      const chatUrl = buildChatUrl(access, refresh, {
         property,
         corretorId: userId,
         originBaseUrl: window.location.origin,
       });
+
+      console.log("✅ URL do chat gerada:", chatUrl.replace(/token=[^&]+/, "token=***").replace(/refresh=[^&]+/, "refresh=***"));
+      return chatUrl;
     } catch (error) {
       console.error("❌ Erro ao gerar URL do chat:", error);
       return "https://chat.conectaios.com.br/";
