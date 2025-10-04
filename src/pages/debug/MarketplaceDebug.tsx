@@ -27,12 +27,12 @@ export default function MarketplaceDebug() {
 
   const fetchDebugData = async () => {
     try {
-      console.log('🔍 [DEBUG] Iniciando consulta properties_market...');
+      console.log('🔍 [DEBUG] Iniciando consulta properties...');
       
       const { data, error: queryError } = await supabase
-        .from('properties_market')
+        .from('properties')
         .select('id,title,visibility,price,city,neighborhood,parking,condo_fee,updated_at')
-        .eq('show_in_marketplace', true)
+        .in('visibility', ['partners', 'marketplace', 'both'])
         .order('updated_at', { ascending: false });
 
       if (queryError) {
@@ -65,7 +65,7 @@ export default function MarketplaceDebug() {
     <div className="container mx-auto p-6 space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>🔍 Debug: properties_market</CardTitle>
+          <CardTitle>🔍 Debug: Marketplace (properties)</CardTitle>
         </CardHeader>
         <CardContent>
           {error && (
@@ -86,9 +86,9 @@ export default function MarketplaceDebug() {
             </p>
             <pre className="text-xs bg-muted p-2 rounded overflow-auto">
 {`supabase
-  .from('properties_market')
+  .from('properties')
   .select('id,title,visibility,price,city,neighborhood,parking,condo_fee,updated_at')
-  .eq('show_in_marketplace', true)
+  .in('visibility', ['partners', 'marketplace', 'both'])
   .order('updated_at', { ascending: false })`}
             </pre>
           </div>
@@ -96,7 +96,7 @@ export default function MarketplaceDebug() {
           <div className="space-y-4">
             {properties.length === 0 ? (
               <p className="text-muted-foreground text-center py-8">
-                Nenhum imóvel encontrado com show_in_marketplace = true
+                Nenhum imóvel encontrado com visibility IN ('partners', 'marketplace', 'both')
               </p>
             ) : (
               properties.map((prop) => (

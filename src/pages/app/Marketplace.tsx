@@ -129,24 +129,16 @@ export default function Marketplace() {
         
         // Para primeira página: buscar mais dados para implementar round-robin
         const { data: allProperties, error } = await supabase
-          .from('properties_market')
-          .select('id,title,price,city,neighborhood,show_in_marketplace,created_at,owner_id,verified')
-          .eq('show_in_marketplace', true)
+          .from('properties')
+          .select('id,title,price,city,neighborhood,visibility,created_at,owner_id')
+          .in('visibility', ['partners', 'marketplace', 'both'])
           .eq('status', 'available')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
         // Logging temporário
-        console.log('MP_QUERY_COUNT', allProperties?.length, 'MP_FIRST_ID', allProperties?.[0]?.id);
-        if (error) console.error('MP_QUERY_ERROR', error);
-        
-        if (import.meta.env.DEV) {
-          console.log('📊 [MARKETPLACE] Resultado query:', { 
-            status: error ? 'error' : 'success', 
-            error: error?.message, 
-            count: allProperties?.length 
-          });
-        }
+        console.log('MP_COUNT', allProperties?.length, 'MP_FIRST_ID', allProperties?.[0]?.id);
+        if (error) console.error('MP_ERROR', error);
         propertiesData = allProperties;
         propertiesError = error;
         
@@ -187,9 +179,9 @@ export default function Marketplace() {
         const offset = (page - 1) * 50 + (page - 1) * 12; // Ajustar offset considerando primeira página maior
         
         const { data, error } = await supabase
-          .from('properties_market')
-          .select('id,title,price,city,neighborhood,show_in_marketplace,created_at,owner_id,bedrooms,bathrooms,parking,area_total,description,property_type,purpose,listing_type')
-          .eq('show_in_marketplace', true)
+          .from('properties')
+          .select('id,title,price,city,neighborhood,visibility,created_at,owner_id,bedrooms,bathrooms,parking,area_total,description,property_type,purpose,listing_type')
+          .in('visibility', ['partners', 'marketplace', 'both'])
           .eq('status', 'available')
           .order('created_at', { ascending: false })
           .range(offset, offset + pageSize - 1);
