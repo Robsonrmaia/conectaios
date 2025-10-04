@@ -292,9 +292,10 @@ export default function Marketplace() {
           const coverImage = property.property_images?.find((img: any) => img.is_cover)?.url;
           const allPhotos = property.property_images?.map((img: any) => img.url) || [];
           
-          // Determinar banner_type baseado no status
+          // Determinar banner_type baseado no status e proprietário
           let bannerType = null;
-          if (property.status === 'sold') bannerType = 'vendido';
+          if (property.owner_id === user?.id) bannerType = 'exclusivo';
+          else if (property.status === 'sold') bannerType = 'vendido';
           else if (property.status === 'rented') bannerType = 'alugado';
           else if (property.price && property.price < 300000) bannerType = 'oportunidade';
           
