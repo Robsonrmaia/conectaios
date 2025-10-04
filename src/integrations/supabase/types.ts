@@ -723,6 +723,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "crm_deals_property_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "deals_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -1274,6 +1281,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_features_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
@@ -1292,6 +1306,13 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
             referencedColumns: ["id"]
           },
         ]
@@ -1347,6 +1368,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_images_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
@@ -1365,6 +1393,13 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
             referencedColumns: ["id"]
           },
         ]
@@ -1515,6 +1550,13 @@ export type Database = {
             referencedRelation: "properties"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "leads_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
         ]
       }
       market_stats: {
@@ -1610,6 +1652,13 @@ export type Database = {
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
             referencedColumns: ["id"]
           },
           {
@@ -2816,90 +2865,138 @@ export type Database = {
       properties: {
         Row: {
           address: string | null
+          area_built: number | null
           area_privativa: number | null
           area_total: number | null
           bathrooms: number | null
           bedrooms: number | null
           city: string | null
           condo_fee: number | null
+          construction_year: number | null
           created_at: string | null
           description: string | null
+          distancia_mar: number | null
           external_id: string | null
           id: string | null
           iptu: number | null
+          is_furnished: boolean | null
           is_public: boolean | null
           latitude: number | null
           listing_type: string | null
           longitude: number | null
           neighborhood: string | null
+          norm_title: string | null
+          number: string | null
           owner_id: string | null
           parking: number | null
           price: number | null
           property_type: string | null
+          purpose: string | null
+          search_vector: unknown | null
+          show_on_marketplace: boolean | null
+          show_on_minisite: boolean | null
+          show_on_site: boolean | null
           source: string | null
           state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
           title: string | null
+          type: string | null
           updated_at: string | null
-          user_id: string | null
           visibility: string | null
+          vista_mar: boolean | null
+          zipcode: string | null
         }
         Insert: {
           address?: string | null
+          area_built?: number | null
           area_privativa?: number | null
           area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          construction_year?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           external_id?: string | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           latitude?: number | null
           listing_type?: string | null
           longitude?: number | null
           neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
           owner_id?: string | null
           parking?: number | null
           price?: number | null
           property_type?: string | null
+          purpose?: string | null
+          search_vector?: unknown | null
+          show_on_marketplace?: boolean | null
+          show_on_minisite?: boolean | null
+          show_on_site?: boolean | null
           source?: string | null
           state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
           title?: string | null
+          type?: string | null
           updated_at?: string | null
-          user_id?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
         }
         Update: {
           address?: string | null
+          area_built?: number | null
           area_privativa?: number | null
           area_total?: number | null
           bathrooms?: number | null
           bedrooms?: number | null
           city?: string | null
           condo_fee?: number | null
+          construction_year?: number | null
           created_at?: string | null
           description?: string | null
+          distancia_mar?: number | null
           external_id?: string | null
           id?: string | null
           iptu?: number | null
+          is_furnished?: boolean | null
           is_public?: boolean | null
           latitude?: number | null
           listing_type?: string | null
           longitude?: number | null
           neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
           owner_id?: string | null
           parking?: number | null
           price?: number | null
           property_type?: string | null
+          purpose?: string | null
+          search_vector?: unknown | null
+          show_on_marketplace?: boolean | null
+          show_on_minisite?: boolean | null
+          show_on_site?: boolean | null
           source?: string | null
           state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
           title?: string | null
+          type?: string | null
           updated_at?: string | null
-          user_id?: string | null
           visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
         }
         Relationships: [
           {
@@ -2911,7 +3008,173 @@ export type Database = {
           },
           {
             foreignKeyName: "imoveis_owner_fk"
-            columns: ["user_id"]
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      properties_market: {
+        Row: {
+          address: string | null
+          area_built: number | null
+          area_privativa: number | null
+          area_total: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condo_fee: number | null
+          construction_year: number | null
+          created_at: string | null
+          description: string | null
+          distancia_mar: number | null
+          external_id: string | null
+          id: string | null
+          iptu: number | null
+          is_furnished: boolean | null
+          is_public: boolean | null
+          latitude: number | null
+          listing_type: string | null
+          longitude: number | null
+          neighborhood: string | null
+          norm_title: string | null
+          number: string | null
+          owner_id: string | null
+          parking: number | null
+          price: number | null
+          property_type: string | null
+          purpose: string | null
+          search_vector: unknown | null
+          show_in_marketplace: boolean | null
+          show_in_minisite: boolean | null
+          show_on_marketplace: boolean | null
+          show_on_minisite: boolean | null
+          show_on_site: boolean | null
+          source: string | null
+          state: string | null
+          status: string | null
+          street: string | null
+          suites: number | null
+          title: string | null
+          type: string | null
+          updated_at: string | null
+          visibility: string | null
+          vista_mar: boolean | null
+          zipcode: string | null
+        }
+        Insert: {
+          address?: string | null
+          area_built?: number | null
+          area_privativa?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
+          construction_year?: number | null
+          created_at?: string | null
+          description?: string | null
+          distancia_mar?: number | null
+          external_id?: string | null
+          id?: string | null
+          iptu?: number | null
+          is_furnished?: boolean | null
+          is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
+          owner_id?: string | null
+          parking?: number | null
+          price?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          search_vector?: unknown | null
+          show_in_marketplace?: never
+          show_in_minisite?: never
+          show_on_marketplace?: boolean | null
+          show_on_minisite?: boolean | null
+          show_on_site?: boolean | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
+        }
+        Update: {
+          address?: string | null
+          area_built?: number | null
+          area_privativa?: number | null
+          area_total?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condo_fee?: number | null
+          construction_year?: number | null
+          created_at?: string | null
+          description?: string | null
+          distancia_mar?: number | null
+          external_id?: string | null
+          id?: string | null
+          iptu?: number | null
+          is_furnished?: boolean | null
+          is_public?: boolean | null
+          latitude?: number | null
+          listing_type?: string | null
+          longitude?: number | null
+          neighborhood?: string | null
+          norm_title?: string | null
+          number?: string | null
+          owner_id?: string | null
+          parking?: number | null
+          price?: number | null
+          property_type?: string | null
+          purpose?: string | null
+          search_vector?: unknown | null
+          show_in_marketplace?: never
+          show_in_minisite?: never
+          show_on_marketplace?: boolean | null
+          show_on_minisite?: boolean | null
+          show_on_site?: boolean | null
+          source?: string | null
+          state?: string | null
+          status?: string | null
+          street?: string | null
+          suites?: number | null
+          title?: string | null
+          type?: string | null
+          updated_at?: string | null
+          visibility?: string | null
+          vista_mar?: boolean | null
+          zipcode?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -2924,13 +3187,6 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "imoveis_owner_fk"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "v_social_broker_card"
-            referencedColumns: ["user_id"]
-          },
-          {
             foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
@@ -2939,21 +3195,7 @@ export type Database = {
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_id_fkey"
             columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "v_social_broker_card"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "imoveis_owner_id_fkey"
-            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
@@ -2999,6 +3241,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_features_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_features_imovel_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
@@ -3017,6 +3266,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_features_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
             referencedColumns: ["id"]
           },
         ]
@@ -3072,6 +3328,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "imovel_images_imovel_fk"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "imovel_images_imovel_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
@@ -3090,6 +3353,13 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
             referencedColumns: ["id"]
           },
         ]
