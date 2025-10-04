@@ -451,12 +451,12 @@ serve(async (req) => {
               is_cover: index === 0
             }));
             
-            const { error: photoError } = await supabase
-              .from('imovel_images')
-              .upsert(photoInserts, { 
-                onConflict: 'imovel_id,url',
-                ignoreDuplicates: true 
-              });
+      const { error: photoError } = await supabase
+        .from('imovel_images')
+        .upsert(photoInserts, { 
+          onConflict: 'imovel_id,position',
+          ignoreDuplicates: false 
+        });
             
             if (photoError) {
               console.error('⚠️ Photo insert error:', photoError);
