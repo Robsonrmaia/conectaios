@@ -172,9 +172,29 @@ export default function Marketplace() {
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
-        // Logging temporário
-        console.log('MP_COUNT', allProperties?.length, 'MP_FIRST_ID', allProperties?.[0]?.id);
-        if (error) console.error('MP_ERROR', error);
+        // Logging detalhado para diagnóstico
+        console.log('🔍 [MARKETPLACE] Query executada:', {
+          count: allProperties?.length || 0,
+          firstId: allProperties?.[0]?.id,
+          firstOwner: allProperties?.[0]?.owner_id,
+          hasImages: allProperties?.[0]?.imovel_images?.length > 0,
+          hasFeatures: allProperties?.[0]?.imovel_features?.length > 0,
+          visibility: allProperties?.[0]?.visibility,
+          error: error?.message,
+          errorDetails: error
+        });
+        
+        if (error) {
+          console.error('❌ [MARKETPLACE] Erro na query:', error);
+        }
+        
+        if (!allProperties || allProperties.length === 0) {
+          console.warn('⚠️ [MARKETPLACE] Nenhum imóvel encontrado. Verifique:');
+          console.warn('  1. Existem imóveis com visibility = "partners"?');
+          console.warn('  2. RLS está permitindo leitura?');
+          console.warn('  3. Imóveis têm is_public = true?');
+        }
+        
         propertiesData = allProperties;
         propertiesError = error;
         

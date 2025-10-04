@@ -65,7 +65,7 @@ export function MinisiteAIChat({ brokerId, brokerName, brokerAvatar }: MinisiteA
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50",
+          "fixed bottom-6 right-6 z-40",
           "hover:opacity-80 transition-opacity animate-pulse-gentle hover:animate-none"
         )}
       >

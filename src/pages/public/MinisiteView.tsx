@@ -231,7 +231,7 @@ export default function MinisiteView() {
               .eq('status', 'available')
               .eq('is_public', true)
               .eq('show_on_minisite', true)
-              .in('visibility', ['public_site', 'partners'])
+              .eq('visibility', 'partners')
               .order('created_at', { ascending: false })
               .limit(50);
 
@@ -628,13 +628,6 @@ export default function MinisiteView() {
                                 <ImageIcon className="h-12 w-12 text-gray-500" />
                               </div>
                             )}
-                            
-                            {/* Badge de tipo */}
-                            <div className="absolute bottom-2 left-2">
-                              <span className="bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
-                                {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
-                              </span>
-                            </div>
 
                             {/* Badge vista mar */}
                             {property.has_sea_view && (
