@@ -780,7 +780,7 @@ export default function MinisiteView() {
                 className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all bg-green-600 hover:bg-green-700"
               >
                 <MessageCircle className="h-5 w-5 mr-2" />
-                Falar no WhatsApp
+                Quero ser atendido
               </Button>
             )}
             

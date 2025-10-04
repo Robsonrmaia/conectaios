@@ -348,12 +348,36 @@ const Index = () => {
 
                 <div className="relative z-10 flex justify-center">
                   <div className="hero-image-container" ref={containerRef}>
-                    <div className="image-wrapper" ref={wrapperRef}>
+                    <div className="image-wrapper relative" ref={wrapperRef}>
                       <img 
                         src={garotonectaImg} 
                         alt="Profissional ConectaIOS" 
-                        className="max-w-full h-auto max-h-[700px] xl:max-h-[800px] object-contain"
+                        className="max-w-full h-auto max-h-[770px] xl:max-h-[880px] object-contain"
+                        style={{ transform: 'scale(1.1)' }}
                       />
+                      
+                      {/* Balões de conversa animados */}
+                      <div className="absolute -right-8 top-1/4 animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}>
+                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-primary/20 relative">
+                          <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-l-2 border-b-2 border-primary/20 transform rotate-45"></div>
+                          <p className="text-sm font-medium text-primary">Quantos imóveis você gerencia? 🏠</p>
+                        </div>
+                      </div>
+                      
+                      <div className="absolute -left-8 top-1/2 animate-bounce" style={{ animationDelay: '1s', animationDuration: '3.5s' }}>
+                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-green-500/20 relative">
+                          <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-r-2 border-t-2 border-green-500/20 transform rotate-45"></div>
+                          <p className="text-sm font-medium text-green-700">Quer automatizar seu trabalho? ⚡</p>
+                        </div>
+                      </div>
+                      
+                      <div className="absolute -right-12 bottom-1/4 animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
+                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-purple-500/20 relative">
+                          <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-l-2 border-b-2 border-purple-500/20 transform rotate-45"></div>
+                          <p className="text-sm font-medium text-purple-700">Precisa de mais leads? 🎯</p>
+                        </div>
+                      </div>
+                      
                       <div className="hero-shadow" ref={shadowRef}></div>
                     </div>
                   </div>
@@ -396,8 +420,8 @@ const Index = () => {
                     ></wistia-player>
                   </div>
 
-                  {/* Vídeo 3 */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-gray-200 will-change-transform">
+                  {/* Vídeo 3 - CRM Inteligente */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform relative group">
                     <wistia-player 
                       media-id="wsl23th2kq" 
                       aspect="1.7777777777777777" 
@@ -405,6 +429,9 @@ const Index = () => {
                       preload="metadata"
                       playsinline
                     ></wistia-player>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <p className="text-white text-sm font-medium">CRM Inteligente com Match IA</p>
+                    </div>
                   </div>
 
                   {/* Vídeo 4 */}

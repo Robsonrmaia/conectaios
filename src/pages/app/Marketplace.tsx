@@ -186,7 +186,7 @@ export default function Marketplace() {
         
         const { data, error } = await supabase
           .from('imoveis')
-          .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id')
+          .select('id,title,price,city,neighborhood,is_public,visibility,created_at,owner_id,bedrooms,bathrooms,parking,area_total,description,property_type,purpose,listing_type')
           .eq('is_public', true)
           .eq('show_on_marketplace', true)
           .in('visibility', ['public_site', 'partners'])
@@ -239,9 +239,9 @@ export default function Marketplace() {
           id: property.id,
           titulo: property.title || 'Imóvel sem título',
           valor: property.price || 0,
-          area: 0, // Default
-          quartos: 0, // Default
-          bathrooms: 0,
+          area: property.area_total || 0,
+          quartos: property.bedrooms || 0,
+          bathrooms: property.bathrooms || 0,
           parking_spots: 0,
           furnishing_type: 'none',
           sea_distance: null,
@@ -252,13 +252,13 @@ export default function Marketplace() {
           zipcode: '',
           condominium_fee: null,
           iptu: null,
-          finalidade: 'venda',
-          descricao: '',
+          finalidade: property.purpose || property.listing_type || 'venda',
+          descricao: property.description || '',
           verified: false,
           created_at: property.created_at || new Date().toISOString(),
           user_id: property.owner_id,
-          listing_type: 'venda',
-          property_type: 'apartamento',
+          listing_type: property.listing_type || property.purpose || 'venda',
+          property_type: property.property_type || 'apartamento',
           brokers: brokersMap.get(property.owner_id) || null
         }))
         .filter(property => property.titulo && property.valor); // Filter valid properties
