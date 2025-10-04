@@ -133,7 +133,6 @@ export default function Marketplace() {
           .from('properties')
           .select('id,title,price,city,neighborhood,visibility,created_at,owner_id')
           .in('visibility', ['partners', 'marketplace', 'both'])
-          .eq('status', 'available')
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
@@ -145,10 +144,10 @@ export default function Marketplace() {
         
           // Implementar ordenação balanceada se temos dados
         if (propertiesData && propertiesData.length > 0) {
-          // Agrupar por user_id
+          // Agrupar por owner_id
           const propertyGroups = propertiesData.reduce((acc, prop) => {
-            if (!acc[prop.user_id]) acc[prop.user_id] = [];
-            acc[prop.user_id].push(prop);
+            if (!acc[prop.owner_id]) acc[prop.owner_id] = [];
+            acc[prop.owner_id].push(prop);
             return acc;
           }, {} as {[key: string]: any[]});
           
