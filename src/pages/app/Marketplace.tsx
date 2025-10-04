@@ -144,7 +144,7 @@ export default function Marketplace() {
         
         // Para primeira página: buscar mais dados para implementar round-robin
         const { data: allProperties, error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .select(`
             id,
             title,
@@ -241,7 +241,7 @@ export default function Marketplace() {
         const offset = (page - 1) * 50 + (page - 1) * 12; // Ajustar offset considerando primeira página maior
         
         const { data, error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .select(`
             id,
             title,
@@ -268,8 +268,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            property_images(url, is_cover, position),
-            property_features(key, value)
+            imovel_images!imovel_images_imovel_id_fkey(url, is_cover, position),
+            imovel_features!imovel_features_imovel_id_fkey(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
