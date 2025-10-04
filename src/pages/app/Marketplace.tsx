@@ -648,15 +648,15 @@ export default function Marketplace() {
                 <LazyDevelopmentCarousel />
                 
                 {/* CTA - Vender Empreendimentos */}
-                <div className="mt-4 p-4 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 border-2 border-orange-200 dark:border-orange-800 rounded-xl">
+                <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-2 border-blue-200 dark:border-blue-800 rounded-xl">
                   <div className="text-center space-y-3">
-                    <p className="text-sm font-medium text-orange-900 dark:text-orange-100">
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
                       Quer vender empreendimentos? Clique aqui e saiba mais
                     </p>
                     <Button 
                       variant="default" 
                       size="sm"
-                      className="bg-orange-600 hover:bg-orange-700 dark:bg-orange-700 dark:hover:bg-orange-800"
+                      className="bg-primary hover:bg-primary/90"
                       onClick={() => window.open('https://conectaios.com/vender-empreendimentos', '_blank')}
                     >
                       Saiba Mais
