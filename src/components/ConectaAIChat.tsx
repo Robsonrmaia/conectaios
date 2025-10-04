@@ -80,11 +80,12 @@ export function ConectaAIChatButton() {
         {/* Balão de pergunta animado */}
         <div 
           key={currentQuestion}
-          className="absolute -left-4 top-1/2 -translate-y-1/2 -translate-x-full mr-2 animate-in fade-in slide-in-from-right-5 duration-500 pointer-events-none hidden lg:block"
+          onClick={() => setIsOpen(true)}
+          className="absolute -left-4 top-1/2 -translate-y-1/2 -translate-x-full mr-2 animate-in fade-in slide-in-from-right-5 duration-500 cursor-pointer hover:scale-105 transition-transform block max-w-[160px] sm:max-w-[220px]"
         >
-          <div className="bg-white rounded-2xl shadow-2xl p-2.5 max-w-[220px] border-2 border-primary/30 relative">
+          <div className="bg-white rounded-2xl shadow-2xl p-2 sm:p-2.5 border-2 border-primary/30 relative">
             <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/30 transform rotate-45"></div>
-            <p className="text-xs font-semibold text-primary leading-tight">
+            <p className="text-[10px] sm:text-xs font-semibold text-primary leading-tight">
               {questions[currentQuestion]}
             </p>
           </div>

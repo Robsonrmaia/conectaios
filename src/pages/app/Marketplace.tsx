@@ -148,6 +148,7 @@ export default function Marketplace() {
           .select(`
             id,
             title,
+            reference_code,
             price,
             city,
             state,
@@ -244,6 +245,7 @@ export default function Marketplace() {
           .select(`
             id,
             title,
+            reference_code,
             price,
             city,
             state,
@@ -331,6 +333,7 @@ export default function Marketplace() {
           return {
             id: property.id,
             titulo: property.title || 'Imóvel sem título',
+            reference_code: property.reference_code || property.id.slice(0, 8),
             valor: property.price || 0,
             area: property.area_total || property.area_privativa || 0,
             quartos: property.bedrooms || 0,
