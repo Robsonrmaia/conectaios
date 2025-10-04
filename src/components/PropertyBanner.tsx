@@ -11,6 +11,18 @@ const bannerConfig = {
     text: 'ALUGADO',
     className: 'bg-green-600 text-white'
   },
+  venda: {
+    text: 'VENDA',
+    className: 'bg-blue-600 text-white'
+  },
+  locacao: {
+    text: 'LOCAÇÃO',
+    className: 'bg-green-600 text-white'
+  },
+  temporada: {
+    text: 'TEMPORADA',
+    className: 'bg-orange-500 text-white'
+  },
   oportunidade: {
     text: 'OPORTUNIDADE',
     className: 'bg-orange-500 text-white'

@@ -12,6 +12,7 @@ import { PropertySearch, SearchFilters } from "@/components/PropertySearch";
 import { MinisiteDebugPanel } from "@/components/MinisiteDebugPanel";
 import { PropertyDetailModal } from "@/components/PropertyDetailModal";
 import { MinisiteAIChat } from "@/components/MinisiteAIChat";
+import { PropertyBanner } from "@/components/PropertyBanner";
 
 type Broker = {
   id: string;
@@ -651,6 +652,9 @@ export default function BrokerMinisite() {
                   </div>
                   
                   <div className="p-5">
+                    {/* Banner de tipo (venda/locação/temporada) */}
+                    <PropertyBanner bannerType={property.listing_type?.toLowerCase()} />
+                    
                     {/* Título e localização */}
                     <div className="mb-3">
                       <h3 className="font-semibold text-lg text-gray-900 mb-1 line-clamp-2 leading-tight">
@@ -1034,14 +1038,6 @@ export default function BrokerMinisite() {
         </div>
       </footer>
       
-      {/* WhatsApp Floating Button */}
-      {broker.phone && (
-        <WhatsAppButton 
-          phone={broker.phone}
-          message={`Olá! Vi seu minisite e tenho interesse em seus imóveis. Poderia me ajudar?`}
-          showOnScroll={true}
-        />
-      )}
 
       // Property Detail Modal
       {selectedProperty && (

@@ -235,7 +235,7 @@ const Index = () => {
                 </div>
 
                 <div className="space-y-6">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold leading-relaxed tracking-tight pb-1">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-7xl font-bold leading-relaxed tracking-tight pb-3">
                     Sua rotina <span className="animate-gradient-text-1">imobiliária</span><br />
                     <span className="animate-gradient-text-2">simplificada</span>, <span className="text-foreground">Organizada</span><br />
                     e <span className="animate-gradient-text-3">Inteligente</span>

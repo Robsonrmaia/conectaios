@@ -102,12 +102,14 @@ const RealPropertyMap = ({
           addDebugInfo(`✅ Coordinates found: ${lat}, ${lng} - ${locationName}`);
           initializeMap(lng, lat);
         } else {
-          addDebugInfo('⚠️ No coordinates found, using Ilhéus fallback');
+          addDebugInfo('⚠️ No coordinates found, using Ilhéus, BA fallback');
+          // Coordenadas de Ilhéus, Bahia
           initializeMap(-39.0498, -14.7897);
         }
       } catch (error) {
         addDebugInfo(`❌ Geocoding error: ${error.message}`);
-        addDebugInfo('📍 Using Ilhéus fallback due to error');
+        addDebugInfo('📍 Using Ilhéus, BA fallback due to error');
+        // Coordenadas de Ilhéus, Bahia
         initializeMap(-39.0498, -14.7897);
       }
     };
