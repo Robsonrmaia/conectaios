@@ -200,10 +200,10 @@ export default function Imoveis() {
         console.log('🔄 [ADMIN] Carregando imóveis do usuário:', user?.id);
       }
       
-      // Query corrigida: buscar todos os campos necessários incluindo show_on_marketplace e show_on_minisite
+      // Query corrigida: buscar todos os campos necessários incluindo reference_code
       const { data, error, count } = await supabase
         .from('imoveis')
-        .select('id,title,price,city,neighborhood,is_public,visibility,show_on_marketplace,show_on_minisite,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status,construction_year,show_on_site', { count: 'exact' })
+        .select('id,title,price,city,neighborhood,is_public,visibility,show_on_marketplace,show_on_minisite,created_at,area_total,area_built,bedrooms,bathrooms,suites,parking,distancia_mar,vista_mar,is_furnished,description,purpose,property_type,address,state,zipcode,condo_fee,iptu,status,construction_year,show_on_site,reference_code', { count: 'exact' })
         .eq('owner_id', user?.id)
         .order('created_at', { ascending: false })
         .range(startIndex, startIndex + pageSize - 1);
@@ -300,6 +300,7 @@ export default function Imoveis() {
           fotos: imagesMap[prop.id] || [],
           videos: [],
           descricao: prop.description || '',
+          reference_code: prop.reference_code || '',
           banner_type: features.banner_type || 'none',
           furnishing_type: (features.furnishing_type || (prop.is_furnished ? 'furnished' : 'none')) as 'none' | 'furnished' | 'semi_furnished',
           sea_distance: prop.distancia_mar || null,

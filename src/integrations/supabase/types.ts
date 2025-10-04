@@ -1075,6 +1075,7 @@ export type Database = {
           price: number | null
           property_type: string | null
           purpose: string
+          reference_code: string | null
           search_vector: unknown | null
           show_on_marketplace: boolean
           show_on_minisite: boolean
@@ -1120,6 +1121,7 @@ export type Database = {
           price?: number | null
           property_type?: string | null
           purpose: string
+          reference_code?: string | null
           search_vector?: unknown | null
           show_on_marketplace?: boolean
           show_on_minisite?: boolean
@@ -1165,6 +1167,7 @@ export type Database = {
           price?: number | null
           property_type?: string | null
           purpose?: string
+          reference_code?: string | null
           search_vector?: unknown | null
           show_on_marketplace?: boolean
           show_on_minisite?: boolean
@@ -1862,6 +1865,243 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      msg_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      msg_conversations: {
+        Row: {
+          context_imovel_id: string | null
+          created_at: string
+          created_by: string
+          id: string
+          is_archived: boolean
+          last_message_at: string | null
+          last_message_preview: string | null
+          org_id: string | null
+          title: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          context_imovel_id?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          org_id?: string | null
+          title?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          context_imovel_id?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_archived?: boolean
+          last_message_at?: string | null
+          last_message_preview?: string | null
+          org_id?: string | null
+          title?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      msg_messages: {
+        Row: {
+          body: string | null
+          conversation_id: string
+          created_at: string
+          deleted_at: string | null
+          edited_at: string | null
+          id: string
+          kind: string
+          reply_to: string | null
+          sender_id: string
+          tsv: unknown | null
+        }
+        Insert: {
+          body?: string | null
+          conversation_id: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          kind?: string
+          reply_to?: string | null
+          sender_id: string
+          tsv?: unknown | null
+        }
+        Update: {
+          body?: string | null
+          conversation_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          edited_at?: string | null
+          id?: string
+          kind?: string
+          reply_to?: string | null
+          sender_id?: string
+          tsv?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msg_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "msg_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "msg_messages_reply_to_fkey"
+            columns: ["reply_to"]
+            isOneToOne: false
+            referencedRelation: "msg_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      msg_mutes: {
+        Row: {
+          conversation_id: string
+          muted_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          muted_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          muted_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msg_mutes_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "msg_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      msg_participants: {
+        Row: {
+          conversation_id: string
+          is_admin: boolean
+          joined_at: string
+          left_at: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          is_admin?: boolean
+          joined_at?: string
+          left_at?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          is_admin?: boolean
+          joined_at?: string
+          left_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msg_participants_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "msg_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      msg_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msg_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "msg_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      msg_reads: {
+        Row: {
+          conversation_id: string
+          message_id: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          message_id: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          message_id?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "msg_reads_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "msg_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "msg_reads_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "msg_messages"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -2663,6 +2903,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       webhook_logs: {
         Row: {
           at: string | null
@@ -2821,6 +3082,20 @@ export type Database = {
           title?: string | null
           type?: never
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      chat_users: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          creci: string | null
+          email: string | null
+          id: string | null
+          name: string | null
+          phone: string | null
+          status: string | null
+          user_type: string | null
         }
         Relationships: []
       }
@@ -3476,6 +3751,7 @@ export type Database = {
           price: number | null
           property_type: string | null
           purpose: string
+          reference_code: string | null
           search_vector: unknown | null
           show_on_marketplace: boolean
           show_on_minisite: boolean
@@ -3537,6 +3813,7 @@ export type Database = {
           price: number | null
           property_type: string | null
           purpose: string
+          reference_code: string | null
           search_vector: unknown | null
           show_on_marketplace: boolean
           show_on_minisite: boolean
@@ -3563,6 +3840,10 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      generate_reference_code: {
+        Args: { p_owner_id: string }
+        Returns: string
       }
       generate_referral_code: {
         Args: { user_uuid?: string }
@@ -3591,6 +3872,17 @@ export type Database = {
       gtrgm_out: {
         Args: { "": unknown }
         Returns: unknown
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_member: {
+        Args: { conv_id: string; uid: string }
+        Returns: boolean
       }
       is_thread_participant: {
         Args: { p_thread_id: string; p_user_id: string }
@@ -3658,8 +3950,16 @@ export type Database = {
         Args: { p_thread_id: string; p_user_id: string }
         Returns: undefined
       }
+      msg_mark_read: {
+        Args: { p_conversation_id: string; p_message_id: string }
+        Returns: undefined
+      }
       msg_send_message: {
         Args: { content: string; thread_id: string }
+        Returns: string
+      }
+      msg_start_direct: {
+        Args: { a: string; b: string }
         Returns: string
       }
       search_imoveis: {
@@ -3699,6 +3999,7 @@ export type Database = {
           price: number | null
           property_type: string | null
           purpose: string
+          reference_code: string | null
           search_vector: unknown | null
           show_on_marketplace: boolean
           show_on_minisite: boolean
@@ -3753,6 +4054,7 @@ export type Database = {
           price: number | null
           property_type: string | null
           purpose: string
+          reference_code: string | null
           search_vector: unknown | null
           show_on_marketplace: boolean
           show_on_minisite: boolean
@@ -3854,6 +4156,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "broker"
       property_status: "active" | "sold" | "rented" | "inactive" | "pending"
       property_type: "apartment" | "house" | "commercial" | "land" | "farm"
       user_role: "admin" | "broker" | "user"
@@ -3984,6 +4287,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "broker"],
       property_status: ["active", "sold", "rented", "inactive", "pending"],
       property_type: ["apartment", "house", "commercial", "land", "farm"],
       user_role: ["admin", "broker", "user"],

@@ -17,21 +17,24 @@ import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 
 interface Property {
   id: string;
-  titulo: string;
-  valor: number;
-  area: number;
-  quartos: number;
+  title: string;
+  price: number;
+  area_total: number;
+  bedrooms: number;
   bathrooms: number;
-  parking_spots: number;
-  listing_type: string;
+  parking: number;
+  purpose: string;
   property_type: string;
   visibility: string;
-  descricao: string;
-  fotos: string[];
+  description: string;
+  reference_code?: string;
   address?: string;
   neighborhood?: string;
   city?: string;
-  user_id: string;
+  state?: string;
+  owner_id: string;
+  fotos?: string[];
+  slug?: string;
 }
 
 interface Client {
@@ -108,20 +111,43 @@ export default function Match() {
       const prefs = clientPrefs || preferences;
       
       // Call the match engine function
-      const { data, error } = await (supabase.rpc('find_property_matches', {
-        p_broker_id: user?.id,
-        p_filters: prefs,
-        p_limit: 20,
-        p_offset: 0
-      }) as any);
+      // Buscar imóveis diretamente (fallback sem RPC)
+      const { data: imoveisData, error } = await supabase
+        .from('imoveis')
+        .select('id,title,price,area_total,bedrooms,bathrooms,parking,purpose,property_type,visibility,description,reference_code,address,neighborhood,city,state,owner_id')
+        .eq('owner_id', user?.id)
+        .gte('price', prefs.min_price)
+        .lte('price', prefs.max_price)
+        .order('created_at', { ascending: false })
+        .limit(20);
 
       if (error) throw error;
       
-      // Convert the data to proper MatchResult format
-      const matches = (data || []).map((match: any) => ({
-        property_id: match.property_id,
-        match_score: match.match_score,
-        property_data: match.property_data as Property
+      // Buscar imagens de cada imóvel
+      const propertyIds = (imoveisData || []).map(p => p.id);
+      let imagesMap: Record<string, string[]> = {};
+      
+      if (propertyIds.length > 0) {
+        const { data: imagesData } = await supabase
+          .from('imovel_images')
+          .select('imovel_id, url')
+          .in('imovel_id', propertyIds)
+          .order('position', { ascending: true });
+        
+        imagesData?.forEach(img => {
+          if (!imagesMap[img.imovel_id]) imagesMap[img.imovel_id] = [];
+          imagesMap[img.imovel_id].push(img.url);
+        });
+      }
+      
+      // Convert to MatchResult format with images
+      const matches = (imoveisData || []).map((property: any) => ({
+        property_id: property.id,
+        match_score: 85,
+        property_data: {
+          ...property,
+          fotos: imagesMap[property.id] || []
+        } as Property
       }));
       
       setMatches(matches);
@@ -149,7 +175,7 @@ export default function Match() {
     
     toast({
       title: "Match salvo!",
-      description: `${currentMatch.property_data.titulo} foi salvo nos seus matches`,
+      description: `${currentMatch.property_data.title} foi salvo nos seus matches`,
     });
     
     nextMatch();
@@ -188,10 +214,9 @@ export default function Match() {
         .insert({
           property_id: propertyId,
           client_id: selectedClient,
-          buyer_broker_id: user?.id,
-          offer_amount: matches[currentIndex].property_data.valor,
-          commission_split: { buyer_broker: 50, seller_broker: 50 },
-          status: 'proposta'
+          user_id: user?.id,
+          offer_amount: matches[currentIndex].property_data.price,
+          status: 'negotiating'
         });
 
       if (error) throw error;
@@ -398,7 +423,7 @@ export default function Match() {
                   {currentMatch.property_data.fotos?.[0] ? (
                     <img
                       src={currentMatch.property_data.fotos[0]}
-                      alt={currentMatch.property_data.titulo}
+                      alt={currentMatch.property_data.title}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -410,7 +435,7 @@ export default function Match() {
 
                 {/* Property Details */}
                 <CardHeader>
-                  <CardTitle className="text-xl">{currentMatch.property_data.titulo}</CardTitle>
+                  <CardTitle className="text-xl">{currentMatch.property_data.title}</CardTitle>
                   <CardDescription className="flex items-center gap-2">
                     <MapPin className="h-4 w-4" />
                     {currentMatch.property_data.neighborhood || currentMatch.property_data.city || 'Localização não informada'}
@@ -419,17 +444,17 @@ export default function Match() {
 
                 <CardContent className="space-y-4">
                   <div className="text-3xl font-bold text-primary">
-                    R$ {currentMatch.property_data.valor?.toLocaleString('pt-BR')}
+                    R$ {currentMatch.property_data.price?.toLocaleString('pt-BR')}
                   </div>
 
                   <div className="grid grid-cols-3 gap-4">
                     <div className="flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{currentMatch.property_data.area}m²</span>
+                      <span className="text-sm">{currentMatch.property_data.area_total}m²</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Bed className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{currentMatch.property_data.quartos} quartos</span>
+                      <span className="text-sm">{currentMatch.property_data.bedrooms} quartos</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Bath className="h-4 w-4 text-muted-foreground" />
@@ -437,14 +462,14 @@ export default function Match() {
                     </div>
                   </div>
 
-                  {currentMatch.property_data.descricao && (
+                  {currentMatch.property_data.description && (
                     <p className="text-sm text-muted-foreground line-clamp-3">
-                      {currentMatch.property_data.descricao}
+                      {currentMatch.property_data.description}
                     </p>
                   )}
 
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline">{currentMatch.property_data.listing_type}</Badge>
+                    <Badge variant="outline">{currentMatch.property_data.purpose}</Badge>
                     <Badge variant="outline">{currentMatch.property_data.property_type}</Badge>
                   </div>
                 </CardContent>
@@ -528,8 +553,8 @@ export default function Match() {
                       <div className="text-sm font-medium">Resumo do Deal</div>
                       <div className="text-xs text-muted-foreground mt-1">
                         Cliente: {clients.find(c => c.id === selectedClient)?.nome}<br />
-                        Imóvel: {currentMatch.property_data.titulo}<br />
-                        Valor: R$ {currentMatch.property_data.valor?.toLocaleString('pt-BR')}
+                        Imóvel: {currentMatch.property_data.title}<br />
+                        Valor: R$ {currentMatch.property_data.price?.toLocaleString('pt-BR')}
                       </div>
                     </div>
                   )}
@@ -578,7 +603,13 @@ export default function Match() {
         <CounterProposalDialog
           isOpen={showCounterProposal}
           onClose={() => setShowCounterProposal(false)}
-          property={currentMatch.property_data}
+          property={{
+            id: currentMatch.property_data.id,
+            titulo: currentMatch.property_data.title,
+            valor: currentMatch.property_data.price,
+            area: currentMatch.property_data.area_total,
+            quartos: currentMatch.property_data.bedrooms
+          }}
           matchScore={currentMatch.match_score}
         />
       )}

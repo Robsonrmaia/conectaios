@@ -52,6 +52,8 @@ interface Property {
   listing_type: string;
   property_type?: string;
   neighborhood?: string;
+  city?: string;
+  state?: string;
   zipcode?: string;
   condominium_fee?: number;
   iptu?: number;
@@ -1035,7 +1037,7 @@ export default function Marketplace() {
                              <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
                            </Button>
                           
-                            <Button
+                             <Button
                               size="sm"
                               variant="outline"
                               onClick={(e) => {
@@ -1043,8 +1045,10 @@ export default function Marketplace() {
                                 openChatModal({
                                   id: property.id,
                                   title: property.titulo,
-                                  code: property.reference_code,
-                                  addressLine: property.neighborhood
+                                  code: property.reference_code || property.id.slice(0, 8),
+                                  addressLine: property.neighborhood,
+                                  city: property.city,
+                                  state: property.state
                                 });
                               }}
                               className="h-8 px-2 hover:bg-primary hover:text-white flex-1"

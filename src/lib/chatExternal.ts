@@ -47,14 +47,21 @@ export function buildChatUrl(
     const p = opts.property;
     const originBase = opts.originBaseUrl ?? "";
     const linkImovel = `${originBase}/imovel/${p.slug ?? p.id}`;
-    const titulo = p.title ?? `Imóvel ${p.code ?? p.id}`;
+    const codigo = p.code ?? p.id.slice(0, 8);
+    const titulo = p.title ?? `Imóvel ${codigo}`;
     const local = [p.addressLine, p.city, p.state].filter(Boolean).join(" - ");
     
-    const msg = `Olá! Tenho interesse no imóvel: ${titulo}.
-Link: ${linkImovel}${local ? `\nLocalização: ${local}` : ""}`.trim();
+    const msg = `Olá! Tenho interesse no imóvel:
+
+📍 ${titulo}
+🏷️ Código: ${codigo}
+📌 Link: ${linkImovel}
+${local ? `📍 Localização: ${local}` : ''}
+
+Pode me passar mais informações?`.trim();
 
     params.set("propertyId", p.id);
-    if (p.code) params.set("propertyCode", p.code);
+    params.set("propertyCode", codigo);
     params.set("message", msg);
   }
 
