@@ -165,8 +165,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            imovel_images(url, is_cover, position),
-            imovel_features(key, value)
+            imovel_images!imovel_images_imovel_fk(url, is_cover, position),
+            imovel_features!imovel_features_imovel_fk(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })

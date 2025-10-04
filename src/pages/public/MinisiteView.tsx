@@ -224,8 +224,8 @@ export default function MinisiteView() {
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
                 distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, show_on_minisite, status,
-                imovel_features(key, value),
-                imovel_images(url, is_cover, position)
+                imovel_features!imovel_features_imovel_fk(key, value),
+                imovel_images!imovel_images_imovel_fk(url, is_cover, position)
               `)
               .eq('owner_id', finalBrokerData.user_id)
               .eq('status', 'available')
