@@ -2152,11 +2152,17 @@ export default function Imoveis() {
                                 p.id === virtualStagingProperty ? updatedProperty : p
                               ));
                               
-                              // Opcional: salvar no banco também
+                              // ⚠️ CRÍTICO: Virtual Staging - usa 'imoveis' e 'imovel_images'
+                              // Nota: Campo 'fotos' não existe - usar imovel_images
+                              // Opcional: salvar no banco também via imovel_images
                               supabase
-                                .from('properties')
-                                .update({ fotos: updatedPhotos })
-                                .eq('id', virtualStagingProperty)
+                                .from('imovel_images')
+                                .insert({ imovel_id: virtualStagingProperty, url: stagedUrl, position: updatedPhotos.length })
+                                .then(({ error: imgError }) => {
+                                  if (imgError) {
+                                    console.error('Erro ao salvar imagem:', imgError);
+                                  }
+                                })
                                 .then(() => {
                                   toast({
                                     title: "Virtual Staging Salvo!",
@@ -2210,10 +2216,11 @@ export default function Imoveis() {
                   // Atualizar a descrição do imóvel existente
                   const updatedProperty = { ...aiDescriptionProperty, descricao: description };
                   
+                  // ⚠️ CRÍTICO: AI Description - usa tabela 'imoveis'
                   // Atualizar no banco de dados
                   supabase
-                    .from('properties')
-                    .update({ descricao: description })
+                    .from('imoveis')
+                    .update({ description: description })
                     .eq('id', aiDescriptionProperty.id)
                     .then(({ error }) => {
                       if (error) {
@@ -2286,12 +2293,15 @@ export default function Imoveis() {
                 console.log('Image uploaded successfully:', finalImageUrl);
               }
               
-              const updatedPhotos = [...(selectedProperty.fotos || []), finalImageUrl];
-              
+              // ⚠️ CRÍTICO: Image Upload - usar 'imovel_images' (NÃO campo 'fotos')
+              // Inserir na tabela imovel_images ao invés de update fotos
               const { error } = await supabase
-                .from('properties')
-                .update({ fotos: updatedPhotos })
-                .eq('id', selectedProperty.id);
+                .from('imovel_images')
+                .insert({
+                  imovel_id: selectedProperty.id,
+                  url: finalImageUrl,
+                  position: (selectedProperty.fotos?.length || 0)
+                });
 
               if (error) {
                 console.error('Database update error:', error);

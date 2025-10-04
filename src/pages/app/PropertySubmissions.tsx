@@ -155,28 +155,28 @@ export default function PropertySubmissions() {
     try {
       const propertyData = submission.property_data;
       
+      // ⚠️ CRÍTICO: Criação de imóvel via submissão - usa tabela 'imoveis'
       // Create property record
       const { error } = await supabase
-        .from('properties')
+        .from('imoveis')
         .insert({
-          user_id: broker?.user_id,
-          titulo: propertyData.titulo,
-          descricao: propertyData.descricao,
-          valor: propertyData.valor,
-          listing_type: propertyData.listing_type,
+          owner_id: broker?.user_id,
+          title: propertyData.titulo,
+          description: propertyData.descricao,
+          price: propertyData.valor,
+          purpose: propertyData.listing_type,
           property_type: propertyData.property_type,
-          area: propertyData.area,
-          quartos: propertyData.quartos,
-          banheiros: propertyData.banheiros,
-          parking_spots: propertyData.vagas,
-          condominium_fee: propertyData.condominio,
+          area_total: propertyData.area,
+          bedrooms: propertyData.quartos,
+          bathrooms: propertyData.banheiros,
+          parking: propertyData.vagas,
+          condo_fee: propertyData.condominio,
           iptu: propertyData.iptu,
           address: propertyData.endereco,
           neighborhood: propertyData.bairro,
           city: propertyData.cidade,
           state: propertyData.estado,
-          postal_code: propertyData.cep,
-          fotos: submission.photos,
+          zipcode: propertyData.cep,
           is_public: true,
           visibility: 'public_site'
         });

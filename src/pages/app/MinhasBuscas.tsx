@@ -230,12 +230,13 @@ export default function MinhasBuscas() {
 
       if (error) {
         console.error('Search error:', error);
+        // ⚠️ ATENÇÃO: Fallback search - usa tabela 'imoveis'
         // Fallback to broader search if intelligent matching fails
         const { data: fallbackData, error: fallbackError } = await supabase
-          .from('properties')
+          .from('imoveis')
           .select('*')
-          .eq('listing_type', search.listing_type)
-          .lte('valor', search.max_price * 1.5) // 50% tolerance
+          .eq('purpose', search.listing_type)
+          .lte('price', search.max_price * 1.5) // 50% tolerance
           .eq('is_public', true)
           .limit(20);
         

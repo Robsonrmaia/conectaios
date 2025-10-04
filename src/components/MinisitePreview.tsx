@@ -107,11 +107,12 @@ export default function MinisitePreview({ config, broker, properties = [], previ
         console.log('🏠 Fetching minisite properties for broker:', broker.user_id);
         console.log('🏠 Broker object:', broker);
         
+        // ⚠️ ATENÇÃO: Esta query usa 'imoveis' (NÃO 'properties')
         // First, check all properties for this user to debug
         const { data: allUserProperties, error: allError } = await supabase
-          .from('properties')
-          .select('id, titulo, is_public, visibility, user_id')
-          .eq('user_id', broker.user_id);
+          .from('imoveis')
+          .select('id, title, is_public, visibility, owner_id')
+          .eq('owner_id', broker.user_id);
           
         console.log('🏠 All user properties debug:', { 
           data: allUserProperties, 
@@ -119,33 +120,32 @@ export default function MinisitePreview({ config, broker, properties = [], previ
           count: allUserProperties?.length || 0 
         });
         
+        // ⚠️ ATENÇÃO: Esta query usa 'imoveis' (NÃO 'properties')
         // Now fetch filtered properties for minisite
         const { data, error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .select(`
             id,
-            titulo,
-            valor,
-            area,
-            quartos,
+            title,
+            price,
+            area_total,
+            bedrooms,
             bathrooms,
-            parking_spots,
-            furnishing_type,
-            sea_distance,
-            has_sea_view,
-            listing_type,
+            parking,
+            is_furnished,
+            distancia_mar,
+            vista_mar,
+            purpose,
             property_type,
-            fotos,
             neighborhood,
             zipcode,
-            condominium_fee,
+            condo_fee,
             iptu,
-            descricao,
+            description,
             reference_code,
-            verified,
             created_at
           `)
-          .eq('user_id', broker.user_id)
+          .eq('owner_id', broker.user_id)
           .eq('is_public', true)
           .in('visibility', ['public_site', 'both'])
           .order('updated_at', { ascending: false })

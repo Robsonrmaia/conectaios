@@ -106,9 +106,10 @@ export default function AdminMasterDashboard({ onLogout }: AdminMasterDashboardP
       const adminUsers = profiles?.filter(p => p.role === 'admin')?.length || 0;
       const regularUsers = totalUsers - adminUsers;
 
+      // ⚠️ ATENÇÃO: Count de imóveis - usa tabela 'imoveis'
       // Count properties
       const { data: properties } = await supabase
-        .from('properties')
+        .from('imoveis')
         .select('id');
 
       setStats({

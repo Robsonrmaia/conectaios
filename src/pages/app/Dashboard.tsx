@@ -77,11 +77,12 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
+      // ⚠️ ATENÇÃO: Stats do dashboard - usa tabela 'imoveis'
       // Fetch properties with details for insights
       const { data: properties, count: propertiesCount } = await supabase
-        .from('properties')
-        .select('property_type, valor, visibility', { count: 'exact' })
-        .eq('user_id', user?.id);
+        .from('imoveis')
+        .select('property_type, price, visibility', { count: 'exact' })
+        .eq('owner_id', user?.id);
 
       // Fetch clients count
       const { count: clientsCount } = await supabase
@@ -133,7 +134,7 @@ const Dashboard = () => {
     });
 
     // Price analysis
-    const prices = properties.filter(p => p.valor > 0).map(p => Number(p.valor));
+    const prices = properties.filter(p => p.price > 0).map(p => Number(p.price));
     if (prices.length > 0) {
       const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
       const maxPrice = Math.max(...prices);
