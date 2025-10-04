@@ -32,6 +32,7 @@ import {
 import { ShareButton } from '@/components/ShareButton';
 import { PropertyPresentation } from '@/components/PropertyPresentation';
 import { MinisiteAIChat } from '@/components/MinisiteAIChat';
+import { PropertyBanner } from '@/components/PropertyBanner';
 
 interface MinisiteConfig {
   id: string;
@@ -84,6 +85,7 @@ interface Property {
   sea_distance?: number;
   year_built?: number;
   zipcode?: string;
+  banner_type?: string | null;
 }
 
 export default function MinisiteView() {
@@ -221,7 +223,9 @@ export default function MinisiteView() {
                 description, bathrooms, parking, purpose, property_type,
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
-                distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, show_on_minisite, status
+                distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, show_on_minisite, status,
+                property_features(key, value),
+                property_images(url, is_cover, position)
               `)
               .eq('owner_id', finalBrokerData.user_id)
               .eq('status', 'available')
@@ -254,49 +258,48 @@ export default function MinisiteView() {
             } else if (propertiesData && propertiesData.length > 0) {
               console.log('✅ Properties fetched successfully:', propertiesData?.length || 0);
               
-              // Buscar imagens para todos os imóveis
-              const propertyIds = propertiesData.map(p => p.id);
-              const { data: imagesData } = await supabase
-                .from('imovel_images')
-                .select('imovel_id, url')
-                .in('imovel_id', propertyIds)
-                .order('position', { ascending: true });
-
-              // Criar map de imagens por imóvel
-              const imagesMap: Record<string, string[]> = {};
-              imagesData?.forEach(img => {
-                if (!imagesMap[img.imovel_id]) {
-                  imagesMap[img.imovel_id] = [];
-                }
-                imagesMap[img.imovel_id].push(img.url);
-              });
-
               // Mapear dados do banco para interface Property
-              const mappedProperties = propertiesData.map(prop => ({
-                id: prop.id,
-                titulo: prop.title || '',
-                valor: prop.price || 0,
-                quartos: prop.bedrooms || 0,
-                area: prop.area_total || 0,
-                fotos: imagesMap[prop.id] || [],
-                neighborhood: prop.neighborhood || '',
-                city: prop.city || '',
-                descricao: prop.description || '',
-                bathrooms: prop.bathrooms || 0,
-                parking_spots: prop.parking || 0,
-                listing_type: prop.purpose || '',
-                property_type: prop.property_type || '',
-                address: prop.address || '',
-                state: prop.state || '',
-                features: {},
-                furnishing_type: prop.is_furnished ? 'furnished' : 'none',
-                condominium_fee: prop.condo_fee,
-                iptu: prop.iptu,
-                has_sea_view: prop.vista_mar,
-                sea_distance: prop.distancia_mar,
-                year_built: prop.construction_year,
-                zipcode: prop.zipcode
-              }));
+              const mappedProperties = propertiesData.map(prop => {
+                // Extrair imagens das property_images
+                const fotos = (prop.property_images || [])
+                  .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
+                  .map((img: any) => img.url);
+
+                // Extrair banner_type e furnishing_type das features
+                const bannerTypeFeature = (prop.property_features || []).find(
+                  (f: any) => f.key === 'banner_type'
+                );
+                const furnishingFeature = (prop.property_features || []).find(
+                  (f: any) => f.key === 'furnishing_type'
+                );
+
+                return {
+                  id: prop.id,
+                  titulo: prop.title || '',
+                  valor: prop.price || 0,
+                  quartos: prop.bedrooms || 0,
+                  area: prop.area_total || 0,
+                  fotos: fotos,
+                  neighborhood: prop.neighborhood || '',
+                  city: prop.city || '',
+                  descricao: prop.description || '',
+                  bathrooms: prop.bathrooms || 0,
+                  parking_spots: prop.parking || 0,
+                  listing_type: prop.purpose || '',
+                  property_type: prop.property_type || '',
+                  address: prop.address || '',
+                  state: prop.state || '',
+                  features: {},
+                  furnishing_type: furnishingFeature?.value || (prop.is_furnished ? 'furnished' : 'none'),
+                  condominium_fee: prop.condo_fee,
+                  iptu: prop.iptu,
+                  has_sea_view: prop.vista_mar,
+                  sea_distance: prop.distancia_mar,
+                  year_built: prop.construction_year,
+                  zipcode: prop.zipcode,
+                  banner_type: bannerTypeFeature?.value || null
+                };
+              });
 
               setProperties(mappedProperties);
               setFilteredProperties(mappedProperties);
@@ -612,6 +615,7 @@ export default function MinisiteView() {
                         <AnimatedCard key={property.id} className="overflow-hidden">
                           {/* Property Image */}
                           <div className="aspect-[4/3] relative bg-gray-200">
+                            <PropertyBanner bannerType={property.banner_type} />
                             {property.fotos && property.fotos.length > 0 ? (
                               <img
                                 src={property.fotos[0]}

@@ -165,8 +165,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            property_images!imovel_images_imovel_id_fkey(url, is_cover, position),
-            imovel_features(key, value)
+            property_images(url, is_cover, position),
+            property_features(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -241,7 +241,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            property_images!imovel_images_imovel_id_fkey(url, is_cover, position)
+            property_images(url, is_cover, position),
+            property_features(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
