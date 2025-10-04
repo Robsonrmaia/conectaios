@@ -138,7 +138,6 @@ export default function Marketplace() {
             city,
             state,
             neighborhood,
-            zipcode,
             visibility,
             created_at,
             owner_id,
@@ -147,16 +146,14 @@ export default function Marketplace() {
             bathrooms,
             parking,
             area_total,
-            area_built,
+            area_privativa,
             condo_fee,
             iptu,
-            purpose,
             listing_type,
             property_type,
-            is_furnished,
             latitude,
             longitude,
-            imovel_images(url, is_cover, position)
+            property_images(url, is_cover, position)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -213,7 +210,6 @@ export default function Marketplace() {
             city,
             state,
             neighborhood,
-            zipcode,
             visibility,
             created_at,
             owner_id,
@@ -222,16 +218,14 @@ export default function Marketplace() {
             bathrooms,
             parking,
             area_total,
-            area_built,
+            area_privativa,
             condo_fee,
             iptu,
-            purpose,
             listing_type,
             property_type,
-            is_furnished,
             latitude,
             longitude,
-            imovel_images(url, is_cover, position)
+            property_images(url, is_cover, position)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -280,33 +274,33 @@ export default function Marketplace() {
         .filter(property => property && property.id && property.title) // Basic validation
         .map(property => {
           // Buscar foto de capa e todas as fotos
-          const coverImage = property.imovel_images?.find((img: any) => img.is_cover)?.url;
-          const allPhotos = property.imovel_images?.map((img: any) => img.url) || [];
+          const coverImage = property.property_images?.find((img: any) => img.is_cover)?.url;
+          const allPhotos = property.property_images?.map((img: any) => img.url) || [];
           
           return {
             id: property.id,
             titulo: property.title || 'Imóvel sem título',
             valor: property.price || 0,
-            area: property.area_total || property.area_built || 0,
+            area: property.area_total || property.area_privativa || 0,
             quartos: property.bedrooms || 0,
             bathrooms: property.bathrooms || 0,
             parking_spots: property.parking || 0,
-            furnishing_type: property.is_furnished ? 'furnished' : 'none',
+            furnishing_type: 'none',
             sea_distance: null,
             has_sea_view: false,
             fotos: allPhotos,
             videos: [],
             neighborhood: property.neighborhood || '',
-            zipcode: property.zipcode || '',
+            zipcode: '',
             condominium_fee: property.condo_fee || null,
             iptu: property.iptu || null,
-            finalidade: property.purpose || property.listing_type || 'venda',
+            finalidade: property.listing_type || 'venda',
             descricao: property.description || '',
             verified: false,
             created_at: property.created_at || new Date().toISOString(),
             user_id: property.owner_id,
             owner_id: property.owner_id,
-            listing_type: property.listing_type || property.purpose || 'venda',
+            listing_type: property.listing_type || 'venda',
             property_type: property.property_type || 'apartamento',
             brokers: brokersMap.get(property.owner_id) || null
           };
