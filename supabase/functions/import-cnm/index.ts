@@ -421,11 +421,11 @@ serve(async (req) => {
           continue;
         }
 
-        // Upsert property using external_id as conflict key
+        // Upsert property using composite unique constraint
         const { data, error } = await supabase
           .from('imoveis')
           .upsert(propertyData, {
-            onConflict: 'external_id',
+            onConflict: 'owner_id,source,external_id',
             ignoreDuplicates: false
           })
           .select();
