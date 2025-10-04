@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useBroker } from "@/hooks/useBroker";
+import { useChatExternal } from "@/hooks/useChatExternal";
 import { ExternalToolModal } from "@/components/ExternalToolModal";
 import { AnimatedCard } from "@/components/AnimatedCard";
 
@@ -41,6 +42,7 @@ const Ferramentas = () => {
   const [externalTool, setExternalTool] = useState<{ name: string; url: string; showAddressBar?: boolean } | null>(null);
   const navigate = useNavigate();
   const { broker } = useBroker();
+  const { openChat } = useChatExternal();
 
   const toolCategories = {
     marketing: {
@@ -246,7 +248,7 @@ const Ferramentas = () => {
         navigate("/app/ai-assistant");
         break;
       case "whatsapp-sender":
-        navigate("/app/inbox");
+        openChat();
         break;
       case "contract-generator":
       case "neighborhood-guide":

@@ -26,7 +26,6 @@ import Gamificacao from "./pages/app/Gamificacao";
 import { GamificationFeatureFlag } from "@/components/GamificationFeatureFlag";
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
-import Inbox from "./pages/app/Inbox";
 import CRM from "./pages/app/CRM";
 import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
@@ -156,10 +155,8 @@ const App = () => (
               </GamificationFeatureFlag>
             } />
                            <Route path="match" element={<Match />} />
-                          <Route path="deals" element={<Deals />} />
-                          <Route path="inbox" element={<Inbox />} />
+                           <Route path="deals" element={<Deals />} />
                            <Route path="crm" element={<CRM />} />
-                           <Route path="mensagens" element={<Navigate to="/app/inbox" replace />} />
                            <Route path="envios-proprietarios" element={<PropertySubmissions />} />
                            <Route path="ferramentas" element={<Ferramentas />} />
                           <Route path="ferramentas/image-creator" element={<ConectaIOSImageApp />} />

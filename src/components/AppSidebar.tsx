@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useGamification } from '@/hooks/useGamification';
+import { useChatExternal } from '@/hooks/useChatExternal';
 import { GamificationBadge } from '@/components/GamificationBadge';
 import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
@@ -70,8 +71,9 @@ const navigationItems = [
   },
   {
     title: 'Mensagens',
-    url: '/app/inbox',
+    url: '/app/inbox', // Mantido para compatibilidade, mas será interceptado
     icon: MessageSquare,
+    isExternal: true, // Flag para indicar que abre chat externo
   },
   {
     title: 'CRM',
@@ -143,6 +145,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const { isAdmin } = useAdminAuth();
   const { stats } = useGamification();
+  const { openChat } = useChatExternal();
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -179,17 +182,28 @@ export function AppSidebar() {
               {navigationItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
-                      className={getNavClassName(item.url, item.exact)}
-                      data-tour={item.title === 'Dashboard' ? 'dashboard' : 
-                                 item.title === 'Meus Imóveis' ? 'properties' : 
-                                 item.title === 'CRM' ? 'crm' : undefined}
-                     >
-                       <item.icon className="h-4 w-4" />
-                       <span>{item.title}</span>
-                     </NavLink>
-                  </SidebarMenuButton>
+                    {(item as any).isExternal ? (
+                      <button
+                        type="button"
+                        onClick={() => openChat()}
+                        className="w-full hover:bg-accent hover:text-accent-foreground flex items-center"
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </button>
+                    ) : (
+                      <NavLink 
+                        to={item.url} 
+                        className={getNavClassName(item.url, item.exact)}
+                        data-tour={item.title === 'Dashboard' ? 'dashboard' : 
+                                   item.title === 'Meus Imóveis' ? 'properties' : 
+                                   item.title === 'CRM' ? 'crm' : undefined}
+                       >
+                         <item.icon className="h-4 w-4" />
+                         <span>{item.title}</span>
+                       </NavLink>
+                    )}
+                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

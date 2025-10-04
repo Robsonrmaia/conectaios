@@ -5,6 +5,7 @@ import { AnimatedCard } from '@/components/AnimatedCard';
 import PageWrapper from '@/components/PageWrapper';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useChatExternal } from '@/hooks/useChatExternal';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +81,7 @@ interface Property {
 export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openChat } = useChatExternal();
   const { speak, stop, isSpeaking, isCurrentlySpeaking } = useElevenLabsVoice();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1031,19 +1033,24 @@ export default function Marketplace() {
                              <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
                            </Button>
                           
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate('/app/inbox');
-                            }}
-                            className="h-8 px-2 hover:bg-primary hover:text-white flex-1"
-                            title="Mensagem"
-                          >
-                            <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
-                            <span className="sr-only">Mensagem</span>
-                          </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               openChat({
+                                 id: property.id,
+                                 title: property.titulo,
+                                 code: property.reference_code,
+                                 addressLine: property.neighborhood,
+                               });
+                             }}
+                             className="h-8 px-2 hover:bg-primary hover:text-white flex-1"
+                             title="Mensagem"
+                           >
+                             <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
+                             <span className="sr-only">Mensagem</span>
+                           </Button>
                           
                          <div className="h-8 flex items-center justify-center flex-1">
                            <FavoritesManager 
