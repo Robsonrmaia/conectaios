@@ -60,6 +60,11 @@ const BrokerRedirect = () => {
   return <Navigate to="/" replace />;
 };
 
+const MinisiteRedirect = () => {
+  const { username } = useParams<{ username: string }>();
+  return <Navigate to={`/broker/${username}`} replace />;
+};
+
 const queryClient = new QueryClient();
 
 const UserInfo = () => {
@@ -131,6 +136,7 @@ const App = () => (
                    <Route path="/@:username" element={<AtRedirect />} />
                    <Route path="/broker" element={<BrokerRedirect />} />
                    <Route path="/broker/:username" element={<BrokerMinisite />} />
+                   <Route path="/minisite/:username" element={<MinisiteRedirect />} />
                    <Route path="/imovel/:id" element={<PropertyDetail />} />
                    <Route path="/formulario-imovel/:token" element={<PropertySubmissionForm />} />
                    <Route path="/public-test" element={<PublicProbe />} />
