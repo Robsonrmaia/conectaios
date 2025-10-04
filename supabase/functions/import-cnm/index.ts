@@ -528,59 +528,59 @@ function detectFurnishingType(descricao: string): string {
 }
 
 function mapListingType(tipo: string | undefined): string {
-  if (!tipo) return 'sale';
+  if (!tipo) return 'venda';
   
   const normalized = tipo.toLowerCase().trim();
   
   // CNM specific mappings
   if (normalized.includes('alug') || normalized.includes('rent') || normalized === 'l' || 
       normalized === 're' || normalized.includes('loca')) {
-    return 'rent';
+    return 'locacao';
   }
   
   if (normalized.includes('vend') || normalized.includes('sale') || normalized === 'v' ||
       normalized.includes('compra')) {
-    return 'sale';
+    return 'venda';
   }
   
   if (normalized.includes('temp') || normalized.includes('season')) {
-    return 'season';
+    return 'temporada';
   }
   
-  return 'sale'; // Default to sale
+  return 'venda'; // Default to venda
 }
 
 function mapPropertyType(tipo: string | undefined): string {
-  if (!tipo) return 'apartment';
+  if (!tipo) return 'apartamento';
   
   const t = tipo.toLowerCase().trim();
   
   // Apartment
   if (t.includes('apto') || t.includes('apart')) {
-    return 'apartment';
+    return 'apartamento';
   }
   
   // House
   if (t.includes('casa') || t.includes('house')) {
-    return 'house';
+    return 'casa';
   }
   
   // Land/Terrain
   if (t.includes('terreno') || t.includes('land') || t.includes('lote')) {
-    return 'land';
+    return 'terreno';
   }
   
   // Room
   if (t.includes('sala') || t.includes('quarto') || t.includes('room')) {
-    return 'room';
+    return 'quarto';
   }
   
   // Commercial
   if (t.includes('comercial') || t.includes('commercial') || t.includes('loja') || t.includes('escritório')) {
-    return 'commercial';
+    return 'comercial';
   }
   
-  return 'apartment'; // Default to apartment
+  return 'apartamento'; // Default to apartamento
 }
 
 // Helper functions for path navigation
