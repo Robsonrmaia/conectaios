@@ -563,20 +563,8 @@ export default function BrokerMinisite() {
             <div className="flex items-end justify-between mb-8">
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">
-                  {filteredProperties.length === 0 && properties.length > 0
-                    ? 'Nenhum imóvel encontrado'
-                    : properties.length === 0 
-                    ? 'Nenhum imóvel disponível' 
-                    : 'Imóveis em destaque'}
+                  Imóveis em destaque
                 </h2>
-                <p className="text-gray-600">
-                  {filteredProperties.length === 0 && properties.length > 0
-                    ? 'Tente ajustar os filtros de pesquisa para encontrar mais imóveis.'
-                    : properties.length === 0 
-                    ? 'Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.'
-                    : `${(filteredProperties.length > 0 ? filteredProperties : properties).length} imóvel${(filteredProperties.length > 0 ? filteredProperties : properties).length !== 1 ? 'is' : ''} encontrado${(filteredProperties.length > 0 ? filteredProperties : properties).length !== 1 ? 's' : ''}.`
-                  }
-                </p>
               </div>
               {(filteredProperties.length > 0 || properties.length > 0) && (
                 <Button variant="outline" className="hidden sm:inline-flex items-center gap-2 hover:border-blue-400 hover:text-blue-700">
@@ -624,15 +612,6 @@ export default function BrokerMinisite() {
                     isVisible={true}
                     onToggle={() => {}}
                   />
-                  {broker.phone && (
-                    <div className="mt-8">
-                      <Button className="text-white" style={{ backgroundColor: primaryColor }}>
-                        <a href={`https://wa.me/55${broker.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer">
-                          Entrar em contato
-                        </a>
-                      </Button>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -653,13 +632,13 @@ export default function BrokerMinisite() {
                     )}
                     
                     {/* Badge de tipo no canto superior esquerdo */}
-                    <div className="absolute top-3 left-3">
-                      <Badge className="px-3 py-1 text-xs font-medium rounded-md bg-red-500 text-white border-0">
-                        {property.listing_type === 'venda' ? 'VENDA' : 
-                         property.listing_type === 'aluguel' || property.listing_type === 'locacao' ? 'ALUGUEL' : 
-                         'DISPONÍVEL'}
-                      </Badge>
-                    </div>
+                    {(property.listing_type === 'venda' || property.listing_type === 'aluguel' || property.listing_type === 'locacao') && (
+                      <div className="absolute top-3 left-3">
+                        <Badge className="px-3 py-1 text-xs font-medium rounded-md bg-red-500 text-white border-0">
+                          {property.listing_type === 'venda' ? 'VENDA' : 'ALUGUEL'}
+                        </Badge>
+                      </div>
+                    )}
 
                     {/* Código do imóvel no canto superior direito */}
                     {property.reference_code && (

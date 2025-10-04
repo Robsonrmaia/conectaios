@@ -163,13 +163,13 @@ export function ConectaAIChatButton() {
                   
                   <div
                     className={cn(
-                      "max-w-[80%] rounded-lg px-3 py-2 text-sm",
+                      "max-w-[280px] rounded-lg px-3 py-2 text-[11px] leading-snug",
                       msg.role === 'user'
                         ? "bg-gradient-to-br from-emerald-500 to-blue-600 text-white"
                         : "bg-muted text-foreground border border-emerald-100"
                     )}
                   >
-                    <div className="whitespace-pre-wrap break-words">
+                    <div className="break-words">
                       {formatMessage(msg.content)}
                     </div>
                   </div>
