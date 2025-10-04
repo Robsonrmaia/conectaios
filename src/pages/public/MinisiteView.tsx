@@ -630,7 +630,7 @@ export default function MinisiteView() {
                             )}
                             
                             {/* Badge de tipo */}
-                            <div className="absolute top-2 left-2">
+                            <div className="absolute bottom-2 left-2">
                               <span className="bg-primary text-white px-2 py-1 rounded text-xs font-semibold">
                                 {property.listing_type === 'venda' ? 'Venda' : 'Locação'}
                               </span>

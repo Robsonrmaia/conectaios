@@ -295,7 +295,7 @@ export default function Marketplace() {
           const allPhotos = property.property_images?.map((img: any) => img.url) || [];
           
           // Extrair banner_type configurado das features
-          const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
+          const configuredBannerType = property.property_features?.find((f: any) => f.key === 'banner_type')?.value;
           
           // Determinar banner_type baseado no status e proprietário
           // Só aplica banner automático se não houver banner configurado
