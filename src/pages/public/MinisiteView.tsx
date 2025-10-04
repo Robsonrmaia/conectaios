@@ -414,12 +414,6 @@ export default function MinisiteView() {
     }
   };
 
-  const openWhatsApp = () => {
-    if (config?.whatsapp) {
-      const message = encodeURIComponent(`Olá! Vi seu minisite e gostaria de conversar sobre imóveis.`);
-      window.open(`https://wa.me/${config.whatsapp.replace(/\D/g, '')}?text=${message}`, '_blank');
-    }
-  };
 
   if (loading) {
     return (
@@ -600,7 +594,7 @@ export default function MinisiteView() {
                   {!properties || properties.length === 0 ? (
                     <div className="text-center py-8">
                       <Home className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel disponível</h3>
+                      <h3 className="text-lg font-medium mb-2">Nenhum imóvel encontrado</h3>
                       <p className="text-muted-foreground">
                         Este corretor ainda não publicou imóveis ou eles não estão disponíveis no momento.
                       </p>
@@ -610,7 +604,7 @@ export default function MinisiteView() {
                       <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                       <h3 className="text-lg font-medium mb-2">Nenhum imóvel corresponde aos filtros</h3>
                       <p className="text-muted-foreground">
-                        {properties.length} {properties.length === 1 ? 'imóvel disponível' : 'imóveis disponíveis'}. Ajuste os filtros para ver mais opções.
+                        {properties.length} {properties.length === 1 ? 'imóvel publicado' : 'imóveis publicados'}. Ajuste os filtros para ver mais opções.
                       </p>
                     </div>
                   ) : (
