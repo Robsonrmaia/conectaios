@@ -22,6 +22,10 @@ interface Property {
   listing_type: string;
   property_type?: string;
   neighborhood?: string;
+  condominium_fee?: number;
+  iptu?: number;
+  has_sea_view?: boolean;
+  sea_distance?: number;
   profiles?: {
     nome: string;
   } | null;
@@ -172,6 +176,34 @@ export function AutoCarousel({ properties, onPropertyClick, autoplayDelay = 4000
                   <span>{currentProperty.area || 0}m²</span>
                 </div>
               </div>
+              
+              {/* Dados adicionais: Vista Mar, Distância, Cond, IPTU */}
+              {(currentProperty.has_sea_view || currentProperty.sea_distance || currentProperty.condominium_fee || currentProperty.iptu) && (
+                <div className="flex flex-wrap gap-2 text-xs mb-2">
+                  {currentProperty.has_sea_view && (
+                    <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md border border-blue-200">
+                      <span>🌊</span>
+                      <span className="font-medium text-blue-700">Vista Mar</span>
+                    </div>
+                  )}
+                  {currentProperty.sea_distance && (
+                    <div className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-md border border-blue-200">
+                      <span>📍</span>
+                      <span className="font-medium text-blue-700">{currentProperty.sea_distance}m do mar</span>
+                    </div>
+                  )}
+                  {currentProperty.condominium_fee && (
+                    <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
+                      <span className="text-slate-600">Cond: {formatCurrency(currentProperty.condominium_fee)}</span>
+                    </div>
+                  )}
+                  {currentProperty.iptu && (
+                    <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-md border border-slate-200">
+                      <span className="text-slate-600">IPTU: {formatCurrency(currentProperty.iptu)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <div className="flex items-center gap-2 text-xs text-muted-foreground border-t pt-2">
                 {currentProperty.conectaios_brokers?.avatar_url ? (

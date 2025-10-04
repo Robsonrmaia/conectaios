@@ -55,6 +55,8 @@ interface Property {
   iptu?: number;
   reference_code?: string;
   verified?: boolean;
+  banner_type?: string | null;
+  status?: string;
   profiles?: {
     nome: string;
   } | null;
@@ -65,6 +67,13 @@ interface Property {
     creci?: string;
     bio?: string;
     status?: string;
+  } | null;
+  conectaios_brokers?: {
+    id: string;
+    name: string;
+    avatar_url?: string;
+    creci?: string;
+    bio?: string;
   } | null;
 }
 
@@ -153,6 +162,9 @@ export default function Marketplace() {
             property_type,
             latitude,
             longitude,
+            vista_mar,
+            distancia_mar,
+            status,
             property_images!imovel_images_imovel_id_fkey(url, is_cover, position)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
@@ -225,6 +237,9 @@ export default function Marketplace() {
             property_type,
             latitude,
             longitude,
+            vista_mar,
+            distancia_mar,
+            status,
             property_images!imovel_images_imovel_id_fkey(url, is_cover, position)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
@@ -277,6 +292,12 @@ export default function Marketplace() {
           const coverImage = property.property_images?.find((img: any) => img.is_cover)?.url;
           const allPhotos = property.property_images?.map((img: any) => img.url) || [];
           
+          // Determinar banner_type baseado no status
+          let bannerType = null;
+          if (property.status === 'sold') bannerType = 'vendido';
+          else if (property.status === 'rented') bannerType = 'alugado';
+          else if (property.price && property.price < 300000) bannerType = 'oportunidade';
+          
           return {
             id: property.id,
             titulo: property.title || 'Imóvel sem título',
@@ -286,8 +307,8 @@ export default function Marketplace() {
             bathrooms: property.bathrooms || 0,
             parking_spots: property.parking || 0,
             furnishing_type: 'none',
-            sea_distance: null,
-            has_sea_view: false,
+            sea_distance: property.distancia_mar || null,
+            has_sea_view: property.vista_mar || false,
             fotos: allPhotos,
             videos: [],
             neighborhood: property.neighborhood || '',
@@ -302,7 +323,10 @@ export default function Marketplace() {
             owner_id: property.owner_id,
             listing_type: property.listing_type || 'venda',
             property_type: property.property_type || 'apartamento',
-            brokers: brokersMap.get(property.owner_id) || null
+            banner_type: bannerType,
+            status: property.status,
+            brokers: brokersMap.get(property.owner_id) || null,
+            conectaios_brokers: brokersMap.get(property.owner_id) || null
           };
         })
         .filter(property => property.titulo && property.valor); // Filter valid properties
