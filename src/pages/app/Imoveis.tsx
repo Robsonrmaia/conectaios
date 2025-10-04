@@ -1648,6 +1648,37 @@ export default function Imoveis() {
                         Oculto
                       </Badge>
                     )}
+                    
+                    {/* Quick Visibility Buttons */}
+                    <div className="flex gap-1 mt-3 pt-3 border-t">
+                      <Button
+                        variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => updatePropertyVisibility(property.id, true, false)}
+                      >
+                        <Globe className="h-3 w-3 mr-1" />
+                        Site
+                      </Button>
+                      <Button
+                        variant={property.visibility === 'partners' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => updatePropertyVisibility(property.id, false, true)}
+                      >
+                        <Target className="h-3 w-3 mr-1" />
+                        Marketplace
+                      </Button>
+                      <Button
+                        variant={property.visibility === 'private' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => updatePropertyVisibility(property.id, false, false)}
+                      >
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        Oculto
+                      </Button>
+                    </div>
                    </div>
                 </div>
                 

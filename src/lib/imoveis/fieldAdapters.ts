@@ -1,11 +1,11 @@
 // Valores EXATOS aceitos pelas constraints do banco
 export const VISIBILITY_ALLOWED = ['private', 'public_site', 'partners'] as const;
 export const STATUS_ALLOWED = ['available', 'reserved', 'sold', 'rented'] as const;
-export const PURPOSE_ALLOWED = ['sale', 'rent', 'season'] as const;
+// IMPORTANTE: Purpose agora usa valores em PORTUGUÊS no banco
+export const PURPOSE_ALLOWED = ['venda', 'locacao', 'temporada'] as const;
 
 type Visibility = typeof VISIBILITY_ALLOWED[number];
 type Status = typeof STATUS_ALLOWED[number];
-type Purpose = typeof PURPOSE_ALLOWED[number];
 
 // Labels do UI -> valor aceito pelo banco
 export const toDbVisibility = (uiValue: string): Visibility => {
@@ -56,27 +56,28 @@ export const fromDbStatus = (dbValue: string): string => {
 };
 
 // Purpose (Finalidade): UI -> DB
-export const toDbPurpose = (uiValue: string): Purpose => {
-  const map: Record<string, Purpose> = {
-    'venda': 'sale',
-    'sale': 'sale',
-    'aluguel': 'rent',
-    'rent': 'rent',
-    'locacao': 'rent',
-    'temporada': 'season',
-    'season': 'season',
+// IMPORTANTE: O banco agora usa valores em PORTUGUÊS
+export const toDbPurpose = (uiValue: string): string => {
+  const map: Record<string, string> = {
+    'venda': 'venda',
+    'sale': 'venda',
+    'aluguel': 'locacao',
+    'rent': 'locacao',
+    'locacao': 'locacao',
+    'temporada': 'temporada',
+    'season': 'temporada',
   };
-  return map[uiValue.toLowerCase()] ?? 'sale';
+  return map[uiValue.toLowerCase()] ?? 'venda';
 };
 
-// Purpose: DB -> UI
+// Purpose: DB -> UI (agora retorna o próprio valor pois já está em português)
 export const fromDbPurpose = (dbValue: string): string => {
-  const map: Record<Purpose, string> = {
-    sale: 'venda',
-    rent: 'aluguel',
-    season: 'temporada',
+  const map: Record<string, string> = {
+    'venda': 'venda',
+    'locacao': 'aluguel',
+    'temporada': 'temporada',
   };
-  return map[(dbValue as Purpose)] ?? 'venda';
+  return map[dbValue.toLowerCase()] ?? 'venda';
 };
 
 // Converter valores monetários BR para número
