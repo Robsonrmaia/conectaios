@@ -974,14 +974,15 @@ export default function Imoveis() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
-                  <DialogDescription>
-                    {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
-                  </DialogDescription>
-                </div>
+              <DialogHeader>
+                <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
+                <DialogDescription>
+                  {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
+                </DialogDescription>
+              </DialogHeader>
+              
+              {/* Botão Envio Flash - Fora do header para não sobrepor o X */}
+              <div className="flex justify-end px-6 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -992,7 +993,6 @@ export default function Imoveis() {
                   Envio Flash
                 </Button>
               </div>
-            </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -1528,8 +1528,15 @@ export default function Imoveis() {
                       </div>
                     )}
                     
-                    {/* Property Features */}
+                    {/* Property Features - Canto Superior Direito */}
                     <div className="absolute top-2 right-2 flex flex-col gap-1">
+                      {/* Badge de Finalidade - PRINCIPAL */}
+                      <Badge variant="default" className="text-xs font-semibold">
+                        {property.listing_type === 'venda' ? 'VENDA' : 
+                         property.listing_type === 'locacao' ? 'LOCAÇÃO' : 'TEMPORADA'}
+                      </Badge>
+                      
+                      {/* Badges secundários */}
                       {property.is_furnished && (
                         <Badge variant="secondary" className="text-xs">Mobiliado</Badge>
                       )}
@@ -1667,7 +1674,7 @@ export default function Imoveis() {
                         onClick={() => updatePropertyVisibility(property.id, false, true)}
                       >
                         <Target className="h-3 w-3 mr-1" />
-                        Marketplace
+                        Market
                       </Button>
                       <Button
                         variant={property.visibility === 'private' ? 'default' : 'outline'}
@@ -1826,21 +1833,24 @@ export default function Imoveis() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
+                          // Busca propriedade ATUAL do estado para garantir sincronização
+                          const currentProperty = properties.find(p => p.id === property.id) || property;
+                          
                           // Converter visibilidade do banco para checkboxes
-                          const showOnSite = property.visibility === 'public_site' || 
-                                             (property.visibility === 'partners' && property.show_on_site);
-                          const showOnMarketplace = property.visibility === 'partners';
+                          const showOnSite = currentProperty.visibility === 'public_site' || 
+                                             (currentProperty.visibility === 'partners' && currentProperty.show_on_site);
+                          const showOnMarketplace = currentProperty.visibility === 'partners';
                           
                           // Preenche o formulário com os dados do imóvel selecionado
                           setFormData({
-                            titulo: property.titulo,
-                            valor: formatCurrencyBR(property.valor),
-                            area: property.area.toString(),
-                            quartos: property.quartos.toString(),
-                            bathrooms: property.bathrooms.toString(),
-                            parking_spots: property.parking_spots.toString(),
-                            listing_type: property.listing_type,
-                            property_type: property.property_type,
+                            titulo: currentProperty.titulo,
+                            valor: formatCurrencyBR(currentProperty.valor),
+                            area: currentProperty.area.toString(),
+                            quartos: currentProperty.quartos.toString(),
+                            bathrooms: currentProperty.bathrooms.toString(),
+                            parking_spots: currentProperty.parking_spots.toString(),
+                            listing_type: currentProperty.listing_type,
+                            property_type: currentProperty.property_type,
                             showOnSite,
                             showOnMarketplace,
                             broker_minisite_enabled: false,
