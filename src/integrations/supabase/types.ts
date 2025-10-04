@@ -2390,30 +2390,41 @@ export type Database = {
       }
       social_comments: {
         Row: {
-          body: string
+          author_user_id: string
+          content: string
           created_at: string
           id: string
+          parent_id: string | null
           post_id: string
           updated_at: string
-          user_id: string
         }
         Insert: {
-          body: string
+          author_user_id: string
+          content: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id: string
           updated_at?: string
-          user_id: string
         }
         Update: {
-          body?: string
+          author_user_id?: string
+          content?: string
           created_at?: string
           id?: string
+          parent_id?: string | null
           post_id?: string
           updated_at?: string
-          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "social_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "social_comments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_follows: {
         Row: {
