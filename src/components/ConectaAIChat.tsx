@@ -72,12 +72,15 @@ export function ConectaAIChatButton() {
   return (
     <>
       {/* Botão do Header - Só o robô com balões */}
-      <div className="relative">
+      <div className="relative z-50">
         {/* Balão de pergunta animado */}
-        <div className="absolute -left-48 top-1/2 -translate-y-1/2 animate-bounce pointer-events-none hidden md:block">
-          <div className="bg-white rounded-2xl shadow-xl p-3 max-w-[180px] border-2 border-primary/20 relative">
-            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/20 transform rotate-45"></div>
-            <p className="text-xs font-medium text-primary animate-fade-in">
+        <div 
+          key={currentQuestion}
+          className="absolute -left-4 top-1/2 -translate-y-1/2 -translate-x-full mr-2 animate-in fade-in slide-in-from-right-5 duration-500 pointer-events-none hidden lg:block"
+        >
+          <div className="bg-white rounded-2xl shadow-2xl p-3 max-w-[200px] border-2 border-primary/30 relative">
+            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/30 transform rotate-45"></div>
+            <p className="text-sm font-semibold text-primary whitespace-nowrap">
               {questions[currentQuestion]}
             </p>
           </div>
@@ -85,15 +88,16 @@ export function ConectaAIChatButton() {
         
         <button
           onClick={() => setIsOpen(true)}
-          className="hover:opacity-80 transition-opacity relative"
+          className="hover:scale-110 transition-transform relative z-50"
+          title="Abrir Assistente ConectaIOS"
         >
           <img 
             src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
             alt="Assistente IA"
-            className="w-[53px] h-[53px]"
+            className="w-[53px] h-[53px] drop-shadow-lg"
           />
           {/* Indicador de pulso */}
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse ring-2 ring-white"></div>
         </button>
       </div>
 

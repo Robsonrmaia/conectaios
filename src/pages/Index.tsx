@@ -398,7 +398,7 @@ const Index = () => {
                   </div>
 
                   {/* Vídeo 3 - CRM Inteligente */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform relative group">
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg ring-1 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:shadow-xl will-change-transform relative">
                     <wistia-player 
                       media-id="wsl23th2kq" 
                       aspect="1.7777777777777777" 
@@ -406,7 +406,7 @@ const Index = () => {
                       preload="metadata"
                       playsinline
                     ></wistia-player>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
                       <p className="text-white text-sm font-medium">CRM Inteligente com Match IA</p>
                     </div>
                   </div>
