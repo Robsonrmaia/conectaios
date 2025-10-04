@@ -811,7 +811,12 @@ export default function Marketplace() {
                     </div>
                   )}
                   
-                  <img 
+                  {/* Property Banner */}
+                  {property.banner_type && (
+                    <PropertyBanner bannerType={property.banner_type} />
+                  )}
+                  
+                  <img
                     src={property.fotos?.[0] || '/placeholder.svg'} 
                     alt={property.titulo}
                     className="w-full h-48 object-cover"
