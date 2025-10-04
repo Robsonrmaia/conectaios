@@ -48,6 +48,7 @@ import PropertyDetail from "@/pages/public/PropertyDetail";
 import PropertySubmissionForm from "@/pages/public/PropertySubmissionForm";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
 import PublicProbe from "@/pages/PublicProbe";
+import MarketplaceDebug from "@/pages/debug/MarketplaceDebug";
 
 const AtRedirect = () => {
   const { username } = useParams<{ username: string }>();
@@ -133,6 +134,7 @@ const App = () => (
                    <Route path="/imovel/:id" element={<PropertyDetail />} />
                    <Route path="/formulario-imovel/:token" element={<PropertySubmissionForm />} />
                    <Route path="/public-test" element={<PublicProbe />} />
+                   <Route path="/debug/marketplace" element={<MarketplaceDebug />} />
                   <Route path="/app/*" element={
                     <ProtectedRoute>
                       <AppLayout>

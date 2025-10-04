@@ -136,6 +136,10 @@ export default function Marketplace() {
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
           
+        // Logging temporário
+        console.log('MP_QUERY_COUNT', allProperties?.length, 'MP_FIRST_ID', allProperties?.[0]?.id);
+        if (error) console.error('MP_QUERY_ERROR', error);
+        
         if (import.meta.env.DEV) {
           console.log('📊 [MARKETPLACE] Resultado query:', { 
             status: error ? 'error' : 'success', 
