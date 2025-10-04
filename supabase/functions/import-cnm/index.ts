@@ -388,11 +388,11 @@ serve(async (req) => {
           construction_year: ano_construcao,
           
           // Visibilidade
-          is_public: publishOnImport,
-          visibility: publishOnImport ? 'public_site' : 'private',
-          show_on_site: publishOnImport,
-          show_on_marketplace: false,
-          show_on_minisite: false,
+          is_public: true,
+          visibility: 'partners', // Aparece no marketplace
+          show_on_site: true,
+          show_on_marketplace: true,
+          show_on_minisite: true,
           
           // Status
           status: 'available',
