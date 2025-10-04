@@ -551,13 +551,36 @@ function mapListingType(tipo: string | undefined): string {
 }
 
 function mapPropertyType(tipo: string | undefined): string {
-  if (!tipo) return 'apartamento';
-  const t = tipo.toLowerCase();
-  if (t.includes('apto') || t.includes('apart')) return 'apartamento';
-  if (t.includes('casa') || t.includes('house')) return 'casa';
-  if (t.includes('terreno') || t.includes('land')) return 'terreno';
-  if (t.includes('sala') || t.includes('commercial')) return 'comercial';
-  return 'apartamento';
+  if (!tipo) return 'apartment';
+  
+  const t = tipo.toLowerCase().trim();
+  
+  // Apartment
+  if (t.includes('apto') || t.includes('apart')) {
+    return 'apartment';
+  }
+  
+  // House
+  if (t.includes('casa') || t.includes('house')) {
+    return 'house';
+  }
+  
+  // Land/Terrain
+  if (t.includes('terreno') || t.includes('land') || t.includes('lote')) {
+    return 'land';
+  }
+  
+  // Room
+  if (t.includes('sala') || t.includes('quarto') || t.includes('room')) {
+    return 'room';
+  }
+  
+  // Commercial
+  if (t.includes('comercial') || t.includes('commercial') || t.includes('loja') || t.includes('escritório')) {
+    return 'commercial';
+  }
+  
+  return 'apartment'; // Default to apartment
 }
 
 // Helper functions for path navigation
