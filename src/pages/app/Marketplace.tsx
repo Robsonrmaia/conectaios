@@ -326,9 +326,9 @@ export default function Marketplace() {
           
           // Banner especiais apenas (sem listing_type como fallback)
           const specialBanners = ['exclusivo', 'oportunidade', 'abaixo_mercado', 'vendido', 'alugado'];
-          const bannerType = (configuredBannerType && specialBanners.includes(configuredBannerType))
-            ? configuredBannerType 
-            : null;
+            const bannerType = (configuredBannerType && specialBanners.includes(configuredBannerType))
+              ? configuredBannerType 
+              : property.listing_type || property.purpose || 'venda';
           
           return {
             id: property.id,
