@@ -155,7 +155,7 @@ export default function Imoveis() {
     bathrooms: '',
     suites: '',
     parking_spots: '',
-    listing_type: 'venda',
+    listing_type: 'sale',
     property_type: 'apartamento',
     showOnSite: false,
     showOnMarketplace: false,
@@ -393,16 +393,8 @@ export default function Imoveis() {
       const parsedIptu = formData.iptu ? parseValueInput(formData.iptu) : null;
       const parsedSeaDistance = formData.sea_distance ? parseInt(formData.sea_distance) : null;
       
-      // Mapear listing_type do formulário para purpose do banco (português -> inglês)
-      const purposeMapping: Record<string, string> = {
-        'venda': 'sale',
-        'aluguel': 'rent',
-        'temporada': 'season',
-        'sale': 'sale',
-        'rent': 'rent',
-        'season': 'season'
-      };
-      const mappedPurpose = purposeMapping[formData.listing_type] || 'sale';
+      // listing_type já vem em inglês do Select (sale, rent, season)
+      const mappedPurpose = formData.listing_type || 'sale';
       
       // Validar dados numéricos
       if (parsedValue <= 0) {
@@ -1085,19 +1077,19 @@ export default function Imoveis() {
                        placeholder="1"
                      />
                    </div>
-                  <div>
-                    <Label htmlFor="listing_type">Finalidade</Label>
-                    <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="venda">Venda</SelectItem>
-                        <SelectItem value="locacao">Locação</SelectItem>
-                        <SelectItem value="temporada">Temporada</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+                   <div>
+                     <Label htmlFor="listing_type">Finalidade</Label>
+                     <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
+                       <SelectTrigger>
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="sale">Venda</SelectItem>
+                         <SelectItem value="rent">Locação</SelectItem>
+                         <SelectItem value="season">Temporada</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
                   <div>
                     <Label htmlFor="property_type">Tipo</Label>
                     <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
@@ -1379,55 +1371,54 @@ export default function Imoveis() {
 
               <div className="space-y-3">
                 <Label>Visibilidade do Imóvel</Label>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="show-on-site" className="text-sm font-medium cursor-pointer">
+                      <Globe className="h-4 w-4 inline mr-2" />
+                      Mostrar no Site Público
+                    </label>
+                    <Switch
                       id="show-on-site"
                       checked={formData.showOnSite || false}
                       onCheckedChange={(checked) => 
-                        setFormData({ ...formData, showOnSite: checked === true })
+                        setFormData({ ...formData, showOnSite: checked })
                       }
                     />
-                    <label
-                      htmlFor="show-on-site"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      <Globe className="h-4 w-4 inline mr-1" />
-                      Mostrar no Site Público
-                    </label>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
+                  
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="show-on-marketplace" className="text-sm font-medium cursor-pointer">
+                      <Eye className="h-4 w-4 inline mr-2" />
+                      Mostrar no Marketplace
+                    </label>
+                    <Switch
                       id="show-on-marketplace"
                       checked={formData.showOnMarketplace || false}
                       onCheckedChange={(checked) => 
-                        setFormData({ ...formData, showOnMarketplace: checked === true })
+                        setFormData({ ...formData, showOnMarketplace: checked })
                       }
                     />
-                    <label
-                      htmlFor="show-on-marketplace"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                    >
-                      <Eye className="h-4 w-4 inline mr-1" />
-                      Mostrar no Marketplace
-                    </label>
                   </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="minisite" className="text-sm font-medium cursor-pointer">
+                      <Home className="h-4 w-4 inline mr-2" />
+                      Mostrar no Meu Site
+                    </label>
+                    <Switch
+                      id="minisite"
+                      checked={formData.broker_minisite_enabled}
+                      onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
+                    />
+                  </div>
+                  
                   {!formData.showOnSite && !formData.showOnMarketplace && (
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground flex items-center">
                       <EyeOff className="h-3 w-3 inline mr-1" />
-                      Imóvel ficará oculto (não aparece em nenhum lugar)
+                      Imóvel ficará oculto (não aparece em nenhum lugar público)
                     </p>
                   )}
                 </div>
-              </div>
-                
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="minisite"
-                  checked={formData.broker_minisite_enabled}
-                  onCheckedChange={(checked) => setFormData({...formData, broker_minisite_enabled: checked})}
-                />
-                <Label htmlFor="minisite">Mostrar no Meu Site</Label>
               </div>
             </div>
             <div className="flex justify-end gap-2">
@@ -1439,9 +1430,17 @@ export default function Imoveis() {
               </Button>
               <Button 
                 onClick={handleAddProperty}
+                disabled={isLoading}
                 className="bg-primary hover:bg-primary/90 text-primary-foreground hover:shadow-lg hover:scale-105 transition-all duration-300 hover:ring-2 hover:ring-primary/20 hover:ring-offset-2"
               >
-                {selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'}
+                {isLoading ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Salvando...
+                  </>
+                ) : (
+                  selectedProperty ? 'Salvar Alterações' : 'Adicionar Imóvel'
+                )}
               </Button>
              </div>
            </DialogContent>
