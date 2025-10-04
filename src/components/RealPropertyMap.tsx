@@ -102,13 +102,13 @@ const RealPropertyMap = ({
           addDebugInfo(`✅ Coordinates found: ${lat}, ${lng} - ${locationName}`);
           initializeMap(lng, lat);
         } else {
-          addDebugInfo('⚠️ No coordinates found, using São Paulo fallback');
-          initializeMap(-46.6333, -23.5505);
+          addDebugInfo('⚠️ No coordinates found, using Ilhéus fallback');
+          initializeMap(-39.0498, -14.7897);
         }
       } catch (error) {
         addDebugInfo(`❌ Geocoding error: ${error.message}`);
-        addDebugInfo('📍 Using São Paulo fallback due to error');
-        initializeMap(-46.6333, -23.5505);
+        addDebugInfo('📍 Using Ilhéus fallback due to error');
+        initializeMap(-39.0498, -14.7897);
       }
     };
 
