@@ -45,6 +45,7 @@ interface Property {
   fotos: string[];
   videos: string[];
   user_id: string;
+  owner_id: string; // ID do proprietário/corretor (equivalente a user_id)
   created_at: string;
   listing_type: string;
   property_type?: string;
@@ -204,7 +205,7 @@ export default function Marketplace() {
       }
 
       // Get unique user IDs and fetch brokers
-      const userIds: string[] = [...new Set(propertiesData.map((p: any) => p.user_id).filter(Boolean))] as string[];
+      const userIds: string[] = [...new Set(propertiesData.map((p: any) => p.owner_id).filter(Boolean))] as string[];
       if (userIds.length === 0) {
         if (page === 0) {
           setProperties([]);
@@ -337,8 +338,8 @@ export default function Marketplace() {
     
     // Se "Meus imóveis primeiro" ativado e usuário logado
     if (myPropertiesFirst && user) {
-      const myProperties = filtered.filter(p => p.user_id === user.id);
-      const otherProperties = filtered.filter(p => p.user_id !== user.id);
+      const myProperties = filtered.filter(p => p.owner_id === user.id);
+      const otherProperties = filtered.filter(p => p.owner_id !== user.id);
       filtered = [...myProperties, ...otherProperties];
     }
     
