@@ -317,15 +317,8 @@ export default function Marketplace() {
           // Extrair banner_type configurado das features
           const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
           
-          // Determinar banner_type baseado no status e proprietário
-          // Só aplica banner automático se não houver banner configurado
-          let bannerType = configuredBannerType || null;
-          if (!bannerType) {
-            if (property.owner_id === user?.id) bannerType = 'exclusivo';
-            else if (property.status === 'sold') bannerType = 'vendido';
-            else if (property.status === 'rented') bannerType = 'alugado';
-            else if (property.price && property.price < 300000) bannerType = 'oportunidade';
-          }
+          // Usar apenas o banner_type configurado nas features
+          const bannerType = configuredBannerType || null;
           
           return {
             id: property.id,

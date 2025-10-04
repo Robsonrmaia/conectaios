@@ -260,6 +260,7 @@ export default function MinisiteView() {
               
               // Mapear dados do banco para interface Property
               const mappedProperties = propertiesData.map(prop => {
+                console.log('🏠 Minisite - Mapeando imóvel:', prop.id, prop.title);
                 // Extrair imagens das imovel_images
                 const fotos = (prop.imovel_images || [])
                   .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
@@ -300,6 +301,9 @@ export default function MinisiteView() {
                   banner_type: bannerTypeFeature?.value || null
                 };
               });
+
+              console.log('🏠 Minisite - Total imóveis mapeados:', mappedProperties.length);
+              console.log('🏠 Minisite - Primeiro imóvel:', mappedProperties[0]);
 
               setProperties(mappedProperties);
               setFilteredProperties(mappedProperties);
@@ -770,16 +774,6 @@ export default function MinisiteView() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* WhatsApp Button - Destaque no topo */}
-            {config.whatsapp && (
-              <Button 
-                onClick={openWhatsApp}
-                className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all bg-green-600 hover:bg-green-700"
-              >
-                <MessageCircle className="h-5 w-5 mr-2" />
-                Quero ser atendido
-              </Button>
-            )}
             
             {/* Contact Info */}
             <Card>
