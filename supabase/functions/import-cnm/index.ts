@@ -20,47 +20,61 @@ interface ImportResult {
 }
 
 interface PropertyData {
-  reference_code: string;
+  // Identificação
+  owner_id: string | null;
   external_id: string;
-  source_portal: string;
-  titulo: string;
-  listing_type: string;
-  property_type: string;
-  valor: number;
-  area: number;
+  source: string;
+  
+  // Básico
+  title: string;
+  purpose: string;
+  type: string;
+  property_type?: string;
+  listing_type?: string;
+  description?: string;
+  
+  // Valores
+  price: number;
+  condo_fee?: number | null;
+  iptu?: number | null;
+  
+  // Características
+  is_furnished: boolean;
+  
+  // Áreas
   area_total?: number;
+  area_built?: number;
   area_privativa?: number;
-  quartos: number;
-  banheiros: number;
-  bathrooms: number; // Mapped from banheiros for table compatibility
-  vagas: number;
-  parking_spots: number; // Mapped from vagas for table compatibility
-  condominium_fee?: number;
-  iptu?: number;
-  year_built?: number;
-  furnishing_type?: string;
-  descricao?: string;
-  endereco?: string;
-  address?: string; // Mapped from endereco for table compatibility
-  bairro?: string;
-  neighborhood?: string; // Mapped from bairro for table compatibility
-  cidade?: string;
-  city?: string; // Mapped from cidade for table compatibility
+  
+  // Cômodos
+  bedrooms: number;
+  bathrooms: number;
+  suites?: number;
+  parking?: number;
+  
+  // Localização
+  address?: string;
+  street?: string;
+  number?: string;
+  neighborhood?: string;
+  city?: string;
   state?: string;
   zipcode?: string;
-  fotos?: string[];
-  galeria_urls?: string[];
-  thumb_url?: string | null;
-  finalidade?: string;
-  tipo?: string;
-  preco?: number;
-  status?: string;
-  raw_cnm?: any;
-  imported_at: string;
-  is_public?: boolean;
-  visibility?: string;
-  user_id?: string | null;
-  site_id?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  
+  // Outros
+  construction_year?: number | null;
+  
+  // Visibilidade
+  is_public: boolean;
+  visibility: string;
+  show_on_site: boolean;
+  show_on_marketplace: boolean;
+  show_on_minisite: boolean;
+  
+  // Status
+  status: string;
 }
 
 serve(async (req) => {
@@ -328,49 +342,61 @@ serve(async (req) => {
         });
         
         const propertyData: PropertyData = {
-          reference_code,
-          external_id: reference_code, // Same as reference_code for CNM
-          source_portal: 'cnm',
-          titulo: String(imovel.titulo || `${mapPropertyType(imovel.tipo)} ${quartos ? `${quartos} quartos` : ''} ${mapListingType(imovel.transacao)} ${imovel.bairro || ''}`.trim()).substring(0, 255),
-          listing_type: mapListingType(imovel.transacao || imovel.finalidade),
+          // Obrigatórios
+          owner_id: userId || null,
+          title: String(imovel.titulo || `${mapPropertyType(imovel.tipo)} ${quartos ? `${quartos} quartos` : ''} ${mapListingType(imovel.transacao)} ${imovel.bairro || ''}`.trim()).substring(0, 255),
+          purpose: mapListingType(imovel.transacao || imovel.finalidade),
+          
+          // Identificação/Origem
+          external_id: reference_code,
+          source: 'cnm',
           property_type: mapPropertyType(imovel.tipo),
-          valor: valor,
-          preco: valor, // Compatibility field
-          area: area_total, // Use area_total as main area
-          area_total: area_total,
-          area_privativa: area_privativa,
-          quartos: quartos,
-          banheiros: banheiros,
-          bathrooms: banheiros, // Map to table field
-          vagas: vagas,
-          parking_spots: vagas, // Map to table field
-          condominium_fee: condominio > 0 ? condominio : null,
+          listing_type: mapListingType(imovel.transacao || imovel.finalidade),
+          
+          // Valores
+          price: valor,
+          condo_fee: condominio > 0 ? condominio : null,
           iptu: iptu_value > 0 ? iptu_value : null,
-          year_built: ano_construcao,
-          furnishing_type: detectFurnishingType(imovel.descritivo || ''),
-          descricao: imovel.descritivo || imovel.descricao || imovel.observacoes || '',
-          endereco: endereco_completo,
-          address: endereco_completo, // Map to table field
-          bairro: bairro_name,
-          neighborhood: bairro_name, // Map to table field
-          cidade: cidade_name,
-          city: cidade_name, // Map to table field
+          
+          // Características
+          is_furnished: detectFurnishingType(imovel.descritivo || '') !== 'none',
+          
+          // Áreas
+          area_total: area_total,
+          area_built: area_privativa,
+          area_privativa: area_privativa,
+          
+          // Cômodos
+          bedrooms: quartos,
+          bathrooms: banheiros,
+          suites: parseInt(String(imovel.suites || '0')) || 0,
+          parking: vagas,
+          
+          // Localização
+          address: endereco_completo,
+          street: imovel.endereco?.logradouro || imovel.logradouro || '',
+          number: imovel.numero || '',
+          neighborhood: bairro_name,
+          city: cidade_name,
           state: imovel.estado || imovel.uf || '',
           zipcode: imovel.cep || '',
-          fotos: photos,
-          galeria_urls: photos, // Array of photo URLs
-          thumb_url: photos.length > 0 ? photos[0] : null, // First photo as thumbnail
-          finalidade: mapListingType(imovel.transacao || imovel.finalidade), // Compatibility
-          tipo: mapPropertyType(imovel.tipo), // Compatibility
-          raw_cnm: imovel,
-          imported_at: new Date().toISOString(),
+          latitude: parseFloat(imovel.latitude) || null,
+          longitude: parseFloat(imovel.longitude) || null,
+          
+          // Outros
+          description: imovel.descritivo || imovel.descricao || imovel.observacoes || '',
+          construction_year: ano_construcao,
+          
+          // Visibilidade
           is_public: publishOnImport,
-          visibility: publishOnImport ? 'public_site' : 'hidden',
-          broker_minisite_enabled: publishOnImport,
-          status: 'ATIVO',
-          // New fields for broker assignment
-          user_id: userId || null,
-          site_id: siteIdParam || null
+          visibility: publishOnImport ? 'public_site' : 'private',
+          show_on_site: publishOnImport,
+          show_on_marketplace: false,
+          show_on_minisite: false,
+          
+          // Status
+          status: 'available',
+          type: mapPropertyType(imovel.tipo)
         };
 
         // More lenient validation - accept if has title OR reasonable value
@@ -395,11 +421,11 @@ serve(async (req) => {
           continue;
         }
 
-        // Upsert property using reference_code as conflict key
+        // Upsert property using external_id as conflict key
         const { data, error } = await supabase
-          .from('properties')
+          .from('imoveis')
           .upsert(propertyData, {
-            onConflict: 'reference_code',
+            onConflict: 'external_id',
             ignoreDuplicates: false
           })
           .select();
@@ -411,7 +437,35 @@ serve(async (req) => {
         }
 
         if (data && data.length > 0) {
-          console.log(`✅ Processed: ${propertyData.titulo} (${reference_code})`);
+          const propertyId = data[0].id;
+          console.log(`✅ Property upserted: ${propertyData.title} (${reference_code})`);
+          
+          // Process photos separately into imovel_images table
+          if (photos.length > 0) {
+            console.log(`📸 Inserting ${photos.length} photos for property ${propertyId}`);
+            
+            const photoInserts = photos.map((url, index) => ({
+              imovel_id: propertyId,
+              url: url,
+              position: index,
+              is_cover: index === 0
+            }));
+            
+            const { error: photoError } = await supabase
+              .from('imovel_images')
+              .upsert(photoInserts, { 
+                onConflict: 'imovel_id,url',
+                ignoreDuplicates: true 
+              });
+            
+            if (photoError) {
+              console.error('⚠️ Photo insert error:', photoError);
+              result.errors.push(`Property ${reference_code} photos: ${photoError.message}`);
+            } else {
+              console.log(`✅ Inserted ${photos.length} photos`);
+            }
+          }
+          
           result.created_count++;
         } else {
           result.updated_count++;
@@ -427,7 +481,7 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       ...result,
-      conflict_key: 'reference_code',
+      conflict_key: 'external_id',
       user_id: userId || null,
       siteId: siteIdParam || null,
       published: publishOnImport
