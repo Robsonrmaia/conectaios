@@ -1537,9 +1537,6 @@ export default function Imoveis() {
                       </Badge>
                       
                       {/* Badges secundários */}
-                      {property.is_furnished && (
-                        <Badge variant="secondary" className="text-xs">Mobiliado</Badge>
-                      )}
                       {property.has_sea_view && (
                         <Badge variant="secondary" className="text-xs">Vista Mar</Badge>
                       )}
@@ -1659,10 +1656,20 @@ export default function Imoveis() {
                     {/* Quick Visibility Buttons */}
                     <div className="flex gap-1 mt-3 pt-3 border-t">
                       <Button
-                        variant={property.visibility === 'public_site' ? 'default' : 'outline'}
+                        variant={
+                          property.visibility === 'public_site' || 
+                          (property.visibility === 'partners' && property.show_on_site)
+                            ? 'default' 
+                            : 'outline'
+                        }
                         size="sm"
                         className="flex-1 h-7 text-xs"
-                        onClick={() => updatePropertyVisibility(property.id, true, false)}
+                        onClick={() => {
+                          const currentShowSite = property.visibility === 'public_site' || 
+                                                  (property.visibility === 'partners' && property.show_on_site);
+                          const currentShowMarket = property.visibility === 'partners';
+                          updatePropertyVisibility(property.id, !currentShowSite, currentShowMarket);
+                        }}
                       >
                         <Globe className="h-3 w-3 mr-1" />
                         Site
@@ -1671,7 +1678,12 @@ export default function Imoveis() {
                         variant={property.visibility === 'partners' ? 'default' : 'outline'}
                         size="sm"
                         className="flex-1 h-7 text-xs"
-                        onClick={() => updatePropertyVisibility(property.id, false, true)}
+                        onClick={() => {
+                          const currentShowSite = property.visibility === 'public_site' || 
+                                                  (property.visibility === 'partners' && property.show_on_site);
+                          const currentShowMarket = property.visibility === 'partners';
+                          updatePropertyVisibility(property.id, currentShowSite, !currentShowMarket);
+                        }}
                       >
                         <Target className="h-3 w-3 mr-1" />
                         Market
