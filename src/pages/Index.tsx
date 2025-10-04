@@ -348,36 +348,13 @@ const Index = () => {
 
                 <div className="relative z-10 flex justify-center">
                   <div className="hero-image-container" ref={containerRef}>
-                    <div className="image-wrapper relative" ref={wrapperRef}>
+                    <div className="image-wrapper" ref={wrapperRef}>
                       <img 
                         src={garotonectaImg} 
                         alt="Profissional ConectaIOS" 
                         className="max-w-full h-auto max-h-[770px] xl:max-h-[880px] object-contain"
                         style={{ transform: 'scale(1.1)' }}
                       />
-                      
-                      {/* Balões de conversa animados */}
-                      <div className="absolute -right-8 top-1/4 animate-bounce" style={{ animationDelay: '0s', animationDuration: '3s' }}>
-                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-primary/20 relative">
-                          <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-l-2 border-b-2 border-primary/20 transform rotate-45"></div>
-                          <p className="text-sm font-medium text-primary">Quantos imóveis você gerencia? 🏠</p>
-                        </div>
-                      </div>
-                      
-                      <div className="absolute -left-8 top-1/2 animate-bounce" style={{ animationDelay: '1s', animationDuration: '3.5s' }}>
-                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-green-500/20 relative">
-                          <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-r-2 border-t-2 border-green-500/20 transform rotate-45"></div>
-                          <p className="text-sm font-medium text-green-700">Quer automatizar seu trabalho? ⚡</p>
-                        </div>
-                      </div>
-                      
-                      <div className="absolute -right-12 bottom-1/4 animate-bounce" style={{ animationDelay: '2s', animationDuration: '4s' }}>
-                        <div className="bg-white rounded-2xl shadow-xl p-4 max-w-[200px] border-2 border-purple-500/20 relative">
-                          <div className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-white border-l-2 border-b-2 border-purple-500/20 transform rotate-45"></div>
-                          <p className="text-sm font-medium text-purple-700">Precisa de mais leads? 🎯</p>
-                        </div>
-                      </div>
-                      
                       <div className="hero-shadow" ref={shadowRef}></div>
                     </div>
                   </div>

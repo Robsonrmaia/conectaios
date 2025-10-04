@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -8,9 +8,17 @@ import { Input } from '@/components/ui/input';
 import { useConectaAIChat } from '@/hooks/useConectaAIChat';
 import { cn } from '@/lib/utils';
 
+const questions = [
+  "Quantos imóveis você gerencia? 🏠",
+  "Quer automatizar seu trabalho? ⚡",
+  "Precisa de mais leads? 🎯",
+  "Quer vender mais rápido? 🚀"
+];
+
 export function ConectaAIChatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
+  const [currentQuestion, setCurrentQuestion] = useState(0);
   const { messages, loading, sendMessage, error } = useConectaAIChat();
 
   const handleSend = async () => {
@@ -53,19 +61,41 @@ export function ConectaAIChatButton() {
     ));
   };
 
+  // Rotação de perguntas a cada 3 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuestion((prev) => (prev + 1) % questions.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
-      {/* Botão do Header - Só o robô */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className="hover:opacity-80 transition-opacity"
-      >
-        <img 
-          src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
-          alt="Assistente IA"
-          className="w-12 h-12"
-        />
-      </button>
+      {/* Botão do Header - Só o robô com balões */}
+      <div className="relative">
+        {/* Balão de pergunta animado */}
+        <div className="absolute -left-48 top-1/2 -translate-y-1/2 animate-bounce pointer-events-none hidden md:block">
+          <div className="bg-white rounded-2xl shadow-xl p-3 max-w-[180px] border-2 border-primary/20 relative">
+            <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/20 transform rotate-45"></div>
+            <p className="text-xs font-medium text-primary animate-fade-in">
+              {questions[currentQuestion]}
+            </p>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => setIsOpen(true)}
+          className="hover:opacity-80 transition-opacity relative"
+        >
+          <img 
+            src="https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/robo.gif" 
+            alt="Assistente IA"
+            className="w-[53px] h-[53px]"
+          />
+          {/* Indicador de pulso */}
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        </button>
+      </div>
 
       {/* Sheet do Chat */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
