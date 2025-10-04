@@ -11,6 +11,7 @@ const bannerConfig = {
     text: 'ALUGADO',
     className: 'bg-green-600 text-white'
   },
+  // Português
   venda: {
     text: 'VENDA',
     className: 'bg-blue-600 text-white'
@@ -20,6 +21,19 @@ const bannerConfig = {
     className: 'bg-green-600 text-white'
   },
   temporada: {
+    text: 'TEMPORADA',
+    className: 'bg-orange-500 text-white'
+  },
+  // Inglês (valores do banco de dados)
+  sale: {
+    text: 'VENDA',
+    className: 'bg-blue-600 text-white'
+  },
+  rent: {
+    text: 'LOCAÇÃO',
+    className: 'bg-green-600 text-white'
+  },
+  season: {
     text: 'TEMPORADA',
     className: 'bg-orange-500 text-white'
   },

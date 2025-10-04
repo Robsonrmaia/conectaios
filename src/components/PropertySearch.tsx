@@ -55,7 +55,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
   };
 
   return (
-    <div className="relative">
+    <div className="relative overflow-visible">
       {/* Search Toggle Button */}
       <Button
         variant="outline"
@@ -70,7 +70,7 @@ export function PropertySearch({ onSearch, onClear, isVisible, onToggle }: Prope
 
       {/* Search Panel */}
       {isVisible && (
-        <Card className="absolute top-12 right-0 md:left-0 md:right-auto w-[95vw] md:w-96 max-w-md z-50 shadow-lg">
+        <Card className="absolute top-12 left-0 w-full sm:w-96 z-50 shadow-lg">
           <CardContent className="p-4 space-y-4">
             {/* Text Search */}
             <div>

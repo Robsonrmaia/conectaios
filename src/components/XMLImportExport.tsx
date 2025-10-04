@@ -37,6 +37,39 @@ const toBool = (v: any) => {
 function mapCnmItemToImovel(item: any, ownerId: string) {
   const e = item?.endereco ?? {}; // some feeds nest address data
 
+  // Mapear finalidade (português → inglês)
+  const purposeMap: Record<string, string> = {
+    'venda': 'sale',
+    'sale': 'sale',
+    'aluguel': 'rent',
+    'rent': 'rent',
+    'locacao': 'rent',
+    'locação': 'rent',
+    'temporada': 'season',
+    'season': 'season'
+  };
+
+  // Mapear tipo de propriedade (português → inglês)
+  const typeMap: Record<string, string> = {
+    'apartamento': 'apartment',
+    'apartment': 'apartment',
+    'casa': 'house',
+    'house': 'house',
+    'terreno': 'land',
+    'land': 'land',
+    'comercial': 'commercial',
+    'commercial': 'commercial',
+    'cobertura': 'penthouse',
+    'penthouse': 'penthouse',
+    'chácara': 'farm',
+    'farm': 'farm',
+    'sítio': 'farm',
+    'fazenda': 'farm'
+  };
+
+  const rawPurpose = item?.finalidade ?? item?.categoria ?? '';
+  const rawType = item?.tipo_imovel ?? item?.tipo ?? '';
+
   return {
     owner_id: ownerId,
 
@@ -74,9 +107,9 @@ function mapCnmItemToImovel(item: any, ownerId: string) {
     suites: toInt(item?.qtd_suites ?? item?.suites),
     parking: toInt(item?.qtd_vagas ?? item?.vagas_garagem ?? item?.vagas),
 
-    // classification
-    property_type: item?.tipo_imovel ?? item?.tipo ?? null,
-    purpose: item?.finalidade ?? item?.categoria ?? null, // sale/rent
+    // classification - convertendo para inglês
+    property_type: typeMap[rawType?.toLowerCase()] ?? rawType ?? null,
+    purpose: purposeMap[rawPurpose?.toLowerCase()] ?? rawPurpose ?? null,
     status: item?.status ?? null,
 
     // location
