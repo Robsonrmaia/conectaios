@@ -528,22 +528,26 @@ function detectFurnishingType(descricao: string): string {
 }
 
 function mapListingType(tipo: string | undefined): string {
-  if (!tipo) return 'venda';
+  if (!tipo) return 'sale';
   
   const normalized = tipo.toLowerCase().trim();
   
   // CNM specific mappings
   if (normalized.includes('alug') || normalized.includes('rent') || normalized === 'l' || 
       normalized === 're' || normalized.includes('loca')) {
-    return 'aluguel';
+    return 'rent';
   }
   
   if (normalized.includes('vend') || normalized.includes('sale') || normalized === 'v' ||
       normalized.includes('compra')) {
-    return 'venda';
+    return 'sale';
   }
   
-  return 'venda'; // Default to sale
+  if (normalized.includes('temp') || normalized.includes('season')) {
+    return 'season';
+  }
+  
+  return 'sale'; // Default to sale
 }
 
 function mapPropertyType(tipo: string | undefined): string {
