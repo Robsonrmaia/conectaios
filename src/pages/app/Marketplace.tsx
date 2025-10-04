@@ -165,7 +165,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            property_images!imovel_images_imovel_id_fkey(url, is_cover, position)
+            property_images!imovel_images_imovel_id_fkey(url, is_cover, position),
+            imovel_features(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -292,12 +293,18 @@ export default function Marketplace() {
           const coverImage = property.property_images?.find((img: any) => img.is_cover)?.url;
           const allPhotos = property.property_images?.map((img: any) => img.url) || [];
           
+          // Extrair banner_type configurado das features
+          const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
+          
           // Determinar banner_type baseado no status e proprietário
-          let bannerType = null;
-          if (property.owner_id === user?.id) bannerType = 'exclusivo';
-          else if (property.status === 'sold') bannerType = 'vendido';
-          else if (property.status === 'rented') bannerType = 'alugado';
-          else if (property.price && property.price < 300000) bannerType = 'oportunidade';
+          // Só aplica banner automático se não houver banner configurado
+          let bannerType = configuredBannerType || null;
+          if (!bannerType) {
+            if (property.owner_id === user?.id) bannerType = 'exclusivo';
+            else if (property.status === 'sold') bannerType = 'vendido';
+            else if (property.status === 'rented') bannerType = 'alugado';
+            else if (property.price && property.price < 300000) bannerType = 'oportunidade';
+          }
           
           return {
             id: property.id,
