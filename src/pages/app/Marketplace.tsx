@@ -165,8 +165,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            property_images(url, is_cover, position),
-            property_features(key, value)
+            imovel_images(url, is_cover, position),
+            imovel_features(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -291,11 +291,11 @@ export default function Marketplace() {
         .filter(property => property && property.id && property.title) // Basic validation
         .map(property => {
           // Buscar foto de capa e todas as fotos
-          const coverImage = property.property_images?.find((img: any) => img.is_cover)?.url;
-          const allPhotos = property.property_images?.map((img: any) => img.url) || [];
+          const coverImage = property.imovel_images?.find((img: any) => img.is_cover)?.url;
+          const allPhotos = property.imovel_images?.map((img: any) => img.url) || [];
           
           // Extrair banner_type configurado das features
-          const configuredBannerType = property.property_features?.find((f: any) => f.key === 'banner_type')?.value;
+          const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
           
           // Determinar banner_type baseado no status e proprietário
           // Só aplica banner automático se não houver banner configurado

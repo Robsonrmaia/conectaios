@@ -224,8 +224,8 @@ export default function MinisiteView() {
                 address, state, created_at, updated_at,
                 is_furnished, condo_fee, iptu, vista_mar,
                 distancia_mar, construction_year, zipcode, is_public, visibility, show_on_site, show_on_minisite, status,
-                property_features(key, value),
-                property_images(url, is_cover, position)
+                imovel_features(key, value),
+                imovel_images(url, is_cover, position)
               `)
               .eq('owner_id', finalBrokerData.user_id)
               .eq('status', 'available')
@@ -260,16 +260,16 @@ export default function MinisiteView() {
               
               // Mapear dados do banco para interface Property
               const mappedProperties = propertiesData.map(prop => {
-                // Extrair imagens das property_images
-                const fotos = (prop.property_images || [])
+                // Extrair imagens das imovel_images
+                const fotos = (prop.imovel_images || [])
                   .sort((a: any, b: any) => (a.position || 0) - (b.position || 0))
                   .map((img: any) => img.url);
 
                 // Extrair banner_type e furnishing_type das features
-                const bannerTypeFeature = (prop.property_features || []).find(
+                const bannerTypeFeature = (prop.imovel_features || []).find(
                   (f: any) => f.key === 'banner_type'
                 );
-                const furnishingFeature = (prop.property_features || []).find(
+                const furnishingFeature = (prop.imovel_features || []).find(
                   (f: any) => f.key === 'furnishing_type'
                 );
 
