@@ -21,6 +21,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { useBroker } from "@/hooks/useBroker";
 import { useChatExternal } from "@/hooks/useChatExternal";
+import { ChatExternalModal } from "@/components/ChatExternalModal";
 import { ExternalToolModal } from "@/components/ExternalToolModal";
 import { AnimatedCard } from "@/components/AnimatedCard";
 
@@ -42,7 +43,7 @@ const Ferramentas = () => {
   const [externalTool, setExternalTool] = useState<{ name: string; url: string; showAddressBar?: boolean } | null>(null);
   const navigate = useNavigate();
   const { broker } = useBroker();
-  const { openChat } = useChatExternal();
+  const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
 
   const toolCategories = {
     marketing: {
@@ -248,7 +249,7 @@ const Ferramentas = () => {
         navigate("/app/ai-assistant");
         break;
       case "whatsapp-sender":
-        openChat();
+        openChatModal();
         break;
       case "contract-generator":
       case "neighborhood-guide":
@@ -396,6 +397,12 @@ const Ferramentas = () => {
             showAddressBar={externalTool.showAddressBar}
           />
         )}
+
+        <ChatExternalModal
+          isOpen={modalOpen}
+          onClose={closeChatModal}
+          chatUrl={chatUrl}
+        />
       </div>
     </div>
   );

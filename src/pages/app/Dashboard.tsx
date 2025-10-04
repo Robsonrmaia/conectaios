@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Building2, Users, MessageSquare, TrendingUp, Eye, Heart, Target, Globe, ExternalLink, Home } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { useChatExternal } from '@/hooks/useChatExternal';
+import { ChatExternalModal } from '@/components/ChatExternalModal';
 import { toast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '@/lib/utils';
@@ -20,7 +21,7 @@ const Dashboard = () => {
   const { broker } = useBroker();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const { openChat } = useChatExternal();
+  const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
   const [stats, setStats] = useState({
     properties: 0,
     clients: 0,
@@ -249,7 +250,7 @@ const Dashboard = () => {
 
         <Card 
           className="cursor-pointer hover:shadow-md transition-shadow"
-          onClick={() => openChat()}
+          onClick={() => openChatModal()}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Mensagens</CardTitle>
@@ -485,6 +486,15 @@ const Dashboard = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Market Analytics */}
+      <MarketStatsWidget />
+
+      <ChatExternalModal
+        isOpen={modalOpen}
+        onClose={closeChatModal}
+        chatUrl={chatUrl}
+      />
     </div>
   );
 };

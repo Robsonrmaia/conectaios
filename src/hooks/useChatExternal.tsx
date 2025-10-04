@@ -2,10 +2,13 @@
  * Hook para obter URL do chat externo com tokens da sessão atual
  */
 
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { buildChatUrl, PropertyLite } from "@/lib/chatExternal";
 
 export function useChatExternal() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [chatUrl, setChatUrl] = useState("");
   /**
    * Gera URL do chat externo com tokens da sessão atual
    * @param property - Dados do imóvel (opcional) para pré-preencher mensagem
@@ -61,5 +64,30 @@ export function useChatExternal() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  return { getChatUrl, openChat };
+  /**
+   * Abre o chat externo em modal (URL fica oculta)
+   * @param property - Dados do imóvel (opcional)
+   */
+  const openChatModal = async (property?: PropertyLite): Promise<void> => {
+    const url = await getChatUrl(property);
+    setChatUrl(url);
+    setModalOpen(true);
+  };
+
+  /**
+   * Fecha o modal do chat
+   */
+  const closeChatModal = () => {
+    setModalOpen(false);
+    setChatUrl("");
+  };
+
+  return { 
+    getChatUrl, 
+    openChat, 
+    openChatModal, 
+    closeChatModal,
+    modalOpen,
+    chatUrl
+  };
 }

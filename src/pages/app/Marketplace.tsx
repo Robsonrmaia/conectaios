@@ -6,6 +6,7 @@ import PageWrapper from '@/components/PageWrapper';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useChatExternal } from '@/hooks/useChatExternal';
+import { ChatExternalModal } from '@/components/ChatExternalModal';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -81,7 +82,6 @@ interface Property {
 export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { openChat } = useChatExternal();
   const { speak, stop, isSpeaking, isCurrentlySpeaking } = useElevenLabsVoice();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,6 +98,7 @@ export default function Marketplace() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50); // Aumentado para primeira página
+  const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
   
   // Debug and stats states
@@ -319,10 +320,11 @@ export default function Marketplace() {
           // Extrair banner_type configurado das features
           const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
           
-          // Se não tem banner configurado E não é "none", usar listing_type
-          const bannerType = (configuredBannerType && configuredBannerType !== 'none') 
+          // Banner especiais apenas (sem listing_type como fallback)
+          const specialBanners = ['exclusivo', 'oportunidade', 'abaixo_mercado', 'vendido', 'alugado'];
+          const bannerType = (configuredBannerType && specialBanners.includes(configuredBannerType))
             ? configuredBannerType 
-            : property.listing_type || null;
+            : null;
           
           return {
             id: property.id,
@@ -1033,21 +1035,21 @@ export default function Marketplace() {
                              <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
                            </Button>
                           
-                           <Button
-                             size="sm"
-                             variant="outline"
-                             onClick={(e) => {
-                               e.stopPropagation();
-                               openChat({
-                                 id: property.id,
-                                 title: property.titulo,
-                                 code: property.reference_code,
-                                 addressLine: property.neighborhood,
-                               });
-                             }}
-                             className="h-8 px-2 hover:bg-primary hover:text-white flex-1"
-                             title="Mensagem"
-                           >
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openChatModal({
+                                  id: property.id,
+                                  title: property.titulo,
+                                  code: property.reference_code,
+                                  addressLine: property.neighborhood
+                                });
+                              }}
+                              className="h-8 px-2 hover:bg-primary hover:text-white flex-1"
+                              title="Mensagem"
+                            >
                              <MessageSquare className="h-3 w-3" strokeWidth={2} fill="none" />
                              <span className="sr-only">Mensagem</span>
                            </Button>
@@ -1337,6 +1339,12 @@ export default function Marketplace() {
         initialIndex={selectedPhotoIndex}
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}
+      />
+
+      <ChatExternalModal
+        isOpen={modalOpen}
+        onClose={closeChatModal}
+        chatUrl={chatUrl}
       />
     </PageWrapper>
   );

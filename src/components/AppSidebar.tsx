@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { useGamification } from '@/hooks/useGamification';
 import { useChatExternal } from '@/hooks/useChatExternal';
+import { ChatExternalModal } from '@/components/ChatExternalModal';
 import { GamificationBadge } from '@/components/GamificationBadge';
 import { GamificationFeatureFlag } from '@/components/GamificationFeatureFlag';
 import logoconectaiosImg from '@/assets/logoconectaios.png';
@@ -145,7 +146,7 @@ export function AppSidebar() {
   const currentPath = location.pathname;
   const { isAdmin } = useAdminAuth();
   const { stats } = useGamification();
-  const { openChat } = useChatExternal();
+  const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
 
   const isActive = (url: string, exact = false) => {
     if (exact) return currentPath === url;
@@ -159,6 +160,7 @@ export function AppSidebar() {
   };
 
   return (
+    <>
     <Sidebar 
       collapsible="icon"
       className="border-r"
@@ -185,7 +187,7 @@ export function AppSidebar() {
                     {(item as any).isExternal ? (
                       <button
                         type="button"
-                        onClick={() => openChat()}
+                        onClick={() => openChatModal()}
                         className="w-full hover:bg-accent hover:text-accent-foreground flex items-center"
                       >
                         <item.icon className="h-4 w-4" />
@@ -294,5 +296,12 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
+
+    <ChatExternalModal
+      isOpen={modalOpen}
+      onClose={closeChatModal}
+      chatUrl={chatUrl}
+    />
+    </>
   );
 }
