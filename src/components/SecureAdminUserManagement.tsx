@@ -45,42 +45,42 @@ export default function SecureAdminUserManagement() {
     try {
       setLoading(true);
       
-      // Buscar todos os usuários de auth.users
-      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
+      // Buscar profiles com LEFT JOIN para brokers e user_roles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          email,
+          name,
+          created_at
+        `);
 
-      if (authError) throw authError;
+      if (profilesError) throw profilesError;
 
-      // Buscar profiles, brokers e roles para cada usuário
+      // Para cada profile, buscar broker e role
       const usersWithDetails = await Promise.all(
-        (authData.users || []).map(async (authUser) => {
-          // Buscar profile
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('name')
-            .eq('id', authUser.id)
-            .maybeSingle();
-
+        (profilesData || []).map(async (profile) => {
           // Buscar broker (para CRECI)
           const { data: broker } = await supabase
             .from('brokers')
             .select('creci')
-            .eq('user_id', authUser.id)
+            .eq('user_id', profile.id)
             .maybeSingle();
 
           // Buscar role
           const { data: roleData } = await supabase
             .from('user_roles')
             .select('role')
-            .eq('user_id', authUser.id)
+            .eq('user_id', profile.id)
             .maybeSingle();
 
           return {
-            id: authUser.id,
-            email: authUser.email || 'N/A',
-            nome: profile?.name || authUser.email?.split('@')[0] || 'Sem nome',
+            id: profile.id,
+            email: profile.email || 'N/A',
+            nome: profile.name || profile.email?.split('@')[0] || 'Sem nome',
             role: (roleData?.role || 'user') as 'user' | 'admin',
             creci: broker?.creci || '-',
-            created_at: authUser.created_at
+            created_at: profile.created_at
           };
         })
       );

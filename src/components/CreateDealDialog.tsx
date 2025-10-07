@@ -92,7 +92,7 @@ export function CreateDealDialog({ propertyId, onDealCreated, open: controlledOp
 
       // Fetch brokers (excluding current user)
       const { data: brokersData } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('id, name, email')
         .neq('user_id', user?.id)
         .eq('status', 'active')
