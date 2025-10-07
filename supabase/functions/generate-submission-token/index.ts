@@ -24,11 +24,14 @@ const handler = async (req: Request): Promise<Response> => {
     const { broker_id }: GenerateTokenRequest = await req.json();
 
     if (!broker_id) {
+      console.error('Missing broker_id in request');
       return new Response(
         JSON.stringify({ error: 'broker_id is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
+
+    console.log('Generating token for broker:', broker_id);
 
     // Generate unique token
     const { data: tokenData, error: tokenError } = await supabaseClient
@@ -37,12 +40,13 @@ const handler = async (req: Request): Promise<Response> => {
     if (tokenError) {
       console.error('Error generating token:', tokenError);
       return new Response(
-        JSON.stringify({ error: 'Failed to generate token' }),
+        JSON.stringify({ error: 'Failed to generate token', details: tokenError.message }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    const token = tokenData;
+    const token = tokenData as string;
+    console.log('Generated token:', token);
 
     // Create submission record
     const { data: submission, error: submissionError } = await supabaseClient
@@ -63,12 +67,18 @@ const handler = async (req: Request): Promise<Response> => {
     if (submissionError) {
       console.error('Error creating submission:', submissionError);
       return new Response(
-        JSON.stringify({ error: 'Failed to create submission' }),
+        JSON.stringify({ error: 'Failed to create submission', details: submissionError.message }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       );
     }
 
-    const publicUrl = `${req.headers.get('origin') || 'https://your-domain.com'}/formulario-imovel/${token}`;
+    console.log('Created submission:', submission.id);
+
+    // Construir URL completa
+    const origin = req.headers.get('origin') || 'https://conectaios.com.br';
+    const publicUrl = `${origin}/formulario-imovel/${token}`;
+
+    console.log('Generated public URL:', publicUrl);
 
     return new Response(
       JSON.stringify({ 
@@ -85,7 +95,7 @@ const handler = async (req: Request): Promise<Response> => {
   } catch (error: any) {
     console.error('Error in generate-submission-token:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: error.message || 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
     );
   }

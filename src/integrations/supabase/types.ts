@@ -2456,6 +2456,8 @@ export type Database = {
       property_submissions: {
         Row: {
           broker_id: string | null
+          consent_ip_address: string | null
+          consent_timestamp: string | null
           created_at: string | null
           email: string | null
           exclusivity_type: string | null
@@ -2476,6 +2478,8 @@ export type Database = {
         }
         Insert: {
           broker_id?: string | null
+          consent_ip_address?: string | null
+          consent_timestamp?: string | null
           created_at?: string | null
           email?: string | null
           exclusivity_type?: string | null
@@ -2496,6 +2500,8 @@ export type Database = {
         }
         Update: {
           broker_id?: string | null
+          consent_ip_address?: string | null
+          consent_timestamp?: string | null
           created_at?: string | null
           email?: string | null
           exclusivity_type?: string | null
@@ -4103,6 +4109,10 @@ export type Database = {
       }
       generate_referral_code: {
         Args: { user_uuid?: string }
+        Returns: string
+      }
+      generate_submission_token: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       get_security_summary: {
