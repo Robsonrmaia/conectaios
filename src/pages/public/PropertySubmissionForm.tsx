@@ -99,23 +99,30 @@ export default function PropertySubmissionForm() {
     if (!token) return;
 
     try {
+      console.log('🔍 Loading submission with token:', token);
+      
       const { data, error } = await supabase
         .from('property_submissions')
         .select('*')
         .eq('submission_token', token)
         .maybeSingle();
 
+      console.log('📊 Submission query result:', { data, error });
+
       if (error) {
-        console.error('Error loading submission:', error);
-        toast.error('Erro ao carregar formulário');
+        console.error('❌ Error loading submission:', error);
+        toast.error(`Erro ao carregar formulário: ${error.message}`);
         return;
       }
 
       if (!data) {
-        toast.error('Formulário não encontrado');
-        navigate('/');
+        console.error('❌ Submission not found for token:', token);
+        toast.error('Formulário não encontrado. Verifique o link.');
+        setTimeout(() => navigate('/'), 3000);
         return;
       }
+      
+      console.log('✅ Submission loaded:', data.id);
 
       if (data.status !== 'pending') {
         setIsSubmitted(true);

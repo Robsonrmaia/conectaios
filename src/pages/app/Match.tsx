@@ -113,15 +113,20 @@ export default function Match() {
       const prefs = clientPrefs || preferences;
       
       // Call the match engine function
-      // Buscar imóveis diretamente (fallback sem RPC)
+      // Buscar imóveis de OUTROS corretores no marketplace
+      console.log('🔍 Buscando imóveis de outros corretores no marketplace...');
+      
       const { data: imoveisData, error } = await supabase
         .from('imoveis')
         .select('id,title,price,area_total,bedrooms,bathrooms,parking,purpose,property_type,visibility,description,reference_code,address,neighborhood,city,state,owner_id')
-        .eq('owner_id', user?.id)
+        .neq('owner_id', user?.id)  // Imóveis de OUTROS corretores
+        .in('visibility', ['marketplace', 'partners', 'both'])  // Apenas visíveis no marketplace
         .gte('price', prefs.min_price)
         .lte('price', prefs.max_price)
         .order('created_at', { ascending: false })
         .limit(20);
+      
+      console.log('📊 Imóveis encontrados:', imoveisData?.length);
 
       if (error) throw error;
       

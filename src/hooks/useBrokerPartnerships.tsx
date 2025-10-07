@@ -25,21 +25,26 @@ export const useBrokerPartnerships = () => {
     if (!user) return;
 
     try {
+      console.log('🔍 Fetching partnerships for user:', user.id);
+      
+      // Simplificado - sem joins complexos para evitar problemas de RLS
       const { data, error } = await supabase
         .from('broker_partnerships')
-        .select(`
-          *,
-          property:imoveis(id, title, reference_code, price),
-          participants:partnership_participants(*),
-          proposals:partnership_proposals(*)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('📊 Partnerships result:', { count: data?.length, error });
+
+      if (error) {
+        console.error('❌ Partnership fetch error:', error);
+        throw error;
+      }
+      
       setPartnerships(data || []);
+      console.log('✅ Partnerships loaded:', data?.length);
     } catch (error: any) {
       console.error('Error fetching partnerships:', error);
-      toast.error('Erro ao carregar parcerias');
+      toast.error(`Erro ao carregar parcerias: ${error.message}`);
     } finally {
       setLoading(false);
     }

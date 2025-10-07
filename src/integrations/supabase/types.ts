@@ -4364,6 +4364,10 @@ export type Database = {
         Args: { conv_id: string; uid: string }
         Returns: boolean
       }
+      is_partnership_participant: {
+        Args: { p_partnership_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_thread_participant: {
         Args: { p_thread_id: string; p_user_id: string }
         Returns: boolean
