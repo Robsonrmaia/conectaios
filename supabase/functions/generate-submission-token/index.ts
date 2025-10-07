@@ -74,9 +74,8 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Created submission:', submission.id);
 
-    // Construir URL completa
-    const origin = req.headers.get('origin') || 'https://conectaios.com.br';
-    const publicUrl = `${origin}/formulario-imovel/${token}`;
+    // Usar sempre URL de produção fixa
+    const publicUrl = `https://www.conectaios.com.br/formulario-imovel/${token}`;
 
     console.log('Generated public URL:', publicUrl);
 

@@ -71,6 +71,11 @@ const navigationItems = [
     icon: FileText,
   },
   {
+    title: 'Parcerias',
+    url: '/app/parcerias',
+    icon: Handshake,
+  },
+  {
     title: 'Mensagens',
     url: '/app/inbox', // Mantido para compatibilidade, mas será interceptado
     icon: MessageSquare,

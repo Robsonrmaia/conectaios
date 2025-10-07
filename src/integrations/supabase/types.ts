@@ -44,6 +44,80 @@ export type Database = {
         }
         Relationships: []
       }
+      broker_partnerships: {
+        Row: {
+          commission_split: Json
+          contract_signed: boolean | null
+          contract_signed_at: string | null
+          contract_text: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          initiated_by: string
+          property_id: string
+          property_owner_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          commission_split?: Json
+          contract_signed?: boolean | null
+          contract_signed_at?: string | null
+          contract_text?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          initiated_by: string
+          property_id: string
+          property_owner_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          commission_split?: Json
+          contract_signed?: boolean | null
+          contract_signed_at?: string | null
+          contract_text?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          initiated_by?: string
+          property_id?: string
+          property_owner_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "broker_partnerships_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broker_partnerships_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broker_partnerships_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "broker_partnerships_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brokers: {
         Row: {
           avatar_url: string | null
@@ -2282,6 +2356,132 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      partnership_participants: {
+        Row: {
+          added_at: string | null
+          added_by: string
+          broker_id: string
+          commission_percentage: number
+          id: string
+          partnership_id: string
+          role: string
+          signature_ip: string | null
+          signed: boolean | null
+          signed_at: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          added_by: string
+          broker_id: string
+          commission_percentage: number
+          id?: string
+          partnership_id: string
+          role: string
+          signature_ip?: string | null
+          signed?: boolean | null
+          signed_at?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string
+          broker_id?: string
+          commission_percentage?: number
+          id?: string
+          partnership_id?: string
+          role?: string
+          signature_ip?: string | null
+          signed?: boolean | null
+          signed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_participants_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "broker_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_proposals: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string | null
+          partnership_id: string
+          proposed_by: string
+          proposed_split: Json
+          responded_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          partnership_id: string
+          proposed_by: string
+          proposed_split?: Json
+          responded_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          partnership_id?: string
+          proposed_by?: string
+          proposed_split?: Json
+          responded_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_proposals_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "broker_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partnership_signatures: {
+        Row: {
+          broker_id: string
+          id: string
+          ip_address: string | null
+          partnership_id: string
+          password_hash: string
+          signed_at: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          broker_id: string
+          id?: string
+          ip_address?: string | null
+          partnership_id: string
+          password_hash: string
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          broker_id?: string
+          id?: string
+          ip_address?: string | null
+          partnership_id?: string
+          password_hash?: string
+          signed_at?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partnership_signatures_partnership_id_fkey"
+            columns: ["partnership_id"]
+            isOneToOne: false
+            referencedRelation: "broker_partnerships"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       plans: {
         Row: {

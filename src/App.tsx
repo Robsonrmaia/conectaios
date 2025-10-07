@@ -26,6 +26,7 @@ import Gamificacao from "./pages/app/Gamificacao";
 import { GamificationFeatureFlag } from "@/components/GamificationFeatureFlag";
 import Match from "./pages/app/Match";
 import Deals from "./pages/app/Deals";
+import Partnerships from "./pages/app/Partnerships";
 import CRM from "./pages/app/CRM";
 import PropertySubmissions from "./pages/app/PropertySubmissions";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
@@ -154,6 +155,7 @@ const App = () => (
             } />
                            <Route path="match" element={<Match />} />
                            <Route path="deals" element={<Deals />} />
+                           <Route path="parcerias" element={<Partnerships />} />
                            <Route path="crm" element={<CRM />} />
                            <Route path="envios-proprietarios" element={<PropertySubmissions />} />
                            <Route path="ferramentas" element={<Ferramentas />} />
