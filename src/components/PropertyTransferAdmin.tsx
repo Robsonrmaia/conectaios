@@ -120,6 +120,16 @@ export const PropertyTransferAdmin = () => {
       });
 
       if (response.error) throw response.error;
+      
+      // Clear marketplace cache so transferred property appears immediately
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('marketplace_properties_')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Set flag to force revalidation
+      localStorage.setItem('force_revalidate_marketplace', Date.now().toString());
 
       toast.success('Propriedade transferida com sucesso!');
       setConfirmDialogOpen(false);

@@ -95,6 +95,14 @@ export default function Marketplace() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [bedroomsFilter, setBedroomsFilter] = useState('');
+  
+  // Pending filters (applied only when "Buscar" is clicked)
+  const [pendingSearchTerm, setPendingSearchTerm] = useState('');
+  const [pendingFinalidadeFilter, setPendingFinalidadeFilter] = useState('');
+  const [pendingMinValue, setPendingMinValue] = useState('');
+  const [pendingMaxValue, setPendingMaxValue] = useState('');
+  const [pendingNeighborhoodFilter, setPendingNeighborhoodFilter] = useState('');
+  const [pendingBedroomsFilter, setPendingBedroomsFilter] = useState('');
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
@@ -111,6 +119,17 @@ export default function Marketplace() {
   // Selection states
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [selectMode, setSelectMode] = useState(false);
+  
+  // Apply pending filters
+  const handleSearch = () => {
+    setSearchTerm(pendingSearchTerm);
+    setFinalidadeFilter(pendingFinalidadeFilter);
+    setMinValue(pendingMinValue);
+    setMaxValue(pendingMaxValue);
+    setNeighborhoodFilter(pendingNeighborhoodFilter);
+    setBedroomsFilter(pendingBedroomsFilter);
+    setCurrentPage(1);
+  };
 
   const fetchPublicProperties = useCallback(async (page = 0, forceRefresh = false) => {
     const cacheKey = `marketplace_properties_${page}`;
@@ -762,13 +781,14 @@ export default function Marketplace() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar imóveis..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={pendingSearchTerm}
+              onChange={(e) => setPendingSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               className="pl-10"
             />
           </div>
           
-          <Select value={finalidadeFilter} onValueChange={setFinalidadeFilter}>
+          <Select value={pendingFinalidadeFilter} onValueChange={setPendingFinalidadeFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Finalidade" />
             </SelectTrigger>
@@ -785,24 +805,27 @@ export default function Marketplace() {
           <Input
             placeholder="Valor mínimo"
             type="number"
-            value={minValue}
-            onChange={(e) => setMinValue(e.target.value)}
+            value={pendingMinValue}
+            onChange={(e) => setPendingMinValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
 
           <Input
             placeholder="Valor máximo"
             type="number"
-            value={maxValue}
-            onChange={(e) => setMaxValue(e.target.value)}
+            value={pendingMaxValue}
+            onChange={(e) => setPendingMaxValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
           
           <Input
             placeholder="Buscar por bairro..."
-            value={neighborhoodFilter}
-            onChange={(e) => setNeighborhoodFilter(e.target.value)}
+            value={pendingNeighborhoodFilter}
+            onChange={(e) => setPendingNeighborhoodFilter(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
 
-          <Select value={bedroomsFilter} onValueChange={setBedroomsFilter}>
+          <Select value={pendingBedroomsFilter} onValueChange={setPendingBedroomsFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Quartos" />
             </SelectTrigger>
@@ -815,6 +838,59 @@ export default function Marketplace() {
             </SelectContent>
           </Select>
           
+          <Button 
+            onClick={handleSearch}
+            className="gap-2"
+          >
+            <Search className="h-4 w-4" />
+            Buscar
+          </Button>
+        </motion.div>
+        
+        {/* Selection Toolbar */}
+        {selectMode && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="p-4 bg-card rounded-lg border flex items-center justify-between"
+          >
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectMode(false);
+                  setSelectedProperties([]);
+                }}
+              >
+                Cancelar Seleção
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                {selectedProperties.length} imóveis selecionados
+              </span>
+            </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                // Implementar ação em massa aqui
+                toast({
+                  title: "Verificação iniciada",
+                  description: `Verificando ${selectedProperties.length} imóveis...`,
+                });
+              }}
+              disabled={selectedProperties.length === 0}
+            >
+              Verificar Selecionados
+            </Button>
+          </motion.div>
+        )}
+
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="flex items-center gap-4 p-4 bg-card rounded-lg border"
+        >
           {/* Selection Mode Toggle */}
           <Button
             variant={selectMode ? "default" : "outline"}
