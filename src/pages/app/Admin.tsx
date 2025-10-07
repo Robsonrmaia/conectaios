@@ -23,7 +23,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 import AdminTestimonialManager from '@/components/AdminTestimonialManager';
 import AdminPartnerManager from '@/components/AdminPartnerManager';
-import PropertyTransferAdmin from '@/components/PropertyTransferAdmin';
+import { PropertyTransferAdmin } from '@/components/PropertyTransferAdmin';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import MaintenanceSettings from '@/components/admin/MaintenanceSettings';
 import EmailTemplates from '@/components/admin/EmailTemplates';
