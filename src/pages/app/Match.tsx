@@ -10,9 +10,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Heart, X, Sparkles, User, MapPin, Bed, Bath, Car, Home, Plus, Target, ArrowLeft, ArrowRight, MessageSquare } from 'lucide-react';
+import { Building2, Heart, X, Sparkles, User, MapPin, Bed, Bath, Car, Home, Plus, Target, ArrowLeft, ArrowRight, MessageSquare, Handshake } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { CounterProposalDialog } from '@/components/CounterProposalDialog';
+import { CreatePartnershipDialog } from '@/components/partnerships/CreatePartnershipDialog';
 import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 
 interface Property {
@@ -72,6 +73,7 @@ export default function Match() {
   const [showPreferences, setShowPreferences] = useState(false);
   const [selectedClient, setSelectedClient] = useState<string>('');
   const [showCounterProposal, setShowCounterProposal] = useState(false);
+  const [showPartnershipDialog, setShowPartnershipDialog] = useState(false);
   const [matchStartTime, setMatchStartTime] = useState<Date>(new Date());
   const [preferences, setPreferences] = useState<ClientPreferences>({
     min_price: 0,
@@ -515,6 +517,20 @@ export default function Match() {
               </Button>
             </motion.div>
 
+            {currentMatch.property_data.owner_id !== user?.id && (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="flex-1 sm:flex-initial">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setShowPartnershipDialog(true)}
+                  className="bg-purple-50 hover:bg-purple-100 text-purple-600 border-purple-200 w-full h-12"
+                >
+                  <Handshake className="h-5 w-5 mr-2" />
+                  Propor Parceria
+                </Button>
+              </motion.div>
+            )}
+
             <Dialog>
               <DialogTrigger asChild>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -600,18 +616,34 @@ export default function Match() {
 
       {/* Counter Proposal Dialog */}
       {currentMatch && (
-        <CounterProposalDialog
-          isOpen={showCounterProposal}
-          onClose={() => setShowCounterProposal(false)}
-          property={{
-            id: currentMatch.property_data.id,
-            titulo: currentMatch.property_data.title,
-            valor: currentMatch.property_data.price,
-            area: currentMatch.property_data.area_total,
-            quartos: currentMatch.property_data.bedrooms
-          }}
-          matchScore={currentMatch.match_score}
-        />
+        <>
+          <CounterProposalDialog
+            isOpen={showCounterProposal}
+            onClose={() => setShowCounterProposal(false)}
+            property={{
+              id: currentMatch.property_data.id,
+              titulo: currentMatch.property_data.title,
+              valor: currentMatch.property_data.price,
+              area: currentMatch.property_data.area_total,
+              quartos: currentMatch.property_data.bedrooms
+            }}
+            matchScore={currentMatch.match_score}
+          />
+
+          <CreatePartnershipDialog
+            isOpen={showPartnershipDialog}
+            onClose={() => setShowPartnershipDialog(false)}
+            propertyId={currentMatch.property_data.id}
+            propertyOwnerId={currentMatch.property_data.owner_id}
+            propertyTitle={currentMatch.property_data.title}
+            onSuccess={() => {
+              toast({
+                title: "Sucesso!",
+                description: "Proposta de parceria enviada",
+              });
+            }}
+          />
+        </>
       )}
     </div>
   );

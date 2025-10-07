@@ -1,10 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Handshake, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Handshake, Clock, CheckCircle } from 'lucide-react';
 import { useBrokerPartnerships } from '@/hooks/useBrokerPartnerships';
+import { PartnershipCard } from '@/components/partnerships/PartnershipCard';
 
 export default function Partnerships() {
-  const { partnerships, loading } = useBrokerPartnerships();
+  const { partnerships, loading, refetch } = useBrokerPartnerships();
 
   const pending = partnerships.filter(p => p.status === 'pending');
   const active = partnerships.filter(p => p.status === 'active');
@@ -62,19 +63,7 @@ export default function Partnerships() {
 
         <TabsContent value="pending" className="space-y-4">
           {pending.map(partnership => (
-            <Card key={partnership.id}>
-              <CardHeader>
-                <CardTitle>{partnership.property?.title}</CardTitle>
-                <CardDescription>
-                  Status: Aguardando resposta • Expira em: {new Date(partnership.expires_at!).toLocaleDateString()}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Divisão proposta: {JSON.stringify(partnership.commission_split)}
-                </div>
-              </CardContent>
-            </Card>
+            <PartnershipCard key={partnership.id} partnership={partnership} onRefetch={refetch} />
           ))}
           {pending.length === 0 && (
             <Card>
@@ -87,19 +76,7 @@ export default function Partnerships() {
 
         <TabsContent value="active" className="space-y-4">
           {active.map(partnership => (
-            <Card key={partnership.id}>
-              <CardHeader>
-                <CardTitle>{partnership.property?.title}</CardTitle>
-                <CardDescription>
-                  Status: ✅ Ativa e assinada
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-muted-foreground">
-                  Divisão: {JSON.stringify(partnership.commission_split)}
-                </div>
-              </CardContent>
-            </Card>
+            <PartnershipCard key={partnership.id} partnership={partnership} onRefetch={refetch} />
           ))}
           {active.length === 0 && (
             <Card>
@@ -112,14 +89,7 @@ export default function Partnerships() {
 
         <TabsContent value="history" className="space-y-4">
           {history.map(partnership => (
-            <Card key={partnership.id}>
-              <CardHeader>
-                <CardTitle>{partnership.property?.title}</CardTitle>
-                <CardDescription>
-                  Status: {partnership.status}
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <PartnershipCard key={partnership.id} partnership={partnership} onRefetch={refetch} />
           ))}
           {history.length === 0 && (
             <Card>
