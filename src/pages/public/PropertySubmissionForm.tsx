@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import ConectaLogo from '@/components/ConectaLogo';
-import { Upload, Check, AlertCircle, Home, MapPin, Camera, FileText, Shield } from 'lucide-react';
+import { Upload, Check, AlertCircle, Home, MapPin, Camera, FileText, Shield, Save } from 'lucide-react';
 import { usePropertyImageUpload } from '@/hooks/usePropertyImageUpload';
 
 const propertySubmissionSchema = z.object({
@@ -69,6 +69,8 @@ export default function PropertySubmissionForm() {
   const [brokerInfo, setBrokerInfo] = useState<any>(null);
   const { uploadImage, isUploading } = usePropertyImageUpload();
   const [photos, setPhotos] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [valorDisplay, setValorDisplay] = useState('');
 
   const form = useForm<PropertySubmissionData>({
     resolver: zodResolver(propertySubmissionSchema),
@@ -83,6 +85,14 @@ export default function PropertySubmissionForm() {
 
   const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
+
+  // Auto-save when photos change
+  useEffect(() => {
+    if (photos.length > 0 && submission?.id) {
+      const currentData = form.getValues();
+      saveProgress(currentData);
+    }
+  }, [photos]);
 
   // Load submission data on mount
   useEffect(() => {
@@ -153,6 +163,14 @@ export default function PropertySubmissionForm() {
           marketing_consent: data.marketing_consent,
           exclusivity_type: data.exclusivity_type
         });
+        
+        // Set formatted valor display
+        if (savedData.valor) {
+          setValorDisplay(savedData.valor.toLocaleString('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+          }));
+        }
       }
 
       if (data.photos && data.photos.length > 0) {
@@ -224,11 +242,18 @@ export default function PropertySubmissionForm() {
     }
   };
 
-  const saveProgress = async (data: PropertySubmissionData) => {
+  const saveProgress = useCallback(async (data: PropertySubmissionData) => {
     if (!submission?.id) return;
 
+    setIsSaving(true);
     try {
-      await supabase
+      console.log('💾 Auto-saving progress...', { 
+        submissionId: submission.id,
+        dataKeys: Object.keys(data),
+        photosCount: photos.length 
+      });
+
+      const { error } = await supabase
         .from('property_submissions')
         .update({
           owner_name: data.owner_name || '',
@@ -240,9 +265,49 @@ export default function PropertySubmissionForm() {
           exclusivity_type: data.exclusivity_type
         })
         .eq('id', submission.id);
+
+      if (error) {
+        console.error('❌ Error saving progress:', error);
+      } else {
+        console.log('✅ Progress saved successfully');
+      }
     } catch (error) {
       console.error('Error saving progress:', error);
+    } finally {
+      setIsSaving(false);
     }
+  }, [submission?.id, photos]);
+
+  // Format currency for Brazilian Real
+  const formatCurrency = (value: string): string => {
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/\D/g, '');
+    
+    if (!numericValue) return '';
+    
+    // Convert to number and format
+    const numberValue = parseFloat(numericValue) / 100;
+    return numberValue.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  // Parse currency to number
+  const parseCurrency = (value: string): number => {
+    const numericValue = value.replace(/\D/g, '');
+    return parseFloat(numericValue) / 100;
+  };
+
+  // Handle valor input with Brazilian currency format
+  const handleValorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCurrency(e.target.value);
+    setValorDisplay(formatted);
+    
+    const numericValue = parseCurrency(e.target.value);
+    form.setValue('valor', numericValue);
   };
 
   const onSubmit = async (data: PropertySubmissionData) => {
@@ -294,7 +359,9 @@ export default function PropertySubmissionForm() {
     setCurrentStep(prev => Math.min(prev + 1, totalSteps));
   };
 
-  const prevStep = () => {
+  const prevStep = async () => {
+    const currentData = form.getValues();
+    await saveProgress(currentData);
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
@@ -372,7 +439,15 @@ export default function PropertySubmissionForm() {
             <div className="flex-1">
               <div className="flex justify-between text-sm text-muted-foreground mb-2">
                 <span>Etapa {currentStep} de {totalSteps}</span>
-                <span>{Math.round(progress)}% concluído</span>
+                <div className="flex items-center gap-2">
+                  <span>{Math.round(progress)}% concluído</span>
+                  {isSaving && (
+                    <span className="flex items-center gap-1 text-blue-600">
+                      <Save className="w-3 h-3 animate-pulse" />
+                      Salvando...
+                    </span>
+                  )}
+                </div>
               </div>
               <Progress value={progress} className="h-2" />
             </div>
@@ -510,14 +585,18 @@ export default function PropertySubmissionForm() {
                 </div>
 
                 <div>
-                  <Label htmlFor="valor">Valor Desejado (R$) *</Label>
+                  <Label htmlFor="valor">Valor Desejado *</Label>
                   <Input
                     id="valor"
-                    type="number"
-                    step="0.01"
-                    {...form.register('valor', { valueAsNumber: true })}
-                    placeholder="450000"
+                    type="text"
+                    value={valorDisplay}
+                    onChange={handleValorChange}
+                    placeholder="R$ 450.000,00"
+                    className="text-lg font-semibold"
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Digite apenas números. Ex: 450000 = R$ 450.000,00
+                  </p>
                   {form.formState.errors.valor && (
                     <p className="text-sm text-destructive mt-1">
                       {form.formState.errors.valor.message}

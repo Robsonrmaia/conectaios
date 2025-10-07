@@ -21,7 +21,8 @@ import {
   FileText,
   Check,
   X,
-  Download
+  Download,
+  Camera
 } from 'lucide-react';
 
 interface PropertySubmission {
@@ -162,7 +163,21 @@ export function PropertyImportPreviewModal({
 
   if (!submission) return null;
 
-  const propertyData = submission.property_data;
+  const propertyData = submission.property_data || {};
+  const titulo = propertyData.titulo || 'Título não informado';
+  const valor = propertyData.valor || 0;
+  const descricao = propertyData.descricao || 'Descrição não informada';
+  const listingType = propertyData.listing_type || 'venda';
+  const propertyType = propertyData.property_type || 'apartamento';
+  const area = propertyData.area || 0;
+  const quartos = propertyData.quartos || 0;
+  const banheiros = propertyData.banheiros || 0;
+  const vagas = propertyData.vagas || 0;
+  const endereco = propertyData.endereco || 'Endereço não informado';
+  const bairro = propertyData.bairro || 'Bairro não informado';
+  const cidade = propertyData.cidade || 'Cidade não informada';
+  const estado = propertyData.estado || 'Estado não informado';
+  const cep = propertyData.cep || 'CEP não informado';
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -207,32 +222,32 @@ export function PropertyImportPreviewModal({
                   <Building className="w-4 h-4" />
                   Informações Básicas
                 </span>
-                <div className="flex gap-2">
+                <span className="flex items-center gap-2">
                   <Badge variant="outline">
-                    {propertyData.listing_type === 'venda' ? 'Venda' : 
-                     propertyData.listing_type === 'aluguel' ? 'Aluguel' : 'Temporada'}
+                    {listingType === 'venda' ? 'Venda' : 
+                     listingType === 'aluguel' ? 'Aluguel' : 'Temporada'}
                   </Badge>
                   <Badge variant="secondary">
-                    {propertyData.property_type === 'apartamento' ? 'Apartamento' :
-                     propertyData.property_type === 'casa' ? 'Casa' :
-                     propertyData.property_type === 'terreno' ? 'Terreno' :
-                     propertyData.property_type === 'comercial' ? 'Comercial' : 'Rural'}
+                    {propertyType === 'apartamento' ? 'Apartamento' :
+                     propertyType === 'casa' ? 'Casa' :
+                     propertyType === 'terreno' ? 'Terreno' :
+                     propertyType === 'comercial' ? 'Comercial' : 'Rural'}
                   </Badge>
                   {submission.exclusivity_type === 'exclusive' && (
                     <Badge className="bg-green-100 text-green-800">🏆 Exclusiva</Badge>
                   )}
-                </div>
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="font-medium mb-1">{propertyData.titulo}</h3>
-                <p className="text-sm text-muted-foreground">{propertyData.descricao}</p>
+                <h3 className="font-medium mb-1">{titulo}</h3>
+                <p className="text-sm text-muted-foreground">{descricao}</p>
               </div>
               
               <div className="flex items-center gap-2 text-lg font-semibold text-green-600">
                 <DollarSign className="w-5 h-5" />
-                R$ {propertyData.valor?.toLocaleString('pt-BR')}
+                R$ {valor?.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
               </div>
             </CardContent>
           </Card>
@@ -249,19 +264,19 @@ export function PropertyImportPreviewModal({
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                 <div className="flex items-center gap-2">
                   <Ruler className="w-4 h-4 text-muted-foreground" />
-                  <span>{propertyData.area}m²</span>
+                  <span>{area}m²</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Bed className="w-4 h-4 text-muted-foreground" />
-                  <span>{propertyData.quartos || 0} quartos</span>
+                  <span>{quartos} quartos</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Bath className="w-4 h-4 text-muted-foreground" />
-                  <span>{propertyData.banheiros || 0} banheiros</span>
+                  <span>{banheiros} banheiros</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Car className="w-4 h-4 text-muted-foreground" />
-                  <span>{propertyData.vagas || 0} vagas</span>
+                  <span>{vagas} vagas</span>
                 </div>
                 {propertyData.ano_construcao && (
                   <div className="flex items-center gap-2">
@@ -300,19 +315,19 @@ export function PropertyImportPreviewModal({
             </CardHeader>
             <CardContent className="text-sm">
               <div className="space-y-2">
-                <p><span className="font-medium">Endereço:</span> {propertyData.endereco}</p>
-                <p><span className="font-medium">Bairro:</span> {propertyData.bairro}</p>
+                <p><span className="font-medium">Endereço:</span> {endereco}</p>
+                <p><span className="font-medium">Bairro:</span> {bairro}</p>
                 <div className="flex gap-4">
-                  <p><span className="font-medium">Cidade:</span> {propertyData.cidade}</p>
-                  <p><span className="font-medium">Estado:</span> {propertyData.estado}</p>
-                  <p><span className="font-medium">CEP:</span> {propertyData.cep}</p>
+                  <p><span className="font-medium">Cidade:</span> {cidade}</p>
+                  <p><span className="font-medium">Estado:</span> {estado}</p>
+                  <p><span className="font-medium">CEP:</span> {cep}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Photos */}
-          {submission.photos && submission.photos.length > 0 && (
+          {submission.photos && submission.photos.length > 0 ? (
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm flex items-center gap-2">
@@ -338,6 +353,13 @@ export function PropertyImportPreviewModal({
                     </div>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardContent className="py-6 text-center">
+                <Camera className="w-8 h-8 text-amber-600 mx-auto mb-2" />
+                <p className="text-sm text-amber-700">Nenhuma foto foi enviada com esta submissão</p>
               </CardContent>
             </Card>
           )}

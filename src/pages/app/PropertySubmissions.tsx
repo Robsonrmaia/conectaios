@@ -153,7 +153,20 @@ export default function PropertySubmissions() {
 
   const importToProperties = async (submission: PropertySubmission) => {
     try {
-      const propertyData = submission.property_data;
+      const propertyData = submission.property_data || {};
+      
+      console.log('🚀 Importing property from submission:', {
+        submissionId: submission.id,
+        brokerUserId: broker?.user_id,
+        propertyData,
+        photosCount: submission.photos?.length || 0
+      });
+      
+      // Ensure we have all required data
+      if (!propertyData.titulo || !propertyData.valor) {
+        toast.error('Dados incompletos. Verifique o formulário enviado.');
+        return;
+      }
       
       // ⚠️ CRÍTICO: Criação de imóvel via submissão - usa tabela 'imoveis'
       // Create property record
@@ -161,22 +174,22 @@ export default function PropertySubmissions() {
         .from('imoveis')
         .insert({
           owner_id: broker?.user_id,
-          title: propertyData.titulo,
-          description: propertyData.descricao,
-          price: propertyData.valor,
-          purpose: propertyData.listing_type,
-          property_type: propertyData.property_type,
-          area_total: propertyData.area,
-          bedrooms: propertyData.quartos,
-          bathrooms: propertyData.banheiros,
-          parking: propertyData.vagas,
-          condo_fee: propertyData.condominio,
-          iptu: propertyData.iptu,
-          address: propertyData.endereco,
-          neighborhood: propertyData.bairro,
-          city: propertyData.cidade,
-          state: propertyData.estado,
-          zipcode: propertyData.cep,
+          title: propertyData.titulo || 'Sem título',
+          description: propertyData.descricao || 'Sem descrição',
+          price: parseFloat(propertyData.valor) || 0,
+          purpose: propertyData.listing_type || 'venda',
+          property_type: propertyData.property_type || 'apartamento',
+          area_total: parseFloat(propertyData.area) || 0,
+          bedrooms: parseInt(propertyData.quartos) || 0,
+          bathrooms: parseInt(propertyData.banheiros) || 0,
+          parking: parseInt(propertyData.vagas) || 0,
+          condo_fee: parseFloat(propertyData.condominio) || null,
+          iptu: parseFloat(propertyData.iptu) || null,
+          address: propertyData.endereco || '',
+          neighborhood: propertyData.bairro || '',
+          city: propertyData.cidade || '',
+          state: propertyData.estado || '',
+          zipcode: propertyData.cep || '',
           is_public: true,
           visibility: 'public_site'
         });
@@ -340,19 +353,22 @@ export default function PropertySubmissions() {
                   <div>
                     <span className="text-muted-foreground">Valor:</span>
                     <p className="font-medium">
-                      R$ {submission.property_data?.valor?.toLocaleString('pt-BR')}
+                      {submission.property_data?.valor 
+                        ? `R$ ${submission.property_data.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : 'Não informado'
+                      }
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Tipo:</span>
                     <p className="font-medium capitalize">
-                      {submission.property_data?.property_type}
+                      {submission.property_data?.property_type || 'Não informado'}
                     </p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Cidade:</span>
                     <p className="font-medium">
-                      {submission.property_data?.cidade}
+                      {submission.property_data?.cidade || 'Não informada'}
                     </p>
                   </div>
                   <div>
