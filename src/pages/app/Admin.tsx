@@ -23,6 +23,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 import AdminTestimonialManager from '@/components/AdminTestimonialManager';
 import AdminPartnerManager from '@/components/AdminPartnerManager';
+import PropertyTransferAdmin from '@/components/PropertyTransferAdmin';
 import GeneralSettings from '@/components/admin/GeneralSettings';
 import MaintenanceSettings from '@/components/admin/MaintenanceSettings';
 import EmailTemplates from '@/components/admin/EmailTemplates';
@@ -227,6 +228,7 @@ export default function Admin() {
             <TabsTrigger value="suporte" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Suporte</TabsTrigger>
             <TabsTrigger value="testemunhos" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Testemunhos</TabsTrigger>
             <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Parceiros</TabsTrigger>
+            <TabsTrigger value="marketplace" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Marketplace</TabsTrigger>
             <TabsTrigger value="sistema" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Sistema</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Config</TabsTrigger>
             <TabsTrigger value="api" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">API</TabsTrigger>
@@ -337,6 +339,10 @@ export default function Admin() {
 
         <TabsContent value="parceiros" className="space-y-6">
           <AdminPartnerManager />
+        </TabsContent>
+
+        <TabsContent value="marketplace" className="space-y-6">
+          <PropertyTransferAdmin />
         </TabsContent>
 
         <TabsContent value="sistema" className="space-y-6">

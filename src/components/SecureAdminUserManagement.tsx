@@ -16,6 +16,7 @@ interface User {
   email: string;
   nome: string;
   role: 'user' | 'admin';
+  creci?: string;
   created_at: string;
 }
 
@@ -44,36 +45,47 @@ export default function SecureAdminUserManagement() {
     try {
       setLoading(true);
       
-      // Get user profiles
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, name, created_at')
-        .order('created_at', { ascending: false });
+      // Buscar todos os usuários de auth.users
+      const { data: authData, error: authError } = await supabase.auth.admin.listUsers();
 
-      if (profilesError) throw profilesError;
+      if (authError) throw authError;
 
-      // Get user roles
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
+      // Buscar profiles, brokers e roles para cada usuário
+      const usersWithDetails = await Promise.all(
+        (authData.users || []).map(async (authUser) => {
+          // Buscar profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('name')
+            .eq('id', authUser.id)
+            .maybeSingle();
 
-      if (rolesError) throw rolesError;
+          // Buscar broker (para CRECI)
+          const { data: broker } = await supabase
+            .from('brokers')
+            .select('creci')
+            .eq('user_id', authUser.id)
+            .maybeSingle();
 
-      // Create a map of user_id -> role
-      const rolesMap = new Map(
-        userRoles?.map(ur => [ur.user_id, ur.role]) || []
+          // Buscar role
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', authUser.id)
+            .maybeSingle();
+
+          return {
+            id: authUser.id,
+            email: authUser.email || 'N/A',
+            nome: profile?.name || authUser.email?.split('@')[0] || 'Sem nome',
+            role: (roleData?.role || 'user') as 'user' | 'admin',
+            creci: broker?.creci || '-',
+            created_at: authUser.created_at
+          };
+        })
       );
 
-      // Combine profiles with roles
-      const combinedUsers = profiles?.map(profile => ({
-        id: profile.id || '',
-        email: 'Ver detalhes', // Email will be shown in detail view for security
-        nome: profile.name || 'N/A',
-        role: (rolesMap.get(profile.id) as 'user' | 'admin') || 'user',
-        created_at: profile.created_at || new Date().toISOString()
-      })) || [];
-
-      setUsers(combinedUsers);
+      setUsers(usersWithDetails);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast.error('Erro ao carregar usuários');
@@ -270,28 +282,34 @@ export default function SecureAdminUserManagement() {
           {loading && !users.length ? (
             <div className="text-center py-4">Carregando usuários...</div>
           ) : (
-            <div className="space-y-4">
-              {users.map((user) => (
-                <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium">{user.nome}</p>
-                        {user.role === 'admin' && (
-                          <Badge variant="destructive">
-                            <ShieldCheck className="h-3 w-3 mr-1" />
-                            Admin
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
-                      <p className="text-xs text-muted-foreground">
-                        Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-2">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-2">Nome</th>
+                    <th className="text-left p-2">Email</th>
+                    <th className="text-left p-2">CRECI</th>
+                    <th className="text-left p-2">Role</th>
+                    <th className="text-left p-2">Criado em</th>
+                    <th className="text-right p-2">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map((user) => (
+                    <tr key={user.id} className="border-b">
+                      <td className="p-2 font-medium">{user.nome}</td>
+                      <td className="p-2 text-sm text-muted-foreground">{user.email}</td>
+                      <td className="p-2 text-sm">{user.creci}</td>
+                      <td className="p-2">
+                        <Badge variant={user.role === 'admin' ? 'destructive' : 'default'}>
+                          {user.role === 'admin' ? 'Admin' : 'Usuário'}
+                        </Badge>
+                      </td>
+                      <td className="p-2 text-sm text-muted-foreground">
+                        {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-2">
+                        <div className="flex justify-end gap-2">
                     <Dialog open={roleChangeOpen && selectedUser?.id === user.id} onOpenChange={(open) => {
                       setRoleChangeOpen(open);
                       if (!open) setSelectedUser(null);
@@ -372,9 +390,12 @@ export default function SecureAdminUserManagement() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                  </div>
-                </div>
-              ))}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>

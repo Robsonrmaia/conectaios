@@ -123,17 +123,11 @@ export function CreateDealDialog({ propertyId, onDealCreated, open: controlledOp
       const { error } = await supabase
         .from('deals')
         .insert({
+          user_id: user.id,
           property_id: formData.property_id,
           client_id: formData.client_id || null,
-          buyer_broker_id: broker.id,
-          seller_broker_id: formData.seller_broker_id || null,
-          listing_broker_id: formData.listing_broker_id || null,
           offer_amount: parseFloat(formData.offer_amount),
-          commission_split: {
-            buyer_broker: formData.buyer_commission,
-            seller_broker: formData.seller_commission
-          },
-          status: 'proposta',
+          status: 'proposal',
           notes: formData.notes || null
         });
 
