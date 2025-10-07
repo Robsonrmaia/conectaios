@@ -32,12 +32,16 @@ interface Broker {
 interface CreateDealDialogProps {
   propertyId?: string;
   onDealCreated?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function CreateDealDialog({ propertyId, onDealCreated }: CreateDealDialogProps) {
+export function CreateDealDialog({ propertyId, onDealCreated, open: controlledOpen, onOpenChange }: CreateDealDialogProps) {
   const { user } = useAuth();
   const { broker } = useBroker();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [clients, setClients] = useState<Client[]>([]);

@@ -214,7 +214,7 @@ export function CounterProposalSystem({
                               {proposal.counter_proposals.map((counter) => (
                                 <div key={counter.id} className="p-3 bg-muted rounded-lg">
                                   <div className="flex justify-between items-start mb-2">
-                                    <span className="font-medium text-sm">{counter.created_by_name}</span>
+                                    <span className="font-medium text-sm">Contraproposta</span>
                                     <div className="text-right">
                                       <p className="font-semibold text-primary">{formatCurrency(counter.offer_amount)}</p>
                                       <p className="text-xs text-muted-foreground">
