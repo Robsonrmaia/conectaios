@@ -7,88 +7,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { FileText, Clock, CheckCircle, XCircle, User, Building2, Calendar, Home, Printer, Plus, Percent } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { FileText, Clock, CheckCircle, XCircle, User, Building2, Calendar, Home, Printer, Plus, Percent, Users } from 'lucide-react';
+import { toast } from 'sonner';
 import { ContractGenerator } from '@/components/ContractGenerator';
-import { parseValueInput } from '@/lib/utils';
+import { useDeals } from '@/hooks/useDeals';
+import { CreateDealDialog } from '@/components/CreateDealDialog';
 
 export default function Deals() {
   const navigate = useNavigate();
-  const [isProposalDialogOpen, setIsProposalDialogOpen] = useState(false);
+  const { deals, loading, updateDeal } = useDeals();
   const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
+  const [isCreateDealOpen, setIsCreateDealOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<any>(null);
-  const [proposalData, setProposalData] = useState({
-    commissionPercent: '5',
-    commissionSplit: '50/50', 
-    notes: '',
-    expiryDays: '15'
-  });
-
-  const deals = [
-    {
-      id: 1,
-      clientName: 'Maria Silva',
-      propertyTitle: 'Apartamento Jardins',
-      value: 850000,
-      commission: 42500,
-      status: 'negociacao',
-      createdAt: '2024-01-15',
-      expectedClose: '2024-02-15'
-    },
-    {
-      id: 2,
-      clientName: 'João Santos',
-      propertyTitle: 'Casa Alphaville',
-      value: 1200000,
-      commission: 60000,
-      status: 'proposta',
-      createdAt: '2024-01-20',
-      expectedClose: '2024-02-20'
-    },
-    {
-      id: 3,
-      clientName: 'Ana Costa',
-      propertyTitle: 'Cobertura Barra',
-      value: 2500000,
-      commission: 125000,
-      status: 'finalizado',
-      createdAt: '2024-01-10',
-      expectedClose: '2024-01-25'
-    },
-    {
-      id: 4,
-      clientName: 'Pedro Lima',
-      propertyTitle: 'Apartamento Vila Madalena',
-      value: 650000,
-      commission: 32500,
-      status: 'cancelado',
-      createdAt: '2024-01-05',
-      expectedClose: '2024-01-30'
-    }
-  ];
 
   const getStatusConfig = (status: string) => {
     switch (status) {
+      case 'proposal':
       case 'proposta':
         return { 
           label: 'Proposta', 
           color: 'bg-blue-500/20 text-blue-700 dark:text-blue-300',
           icon: FileText 
         };
+      case 'negotiating':
       case 'negociacao':
         return { 
           label: 'Negociação', 
           color: 'bg-warning/20 text-warning',
           icon: Clock 
         };
+      case 'closed':
       case 'finalizado':
         return { 
           label: 'Finalizado', 
           color: 'bg-success/20 text-success',
           icon: CheckCircle 
         };
+      case 'cancelled':
       case 'cancelado':
         return { 
           label: 'Cancelado', 
@@ -97,7 +53,7 @@ export default function Deals() {
         };
       default:
         return { 
-          label: 'Desconhecido', 
+          label: status || 'Desconhecido', 
           color: 'bg-muted',
           icon: FileText 
         };
@@ -106,52 +62,51 @@ export default function Deals() {
 
   const filterDeals = (status?: string) => {
     if (!status) return deals;
-    return deals.filter(deal => deal.status === status);
+    const statusMap: Record<string, string[]> = {
+      'proposal': ['proposal', 'proposta'],
+      'negotiating': ['negotiating', 'negociacao'],
+      'closed': ['closed', 'finalizado'],
+      'cancelled': ['cancelled', 'cancelado']
+    };
+    
+    return deals.filter(deal => 
+      statusMap[status]?.includes(deal.status) || deal.status === status
+    );
   };
 
   const totalCommission = deals
-    .filter(deal => deal.status === 'finalizado')
-    .reduce((total, deal) => total + deal.commission, 0);
+    .filter(deal => ['closed', 'finalizado'].includes(deal.status))
+    .reduce((total, deal) => total + (deal.commission_amount || 0), 0);
 
   const handlePrintContract = (deal: any) => {
     setSelectedDeal(deal);
     setIsContractDialogOpen(true);
   };
 
-  const handleCreateProposal = (deal: any) => {
-    setSelectedDeal(deal);
-    setIsProposalDialogOpen(true);
-  };
-
-  const handleSubmitProposal = () => {
-    toast({
-      title: "Proposta Enviada",
-      description: `Proposta com ${proposalData.commissionPercent}% de comissão enviada com sucesso!`,
-    });
-    
-    setIsProposalDialogOpen(false);
-    setProposalData({
-      commissionPercent: '5',
-      commissionSplit: '50/50',
-      notes: '',
-      expiryDays: '15'
-    });
-  };
-
   const DealCard = ({ deal }: { deal: any }) => {
     const statusConfig = getStatusConfig(deal.status);
     const StatusIcon = statusConfig.icon;
+    const propertyTitle = deal.property?.title || 'Sem propriedade';
+    const clientName = deal.client?.nome || 'Sem cliente';
+    const value = deal.property?.price || deal.offer_amount || 0;
+    const commission = deal.commission_amount || 0;
 
     return (
       <Card className="hover:shadow-md transition-shadow">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div>
-              <CardTitle className="text-lg">{deal.propertyTitle}</CardTitle>
+            <div className="flex-1">
+              <CardTitle className="text-lg">{propertyTitle}</CardTitle>
               <CardDescription className="flex items-center gap-1 mt-1">
                 <User className="h-3 w-3" />
-                {deal.clientName}
+                {clientName}
               </CardDescription>
+              {deal.partners && deal.partners.length > 0 && (
+                <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                  <Users className="h-3 w-3" />
+                  {deal.partners.length} parceiro(s)
+                </div>
+              )}
             </div>
             <Badge className={statusConfig.color}>
               <StatusIcon className="h-3 w-3 mr-1" />
@@ -162,43 +117,35 @@ export default function Deals() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-sm text-muted-foreground">Valor do Imóvel</div>
-            <div className="text-lg font-semibold">
-              {deal.value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-            </div>
+              <div className="text-sm text-muted-foreground">Valor Ofertado</div>
+              <div className="text-lg font-semibold">
+                {value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              </div>
             </div>
             <div>
               <div className="text-sm text-muted-foreground">Comissão</div>
-            <div className="text-lg font-semibold text-primary">
-              {deal.commission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-            </div>
+              <div className="text-lg font-semibold text-primary">
+                {commission > 0 ? commission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'A definir'}
+              </div>
             </div>
           </div>
           
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-3 w-3" />
-              Criado: {new Date(deal.createdAt).toLocaleDateString('pt-BR')}
+              Criado: {new Date(deal.created_at).toLocaleDateString('pt-BR')}
             </div>
-            {deal.status !== 'finalizado' && deal.status !== 'cancelado' && (
-              <div>
-                Previsão: {new Date(deal.expectedClose).toLocaleDateString('pt-BR')}
-              </div>
-            )}
           </div>
+
+          {deal.notes && (
+            <div className="text-xs text-muted-foreground border-l-2 pl-2">
+              {deal.notes}
+            </div>
+          )}
 
           {/* Action buttons */}
           <div className="flex-row-wrap pt-2">
-            <Button 
-              size="sm" 
-              variant="outline"
-              onClick={() => handleCreateProposal(deal)}
-              className="btn-fluid"
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Proposta
-            </Button>
-            {(deal.status === 'finalizado' || deal.status === 'negociacao') && (
+            {(['closed', 'finalizado', 'negotiating', 'negociacao'].includes(deal.status)) && (
               <Button 
                 size="sm" 
                 variant="outline"
@@ -214,6 +161,17 @@ export default function Deals() {
       </Card>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="container-responsive flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando negociações...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-responsive w-full overflow-x-hidden space-y-6">
@@ -236,6 +194,10 @@ export default function Deals() {
             </p>
           </div>
         </div>
+        <Button onClick={() => setIsCreateDealOpen(true)} className="w-fit">
+          <Plus className="h-4 w-4 mr-2" />
+          Nova Negociação
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -249,7 +211,7 @@ export default function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-success">
-              {filterDeals('finalizado').length}
+              {filterDeals('closed').length}
             </div>
             <div className="text-sm text-muted-foreground">Finalizados</div>
           </CardContent>
@@ -257,7 +219,7 @@ export default function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="text-2xl font-bold text-warning">
-              {filterDeals('negociacao').length + filterDeals('proposta').length}
+              {filterDeals('negotiating').length + filterDeals('proposal').length}
             </div>
             <div className="text-sm text-muted-foreground">Em Andamento</div>
           </CardContent>
@@ -265,7 +227,7 @@ export default function Deals() {
         <Card>
           <CardContent className="p-4">
             <div className="text-xl sm:text-2xl font-bold text-primary break-words">
-              {deals.reduce((sum, deal) => sum + deal.value, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+              {totalCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
             </div>
             <div className="text-sm text-muted-foreground">Comissões Recebidas</div>
           </CardContent>
@@ -277,188 +239,71 @@ export default function Deals() {
         <div className="-mx-4 px-4 overflow-x-auto">
           <TabsList className="min-w-max">
             <TabsTrigger value="todos">Todos ({deals.length})</TabsTrigger>
-            <TabsTrigger value="proposta">Propostas ({filterDeals('proposta').length})</TabsTrigger>
-            <TabsTrigger value="negociacao">Negociação ({filterDeals('negociacao').length})</TabsTrigger>
-            <TabsTrigger value="finalizado">Finalizados ({filterDeals('finalizado').length})</TabsTrigger>
+            <TabsTrigger value="proposal">Propostas ({filterDeals('proposal').length})</TabsTrigger>
+            <TabsTrigger value="negotiating">Negociação ({filterDeals('negotiating').length})</TabsTrigger>
+            <TabsTrigger value="closed">Finalizados ({filterDeals('closed').length})</TabsTrigger>
           </TabsList>
         </div>
 
         <TabsContent value="todos" className="space-y-4">
+          {deals.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-muted-foreground">Nenhuma negociação encontrada</p>
+                <Button onClick={() => setIsCreateDealOpen(true)} variant="outline" className="mt-4">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Criar Nova Negociação
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {deals.map(deal => (
+                <DealCard key={deal.id} deal={deal} />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="proposal" className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            {deals.map(deal => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
+            {filterDeals('proposal').length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma proposta</CardContent></Card>
+            ) : (
+              filterDeals('proposal').map(deal => <DealCard key={deal.id} deal={deal} />)
+            )}
           </div>
         </TabsContent>
 
-        <TabsContent value="proposta" className="space-y-4">
+        <TabsContent value="negotiating" className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            {filterDeals('proposta').map(deal => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
+            {filterDeals('negotiating').length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma negociação em andamento</CardContent></Card>
+            ) : (
+              filterDeals('negotiating').map(deal => <DealCard key={deal.id} deal={deal} />)
+            )}
           </div>
         </TabsContent>
 
-        <TabsContent value="negociacao" className="space-y-4">
+        <TabsContent value="closed" className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            {filterDeals('negociacao').map(deal => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="finalizado" className="space-y-4">
-          <div className="grid grid-cols-1 gap-4">
-            {filterDeals('finalizado').map(deal => (
-              <DealCard key={deal.id} deal={deal} />
-            ))}
+            {filterDeals('closed').length === 0 ? (
+              <Card><CardContent className="p-8 text-center text-muted-foreground">Nenhuma negociação finalizada</CardContent></Card>
+            ) : (
+              filterDeals('closed').map(deal => <DealCard key={deal.id} deal={deal} />)
+            )}
           </div>
         </TabsContent>
       </Tabs>
 
-      {/* Proposal Dialog */}
-      <Dialog open={isProposalDialogOpen} onOpenChange={setIsProposalDialogOpen}>
-        <DialogContent className="max-w-[95vw] sm:max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Nova Proposta</DialogTitle>
-            <DialogDescription>
-              Criar proposta para {selectedDeal?.propertyTitle}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="commissionPercent">Percentual de Comissão (%)</Label>
-              <Input
-                id="commissionPercent"
-                type="number"
-                min="2"
-                max="15"
-                value={proposalData.commissionPercent.replace(/[^\d]/g, '')}
-                onChange={(e) => {
-                  const value = Math.min(15, Math.max(2, parseInt(e.target.value) || 2));
-                  setProposalData({...proposalData, commissionPercent: value.toString()});
-                }}
-                placeholder="5"
-              />
-              <p className="text-xs text-muted-foreground">Entre 2% e 15%</p>
-            </div>
-            
-            <div>
-              <Label htmlFor="commissionSplit">Divisão da Comissão</Label>
-              <Select 
-                value={proposalData.commissionSplit} 
-                onValueChange={(value) => setProposalData({...proposalData, commissionSplit: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="50/50">50% / 50%</SelectItem>
-                  <SelectItem value="60/40">60% / 40%</SelectItem>
-                  <SelectItem value="70/30">70% / 30%</SelectItem>
-                  <SelectItem value="80/20">80% / 20%</SelectItem>
-                  <SelectItem value="custom">Personalizado</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="expiryDays">Validade (dias)</Label>
-              <Select 
-                value={proposalData.expiryDays} 
-                onValueChange={(value) => setProposalData({...proposalData, expiryDays: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="7">7 dias</SelectItem>
-                  <SelectItem value="15">15 dias</SelectItem>
-                  <SelectItem value="30">30 dias</SelectItem>
-                  <SelectItem value="45">45 dias</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="notes">Observações</Label>
-              <Textarea
-                id="notes"
-                value={proposalData.notes}
-                onChange={(e) => setProposalData({...proposalData, notes: e.target.value})}
-                placeholder="Observações adicionais sobre a proposta..."
-                rows={3}
-              />
-            </div>
-
-            {proposalData.commissionPercent && selectedDeal && (
-              <div className="p-3 bg-muted rounded-lg space-y-2">
-                <div className="text-sm text-muted-foreground">Resumo da Comissão:</div>
-                {(() => {
-                  const commissionPercent = parseFloat(proposalData.commissionPercent);
-                  const propertyValue = selectedDeal.value;
-                  const totalCommission = (propertyValue * commissionPercent / 100);
-                  const [buyerPercent, sellerPercent] = proposalData.commissionSplit.includes('/') 
-                    ? proposalData.commissionSplit.split('/').map(p => parseInt(p.trim())) 
-                    : [50, 50];
-                  
-                  const buyerCommission = (totalCommission * buyerPercent / 100);
-                  const sellerCommission = (totalCommission * sellerPercent / 100);
-                  
-                   return (
-                     <div className="space-y-1">
-                       <div className="flex justify-between text-sm">
-                         <span>Valor do Imóvel:</span>  
-                         <span className="font-semibold">
-                           {propertyValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                         </span>
-                       </div>
-                       <div className="flex justify-between text-sm">
-                         <span>Comissão ({commissionPercent}%):</span>
-                         <span className="font-semibold text-primary">
-                           {totalCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                         </span>
-                       </div>
-                       <div className="border-t pt-1 space-y-1">
-                         <div className="flex justify-between text-sm">
-                           <span>Seu repasse ({buyerPercent}%):</span>
-                           <span className="font-semibold">
-                             {buyerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                           </span>
-                         </div>
-                         <div className="flex justify-between text-sm">
-                           <span>Vendedor ({sellerPercent}%):</span>
-                           <span className="font-semibold">
-                             {sellerCommission.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                           </span>
-                         </div>
-                       </div>
-                     </div>
-                   );
-                })()}
-              </div>
-            )}
-
-            <div className="flex-row-wrap pt-4">
-              <Button 
-                variant="outline" 
-                onClick={() => setIsProposalDialogOpen(false)}
-                className="btn-fluid"
-              >
-                Cancelar
-              </Button>
-              <Button 
-                onClick={handleSubmitProposal}
-                className="btn-fluid"
-                disabled={!proposalData.commissionPercent}
-              >
-                <Percent className="h-4 w-4 mr-2" />
-                Enviar Proposta
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Create Deal Dialog */}
+      {isCreateDealOpen && (
+        <CreateDealDialog 
+          open={isCreateDealOpen}
+          onOpenChange={setIsCreateDealOpen}
+        />
+      )}
 
       {/* Contract Generator Dialog */}
       <ContractGenerator 

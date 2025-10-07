@@ -569,6 +569,56 @@ export type Database = {
         }
         Relationships: []
       }
+      counter_proposals: {
+        Row: {
+          conditions: string | null
+          created_at: string | null
+          created_by: string
+          down_payment: number | null
+          expires_at: string | null
+          financing_amount: number | null
+          id: string
+          message: string | null
+          offer_amount: number
+          proposal_id: string
+          status: string | null
+        }
+        Insert: {
+          conditions?: string | null
+          created_at?: string | null
+          created_by: string
+          down_payment?: number | null
+          expires_at?: string | null
+          financing_amount?: number | null
+          id?: string
+          message?: string | null
+          offer_amount: number
+          proposal_id: string
+          status?: string | null
+        }
+        Update: {
+          conditions?: string | null
+          created_at?: string | null
+          created_by?: string
+          down_payment?: number | null
+          expires_at?: string | null
+          financing_amount?: number | null
+          id?: string
+          message?: string | null
+          offer_amount?: number
+          proposal_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "counter_proposals_proposal_id_fkey"
+            columns: ["proposal_id"]
+            isOneToOne: false
+            referencedRelation: "property_proposals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crm_clients: {
         Row: {
           broker_id: string | null
@@ -864,6 +914,56 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "crm_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_partners: {
+        Row: {
+          added_at: string | null
+          added_by: string | null
+          commission_percentage: number | null
+          deal_id: string
+          id: string
+          notes: string | null
+          partner_email: string | null
+          partner_id: string | null
+          partner_name: string
+          partner_phone: string | null
+          partner_role: string
+        }
+        Insert: {
+          added_at?: string | null
+          added_by?: string | null
+          commission_percentage?: number | null
+          deal_id: string
+          id?: string
+          notes?: string | null
+          partner_email?: string | null
+          partner_id?: string | null
+          partner_name: string
+          partner_phone?: string | null
+          partner_role: string
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string | null
+          commission_percentage?: number | null
+          deal_id?: string
+          id?: string
+          notes?: string | null
+          partner_email?: string | null
+          partner_id?: string | null
+          partner_name?: string
+          partner_phone?: string | null
+          partner_role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_partners_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
             referencedColumns: ["id"]
           },
         ]
@@ -2267,6 +2367,92 @@ export type Database = {
         }
         Relationships: []
       }
+      property_proposals: {
+        Row: {
+          broker_id: string
+          buyer_email: string | null
+          buyer_name: string
+          buyer_phone: string | null
+          conditions: string | null
+          created_at: string | null
+          down_payment: number | null
+          expires_at: string | null
+          financing_amount: number | null
+          financing_type: string | null
+          id: string
+          message: string | null
+          offer_amount: number
+          property_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          broker_id: string
+          buyer_email?: string | null
+          buyer_name: string
+          buyer_phone?: string | null
+          conditions?: string | null
+          created_at?: string | null
+          down_payment?: number | null
+          expires_at?: string | null
+          financing_amount?: number | null
+          financing_type?: string | null
+          id?: string
+          message?: string | null
+          offer_amount: number
+          property_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          broker_id?: string
+          buyer_email?: string | null
+          buyer_name?: string
+          buyer_phone?: string | null
+          conditions?: string | null
+          created_at?: string | null
+          down_payment?: number | null
+          expires_at?: string | null
+          financing_amount?: number | null
+          financing_type?: string | null
+          id?: string
+          message?: string | null
+          offer_amount?: number
+          property_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_submissions: {
         Row: {
           broker_id: string | null
@@ -2349,6 +2535,68 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vw_current_broker"
             referencedColumns: ["broker_id"]
+          },
+        ]
+      }
+      property_transfers: {
+        Row: {
+          created_at: string | null
+          from_broker_id: string | null
+          id: string
+          property_id: string
+          reason: string | null
+          support_ticket_id: string | null
+          to_broker_id: string | null
+          transferred_by: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_broker_id?: string | null
+          id?: string
+          property_id: string
+          reason?: string | null
+          support_ticket_id?: string | null
+          to_broker_id?: string | null
+          transferred_by: string
+        }
+        Update: {
+          created_at?: string | null
+          from_broker_id?: string | null
+          id?: string
+          property_id?: string
+          reason?: string | null
+          support_ticket_id?: string | null
+          to_broker_id?: string | null
+          transferred_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_transfers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "banners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_transfers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_transfers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_transfers_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
           },
         ]
       }
