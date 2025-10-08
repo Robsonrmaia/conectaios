@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
+import { useAsaasCoupon } from '@/hooks/useAsaasCoupon';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, CreditCard, Check, AlertCircle, ArrowRight } from 'lucide-react';
+import { Loader2, CreditCard, Check, AlertCircle, ArrowRight, Tag } from 'lucide-react';
 
 interface Plan {
   id: string;
@@ -69,6 +70,8 @@ interface UserData {
 export function AsaasSubscriptionFlow() {
   const { user } = useAuth();
   const { broker } = useBroker();
+  const { validateCoupon, applyCoupon, clearCoupon, validatedCoupon, loading: couponLoading } = useAsaasCoupon();
+  
   const [step, setStep] = useState<FlowStep>('select');
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
   const [processingStep, setProcessingStep] = useState(1);
@@ -78,6 +81,7 @@ export function AsaasSubscriptionFlow() {
     phone: broker?.phone || '',
     cpfCnpj: broker?.cpf_cnpj || ''
   });
+  const [couponCode, setCouponCode] = useState('');
   const [checkoutUrl, setCheckoutUrl] = useState<string>('');
 
   const validateUserData = (): boolean => {
@@ -111,6 +115,9 @@ export function AsaasSubscriptionFlow() {
     setProcessingStep(1);
 
     try {
+      // Aplicar cupom se válido
+      const finalValue = validatedCoupon ? applyCoupon(selectedPlan.value) : selectedPlan.value;
+
       // Step 1: Create or get customer
       console.log('🔄 Criando cliente no Asaas...');
       const { data: customerData, error: customerError } = await supabase.functions.invoke('asaas-integration', {
@@ -143,10 +150,10 @@ export function AsaasSubscriptionFlow() {
           data: {
             customer: customerId,
             billingType: 'UNDEFINED',
-            value: selectedPlan.value,
+            value: finalValue,
             nextDueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
             cycle: 'MONTHLY',
-            description: `ConectaIOS - Plano ${selectedPlan.name}`,
+            description: `ConectaIOS - Plano ${selectedPlan.name}${validatedCoupon ? ' (com desconto)' : ''}`,
             externalReference: `plan_${selectedPlan.id}_${user.id}_${Date.now()}`
           }
         }
@@ -225,7 +232,7 @@ export function AsaasSubscriptionFlow() {
                       <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
                       <span>{feature}</span>
                     </li>
-                  ))}
+                  )))}
                 </ul>
               </CardContent>
             </Card>
@@ -256,6 +263,60 @@ export function AsaasSubscriptionFlow() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Cupom de Desconto */}
+          <div className="space-y-2 p-4 bg-muted rounded-lg">
+            <Label htmlFor="coupon" className="flex items-center gap-2">
+              <Tag className="h-4 w-4" />
+              Cupom de Desconto (Opcional)
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="coupon"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                placeholder="DIGITE SEU CUPOM"
+                disabled={couponLoading || !!validatedCoupon}
+              />
+              {!validatedCoupon ? (
+                <Button
+                  onClick={() => validateCoupon(couponCode)}
+                  disabled={!couponCode || couponLoading}
+                  variant="outline"
+                >
+                  {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aplicar'}
+                </Button>
+              ) : (
+                <Button onClick={clearCoupon} variant="outline">
+                  Remover
+                </Button>
+              )}
+            </div>
+            {validatedCoupon && validatedCoupon.valid && (
+              <p className="text-sm text-green-600 flex items-center gap-1">
+                <Check className="h-4 w-4" />
+                Cupom aplicado! 
+                {validatedCoupon.discount_percent && ` ${validatedCoupon.discount_percent}% de desconto`}
+                {validatedCoupon.discount_value && ` R$ ${validatedCoupon.discount_value} de desconto`}
+              </p>
+            )}
+          </div>
+
+          {/* Valor com desconto */}
+          {validatedCoupon?.valid && (
+            <div className="p-4 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-800 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">Valor Original</p>
+                  <p className="text-sm line-through text-muted-foreground">R$ {selectedPlan?.value.toFixed(2)}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium">Valor com Desconto</p>
+                  <p className="text-xl font-bold text-green-600">R$ {applyCoupon(selectedPlan?.value || 0).toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="name">Nome Completo *</Label>
             <Input

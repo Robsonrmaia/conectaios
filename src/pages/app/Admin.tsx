@@ -37,6 +37,8 @@ import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminDataManager from '@/components/admin/AdminDataManager';
 import AuditLogs from '@/pages/app/AuditLogs';
 import { AsaasWebhookMonitor } from '@/components/AsaasWebhookMonitor';
+import { AsaasSubscriptionMetrics } from '@/components/AsaasSubscriptionMetrics';
+import { AsaasCouponManager } from '@/components/AsaasCouponManager';
 import { APIDocumentation } from '@/components/APIDocumentation';
 
 export default function Admin() {
@@ -332,7 +334,11 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="webhooks" className="space-y-6">
-          <AsaasWebhookMonitor />
+          <div className="space-y-6">
+            <AsaasSubscriptionMetrics />
+            <AsaasCouponManager />
+            <AsaasWebhookMonitor />
+          </div>
         </TabsContent>
 
         <TabsContent value="suporte" className="space-y-6">

@@ -14,6 +14,121 @@ export type Database = {
   }
   public: {
     Tables: {
+      asaas_coupon_usage: {
+        Row: {
+          broker_id: string
+          coupon_id: string
+          created_at: string
+          discount_applied: number
+          id: string
+          subscription_id: string | null
+          used_at: string
+        }
+        Insert: {
+          broker_id: string
+          coupon_id: string
+          created_at?: string
+          discount_applied: number
+          id?: string
+          subscription_id?: string | null
+          used_at?: string
+        }
+        Update: {
+          broker_id?: string
+          coupon_id?: string
+          created_at?: string
+          discount_applied?: number
+          id?: string
+          subscription_id?: string | null
+          used_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "asaas_coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_coupons: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          discount_percent: number
+          discount_value: number | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          updated_at: string
+          valid_from: string
+          valid_until: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          discount_percent: number
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          discount_percent?: number
+          discount_value?: number | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          updated_at?: string
+          valid_from?: string
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       asaas_customers: {
         Row: {
           asaas_customer_id: string
@@ -64,6 +179,44 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "vw_current_broker"
             referencedColumns: ["broker_id"]
+          },
+        ]
+      }
+      asaas_webhook_retries: {
+        Row: {
+          attempt_number: number
+          attempted_at: string
+          created_at: string
+          error: string | null
+          id: string
+          success: boolean
+          webhook_id: string
+        }
+        Insert: {
+          attempt_number?: number
+          attempted_at?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          success?: boolean
+          webhook_id: string
+        }
+        Update: {
+          attempt_number?: number
+          attempted_at?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          success?: boolean
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_webhook_retries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "asaas_webhooks"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -3165,6 +3318,116 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscription_email_logs: {
+        Row: {
+          broker_id: string
+          created_at: string
+          email_type: string
+          error: string | null
+          id: string
+          sent_at: string
+          sent_to: string
+          subscription_id: string | null
+          success: boolean
+        }
+        Insert: {
+          broker_id: string
+          created_at?: string
+          email_type: string
+          error?: string | null
+          id?: string
+          sent_at?: string
+          sent_to: string
+          subscription_id?: string | null
+          success?: boolean
+        }
+        Update: {
+          broker_id?: string
+          created_at?: string
+          email_type?: string
+          error?: string | null
+          id?: string
+          sent_at?: string
+          sent_to?: string
+          subscription_id?: string | null
+          success?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_email_logs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_email_logs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_email_logs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_email_logs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+          {
+            foreignKeyName: "subscription_email_logs_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_history: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          plan_id: string
+          started_at: string
+          status: string
+          subscription_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          plan_id: string
+          started_at?: string
+          status: string
+          subscription_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          plan_id?: string
+          started_at?: string
+          status?: string
+          subscription_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
