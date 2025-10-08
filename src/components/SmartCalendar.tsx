@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-// @ts-ignore - Big Calendar imports
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, addDays, subDays, startOfMonth, endOfMonth, eachDayOfInterval, endOfWeek, isSameMonth, isSameDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';

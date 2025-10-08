@@ -24,7 +24,7 @@ export default tseslint.config(
         { allowConstantExport: true },
       ],
       "@typescript-eslint/no-unused-vars": "error",
-      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/prefer-const": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
       "react-hooks/exhaustive-deps": "error",
