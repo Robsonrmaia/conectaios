@@ -1137,7 +1137,7 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">CRM completo</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Matches ilimitados</span>
                   </div>
@@ -1217,6 +1217,39 @@ const Index = () => {
                    >
                      Assinar Premium - R$ 197,00
                    </Button>
+                </CardContent>
+              </Card>
+
+              {/* Plano API */}
+              <Card className="relative animate-fade-in hover-scale border-2 border-primary">
+                <CardHeader>
+                  <CardTitle>API Empresarial</CardTitle>
+                  <div className="text-3xl font-bold">R$ 297<span className="text-sm font-normal">/mês</span></div>
+                  <CardDescription>Acesso completo à API</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">API REST completa</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Webhooks personalizados</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">Imóveis ilimitados</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <span className="text-sm">10.000 req/dia</span>
+                  </div>
+                   <Button 
+                     onClick={() => navigate('/checkout?plan=api')}
+                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                   >
+                     Assinar API - R$ 297,00
+                    </Button>
                 </CardContent>
               </Card>
             </div>

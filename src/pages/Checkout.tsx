@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +12,8 @@ import { Loader2 } from 'lucide-react';
 const PLANS = [
   { id: 'basic', name: 'Básico', price: 97.00, features: ['10 imóveis', 'Suporte básico'] },
   { id: 'pro', name: 'Profissional', price: 147.00, features: ['50 imóveis', 'Suporte prioritário', 'Analytics'] },
-  { id: 'enterprise', name: 'Premium', price: 197.00, features: ['Imóveis ilimitados', 'Suporte 24/7', 'API'] },
+  { id: 'enterprise', name: 'Premium', price: 197.00, features: ['Imóveis ilimitados', 'Suporte 24/7', 'Integração via API'] },
+  { id: 'api', name: 'API Empresarial', price: 297.00, features: ['Acesso total à API REST', 'Webhooks personalizados', 'Imóveis ilimitados', 'Suporte prioritário 24/7', 'Documentação completa', 'Rate limit: 10.000 req/dia'] },
 ];
 
 export default function Checkout() {
@@ -118,13 +120,21 @@ export default function Checkout() {
               </ul>
             </div>
 
-            <Button
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="w-full"
-            >
-              Escolher outro plano
-            </Button>
+            <div className="space-y-2">
+              <Label>Mudar de plano</Label>
+              <Select value={planId} onValueChange={(value) => navigate(`/checkout?plan=${value}`)}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Selecione um plano" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLANS.map(plan => (
+                    <SelectItem key={plan.id} value={plan.id}>
+                      {plan.name} - R$ {plan.price.toFixed(2)}/mês
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </CardContent>
         </Card>
 

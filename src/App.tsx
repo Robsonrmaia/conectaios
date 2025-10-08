@@ -29,6 +29,7 @@ import Deals from "./pages/app/Deals";
 import Partnerships from "./pages/app/Partnerships";
 import CRM from "./pages/app/CRM";
 import PropertySubmissions from "./pages/app/PropertySubmissions";
+import ApiDocs from "./pages/app/ApiDocs";
 import MinhasBuscas from "./pages/app/MinhasBuscas";
 import Ferramentas from "./pages/app/Ferramentas";
 import ConectaIOSImageApp from "./components/ConectaIOSImageApp";
@@ -170,6 +171,7 @@ const App = () => (
                            <Route path="perfil" element={<Perfil />} />
                            <Route path="ajuda" element={<Ajuda />} />
                            <Route path="suporte" element={<Suporte />} />
+                           <Route path="api-docs" element={<ApiDocs />} />
                            <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
