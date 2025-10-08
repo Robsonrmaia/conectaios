@@ -2720,6 +2720,8 @@ export type Database = {
           payment_status: string | null
           phone: string | null
           plan_id: string
+          signup_token: string | null
+          token_expires_at: string | null
         }
         Insert: {
           asaas_customer_id?: string | null
@@ -2738,6 +2740,8 @@ export type Database = {
           payment_status?: string | null
           phone?: string | null
           plan_id: string
+          signup_token?: string | null
+          token_expires_at?: string | null
         }
         Update: {
           asaas_customer_id?: string | null
@@ -2756,6 +2760,8 @@ export type Database = {
           payment_status?: string | null
           phone?: string | null
           plan_id?: string
+          signup_token?: string | null
+          token_expires_at?: string | null
         }
         Relationships: []
       }
