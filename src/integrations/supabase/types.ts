@@ -551,7 +551,7 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "vw_current_broker"
-            referencedColumns: ["id"]
+            referencedColumns: ["broker_id"]
           },
           {
             foreignKeyName: "client_searches_client_id_fkey"
@@ -783,7 +783,7 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "vw_current_broker"
-            referencedColumns: ["id"]
+            referencedColumns: ["broker_id"]
           },
         ]
       }
@@ -1683,7 +1683,7 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "vw_current_broker"
-            referencedColumns: ["id"]
+            referencedColumns: ["broker_id"]
           },
           {
             foreignKeyName: "leads_imovel_id_fkey"
@@ -2705,7 +2705,7 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "vw_current_broker"
-            referencedColumns: ["id"]
+            referencedColumns: ["broker_id"]
           },
         ]
       }
@@ -3235,7 +3235,7 @@ export type Database = {
             columns: ["broker_id"]
             isOneToOne: false
             referencedRelation: "vw_current_broker"
-            referencedColumns: ["id"]
+            referencedColumns: ["broker_id"]
           },
           {
             foreignKeyName: "support_tickets_user_id_fkey"
@@ -4101,83 +4101,16 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
-          cover_url: string | null
-          cpf_cnpj: string | null
-          created_at: string | null
+          broker_id: string | null
           creci: string | null
-          email: string | null
-          id: string | null
-          instagram: string | null
-          linkedin: string | null
-          minisite_slug: string | null
-          name: string | null
+          display_name: string | null
           phone: string | null
-          plan_id: string | null
           referral_code: string | null
-          region_id: string | null
-          specialties: string | null
           status: string | null
-          subscription_expires_at: string | null
           subscription_status: string | null
-          updated_at: string | null
           user_id: string | null
           username: string | null
-          website: string | null
           whatsapp: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string | null
-          creci?: string | null
-          email?: string | null
-          id?: string | null
-          instagram?: string | null
-          linkedin?: string | null
-          minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          plan_id?: string | null
-          referral_code?: string | null
-          region_id?: string | null
-          specialties?: string | null
-          status?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          username?: string | null
-          website?: string | null
-          whatsapp?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          cover_url?: string | null
-          cpf_cnpj?: string | null
-          created_at?: string | null
-          creci?: string | null
-          email?: string | null
-          id?: string | null
-          instagram?: string | null
-          linkedin?: string | null
-          minisite_slug?: string | null
-          name?: string | null
-          phone?: string | null
-          plan_id?: string | null
-          referral_code?: string | null
-          region_id?: string | null
-          specialties?: string | null
-          status?: string | null
-          subscription_expires_at?: string | null
-          subscription_status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-          username?: string | null
-          website?: string | null
-          whatsapp?: string | null
         }
         Relationships: [
           {

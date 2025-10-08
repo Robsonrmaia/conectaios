@@ -111,6 +111,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
           username: brokerData.username,
           avatar_url: brokerData.avatar_url,
           whatsapp: brokerData.whatsapp,
+          referral_code: brokerData.referral_code,
           status: 'active',
           subscription_status: 'trial'
         };
