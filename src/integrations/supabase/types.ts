@@ -270,6 +270,13 @@ export type Database = {
             foreignKeyName: "fk_messages_thread"
             columns: ["thread_id"]
             isOneToOne: false
+            referencedRelation: "chat_threads_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_messages_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
             referencedRelation: "chat_threads_view"
             referencedColumns: ["id"]
           },
@@ -306,6 +313,13 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_participants_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -387,10 +401,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "fk_receipts_message"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_enriched"
+            referencedColumns: ["last_message_id"]
+          },
+          {
             foreignKeyName: "fk_receipts_thread"
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "chat_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_receipts_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "chat_threads_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -3573,10 +3601,32 @@ export type Database = {
             foreignKeyName: "fk_participants_thread"
             columns: ["thread_id"]
             isOneToOne: false
+            referencedRelation: "chat_threads_enriched"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_participants_thread"
+            columns: ["thread_id"]
+            isOneToOne: false
             referencedRelation: "chat_threads_view"
             referencedColumns: ["id"]
           },
         ]
+      }
+      chat_threads_enriched: {
+        Row: {
+          created_at: string | null
+          id: string | null
+          is_group: boolean | null
+          last_message_at: string | null
+          last_message_content: string | null
+          last_message_id: string | null
+          last_message_sender_id: string | null
+          last_message_sender_name: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
       }
       chat_threads_view: {
         Row: {
@@ -3588,26 +3638,6 @@ export type Database = {
           title: string | null
           type: string | null
           updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          is_group?: boolean | null
-          last_message_at?: string | null
-          last_text?: never
-          title?: string | null
-          type?: never
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          is_group?: boolean | null
-          last_message_at?: string | null
-          last_text?: never
-          title?: string | null
-          type?: never
-          updated_at?: string | null
         }
         Relationships: []
       }
