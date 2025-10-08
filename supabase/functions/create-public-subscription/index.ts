@@ -80,15 +80,26 @@ serve(async (req) => {
     const asaasCustomer = await customerResponse.json();
     console.log('✅ Asaas customer created:', asaasCustomer.id);
 
-    // Buscar valor do plano
-    const { data: plan } = await supabase
-      .from('plans')
-      .select('*')
-      .eq('id', plan_id)
-      .single();
+    // Valores hardcoded dos planos
+    const PLAN_PRICES: Record<string, number> = {
+      basic: 97.00,
+      pro: 147.00,
+      enterprise: 197.00,
+      api: 297.00,
+    };
 
-    if (!plan) {
-      throw new Error('Plano não encontrado');
+    const PLAN_NAMES: Record<string, string> = {
+      basic: 'Básico',
+      pro: 'Profissional',
+      enterprise: 'Premium',
+      api: 'API Empresarial',
+    };
+
+    const planPrice = PLAN_PRICES[plan_id];
+    const planName = PLAN_NAMES[plan_id];
+
+    if (!planPrice) {
+      throw new Error('Plano inválido');
     }
 
     // Criar assinatura no Asaas
@@ -102,10 +113,10 @@ serve(async (req) => {
       body: JSON.stringify({
         customer: asaasCustomer.id,
         billingType: 'UNDEFINED',
-        value: plan.price,
+        value: planPrice,
         nextDueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
         cycle: 'MONTHLY',
-        description: `Assinatura ${plan.name} - ConectaIOS`,
+        description: `Assinatura ${planName} - ConectaIOS`,
         externalReference,
       }),
     });

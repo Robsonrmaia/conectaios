@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import ConectaLogo from '@/components/ConectaLogo';
 
 const PLANS = [
   { id: 'basic', name: 'Básico', price: 97.00, features: ['10 imóveis', 'Suporte básico'] },
@@ -82,19 +83,34 @@ export default function Checkout() {
       }
 
     } catch (error: any) {
-      console.error('❌ Erro ao criar assinatura:', error);
+      console.error('❌ Erro detalhado:', error);
+      
+      let errorMessage = 'Erro desconhecido';
+      
+      if (error.message?.includes('Failed to fetch')) {
+        errorMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão.';
+      } else if (error.message?.includes('FunctionsFetchError') || error.message?.includes('Edge Function')) {
+        errorMessage = 'Serviço temporariamente indisponível. Aguarde alguns segundos e tente novamente.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: 'Erro ao processar',
-        description: error.message || 'Erro desconhecido',
+        description: errorMessage,
         variant: 'destructive',
       });
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex flex-col items-center justify-center p-4">
+      {/* Logo ConectaIOS */}
+      <div className="mb-8">
+        <ConectaLogo width={120} height={40} />
+      </div>
+      
       <div className="max-w-4xl w-full grid md:grid-cols-2 gap-6">
         {/* Resumo do Plano */}
         <Card>
