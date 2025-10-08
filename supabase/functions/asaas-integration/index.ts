@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, asaas-signature',
 };
 
 const supabase = createClient(
@@ -11,14 +11,86 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
 );
 
+// Rate limiting: 100 requests/minute per IP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT = 100;
+const RATE_WINDOW = 60000; // 1 minute
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
+async function verifyWebhookSignature(
+  body: string,
+  signature: string | null
+): Promise<boolean> {
+  if (!signature) return false;
+  
+  const asaasWebhookSecret = Deno.env.get('ASAAS_WEBHOOK_SECRET');
+  if (!asaasWebhookSecret) {
+    console.warn('⚠️ ASAAS_WEBHOOK_SECRET not configured - webhook signature validation disabled');
+    return true; // Allow if secret not configured (for backward compatibility)
+  }
+  
+  try {
+    const encoder = new TextEncoder();
+    const key = await crypto.subtle.importKey(
+      'raw',
+      encoder.encode(asaasWebhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    
+    const signatureBuffer = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      encoder.encode(body)
+    );
+    
+    const computedSignature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    
+    return computedSignature === signature;
+  } catch (error) {
+    console.error('❌ Error verifying webhook signature:', error);
+    return false;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('=== Asaas Integration Function Started ===');
-  console.log('Request method:', req.method);
+  const timestamp = new Date().toISOString();
+  const clientIp = req.headers.get('x-forwarded-for') || 'unknown';
+  
+  console.log(`[${timestamp}] 🔵 Request from ${clientIp}`);
+
+  // Rate limiting
+  if (!checkRateLimit(clientIp)) {
+    console.log(`[${timestamp}] ⛔ Rate limit exceeded for ${clientIp}`);
+    return new Response(
+      JSON.stringify({ success: false, error: 'Rate limit exceeded' }),
+      { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
 
   try {
     const asaasApiKey = Deno.env.get('ASAAS_API_KEY');
@@ -33,15 +105,27 @@ serve(async (req) => {
           ? 'https://sandbox.asaas.com/api/v3'
           : 'https://www.asaas.com/api/v3');
 
-    console.log(`Using Asaas environment: ${asaasEnv}`);
-    console.log(`API Base URL: ${asaasApiBase}`);
-
-    const body = await req.json();
+    const bodyText = await req.text();
+    const body = JSON.parse(bodyText);
     let { action, data } = body;
 
     // Auto-detect Asaas webhook (no action, has event/payment)
-    if (!action && (body.event || body.payment)) {
-      console.log('Detected Asaas webhook');
+    const isWebhook = !action && (body.event || body.payment);
+    if (isWebhook) {
+      console.log(`[${timestamp}] 🔔 Webhook detected: ${body.event}`);
+      
+      // Verify webhook signature for security
+      const signature = req.headers.get('asaas-signature');
+      const isValid = await verifyWebhookSignature(bodyText, signature);
+      
+      if (!isValid) {
+        console.log(`[${timestamp}] ❌ Invalid webhook signature`);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Invalid signature' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       action = 'handle_webhook';
       data = body;
     }
@@ -50,8 +134,7 @@ serve(async (req) => {
       throw new Error('Ação não especificada');
     }
 
-    console.log('Action:', action);
-    console.log('Data:', data);
+    console.log(`[${timestamp}] 🎯 Action: ${action}`);
 
     const asaasHeaders = {
       'Content-Type': 'application/json',
@@ -63,8 +146,7 @@ serve(async (req) => {
     switch (action) {
       case 'create_customer':
         // Criar cliente no Asaas
-        console.log('Creating customer in Asaas...');
-        console.log('Customer data:', JSON.stringify(data, null, 2));
+        console.log(`[${timestamp}] 👤 Creating customer...`);
         
         response = await fetch(`${asaasApiBase}/customers`, {
           method: 'POST',
@@ -96,7 +178,7 @@ serve(async (req) => {
 
       case 'verify_customer':
         // Verificar se cliente existe
-        console.log('Verifying customer in Asaas...');
+        console.log(`[${timestamp}] ✅ Verifying customer ${data.customerId}...`);
         response = await fetch(`${asaasApiBase}/customers/${data.customerId}`, {
           method: 'GET',
           headers: asaasHeaders
@@ -111,7 +193,7 @@ serve(async (req) => {
 
       case 'create_payment':
         // Criar cobrança no Asaas
-        console.log('Creating payment in Asaas...');
+        console.log(`[${timestamp}] 💳 Creating payment...`);
         response = await fetch(`${asaasApiBase}/payments`, {
           method: 'POST',
           headers: asaasHeaders,
@@ -174,8 +256,7 @@ serve(async (req) => {
 
       case 'create_subscription':
         // Criar assinatura sem dados de cartão (para usar checkout)
-        console.log('Creating subscription in Asaas...');
-        console.log('Customer ID being used:', data.customer || data.customerId);
+        console.log(`[${timestamp}] 📅 Creating subscription for customer ${data.customer || data.customerId}...`);
         
         const subscriptionData = {
           customer: data.customer || data.customerId,
@@ -251,25 +332,24 @@ serve(async (req) => {
 
       case 'handle_webhook':
         // Processar webhook de pagamento do Asaas
-        console.log('Processing Asaas webhook...');
+        console.log(`[${timestamp}] 🔔 Processing webhook: ${data.event}`);
         
         const { event, payment } = data;
         
-        // Registrar evento no banco
+        // Registrar evento no banco (corrigido para match schema)
         const { error: logError } = await supabase
           .from('asaas_webhooks')
           .insert({
-            event_type: event,
-            payment_id: payment?.id,
-            payment_status: payment?.status,
-            payment_value: payment?.value,
-            customer_id: payment?.customer,
-            external_reference: payment?.externalReference,
-            webhook_data: data
+            event: event, // text column
+            payment: payment, // jsonb column
+            received_at: new Date().toISOString(),
+            processed: false
           });
 
         if (logError) {
-          console.error('Error logging webhook:', logError);
+          console.error(`[${timestamp}] ❌ Error logging webhook:`, logError);
+        } else {
+          console.log(`[${timestamp}] ✅ Webhook logged successfully`);
         }
 
         // Atualizar status do deal se existe referência externa
@@ -283,6 +363,8 @@ serve(async (req) => {
             dealStatus = 'vencido';
           }
 
+          console.log(`[${timestamp}] 📝 Updating deal ${dealId} to status: ${dealStatus}`);
+
           const { error: dealError } = await supabase
             .from('deals')
             .update({ 
@@ -293,9 +375,18 @@ serve(async (req) => {
             .eq('id', dealId);
 
           if (dealError) {
-            console.error('Error updating deal:', dealError);
+            console.error(`[${timestamp}] ❌ Error updating deal:`, dealError);
+          } else {
+            console.log(`[${timestamp}] ✅ Deal updated successfully`);
           }
         }
+
+        // Marcar webhook como processado
+        await supabase
+          .from('asaas_webhooks')
+          .update({ processed: true })
+          .eq('event', event)
+          .eq('payment->id', payment?.id);
 
         return new Response(
           JSON.stringify({ success: true, message: 'Webhook processed successfully' }),
@@ -304,26 +395,25 @@ serve(async (req) => {
 
       case 'webhook_payment':
         // Manter compatibilidade com chamadas antigas
-        console.log('Processing payment webhook (legacy)...');
+        console.log(`[${timestamp}] 🔔 Processing webhook (legacy): ${data.event}`);
         
         const webhookEvent = data.event;
         const webhookPayment = data.payment;
         
-        // Registrar evento no banco
+        // Registrar evento no banco (corrigido para match schema)
         const { error: legacyLogError } = await supabase
           .from('asaas_webhooks')
           .insert({
-            event_type: webhookEvent,
-            payment_id: webhookPayment.id,
-            payment_status: webhookPayment.status,
-            payment_value: webhookPayment.value,
-            customer_id: webhookPayment.customer,
-            external_reference: webhookPayment.externalReference,
-            webhook_data: data
+            event: webhookEvent,
+            payment: webhookPayment,
+            received_at: new Date().toISOString(),
+            processed: false
           });
 
         if (legacyLogError) {
-          console.error('Error logging webhook:', legacyLogError);
+          console.error(`[${timestamp}] ❌ Error logging webhook:`, legacyLogError);
+        } else {
+          console.log(`[${timestamp}] ✅ Webhook logged successfully`);
         }
 
         // Atualizar status do deal se existe referência externa
@@ -337,6 +427,8 @@ serve(async (req) => {
             dealStatus = 'vencido';
           }
 
+          console.log(`[${timestamp}] 📝 Updating deal ${dealId} to status: ${dealStatus}`);
+
           const { error: dealError } = await supabase
             .from('deals')
             .update({ 
@@ -347,9 +439,18 @@ serve(async (req) => {
             .eq('id', dealId);
 
           if (dealError) {
-            console.error('Error updating deal:', dealError);
+            console.error(`[${timestamp}] ❌ Error updating deal:`, dealError);
+          } else {
+            console.log(`[${timestamp}] ✅ Deal updated successfully`);
           }
         }
+
+        // Marcar webhook como processado
+        await supabase
+          .from('asaas_webhooks')
+          .update({ processed: true })
+          .eq('event', webhookEvent)
+          .eq('payment->id', webhookPayment.id);
 
         return new Response(
           JSON.stringify({ success: true, message: 'Webhook processed successfully' }),
@@ -367,7 +468,7 @@ serve(async (req) => {
     }
 
     const asaasData = await response.json();
-    console.log('Asaas response:', asaasData);
+    console.log(`[${timestamp}] ✅ Success`);
 
     return new Response(
       JSON.stringify({
@@ -378,12 +479,13 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in Asaas integration:', error);
+    const timestamp = new Date().toISOString();
+    console.error(`[${timestamp}] ❌ Error:`, error.message);
     return new Response(
       JSON.stringify({ 
         success: false,
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 

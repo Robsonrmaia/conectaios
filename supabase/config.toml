@@ -1,5 +1,8 @@
 project_id = "hvbdeyuqcliqrmzvyciq"
 
+[functions.asaas-integration]
+verify_jwt = false
+
 [functions.minisite-ai-chat]
 verify_jwt = false
 
