@@ -331,67 +331,198 @@ serve(async (req) => {
         );
 
       case 'handle_webhook':
-        // Processar webhook de pagamento do Asaas
+        // Processar webhook do Asaas (subscriptions + deals)
         console.log(`[${timestamp}] 🔔 Processing webhook: ${data.event}`);
         
-        const { event, payment } = data;
+        const { event, payment, subscription } = data;
         
-        // Registrar evento no banco (corrigido para match schema)
-        const { error: logError } = await supabase
+        console.log(`[${timestamp}] 📦 Event details:`, { 
+          event,
+          hasPayment: !!payment, 
+          hasSubscription: !!subscription,
+          paymentRef: payment?.externalReference,
+          subscriptionRef: subscription?.externalReference
+        });
+        
+        // Check if webhook was already processed (idempotency)
+        const webhookIdentifier = payment?.id || subscription?.id;
+        if (webhookIdentifier) {
+          const { data: existing } = await supabase
+            .from('asaas_webhooks')
+            .select('id, processed')
+            .eq('event', event)
+            .eq('payment->id', webhookIdentifier)
+            .eq('processed', true)
+            .maybeSingle();
+            
+          if (existing) {
+            console.log(`[${timestamp}] ⏭️ Webhook already processed, skipping`);
+            return new Response(
+              JSON.stringify({ success: true, message: 'Webhook already processed' }),
+              { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+        }
+        
+        // Register webhook in database
+        const { error: logError, data: webhookRecord } = await supabase
           .from('asaas_webhooks')
           .insert({
-            event: event, // text column
-            payment: payment, // jsonb column
+            event: event,
+            payment: payment || subscription || {},
             received_at: new Date().toISOString(),
             processed: false
-          });
+          })
+          .select()
+          .single();
 
         if (logError) {
           console.error(`[${timestamp}] ❌ Error logging webhook:`, logError);
-        } else {
-          console.log(`[${timestamp}] ✅ Webhook logged successfully`);
+          throw logError;
         }
+        
+        console.log(`[${timestamp}] ✅ Webhook logged with id: ${webhookRecord.id}`);
 
-        // Atualizar status do deal se existe referência externa
-        if (payment?.externalReference && payment.externalReference.startsWith('deal_')) {
-          const dealId = payment.externalReference.replace('deal_', '');
+        try {
+          // Process subscription events (assinaturas)
+          if (payment?.externalReference?.startsWith('plan_') || subscription) {
+            console.log(`[${timestamp}] 📅 Processing subscription event`);
+            
+            const externalRef = payment?.externalReference || subscription?.externalReference;
+            const asaasSubscriptionId = subscription?.id || payment?.subscription;
+            
+            // Extract user_id from externalReference (format: plan_<planId>_<userId>_<timestamp>)
+            const refParts = externalRef?.split('_') || [];
+            const userId = refParts.length >= 3 ? refParts[2] : null;
+            
+            if (!userId) {
+              console.warn(`[${timestamp}] ⚠️ Could not extract user_id from: ${externalRef}`);
+            } else {
+              console.log(`[${timestamp}] 👤 User ID extracted: ${userId}`);
+              
+              // Get broker_id from user_id
+              const { data: broker } = await supabase
+                .from('brokers')
+                .select('id')
+                .eq('user_id', userId)
+                .maybeSingle();
+                
+              if (!broker) {
+                console.warn(`[${timestamp}] ⚠️ Broker not found for user: ${userId}`);
+              } else {
+                const brokerId = broker.id;
+                
+                // Map Asaas payment status to subscription status
+                let subscriptionStatus = 'pending';
+                if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
+                  subscriptionStatus = 'active';
+                } else if (event === 'PAYMENT_OVERDUE') {
+                  subscriptionStatus = 'past_due';
+                } else if (event === 'PAYMENT_DELETED' || subscription?.status === 'INACTIVE') {
+                  subscriptionStatus = 'canceled';
+                }
+                
+                console.log(`[${timestamp}] 🔄 Updating subscription status to: ${subscriptionStatus}`);
+                
+                // Calculate next billing date
+                let nextBillingDate = payment?.dueDate;
+                if (subscriptionStatus === 'active' && payment?.dueDate) {
+                  const currentDue = new Date(payment.dueDate);
+                  currentDue.setMonth(currentDue.getMonth() + 1); // Assuming monthly cycle
+                  nextBillingDate = currentDue.toISOString().split('T')[0];
+                }
+                
+                // Upsert subscription record
+                const { error: subError } = await supabase
+                  .from('subscriptions')
+                  .upsert({
+                    profile_id: userId,
+                    asaas_subscription_id: asaasSubscriptionId,
+                    asaas_customer_id: payment?.customer || subscription?.customer,
+                    status: subscriptionStatus,
+                    plan_id: refParts[1], // Extract plan_id from reference
+                    amount: payment?.value || subscription?.value,
+                    billing_cycle: 'monthly',
+                    next_billing_date: nextBillingDate,
+                    updated_at: new Date().toISOString()
+                  }, {
+                    onConflict: 'profile_id',
+                    ignoreDuplicates: false
+                  });
+                
+                if (subError) {
+                  console.error(`[${timestamp}] ❌ Error upserting subscription:`, subError);
+                } else {
+                  console.log(`[${timestamp}] ✅ Subscription updated successfully`);
+                  // Trigger will automatically update broker table via sync_broker_subscription
+                }
+              }
+            }
+          }
           
-          let dealStatus = 'pendente';
-          if (payment.status === 'CONFIRMED' || payment.status === 'RECEIVED') {
-            dealStatus = 'pago';
-          } else if (payment.status === 'OVERDUE') {
-            dealStatus = 'vencido';
+          // Process deal payments (keep existing logic)
+          if (payment?.externalReference?.startsWith('deal_')) {
+            console.log(`[${timestamp}] 💼 Processing deal payment`);
+            
+            const dealId = payment.externalReference.replace('deal_', '');
+            
+            let dealStatus = 'pendente';
+            if (payment.status === 'CONFIRMED' || payment.status === 'RECEIVED') {
+              dealStatus = 'pago';
+            } else if (payment.status === 'OVERDUE') {
+              dealStatus = 'vencido';
+            }
+
+            console.log(`[${timestamp}] 📝 Updating deal ${dealId} to status: ${dealStatus}`);
+
+            const { error: dealError } = await supabase
+              .from('deals')
+              .update({ 
+                payment_status: dealStatus,
+                asaas_payment_id: payment.id,
+                paid_at: payment.status === 'CONFIRMED' ? new Date().toISOString() : null
+              })
+              .eq('id', dealId);
+
+            if (dealError) {
+              console.error(`[${timestamp}] ❌ Error updating deal:`, dealError);
+            } else {
+              console.log(`[${timestamp}] ✅ Deal updated successfully`);
+            }
           }
 
-          console.log(`[${timestamp}] 📝 Updating deal ${dealId} to status: ${dealStatus}`);
-
-          const { error: dealError } = await supabase
-            .from('deals')
+          // Mark webhook as processed
+          await supabase
+            .from('asaas_webhooks')
             .update({ 
-              payment_status: dealStatus,
-              asaas_payment_id: payment.id,
-              paid_at: payment.status === 'CONFIRMED' ? new Date().toISOString() : null
+              processed: true,
+              processed_at: new Date().toISOString()
             })
-            .eq('id', dealId);
+            .eq('id', webhookRecord.id);
+          
+          console.log(`[${timestamp}] ✅ Webhook marked as processed`);
 
-          if (dealError) {
-            console.error(`[${timestamp}] ❌ Error updating deal:`, dealError);
-          } else {
-            console.log(`[${timestamp}] ✅ Deal updated successfully`);
-          }
+          return new Response(
+            JSON.stringify({ 
+              success: true, 
+              message: 'Webhook processed successfully',
+              webhook_id: webhookRecord.id
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+          
+        } catch (processingError) {
+          // Mark webhook with error
+          await supabase
+            .from('asaas_webhooks')
+            .update({ 
+              error: processingError.message,
+              processed_at: new Date().toISOString()
+            })
+            .eq('id', webhookRecord.id);
+            
+          throw processingError;
         }
-
-        // Marcar webhook como processado
-        await supabase
-          .from('asaas_webhooks')
-          .update({ processed: true })
-          .eq('event', event)
-          .eq('payment->id', payment?.id);
-
-        return new Response(
-          JSON.stringify({ success: true, message: 'Webhook processed successfully' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
 
       case 'webhook_payment':
         // Manter compatibilidade com chamadas antigas

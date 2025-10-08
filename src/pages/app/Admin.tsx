@@ -36,6 +36,7 @@ import SupportTicketManager from '@/components/admin/SupportTicketManager';
 import AdminAnalytics from '@/components/admin/AdminAnalytics';
 import AdminDataManager from '@/components/admin/AdminDataManager';
 import AuditLogs from '@/pages/app/AuditLogs';
+import { AsaasWebhookMonitor } from '@/components/AsaasWebhookMonitor';
 import { APIDocumentation } from '@/components/APIDocumentation';
 
 export default function Admin() {
@@ -225,6 +226,7 @@ export default function Admin() {
             <TabsTrigger value="analytics" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Analytics</TabsTrigger>
             <TabsTrigger value="auditoria" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Auditoria</TabsTrigger>
             <TabsTrigger value="dados" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Dados</TabsTrigger>
+            <TabsTrigger value="webhooks" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Webhooks</TabsTrigger>
             <TabsTrigger value="suporte" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Suporte</TabsTrigger>
             <TabsTrigger value="testemunhos" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Testemunhos</TabsTrigger>
             <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Parceiros</TabsTrigger>
@@ -327,6 +329,10 @@ export default function Admin() {
 
         <TabsContent value="dados" className="space-y-6">
           <AdminDataManager />
+        </TabsContent>
+
+        <TabsContent value="webhooks" className="space-y-6">
+          <AsaasWebhookMonitor />
         </TabsContent>
 
         <TabsContent value="suporte" className="space-y-6">
