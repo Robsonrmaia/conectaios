@@ -205,6 +205,13 @@ export type Database = {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -263,13 +270,6 @@ export type Database = {
             foreignKeyName: "fk_messages_thread"
             columns: ["thread_id"]
             isOneToOne: false
-            referencedRelation: "chat_threads_enriched"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_messages_thread"
-            columns: ["thread_id"]
-            isOneToOne: false
             referencedRelation: "chat_threads_view"
             referencedColumns: ["id"]
           },
@@ -306,13 +306,6 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "chat_threads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_participants_thread"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "chat_threads_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -394,24 +387,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "fk_receipts_message"
-            columns: ["message_id"]
-            isOneToOne: false
-            referencedRelation: "chat_threads_enriched"
-            referencedColumns: ["last_message_id"]
-          },
-          {
             foreignKeyName: "fk_receipts_thread"
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "chat_threads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_receipts_thread"
-            columns: ["thread_id"]
-            isOneToOne: false
-            referencedRelation: "chat_threads_enriched"
             referencedColumns: ["id"]
           },
           {
@@ -747,6 +726,13 @@ export type Database = {
             foreignKeyName: "conectaios_clients_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conectaios_clients_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -864,6 +850,13 @@ export type Database = {
             foreignKeyName: "deals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -908,6 +901,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "conectaios_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conectaios_notes_user_id_fkey"
             columns: ["user_id"]
@@ -969,6 +969,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "conectaios_tasks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conectaios_tasks_user_id_fkey"
             columns: ["user_id"]
@@ -1363,6 +1370,13 @@ export type Database = {
             foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1372,6 +1386,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
@@ -1842,6 +1863,13 @@ export type Database = {
             foreignKeyName: "matches_requester_id_fkey"
             columns: ["requester_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1851,6 +1879,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "matches_responder_id_fkey"
+            columns: ["responder_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "matches_responder_id_fkey"
@@ -1896,6 +1931,13 @@ export type Database = {
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
             referencedColumns: ["id"]
           },
           {
@@ -2016,6 +2058,13 @@ export type Database = {
             foreignKeyName: "minisites_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "minisites_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -2025,6 +2074,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "minisites_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "minisites_owner_id_fkey"
@@ -3146,6 +3202,13 @@ export type Database = {
             foreignKeyName: "subscriptions_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -3241,6 +3304,13 @@ export type Database = {
             foreignKeyName: "support_tickets_assignee_id_fkey"
             columns: ["assignee_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -3271,6 +3341,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vw_current_broker"
             referencedColumns: ["broker_id"]
+          },
+          {
+            foreignKeyName: "support_tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "support_tickets_user_id_fkey"
@@ -3496,33 +3573,10 @@ export type Database = {
             foreignKeyName: "fk_participants_thread"
             columns: ["thread_id"]
             isOneToOne: false
-            referencedRelation: "chat_threads_enriched"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_participants_thread"
-            columns: ["thread_id"]
-            isOneToOne: false
             referencedRelation: "chat_threads_view"
             referencedColumns: ["id"]
           },
         ]
-      }
-      chat_threads_enriched: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          is_group: boolean | null
-          last_message_at: string | null
-          last_message_content: string | null
-          last_message_id: string | null
-          last_message_sender_id: string | null
-          last_message_sender_name: string | null
-          message_count: number | null
-          title: string | null
-          updated_at: string | null
-        }
-        Relationships: []
       }
       chat_threads_view: {
         Row: {
@@ -3592,7 +3646,54 @@ export type Database = {
           updated_at: string | null
           user_id: string | null
         }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          creci?: string | null
+          email?: string | null
+          id?: string | null
+          name?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          creci?: string | null
+          email?: string | null
+          id?: string | null
+          name?: string | null
+          phone?: string | null
+          plan_id?: string | null
+          referral_code?: string | null
+          region_id?: string | null
+          status?: string | null
+          subscription_expires_at?: string | null
+          subscription_status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
         Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
@@ -3750,6 +3851,13 @@ export type Database = {
             foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -3759,6 +3867,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
@@ -3923,6 +4038,13 @@ export type Database = {
             foreignKeyName: "imoveis_owner_fk"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_fk"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -3932,6 +4054,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "v_social_broker_card"
             referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "imoveis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "imoveis_owner_id_fkey"
@@ -4138,6 +4267,13 @@ export type Database = {
           whatsapp: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "brokers_user_id_fkey"
             columns: ["user_id"]
