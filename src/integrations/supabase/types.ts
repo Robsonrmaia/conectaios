@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      asaas_customers: {
+        Row: {
+          asaas_customer_id: string
+          broker_id: string
+          created_at: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          asaas_customer_id: string
+          broker_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          asaas_customer_id?: string
+          broker_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_customers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_customers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_customers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_customers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+        ]
+      }
+      asaas_webhooks: {
+        Row: {
+          created_at: string
+          error: string | null
+          event: string
+          id: string
+          payment: Json
+          processed: boolean
+          processed_at: string | null
+          received_at: string
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          event: string
+          id?: string
+          payment?: Json
+          processed?: boolean
+          processed_at?: string | null
+          received_at?: string
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          event?: string
+          id?: string
+          payment?: Json
+          processed?: boolean
+          processed_at?: string | null
+          received_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string | null
@@ -113,8 +199,11 @@ export type Database = {
       }
       brokers: {
         Row: {
+          address: string | null
+          asaas_customer_id: string | null
           avatar_url: string | null
           bio: string | null
+          city: string | null
           cover_url: string | null
           cpf_cnpj: string | null
           created_at: string | null
@@ -130,6 +219,7 @@ export type Database = {
           referral_code: string | null
           region_id: string | null
           specialties: string | null
+          state: string | null
           status: string | null
           subscription_expires_at: string | null
           subscription_status: string | null
@@ -138,10 +228,14 @@ export type Database = {
           username: string | null
           website: string | null
           whatsapp: string | null
+          zipcode: string | null
         }
         Insert: {
+          address?: string | null
+          asaas_customer_id?: string | null
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           cover_url?: string | null
           cpf_cnpj?: string | null
           created_at?: string | null
@@ -157,6 +251,7 @@ export type Database = {
           referral_code?: string | null
           region_id?: string | null
           specialties?: string | null
+          state?: string | null
           status?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
@@ -165,10 +260,14 @@ export type Database = {
           username?: string | null
           website?: string | null
           whatsapp?: string | null
+          zipcode?: string | null
         }
         Update: {
+          address?: string | null
+          asaas_customer_id?: string | null
           avatar_url?: string | null
           bio?: string | null
+          city?: string | null
           cover_url?: string | null
           cpf_cnpj?: string | null
           created_at?: string | null
@@ -184,6 +283,7 @@ export type Database = {
           referral_code?: string | null
           region_id?: string | null
           specialties?: string | null
+          state?: string | null
           status?: string | null
           subscription_expires_at?: string | null
           subscription_status?: string | null
@@ -192,6 +292,7 @@ export type Database = {
           username?: string | null
           website?: string | null
           whatsapp?: string | null
+          zipcode?: string | null
         }
         Relationships: [
           {
@@ -3067,39 +3168,61 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          amount: number | null
+          billing_cycle: string | null
+          canceled_at: string | null
           created_at: string | null
           current_period_end: string | null
           external_customer_id: string | null
           external_subscription_id: string | null
           id: string
+          next_billing_date: string | null
           plan: string | null
+          plan_id: string | null
           profile_id: string
           provider: string | null
           status: string | null
         }
         Insert: {
+          amount?: number | null
+          billing_cycle?: string | null
+          canceled_at?: string | null
           created_at?: string | null
           current_period_end?: string | null
           external_customer_id?: string | null
           external_subscription_id?: string | null
           id?: string
+          next_billing_date?: string | null
           plan?: string | null
+          plan_id?: string | null
           profile_id: string
           provider?: string | null
           status?: string | null
         }
         Update: {
+          amount?: number | null
+          billing_cycle?: string | null
+          canceled_at?: string | null
           created_at?: string | null
           current_period_end?: string | null
           external_customer_id?: string | null
           external_subscription_id?: string | null
           id?: string
+          next_billing_date?: string | null
           plan?: string | null
+          plan_id?: string | null
           profile_id?: string
           provider?: string | null
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscriptions_profile_id_fkey"
             columns: ["profile_id"]
