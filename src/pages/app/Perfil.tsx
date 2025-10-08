@@ -29,6 +29,7 @@ import {
   Target
 } from 'lucide-react';
 import { AsaasTestButton } from '@/components/AsaasTestButton';
+import { AsaasSubscriptionFlow } from '@/components/AsaasSubscriptionFlow';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -639,83 +640,46 @@ export default function Perfil() {
         </TabsContent>
 
         <TabsContent value="plano" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="h-5 w-5" />
-                Meu Plano
-              </CardTitle>
-              <CardDescription>
-                Gerencie sua assinatura e forma de pagamento
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="p-4 border rounded-lg bg-primary/5 border-primary/20">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold">Plano Profissional</h3>
-                  <Badge className="bg-primary/20 text-primary">Ativo</Badge>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Acesso completo a todas as funcionalidades da plataforma
-                </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-2xl font-bold">R$ 197/mês</div>
-                    <div className="text-sm text-muted-foreground">Próxima cobrança: 15/02/2024</div>
+          {broker?.subscription_status && broker.subscription_status !== 'trial' ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Meu Plano Ativo
+                </CardTitle>
+                <CardDescription>
+                  Gerencie sua assinatura atual
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 border rounded-lg bg-primary/5 border-primary/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-semibold">Plano Atual</h3>
+                    <Badge className="bg-primary/20 text-primary">
+                      {broker.subscription_status === 'active' ? 'Ativo' : broker.subscription_status}
+                    </Badge>
                   </div>
-                  <Button variant="outline">
-                    Gerenciar Plano
+                  <div className="text-sm text-muted-foreground">
+                    {broker.subscription_expires_at && (
+                      <p>Próxima cobrança: {new Date(broker.subscription_expires_at).toLocaleDateString('pt-BR')}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.open('https://www.asaas.com/login', '_blank')}
+                    className="w-full sm:w-auto"
+                  >
+                    Gerenciar no Asaas
                   </Button>
                 </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-medium">Funcionalidades Incluídas</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    CRM Completo
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    Match IA Ilimitado
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    Assistente IA
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    Analytics Avançado
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    Suporte Prioritário
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full" />
-                    Integrações Completas
-                  </div>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-4">
-                <h4 className="font-medium">Forma de Pagamento</h4>
-                <div className="flex items-center gap-3 p-3 border rounded-lg">
-                  <CreditCard className="h-5 w-5 text-muted-foreground" />
-                  <div className="flex-1">
-                    <div className="font-medium">Cartão terminado em 1234</div>
-                    <div className="text-sm text-muted-foreground">Expira em 12/2027</div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Alterar
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          ) : (
+            <AsaasSubscriptionFlow />
+          )}
         </TabsContent>
       </Tabs>
     </div>
