@@ -30,6 +30,7 @@ import { formatCurrency } from '@/lib/utils';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { LazyAutoCarousel } from '@/components/LazyAutoCarousel';
 import { LazyDevelopmentCarousel } from '@/components/LazyDevelopmentCarousel';
+import { CITIES, DEFAULT_CITY, STORAGE_KEYS, getCityLabel } from '@/config/cities';
 
 interface Property {
   id: string;
@@ -95,6 +96,17 @@ export default function Marketplace() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [bedroomsFilter, setBedroomsFilter] = useState('');
+  
+  // Filtro de cidade - Carrega última cidade selecionada ou usa padrão
+  const [selectedCity, setSelectedCity] = useState<string>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.LAST_SELECTED_CITY);
+    return saved || DEFAULT_CITY;
+  });
+  
+  // Salvar cidade selecionada no localStorage quando mudar
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEYS.LAST_SELECTED_CITY, selectedCity);
+  }, [selectedCity]);
   
   // Pending filters (applied only when "Buscar" is clicked)
   const [pendingSearchTerm, setPendingSearchTerm] = useState('');
@@ -459,8 +471,9 @@ export default function Marketplace() {
       const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
       const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
       const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
+      const matchesCity = property.city === selectedCity; // Filtro por cidade
 
-      return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms;
+      return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
     });
     
     // Se "Meus imóveis primeiro" ativado e usuário logado
@@ -471,7 +484,7 @@ export default function Marketplace() {
     }
     
     return filtered;
-  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user]);
+  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
 
   // Pagination logic com primeira página maior
   const totalItems = filteredProperties.length;
@@ -608,8 +621,34 @@ export default function Marketplace() {
                   <Home className="h-4 w-4" />
                   Dashboard
                 </Button>
+                
+                {/* Seletor de Cidade */}
+                <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm p-3 rounded-lg border border-primary/20">
+                  <MapPin className="h-5 w-5 text-primary flex-shrink-0" />
+                  <div className="flex-1">
+                    <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                      Cidade
+                    </label>
+                    <Select value={selectedCity} onValueChange={setSelectedCity}>
+                      <SelectTrigger className="h-9 border-0 bg-transparent focus:ring-1 focus:ring-primary">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CITIES.map((city) => (
+                          <SelectItem key={city.value} value={city.value}>
+                            {city.label} - {city.state}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {filteredProperties.length}
+                  </Badge>
+                </div>
+                
                 <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-primary">
-                  Marketplace de Imóveis
+                  Marketplace - {getCityLabel(selectedCity)}
                 </h1>
               </div>
             </div>

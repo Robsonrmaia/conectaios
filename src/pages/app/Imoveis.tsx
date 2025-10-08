@@ -54,6 +54,7 @@ import { testPropertyQualityScoring } from '@/utils/testGamification';
 import { useBroker } from '@/hooks/useBroker';
 import { usePropertyQuality } from '@/hooks/usePropertyQuality';
 import { QualityIndicator } from '@/components/QualityIndicator';
+import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
 
 interface Property {
   id: string;
@@ -165,7 +166,7 @@ export default function Imoveis() {
     videos: '',
     address: '',
     neighborhood: '',
-    city: '',
+    city: DEFAULT_CITY, // Valor padrão: Ilhéus
     state: '',
     zipcode: '',
     condominium_fee: '',
@@ -1107,6 +1108,31 @@ export default function Imoveis() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                {/* Cidade - OBRIGATÓRIO */}
+                <div>
+                  <Label htmlFor="city" className="flex items-center gap-2">
+                    Cidade <Badge variant="destructive" className="text-xs">Obrigatório</Badge>
+                  </Label>
+                  <Select 
+                    value={formData.city || DEFAULT_CITY} 
+                    onValueChange={(value) => setFormData({...formData, city: value})}
+                  >
+                    <SelectTrigger className="h-11">
+                      <SelectValue placeholder="Selecione a cidade" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CITIES.map((city) => (
+                        <SelectItem key={city.value} value={city.value}>
+                          {city.label} - {city.state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Cidade onde o imóvel está localizado
+                  </p>
                 </div>
 
                 {/* CEP, Bairro, IPTU e Condomínio */}
