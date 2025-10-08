@@ -384,6 +384,64 @@ serve(async (req) => {
         console.log(`[${timestamp}] ✅ Webhook logged with id: ${webhookRecord.id}`);
 
         try {
+          // Check if it's a signup payment confirmation
+          const externalRef = payment?.externalReference || subscription?.externalReference;
+          if ((event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') && externalRef?.startsWith('signup_')) {
+            console.log(`[${timestamp}] 🎉 Signup payment confirmed for: ${externalRef}`);
+            
+            // Find pending signup
+            const { data: pendingSignup } = await supabase
+              .from('pending_signups')
+              .select('*')
+              .eq('external_reference', externalRef)
+              .eq('claimed', false)
+              .maybeSingle();
+            
+            if (pendingSignup) {
+              console.log(`[${timestamp}] 📧 Sending signup completion email to: ${pendingSignup.email}`);
+              
+              // Generate unique token
+              const signupToken = crypto.randomUUID();
+              const tokenExpiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000); // 48 hours
+              
+              // Update pending signup with token
+              const { error: updateError } = await supabase
+                .from('pending_signups')
+                .update({
+                  signup_token: signupToken,
+                  token_expires_at: tokenExpiresAt.toISOString(),
+                  payment_status: 'confirmed'
+                })
+                .eq('id', pendingSignup.id);
+              
+              if (updateError) {
+                console.error(`[${timestamp}] ❌ Error updating pending signup:`, updateError);
+              } else {
+                // Send email via send-signup-email function
+                try {
+                  const emailResponse = await supabase.functions.invoke('send-signup-email', {
+                    body: {
+                      email: pendingSignup.email,
+                      name: pendingSignup.name,
+                      token: signupToken,
+                      planName: pendingSignup.plan_id.toUpperCase()
+                    }
+                  });
+                  
+                  if (emailResponse.error) {
+                    console.error(`[${timestamp}] ❌ Error sending signup email:`, emailResponse.error);
+                  } else {
+                    console.log(`[${timestamp}] ✅ Signup email sent successfully`);
+                  }
+                } catch (emailError) {
+                  console.error(`[${timestamp}] ❌ Error invoking send-signup-email:`, emailError);
+                }
+              }
+            } else {
+              console.warn(`[${timestamp}] ⚠️ Pending signup not found for: ${externalRef}`);
+            }
+          }
+          
           // Process subscription events (assinaturas)
           if (payment?.externalReference?.startsWith('plan_') || subscription) {
             console.log(`[${timestamp}] 📅 Processing subscription event`);

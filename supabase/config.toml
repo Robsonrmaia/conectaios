@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.claim-subscription]
 verify_jwt = true
 
+[functions.send-signup-email]
+verify_jwt = false
+
 [functions.minisite-ai-chat]
 verify_jwt = false
 

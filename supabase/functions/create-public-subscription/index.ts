@@ -130,6 +130,77 @@ serve(async (req) => {
     const asaasSubscription = await subscriptionResponse.json();
     console.log('✅ Asaas subscription created:', asaasSubscription.id);
 
+    // Aguardar 2 segundos para a cobrança ser gerada
+    console.log('⏳ Aguardando geração da cobrança...');
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Buscar a primeira cobrança da assinatura
+    let checkoutUrl = null;
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (!checkoutUrl && attempts < maxAttempts) {
+      attempts++;
+      console.log(`🔍 Tentativa ${attempts} de buscar cobrança...`);
+
+      const paymentsResponse = await fetch(`${asaasUrl}/payments?subscription=${asaasSubscription.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'access_token': asaasApiKey!,
+        },
+      });
+
+      if (paymentsResponse.ok) {
+        const paymentsData = await paymentsResponse.json();
+        console.log('📋 Cobranças encontradas:', paymentsData);
+
+        if (paymentsData.data && paymentsData.data.length > 0) {
+          const firstPayment = paymentsData.data[0];
+          checkoutUrl = firstPayment.invoiceUrl;
+          console.log('✅ URL de checkout encontrada:', checkoutUrl);
+          break;
+        }
+      }
+
+      if (!checkoutUrl && attempts < maxAttempts) {
+        console.log('⏳ Aguardando mais 2 segundos...');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    // Se não encontrou URL após tentativas, criar cobrança manual
+    if (!checkoutUrl) {
+      console.log('⚠️ Criando cobrança manual...');
+      
+      const manualPaymentResponse = await fetch(`${asaasUrl}/payments`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'access_token': asaasApiKey!,
+        },
+        body: JSON.stringify({
+          customer: asaasCustomer.id,
+          billingType: 'UNDEFINED',
+          value: planPrice,
+          dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+          description: `Primeira cobrança - Assinatura ${planName} - ConectaIOS`,
+          externalReference,
+        }),
+      });
+
+      if (manualPaymentResponse.ok) {
+        const manualPayment = await manualPaymentResponse.json();
+        checkoutUrl = manualPayment.invoiceUrl;
+        console.log('✅ Cobrança manual criada:', manualPayment.id);
+      }
+    }
+
+    // Fallback final
+    if (!checkoutUrl) {
+      console.log('⚠️ Usando URL fallback do cliente');
+      checkoutUrl = `https://www.asaas.com/c/${asaasCustomer.id}`;
+    }
+
     // Salvar signup pendente
     const { data: pendingSignup, error: signupError } = await supabase
       .from('pending_signups')
@@ -154,8 +225,7 @@ serve(async (req) => {
 
     console.log('✅ Pending signup created:', pendingSignup.id);
 
-    // Retornar URL de checkout (primeira cobrança da assinatura)
-    const checkoutUrl = asaasSubscription.invoiceUrl || `https://www.asaas.com/c/${asaasCustomer.id}`;
+    console.log('🎯 Checkout URL final:', checkoutUrl);
 
     return new Response(
       JSON.stringify({
