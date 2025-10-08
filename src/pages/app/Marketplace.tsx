@@ -376,6 +376,8 @@ export default function Marketplace() {
             fotos: allPhotos,
             videos: [],
             neighborhood: property.neighborhood || '',
+            city: property.city || '',
+            state: property.state || '',
             zipcode: '',
             condominium_fee: property.condo_fee || null,
             iptu: property.iptu || null,
