@@ -1141,16 +1141,16 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Matches ilimitados</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                   <AsaasPaymentButton 
-                     planName="Básico"
-                     planValue={97}
-                     planId="basico"
-                     className="bg-primary hover:bg-primary/90 text-white mt-4"
-                   />
+                   <Button 
+                     onClick={() => navigate('/checkout?plan=basic')}
+                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                   >
+                     Assinar Básico - R$ 97,00
+                   </Button>
                 </CardContent>
               </Card>
 
@@ -1178,12 +1178,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">Contratos digitais</span>
                   </div>
-                   <AsaasPaymentButton 
-                     planName="Profissional"
-                     planValue={147}
-                     planId="profissional"
-                     className="bg-primary hover:bg-primary/90 text-white mt-4"
-                   />
+                   <Button 
+                     onClick={() => navigate('/checkout?plan=pro')}
+                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                   >
+                     Assinar Profissional - R$ 147,00
+                   </Button>
                 </CardContent>
               </Card>
 
@@ -1211,12 +1211,12 @@ const Index = () => {
                     <div className="w-2 h-2 bg-success rounded-full"></div>
                     <span className="text-sm">API personalizada</span>
                   </div>
-                   <AsaasPaymentButton 
-                     planName="Premium"
-                     planValue={197}
-                     planId="premium"
-                     className="bg-primary hover:bg-primary/90 text-white mt-4"
-                   />
+                   <Button 
+                     onClick={() => navigate('/checkout?plan=enterprise')}
+                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                   >
+                     Assinar Premium - R$ 197,00
+                   </Button>
                 </CardContent>
               </Card>
             </div>

@@ -46,6 +46,8 @@ import PropertyDetail from "@/pages/public/PropertyDetail";
 import PropertySubmissionForm from "@/pages/public/PropertySubmissionForm";
 import BrokerMinisite from "@/pages/public/BrokerMinisite";
 import PublicProbe from "@/pages/PublicProbe";
+import Checkout from "@/pages/Checkout";
+import SignupComplete from "@/pages/SignupComplete";
 
 const AtRedirect = () => {
   const { username } = useParams<{ username: string }>();
@@ -129,6 +131,8 @@ const App = () => (
                   <Routes>
                    <Route path="/" element={<Index />} />
                    <Route path="/auth" element={<Auth />} />
+                   <Route path="/checkout" element={<Checkout />} />
+                   <Route path="/signup-complete" element={<SignupComplete />} />
                    <Route path="/@:username" element={<AtRedirect />} />
                    <Route path="/broker" element={<BrokerRedirect />} />
                    <Route path="/broker/:username" element={<BrokerMinisite />} />

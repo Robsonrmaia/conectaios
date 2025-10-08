@@ -2702,6 +2702,63 @@ export type Database = {
           },
         ]
       }
+      pending_signups: {
+        Row: {
+          asaas_customer_id: string | null
+          asaas_payment_id: string | null
+          asaas_subscription_id: string | null
+          claimed: boolean | null
+          claimed_at: string | null
+          claimed_by_user_id: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
+          email: string
+          expires_at: string | null
+          external_reference: string | null
+          id: string
+          name: string
+          payment_status: string | null
+          phone: string | null
+          plan_id: string
+        }
+        Insert: {
+          asaas_customer_id?: string | null
+          asaas_payment_id?: string | null
+          asaas_subscription_id?: string | null
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email: string
+          expires_at?: string | null
+          external_reference?: string | null
+          id?: string
+          name: string
+          payment_status?: string | null
+          phone?: string | null
+          plan_id: string
+        }
+        Update: {
+          asaas_customer_id?: string | null
+          asaas_payment_id?: string | null
+          asaas_subscription_id?: string | null
+          claimed?: boolean | null
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string | null
+          email?: string
+          expires_at?: string | null
+          external_reference?: string | null
+          id?: string
+          name?: string
+          payment_status?: string | null
+          phone?: string | null
+          plan_id?: string
+        }
+        Relationships: []
+      }
       plans: {
         Row: {
           created_at: string

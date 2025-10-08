@@ -1,7 +1,13 @@
-project_id = "hvbdeyuqcliqrmzvyciq"
+project_id = "paawojkqrggnuvpnnwrc"
 
 [functions.asaas-integration]
 verify_jwt = false
+
+[functions.create-public-subscription]
+verify_jwt = false
+
+[functions.claim-subscription]
+verify_jwt = true
 
 [functions.minisite-ai-chat]
 verify_jwt = false
