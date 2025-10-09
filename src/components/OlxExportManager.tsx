@@ -90,65 +90,97 @@ export function OlxExportManager() {
 
   const validateProperty = (property: Property) => {
     const errors: string[] = [];
+    const olx = property.olx_data || {};
     
-    // Validar campos básicos do imóvel
+    // VRSync: Title (10-100 chars, sem HTML)
     if (!property.title || property.title.length < 10) {
       errors.push('Título muito curto (mínimo 10 caracteres)');
     }
-    if (!property.description || property.description.length < 100) {
-      errors.push('Descrição muito curta (mínimo 100 caracteres)');
+    if (property.title && property.title.length > 100) {
+      errors.push('Título muito longo (máximo 100 caracteres)');
     }
+    
+    // VRSync: Description (50-3000 chars, sem HTML)
+    if (!property.description || property.description.length < 50) {
+      errors.push('Descrição muito curta (mínimo 50 caracteres)');
+    }
+    if (property.description && property.description.length > 3000) {
+      errors.push('Descrição muito longa (máximo 3000 caracteres)');
+    }
+    
+    // VRSync: ListPrice/RentalPrice
     if (!property.price || property.price <= 0) {
-      errors.push('Preço inválido');
-    }
-    if (!property.city) {
-      errors.push('Cidade não informada');
-    }
-    if (!property.neighborhood) {
-      errors.push('Bairro não informado');
-    }
-    if (!property.address) {
-      errors.push('Endereço não informado');
+      errors.push('Preço obrigatório');
     }
     
-    // Validar imagens (mínimo 3)
-    const imageCount = property.imovel_images?.length || 0;
-    if (imageCount < 3) {
-      errors.push(`Mínimo 3 fotos (atual: ${imageCount})`);
+    // VRSync: Location.State (sigla BA/RJ/SP/MG)
+    if (!olx.state_abbr || !['BA', 'RJ', 'SP', 'MG'].includes(olx.state_abbr)) {
+      errors.push('Estado inválido (apenas BA, RJ, SP, MG)');
     }
     
-    // Validar dados OLX específicos
-    const olxData = property.olx_data || {};
-    
-    // CEP
-    const cep = olxData.zipcode || property.zipcode || '';
-    if (!cep || cep.replace(/\D/g, '').length !== 8) {
-      errors.push('CEP inválido (8 dígitos)');
+    // VRSync: Location.City (obrigatório)
+    if (!olx.city || olx.city.trim().length < 2) {
+      errors.push('Cidade obrigatória');
     }
     
-    // Estado
-    const state = olxData.state || property.state || '';
-    if (!state || !['BA', 'RJ', 'SP', 'MG'].includes(state)) {
-      errors.push('Estado inválido');
+    // VRSync: Location.Neighborhood (obrigatório)
+    if (!olx.neighborhood || olx.neighborhood.trim().length < 3) {
+      errors.push('Bairro obrigatório (mínimo 3 caracteres)');
     }
     
-    // Áreas
-    if (!olxData.area_util || olxData.area_util <= 0) {
-      errors.push('Área útil não informada');
-    }
-    if (!olxData.area_privativa || olxData.area_privativa <= 0) {
-      errors.push('Área privativa não informada');
+    // VRSync: Location.Address (nome da rua, obrigatório)
+    if (!olx.address || olx.address.trim().length < 5) {
+      errors.push('Endereço/Rua obrigatório (mínimo 5 caracteres)');
     }
     
-    // Contato
-    if (!olxData.contact_name || olxData.contact_name.trim().length < 3) {
-      errors.push('Nome de contato inválido');
+    // VRSync: Location.StreetNumber (obrigatório)
+    if (!olx.street_number || olx.street_number.trim().length === 0) {
+      errors.push('Número do endereço obrigatório');
     }
-    if (!olxData.contact_phone || olxData.contact_phone.replace(/\D/g, '').length < 10) {
-      errors.push('Telefone de contato inválido');
+    
+    // VRSync: Location.PostalCode (CEP 8 dígitos)
+    const cepClean = (olx.postal_code || '').replace(/\D/g, '');
+    if (cepClean.length !== 8) {
+      errors.push('CEP deve ter 8 dígitos');
     }
-    if (!olxData.contact_email || !olxData.contact_email.includes('@')) {
+    
+    // VRSync: Details.LivingArea (obrigatório para apartamentos/casas)
+    if (!olx.living_area || olx.living_area <= 0) {
+      errors.push('Área útil (LivingArea) obrigatória');
+    }
+    
+    // VRSync: Details.Bedrooms/Bathrooms (condicional para residenciais)
+    const isResidential = property.city && 
+      ['apartamento', 'casa', 'sobrado', 'cobertura', 'kitnet', 'loft']
+      .some(type => property.city?.toLowerCase().includes(type));
+    
+    if (isResidential) {
+      if (!property.imovel_images || property.imovel_images.length < 1) {
+        errors.push('Quartos obrigatório para imóveis residenciais');
+      }
+    }
+    
+    // VRSync: ContactInfo.Name (obrigatório)
+    if (!olx.contact_name || olx.contact_name.trim().length < 3) {
+      errors.push('Nome de contato obrigatório (mínimo 3 caracteres)');
+    }
+    
+    // VRSync: ContactInfo.Email (obrigatório, validação)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!olx.contact_email || !emailRegex.test(olx.contact_email)) {
       errors.push('Email de contato inválido');
+    }
+    
+    // VRSync: ContactInfo.Telephone (obrigatório, mínimo 10 dígitos)
+    const phoneClean = (olx.contact_phone || '').replace(/\D/g, '');
+    if (phoneClean.length < 10) {
+      errors.push('Telefone inválido (mínimo 10 dígitos com DDD)');
+    }
+    
+    // VRSync: Media (mínimo 1 imagem JPG)
+    const imageCount = property.imovel_images?.length || 0;
+    if (imageCount < 1) {
+      errors.push('Mínimo 1 imagem obrigatória');
     }
 
     return {

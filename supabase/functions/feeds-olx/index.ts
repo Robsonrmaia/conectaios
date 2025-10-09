@@ -42,7 +42,7 @@ serve(async (req) => {
     
     if (brokerId) {
       // XML individual para um corretor específico
-      console.log(`Generating OLX feed for broker: ${brokerId}`);
+      console.log(`Generating VRSync feed for broker: ${brokerId}`);
       
       // Obter limite do plano do corretor
       const { data: limitData, error: limitError } = await supabase
@@ -53,7 +53,7 @@ serve(async (req) => {
       
       if (brokerLimit === 0) {
         console.log('Broker has no OLX access');
-        return new Response('<?xml version="1.0" encoding="UTF-8"?><olx_export><ads></ads></olx_export>', {
+        return new Response('<?xml version="1.0" encoding="UTF-8"?><ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync"></ListingDataFeed>', {
           headers: corsHeaders,
         });
       }
@@ -69,7 +69,7 @@ serve(async (req) => {
         .limit(brokerLimit);
       
       if (error) {
-        console.error('OLX Feed Error (broker):', error);
+        console.error('VRSync Feed Error (broker):', error);
         return new Response('Internal Server Error', { 
           status: 500,
           headers: corsHeaders 
@@ -88,7 +88,7 @@ serve(async (req) => {
       }
     } else {
       // XML global - todos os imóveis habilitados para OLX de todos os corretores
-      console.log('Generating global OLX feed');
+      console.log('Generating global VRSync feed');
       
       const { data, error } = await supabase
         .from('imoveis')
@@ -98,7 +98,7 @@ serve(async (req) => {
         .order('olx_published_at', { ascending: true, nullsFirst: true });
       
       if (error) {
-        console.error('OLX Feed Error (global):', error);
+        console.error('VRSync Feed Error (global):', error);
         return new Response('Internal Server Error', { 
           status: 500,
           headers: corsHeaders 
@@ -117,10 +117,10 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Generating XML for ${properties.length} properties`);
+    console.log(`Generating VRSync XML for ${properties.length} properties`);
 
-    // Generate OLX XML format
-    const xmlContent = generateOLXXML(properties);
+    // Generate VRSync XML format
+    const xmlContent = generateVRSyncXML(properties);
 
     return new Response(xmlContent, {
       status: 200,
@@ -128,7 +128,7 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('OLX Feed Error:', error);
+    console.error('VRSync Feed Error:', error);
     return new Response('Internal Server Error', { 
       status: 500,
       headers: corsHeaders 
@@ -136,96 +136,148 @@ serve(async (req) => {
   }
 });
 
-function generateOLXXML(properties: any[]): string {
+function generateVRSyncXML(properties: any[]): string {
   const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
-<olx_export>
-  <publisher>
-    <name>ConectaIOS</name>
-    <email>contato@conectaios.com.br</email>
-    <phone>11999999999</phone>
-    <website>https://conectaios.com.br</website>
-  </publisher>
-  <ads>`;
+<ListingDataFeed xmlns="http://www.vivareal.com/schemas/1.0/VRSync">`;
 
-  const xmlFooter = `  </ads>
-</olx_export>`;
+  const xmlFooter = `</ListingDataFeed>`;
 
   const xmlListings = properties
     .filter(property => {
-      // Filtrar apenas imóveis com dados OLX completos
-      const olxData = property.olx_data || {};
-      return olxData.zipcode && olxData.state && olxData.area_util && olxData.area_privativa && 
-             olxData.contact_name && olxData.contact_phone && olxData.contact_email;
+      const olx = property.olx_data || {};
+      // Validar TODOS os campos obrigatórios VRSync
+      return (
+        olx.state_abbr &&
+        olx.city &&
+        olx.neighborhood &&
+        olx.address &&
+        olx.street_number &&
+        olx.postal_code &&
+        olx.living_area > 0 &&
+        olx.contact_name &&
+        olx.contact_email &&
+        olx.contact_phone
+      );
     })
     .map(property => {
+      const olx = property.olx_data || {};
       const images = Array.isArray(property.galeria_urls) ? property.galeria_urls : [];
-      const imageElements = images.slice(0, 20).map((url: string) => 
-        `      <image>${url}</image>`
+      
+      // Mapear TransactionType
+      const transactionType = property.finalidade === 'venda' ? 'For Sale' : 
+                              property.finalidade === 'aluguel' ? 'For Rent' : 
+                              'Sale/Rent';
+      
+      // Mapear PropertyType VRSync
+      const propertyType = mapVRSyncPropertyType(property.tipo);
+      
+      // Preço (inteiro, sem vírgulas)
+      const price = Math.round(property.preco || 0);
+      
+      // Formatar CEP com hífen
+      const postalCode = formatCEP(olx.postal_code);
+      
+      // Imagens (máximo 50, formato correto VRSync)
+      const mediaItems = images.slice(0, 50).map((url: string, index: number) => 
+        `    <Item medium="image" caption="Imagem ${index + 1}">
+      <![CDATA[${url}]]>
+    </Item>`
       ).join('\n');
 
-      const olxData = property.olx_data || {};
-      const zipcode = olxData.zipcode || property.zipcode || '';
-      const state = olxData.state || property.state || 'BA';
-      const areaUtil = olxData.area_util || 0;
-      const areaPrivativa = olxData.area_privativa || 0;
-      const contactName = olxData.contact_name || 'ConectaIOS';
-      const contactPhone = olxData.contact_phone || '11999999999';
-      const contactEmail = olxData.contact_email || 'contato@conectaios.com.br';
-      const observations = olxData.observations || '';
+      // Descrição completa (incluir observações)
+      const fullDescription = (property.descricao || '') + 
+        (olx.observations ? '\n\n' + olx.observations : '');
 
-      return `    <ad>
-      <id>${property.id}</id>
-      <title><![CDATA[${property.titulo || ''}]]></title>
-      <description><![CDATA[${property.descricao || ''}]]></description>
-      <category>1020</category>
-      <type>${property.finalidade === 'venda' ? 'sell' : 'rent'}</type>
-      <price>${property.preco || 0}</price>
-      <property_type>${mapOLXPropertyType(property.tipo)}</property_type>
-      <rooms>${property.quartos || 0}</rooms>
-      <bathrooms>${property.banheiros || 0}</bathrooms>
-      <parking_spaces>${property.vagas || 0}</parking_spaces>
-      <size>${property.metragem || 0}</size>
-      <usable_area>${areaUtil}</usable_area>
-      <private_area>${areaPrivativa}</private_area>
-      <state>${state}</state>
-      <city>${property.cidade || ''}</city>
-      <region>${property.bairro || ''}</region>
-      <address>${property.endereco || ''}</address>
-      <zipcode>${zipcode}</zipcode>
-      <images>
-${imageElements}
-      </images>
-      <contact>
-        <name>${contactName}</name>
-        <email>${contactEmail}</email>
-        <phone>${contactPhone}</phone>
-      </contact>
-      <url>https://conectaios.com.br/imovel/${property.slug}</url>${observations ? `
-      <observations><![CDATA[${observations}]]></observations>` : ''}
-    </ad>`;
+      return `  <Listing>
+    <ListingID>${property.reference_code || property.id}</ListingID>
+    <Title><![CDATA[${truncate(property.titulo, 100)}]]></Title>
+    <TransactionType>${transactionType}</TransactionType>
+    
+    <Location displayAddress="${olx.display_address || 'Street'}">
+      <Country abbreviation="BR">Brasil</Country>
+      <State abbreviation="${olx.state_abbr}">${olx.state || getStateName(olx.state_abbr)}</State>
+      <City>${olx.city}</City>
+      <Neighborhood>${olx.neighborhood}</Neighborhood>
+      <Address>${olx.address}</Address>
+      <StreetNumber>${olx.street_number}</StreetNumber>${olx.complement ? `
+      <Complement>${olx.complement}</Complement>` : ''}
+      <PostalCode>${postalCode}</PostalCode>
+    </Location>
+    
+    <Details>
+      <PropertyType>${propertyType}</PropertyType>
+      <Description><![CDATA[${truncate(fullDescription, 3000)}]]></Description>
+      
+      ${transactionType.includes('Sale') ? `<ListPrice currency="BRL">${price}</ListPrice>` : ''}
+      ${transactionType.includes('Rent') ? `<RentalPrice currency="BRL" period="Monthly">${price}</RentalPrice>` : ''}
+      
+      <LivingArea unit="square metres">${olx.living_area}</LivingArea>${olx.lot_area ? `
+      <LotArea unit="square metres">${olx.lot_area}</LotArea>` : ''}
+      
+      ${property.quartos ? `<Bedrooms>${property.quartos}</Bedrooms>` : ''}
+      ${property.banheiros ? `<Bathrooms>${property.banheiros}</Bathrooms>` : ''}
+      ${property.suites ? `<Suites>${property.suites}</Suites>` : ''}
+      ${property.vagas ? `<Garage type="Parking Space">${property.vagas}</Garage>` : ''}
+      
+      ${property.vista_mar ? `<Features>
+        <Feature>Ocean View</Feature>
+      </Features>` : ''}
+    </Details>
+    
+    <Media>
+${mediaItems}
+    </Media>
+    
+    <ContactInfo>
+      <Name>${olx.contact_name}</Name>
+      <Email>${olx.contact_email}</Email>
+      <Telephone>${olx.contact_phone}</Telephone>
+    </ContactInfo>
+  </Listing>`;
     }).join('\n');
 
   return xmlHeader + '\n' + xmlListings + '\n' + xmlFooter;
 }
 
-function mapOLXPropertyType(tipo: string): string {
+// === HELPER FUNCTIONS ===
+
+function mapVRSyncPropertyType(tipo: string): string {
   const typeMap: { [key: string]: string } = {
-    'apartamento': 'apartment',
-    'casa': 'house',
-    'sobrado': 'house',
-    'cobertura': 'penthouse',
-    'kitnet': 'studio',
-    'loft': 'loft',
-    'terreno': 'land',
-    'comercial': 'commercial',
-    'sala': 'commercial',
-    'loja': 'commercial',
-    'galpao': 'warehouse',
-    'predio': 'building',
-    'fazenda': 'farm',
-    'sitio': 'farm',
-    'chacara': 'farm'
+    'apartamento': 'Residential / Apartment',
+    'casa': 'Residential / Home',
+    'sobrado': 'Residential / Home',
+    'cobertura': 'Residential / Penthouse',
+    'kitnet': 'Residential / Studio',
+    'loft': 'Residential / Loft',
+    'terreno': 'Residential / Land/Lot',
+    'comercial': 'Commercial / Building',
+    'sala': 'Commercial / Office',
+    'loja': 'Commercial / Store/Retail',
+    'galpao': 'Commercial / Warehouse',
+    'predio': 'Commercial / Building',
+    'fazenda': 'Farm',
+    'sitio': 'Farm',
+    'chacara': 'Farm'
   };
   
-  return typeMap[tipo?.toLowerCase()] || 'apartment';
+  return typeMap[tipo?.toLowerCase()] || 'Residential / Apartment';
+}
+
+function getStateName(abbr: string): string {
+  const states: { [key: string]: string } = {
+    'BA': 'Bahia',
+    'RJ': 'Rio de Janeiro',
+    'SP': 'São Paulo',
+    'MG': 'Minas Gerais'
+  };
+  return states[abbr] || abbr;
+}
+
+function formatCEP(cep: string): string {
+  const clean = cep.replace(/\D/g, '');
+  return clean.length === 8 ? `${clean.slice(0, 5)}-${clean.slice(5)}` : cep;
+}
+
+function truncate(str: string, max: number): string {
+  return str && str.length > max ? str.slice(0, max - 3) + '...' : str;
 }

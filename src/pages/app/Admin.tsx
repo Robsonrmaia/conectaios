@@ -17,8 +17,12 @@ import {
   BarChart3,
   UserCheck,
   Building,
-  MessageSquare
+  MessageSquare,
+  Globe,
+  Upload
 } from 'lucide-react';
+import { useState } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import SecureAdminUserManagement from '@/components/SecureAdminUserManagement';
 import AdminTestimonialManager from '@/components/AdminTestimonialManager';
@@ -40,9 +44,12 @@ import { AsaasWebhookMonitor } from '@/components/AsaasWebhookMonitor';
 import { AsaasSubscriptionMetrics } from '@/components/AsaasSubscriptionMetrics';
 import { AsaasCouponManager } from '@/components/AsaasCouponManager';
 import { APIDocumentation } from '@/components/APIDocumentation';
+import { OlxExportManager } from '@/components/OlxExportManager';
+import XMLImportExport from '@/components/XMLImportExport';
 
 export default function Admin() {
   const { isAdmin, loading } = useAdminAuth();
+  const [isXmlImportOpen, setIsXmlImportOpen] = useState(false);
 
   if (loading) {
     return (
@@ -234,6 +241,10 @@ export default function Admin() {
             <TabsTrigger value="parceiros" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Parceiros</TabsTrigger>
             <TabsTrigger value="marketplace" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Marketplace</TabsTrigger>
             <TabsTrigger value="sistema" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Sistema</TabsTrigger>
+            <TabsTrigger value="olx" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">
+              <Globe className="w-4 h-4 mr-2" />
+              Integrações OLX
+            </TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">Config</TabsTrigger>
             <TabsTrigger value="api" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap">API</TabsTrigger>
           </TabsList>
@@ -431,10 +442,46 @@ export default function Admin() {
           </Tabs>
         </TabsContent>
 
+        <TabsContent value="olx" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Exportação XML OLX (VRSync)</CardTitle>
+              <CardDescription>
+                Gerencie e exporte imóveis no formato VRSync para OLX, Zap Imóveis e Viva Real
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OlxExportManager />
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Importação de Imóveis</CardTitle>
+              <CardDescription>
+                Importe imóveis de arquivos XML externos
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button onClick={() => setIsXmlImportOpen(true)}>
+                <Upload className="w-4 h-4 mr-2" />
+                Importar XML
+              </Button>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="api" className="space-y-6">
           <APIDocumentation />
         </TabsContent>
       </Tabs>
+
+      {/* Dialog de importação XML */}
+      <Dialog open={isXmlImportOpen} onOpenChange={setIsXmlImportOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <XMLImportExport />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

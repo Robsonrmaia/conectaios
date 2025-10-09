@@ -47,7 +47,6 @@ import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
 import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
 import { PropertyImportModal } from '@/components/PropertyImportModal';
 import { OlxPublicationButton } from '@/components/OlxPublicationButton';
-import { OlxExportManager } from '@/components/OlxExportManager';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -150,7 +149,6 @@ export default function Imoveis() {
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
-  const [isOlxExportOpen, setIsOlxExportOpen] = useState(false);
   
   const toggleCardExpansion = (propertyId: string) => {
     setExpandedCards(prev => {
@@ -983,19 +981,6 @@ export default function Imoveis() {
               <Upload className="w-4 h-4 mr-2" />
               Importar Av.
             </Button>
-            {isAdmin && (
-              <Dialog open={isOlxExportOpen} onOpenChange={setIsOlxExportOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="h-11">
-                    <Download className="h-4 w-4 mr-2" />
-                    Exportar XML OLX
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                  <OlxExportManager />
-                </DialogContent>
-              </Dialog>
-            )}
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
