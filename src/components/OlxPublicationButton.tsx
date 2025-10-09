@@ -75,14 +75,29 @@ export function OlxPublicationButton({ property, onUpdate }: OlxPublicationButto
     );
   }
 
-  // Plano básico: sem acesso ao OLX
+  // Plano básico: sem acesso ao OLX - mas botão sempre clicável para upgrade
   if (!hasAccess) {
     return (
-      <Button variant="outline" size="sm" disabled className="gap-2">
-        <Lock className="w-4 h-4" />
-        OLX
-        <Badge variant="secondary">Premium</Badge>
-      </Button>
+      <>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => setIsModalOpen(true)}
+          className="gap-2"
+        >
+          <Lock className="w-4 h-4" />
+          OLX
+          <Badge variant="secondary">Premium</Badge>
+        </Button>
+        
+        <OlxPublicationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          property={property}
+          onSave={handleSave}
+          upgradeRequired={true}
+        />
+      </>
     );
   }
 

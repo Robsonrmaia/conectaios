@@ -14,7 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2 } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
@@ -47,6 +47,7 @@ import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
 import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
 import { PropertyImportModal } from '@/components/PropertyImportModal';
 import { OlxPublicationButton } from '@/components/OlxPublicationButton';
+import { OlxExportManager } from '@/components/OlxExportManager';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -147,6 +148,7 @@ export default function Imoveis() {
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+  const [isOlxExportOpen, setIsOlxExportOpen] = useState(false);
   
   const toggleCardExpansion = (propertyId: string) => {
     setExpandedCards(prev => {
@@ -979,6 +981,17 @@ export default function Imoveis() {
               <Upload className="w-4 h-4 mr-2" />
               Importar Av.
             </Button>
+            <Dialog open={isOlxExportOpen} onOpenChange={setIsOlxExportOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-11">
+                  <Download className="h-4 w-4 mr-2" />
+                  Exportar XML OLX
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                <OlxExportManager />
+              </DialogContent>
+            </Dialog>
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
@@ -1739,13 +1752,13 @@ export default function Imoveis() {
                    </div>
                 </div>
                 
-                {/* Toggle Button */}
-                <div className="flex justify-center mt-4">
+                {/* Toggle Button (esquerda) e Botão OLX (direita) */}
+                <div className="flex justify-between items-center mt-4 gap-2 px-2">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => toggleCardExpansion(property.id)}
-                    className="h-6 text-xs text-muted-foreground"
+                    className="h-8 text-xs text-muted-foreground hover:text-foreground"
                   >
                     {expandedCards.has(property.id) ? (
                       <>
@@ -1759,6 +1772,17 @@ export default function Imoveis() {
                       </>
                     )}
                   </Button>
+                  
+                  {/* Botão OLX sempre visível */}
+                  <OlxPublicationButton 
+                    property={{
+                      id: property.id,
+                      title: property.titulo,
+                      olx_enabled: (property as any).olx_enabled,
+                      olx_data: (property as any).olx_data
+                    }}
+                    onUpdate={() => fetchProperties(pagination.currentPage, pagination.itemsPerPage, true)}
+                  />
                 </div>
                 
                 {/* Collapsible Action Buttons Grid */}
@@ -1937,15 +1961,6 @@ export default function Imoveis() {
                         <Edit className="h-3 w-3 mr-1" />
                         Editar
                       </Button>
-                      <OlxPublicationButton 
-                        property={{
-                          id: property.id,
-                          title: property.titulo,
-                          olx_enabled: (property as any).olx_enabled,
-                          olx_data: (property as any).olx_data
-                        }}
-                        onUpdate={() => fetchProperties(pagination.currentPage, pagination.itemsPerPage, true)}
-                      />
                       <Button 
                         variant="outline" 
                         size="sm"

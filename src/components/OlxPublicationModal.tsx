@@ -5,8 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { useBroker } from '@/hooks/useBroker';
-import { Globe, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Globe, X, Sparkles } from 'lucide-react';
 
 interface Property {
   id: string;
@@ -25,10 +27,12 @@ interface OlxPublicationModalProps {
   onClose: () => void;
   property: Property;
   onSave: (enabled: boolean, olxData: any) => Promise<void>;
+  upgradeRequired?: boolean;
 }
 
-export function OlxPublicationModal({ isOpen, onClose, property, onSave }: OlxPublicationModalProps) {
+export function OlxPublicationModal({ isOpen, onClose, property, onSave, upgradeRequired = false }: OlxPublicationModalProps) {
   const { broker } = useBroker();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [enabled, setEnabled] = useState(property.olx_enabled || false);
   const [formData, setFormData] = useState({
@@ -76,6 +80,30 @@ export function OlxPublicationModal({ isOpen, onClose, property, onSave }: OlxPu
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {upgradeRequired && (
+            <Alert className="border-primary/50 bg-primary/5">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <AlertTitle>Recurso Premium Necessário</AlertTitle>
+              <AlertDescription className="space-y-3">
+                <p>
+                  A publicação automática no OLX está disponível nos planos <strong>Premium</strong> (2 imóveis) 
+                  e <strong>Professional</strong> (5 imóveis).
+                </p>
+                <Button 
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    navigate('/perfil');
+                  }}
+                  className="w-full"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Fazer Upgrade do Plano
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+          
           <div className="flex items-center justify-between py-3 border-y">
             <div className="space-y-0.5">
               <Label className="text-base">Publicar no OLX</Label>
