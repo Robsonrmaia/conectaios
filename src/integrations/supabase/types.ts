@@ -1498,6 +1498,9 @@ export type Database = {
           neighborhood: string | null
           norm_title: string | null
           number: string | null
+          olx_data: Json | null
+          olx_enabled: boolean | null
+          olx_published_at: string | null
           owner_id: string
           parking: number | null
           price: number | null
@@ -1544,6 +1547,9 @@ export type Database = {
           neighborhood?: string | null
           norm_title?: string | null
           number?: string | null
+          olx_data?: Json | null
+          olx_enabled?: boolean | null
+          olx_published_at?: string | null
           owner_id: string
           parking?: number | null
           price?: number | null
@@ -1590,6 +1596,9 @@ export type Database = {
           neighborhood?: string | null
           norm_title?: string | null
           number?: string | null
+          olx_data?: Json | null
+          olx_enabled?: boolean | null
+          olx_published_at?: string | null
           owner_id?: string
           parking?: number | null
           price?: number | null
@@ -2773,6 +2782,7 @@ export type Database = {
           is_active: boolean
           match_limit: number | null
           name: string
+          olx_publication_limit: number | null
           price: number
           property_limit: number
           slug: string
@@ -2786,6 +2796,7 @@ export type Database = {
           is_active?: boolean
           match_limit?: number | null
           name: string
+          olx_publication_limit?: number | null
           price?: number
           property_limit?: number
           slug: string
@@ -2799,6 +2810,7 @@ export type Database = {
           is_active?: boolean
           match_limit?: number | null
           name?: string
+          olx_publication_limit?: number | null
           price?: number
           property_limit?: number
           slug?: string
@@ -4785,6 +4797,9 @@ export type Database = {
           neighborhood: string | null
           norm_title: string | null
           number: string | null
+          olx_data: Json | null
+          olx_enabled: boolean | null
+          olx_published_at: string | null
           owner_id: string
           parking: number | null
           price: number | null
@@ -4847,6 +4862,9 @@ export type Database = {
           neighborhood: string | null
           norm_title: string | null
           number: string | null
+          olx_data: Json | null
+          olx_enabled: boolean | null
+          olx_published_at: string | null
           owner_id: string
           parking: number | null
           price: number | null
@@ -4891,6 +4909,10 @@ export type Database = {
       generate_submission_token: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_broker_olx_limit: {
+        Args: { p_broker_id: string }
+        Returns: number
       }
       get_security_summary: {
         Args: Record<PropertyKey, never>
@@ -5045,6 +5067,9 @@ export type Database = {
           neighborhood: string | null
           norm_title: string | null
           number: string | null
+          olx_data: Json | null
+          olx_enabled: boolean | null
+          olx_published_at: string | null
           owner_id: string
           parking: number | null
           price: number | null
@@ -5100,6 +5125,9 @@ export type Database = {
           neighborhood: string | null
           norm_title: string | null
           number: string | null
+          olx_data: Json | null
+          olx_enabled: boolean | null
+          olx_published_at: string | null
           owner_id: string
           parking: number | null
           price: number | null

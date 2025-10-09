@@ -35,22 +35,92 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Get all public properties
-    const { data: properties, error } = await supabase
-      .from('v_public_properties')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // Verificar se é feed individual de um corretor
+    const brokerId = url.searchParams.get('broker_id');
 
-    if (error) {
-      console.error('OLX Feed Error:', error);
-      return new Response('Internal Server Error', { 
-        status: 500,
-        headers: corsHeaders 
-      });
+    let properties = [];
+    
+    if (brokerId) {
+      // XML individual para um corretor específico
+      console.log(`Generating OLX feed for broker: ${brokerId}`);
+      
+      // Obter limite do plano do corretor
+      const { data: limitData, error: limitError } = await supabase
+        .rpc('get_broker_olx_limit', { p_broker_id: brokerId });
+      
+      const brokerLimit = limitData || 0;
+      console.log(`Broker OLX limit: ${brokerLimit}`);
+      
+      if (brokerLimit === 0) {
+        console.log('Broker has no OLX access');
+        return new Response('<?xml version="1.0" encoding="UTF-8"?><olx_export><ads></ads></olx_export>', {
+          headers: corsHeaders,
+        });
+      }
+      
+      // Buscar imóveis habilitados para OLX, respeitando o limite do plano
+      const { data, error } = await supabase
+        .from('imoveis')
+        .select('*')
+        .eq('owner_id', brokerId)
+        .eq('olx_enabled', true)
+        .eq('is_public', true)
+        .order('olx_published_at', { ascending: true, nullsFirst: true })
+        .limit(brokerLimit);
+      
+      if (error) {
+        console.error('OLX Feed Error (broker):', error);
+        return new Response('Internal Server Error', { 
+          status: 500,
+          headers: corsHeaders 
+        });
+      }
+      
+      properties = data || [];
+      
+      // Atualizar timestamp de publicação
+      if (properties.length > 0) {
+        const propertyIds = properties.map(p => p.id);
+        await supabase
+          .from('imoveis')
+          .update({ olx_published_at: new Date().toISOString() })
+          .in('id', propertyIds);
+      }
+    } else {
+      // XML global - todos os imóveis habilitados para OLX de todos os corretores
+      console.log('Generating global OLX feed');
+      
+      const { data, error } = await supabase
+        .from('imoveis')
+        .select('*')
+        .eq('olx_enabled', true)
+        .eq('is_public', true)
+        .order('olx_published_at', { ascending: true, nullsFirst: true });
+      
+      if (error) {
+        console.error('OLX Feed Error (global):', error);
+        return new Response('Internal Server Error', { 
+          status: 500,
+          headers: corsHeaders 
+        });
+      }
+      
+      properties = data || [];
+      
+      // Atualizar timestamp de publicação
+      if (properties.length > 0) {
+        const propertyIds = properties.map(p => p.id);
+        await supabase
+          .from('imoveis')
+          .update({ olx_published_at: new Date().toISOString() })
+          .in('id', propertyIds);
+      }
     }
 
+    console.log(`Generating XML for ${properties.length} properties`);
+
     // Generate OLX XML format
-    const xmlContent = generateOLXXML(properties || []);
+    const xmlContent = generateOLXXML(properties);
 
     return new Response(xmlContent, {
       status: 200,

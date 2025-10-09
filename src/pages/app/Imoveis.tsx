@@ -46,6 +46,7 @@ import { PropertyShareDialog } from '@/components/PropertyShareDialog';
 import { PropertySubmissionModal } from '@/components/PropertySubmissionModal';
 import { PropertySubmissionsList } from '@/components/PropertySubmissionsList';
 import { PropertyImportModal } from '@/components/PropertyImportModal';
+import { OlxPublicationButton } from '@/components/OlxPublicationButton';
 
 import { useElevenLabsVoice } from '@/hooks/useElevenLabsVoice';
 import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
@@ -1936,6 +1937,15 @@ export default function Imoveis() {
                         <Edit className="h-3 w-3 mr-1" />
                         Editar
                       </Button>
+                      <OlxPublicationButton 
+                        property={{
+                          id: property.id,
+                          title: property.titulo,
+                          olx_enabled: (property as any).olx_enabled,
+                          olx_data: (property as any).olx_data
+                        }}
+                        onUpdate={() => fetchProperties(pagination.currentPage, pagination.itemsPerPage, true)}
+                      />
                       <Button 
                         variant="outline" 
                         size="sm"

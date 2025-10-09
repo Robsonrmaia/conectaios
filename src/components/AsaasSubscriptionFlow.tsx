@@ -35,6 +35,7 @@ const PLANS: Plan[] = [
       "Minisite + domínio próprio",
       "CRM avançado + automações",
       "IA para descrições",
+      "🌟 Publicação OLX (2 imóveis)",
       "Suporte prioritário",
     ],
     highlighted: true,
@@ -43,7 +44,14 @@ const PLANS: Plan[] = [
     id: "enterprise",
     name: "Enterprise",
     value: 397,
-    features: ["Tudo do Pro +", "API dedicada", "Whitelabel completo", "Gerente de conta", "SLA garantido"],
+    features: [
+      "Tudo do Pro +",
+      "🌟 Publicação OLX (5 imóveis)",
+      "API dedicada",
+      "Whitelabel completo",
+      "Gerente de conta",
+      "SLA garantido"
+    ],
   },
 ];
 
