@@ -597,51 +597,55 @@ export default function Perfil() {
             </CardContent>
           </Card>
 
-          {/* Dashboard de Pagamentos */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <NextPaymentCard />
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Resumo da Conta</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Plano Atual</span>
-                  <span className="font-semibold">
-                    {isTrial ? 'Trial Gratuito' : 'Premium'}
-                  </span>
-                </div>
+          {/* Dashboard de Pagamentos - Só renderiza se broker estiver carregado */}
+          {broker?.id && (
+            <>
+              <div className="grid md:grid-cols-2 gap-4">
+                <NextPaymentCard />
                 
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Valor Mensal</span>
-                  <span className="font-semibold text-primary">
-                    R$ 97,00/mês
-                  </span>
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Cliente desde</span>
-                  <span className="font-semibold">
-                    {format(new Date(), 'MMM yyyy', { locale: ptBR })}
-                  </span>
-                </div>
-                
-                <Separator className="my-2" />
-                
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => window.location.href = '/app/checkout'}
-                >
-                  Alterar Plano
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Resumo da Conta</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Plano Atual</span>
+                      <span className="font-semibold">
+                        {isTrial ? 'Trial Gratuito' : 'Premium'}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Valor Mensal</span>
+                      <span className="font-semibold text-primary">
+                        R$ 97,00/mês
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Cliente desde</span>
+                      <span className="font-semibold">
+                        {format(new Date(), 'MMM yyyy', { locale: ptBR })}
+                      </span>
+                    </div>
+                    
+                    <Separator className="my-2" />
+                    
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => window.location.href = '/app/checkout'}
+                    >
+                      Alterar Plano
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
 
-          {/* Histórico Completo de Pagamentos */}
-          <SubscriptionPaymentHistory />
+              {/* Histórico Completo de Pagamentos */}
+              <SubscriptionPaymentHistory />
+            </>
+          )}
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">

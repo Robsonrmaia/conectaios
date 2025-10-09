@@ -25,7 +25,7 @@ export function useSubscriptionPayments() {
     queryKey: ['subscription-payments', broker?.id],
     queryFn: async () => {
       if (!broker?.id) {
-        throw new Error('Broker ID não encontrado');
+        return [];
       }
 
       const { data, error } = await supabase
