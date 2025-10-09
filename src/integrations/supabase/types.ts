@@ -3492,6 +3492,90 @@ export type Database = {
           },
         ]
       }
+      subscription_payments: {
+        Row: {
+          amount: number
+          asaas_payment_id: string | null
+          broker_id: string
+          created_at: string
+          description: string | null
+          due_date: string
+          id: string
+          invoice_url: string | null
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          subscription_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          asaas_payment_id?: string | null
+          broker_id: string
+          created_at?: string
+          description?: string | null
+          due_date: string
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          asaas_payment_id?: string | null
+          broker_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string
+          id?: string
+          invoice_url?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "conectaios_brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "v_social_broker_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "vw_current_broker"
+            referencedColumns: ["broker_id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscription_status_history: {
         Row: {
           broker_id: string

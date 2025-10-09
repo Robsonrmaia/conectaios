@@ -37,6 +37,8 @@ import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { NextPaymentCard } from '@/components/NextPaymentCard';
+import { SubscriptionPaymentHistory } from '@/components/SubscriptionPaymentHistory';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
@@ -594,6 +596,52 @@ export default function Perfil() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Dashboard de Pagamentos */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <NextPaymentCard />
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Resumo da Conta</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Plano Atual</span>
+                  <span className="font-semibold">
+                    {isTrial ? 'Trial Gratuito' : 'Premium'}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Valor Mensal</span>
+                  <span className="font-semibold text-primary">
+                    R$ 97,00/mês
+                  </span>
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-muted-foreground">Cliente desde</span>
+                  <span className="font-semibold">
+                    {format(new Date(), 'MMM yyyy', { locale: ptBR })}
+                  </span>
+                </div>
+                
+                <Separator className="my-2" />
+                
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = '/app/checkout'}
+                >
+                  Alterar Plano
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Histórico Completo de Pagamentos */}
+          <SubscriptionPaymentHistory />
         </TabsContent>
 
         <TabsContent value="configuracoes" className="space-y-6">
