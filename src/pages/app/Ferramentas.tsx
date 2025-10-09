@@ -24,6 +24,7 @@ import { useChatExternal } from "@/hooks/useChatExternal";
 import { ChatExternalModal } from "@/components/ChatExternalModal";
 import { ExternalToolModal } from "@/components/ExternalToolModal";
 import { AnimatedCard } from "@/components/AnimatedCard";
+import { ProtectedFeature } from "@/components/ProtectedFeature";
 
 interface Tool {
   id: string;
@@ -273,8 +274,9 @@ const Ferramentas = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      <div className="container mx-auto p-6 space-y-8">
+    <ProtectedFeature feature="ferramentas">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+        <div className="container mx-auto p-6 space-y-8">
         <motion.div 
           className="flex items-center justify-between"
           initial={{ opacity: 0, y: -20 }}
@@ -403,8 +405,9 @@ const Ferramentas = () => {
           onClose={closeChatModal}
           chatUrl={chatUrl}
         />
+        </div>
       </div>
-    </div>
+    </ProtectedFeature>
   );
 };
 

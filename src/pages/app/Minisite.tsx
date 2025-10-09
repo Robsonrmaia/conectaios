@@ -35,6 +35,7 @@ import { MinisiteAnalytics } from '@/components/MinisiteAnalytics';
 import { WhatsAppButton } from '@/components/WhatsAppButton';
 import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
 import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
+import { ProtectedFeature } from '@/components/ProtectedFeature';
 
 interface BrokerProfile {
   name: string;
@@ -166,8 +167,9 @@ export default function Minisite() {
   }
 
   return (
-    <MinisiteProvider>
-      <div className="space-y-6">
+    <ProtectedFeature feature="minisite">
+      <MinisiteProvider>
+        <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -401,7 +403,8 @@ export default function Minisite() {
         message={`Olá ${broker?.name}! Gostaria de saber mais sobre seu mini site.`}
         showOnScroll={true}
       />
-      </div>
-    </MinisiteProvider>
+        </div>
+      </MinisiteProvider>
+    </ProtectedFeature>
   );
 }

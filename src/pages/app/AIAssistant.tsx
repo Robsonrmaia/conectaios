@@ -17,6 +17,7 @@ import {
   Star,
   Loader2
 } from 'lucide-react';
+import { ProtectedFeature } from '@/components/ProtectedFeature';
 
 export default function AIAssistant() {
   const [message, setMessage] = useState('');
@@ -174,7 +175,8 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
+    <ProtectedFeature feature="ai_assistant">
+      <div className="min-h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-4 lg:gap-6">
       {/* Sidebar */}
       <div className="w-full lg:w-80 xl:w-96 space-y-4 order-2 lg:order-1 max-w-full overflow-hidden">
         {/* Quick Actions */}
@@ -326,6 +328,7 @@ export default function AIAssistant() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </ProtectedFeature>
   );
 }
