@@ -64,13 +64,26 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
         toast.error('Credenciais inválidas');
+      } else {
+        console.log('🔐 Login bem-sucedido!');
+        console.log('📦 Access token length:', data.session?.access_token?.length);
+        console.log('📦 Refresh token length:', data.session?.refresh_token?.length);
+        
+        if (data.session?.refresh_token && data.session.refresh_token.length < 100) {
+          console.error('❌ ATENÇÃO: Refresh token ainda truncado após login!');
+          console.error('🔧 Isso indica problema na configuração do Supabase');
+        } else {
+          console.log('✅ Tokens válidos criados com sucesso!');
+        }
+        
+        toast.success('Login realizado com sucesso!');
       }
     } catch (error: any) {
       toast.error('Erro ao fazer login');

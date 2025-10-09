@@ -23,7 +23,11 @@ export const supabase = createClient<any>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      detectSessionInUrl: true
+      detectSessionInUrl: true,
+      flowType: 'pkce',
+      storage: window.localStorage,
+      storageKey: 'sb-paawojkqrggnuvpnnwrc-auth-token',
+      debug: import.meta.env.MODE === 'development'
     }
   }
 );

@@ -28,18 +28,23 @@ export function useChatExternal() {
       const refresh = data.session?.refresh_token;
       const userId = data.session?.user?.id ?? "";
 
-      console.log("🔐 Sessão encontrada:", {
-        hasAccess: !!access,
-        hasRefresh: !!refresh,
-        userId: userId || "sem userId"
-      });
-
-      // Se não houver tokens, retornar URL base do chat
-      if (!access || !refresh) {
-        console.warn("⚠️ Tokens não encontrados, abrindo chat sem autenticação");
-        console.warn("⚠️ Faça login em https://www.conectaios.com.br primeiro");
+      // Validação rigorosa dos tokens
+      if (!access || access.length < 100) {
+        console.error("❌ Access token inválido:", access?.length, "chars");
         return "https://chat.conectaios.com.br/";
       }
+
+      if (!refresh || refresh.length < 100) {
+        console.error("❌ Refresh token inválido:", refresh?.length, "chars");
+        console.error("📦 Token recebido:", refresh);
+        return "https://chat.conectaios.com.br/";
+      }
+
+      console.log("✅ Tokens válidos!", {
+        accessLength: access.length,
+        refreshLength: refresh.length,
+        userId: userId || "sem userId"
+      });
 
       const chatUrl = buildChatUrl(access, refresh, {
         property,

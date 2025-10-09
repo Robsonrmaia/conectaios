@@ -20,6 +20,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     console.log('🔐 Initializing Auth Provider');
     
+    // Check and fix corrupted sessions
+    const checkAndFixCorruptedSession = async () => {
+      try {
+        const authData = localStorage.getItem('sb-paawojkqrggnuvpnnwrc-auth-token');
+        if (authData) {
+          const parsed = JSON.parse(authData);
+          const refreshToken = parsed?.refresh_token;
+          
+          if (refreshToken && refreshToken.length < 100) {
+            console.warn('⚠️ Refresh token corrompido detectado (', refreshToken.length, 'chars)');
+            console.warn('🧹 Limpando sessão corrompida...');
+            
+            await supabase.auth.signOut();
+            localStorage.removeItem('sb-paawojkqrggnuvpnnwrc-auth-token');
+            
+            console.log('✅ Sessão corrompida removida. Faça login novamente.');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar sessão:', error);
+      }
+    };
+    
+    checkAndFixCorruptedSession();
+    
     // Check and clear stale cache
     CacheManager.checkAndClearStaleCache();
     
