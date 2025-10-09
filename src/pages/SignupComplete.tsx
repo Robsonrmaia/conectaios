@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckoutStepper } from '@/components/CheckoutStepper';
 
 interface PendingSignup {
   id: string;
@@ -247,135 +249,133 @@ export default function SignupComplete() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Complete seu Cadastro</CardTitle>
-          <CardDescription>
-            {validating ? 'Validando link...' : 
-             tokenValid ? 'Crie sua senha para acessar sua conta' : 'Link inválido ou expirado'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {validating ? (
-            <div className="flex flex-col items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-              <p className="text-sm text-muted-foreground">Verificando seu link...</p>
-            </div>
-          ) : !tokenValid ? (
-            <div className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800">
-                  Este link é inválido, expirou ou já foi utilizado. Se você precisa de ajuda, entre em contato com o suporte.
-                </p>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
+        <CheckoutStepper currentStep={3} />
+
+        <Card className="w-full max-w-md mx-auto mt-8">
+          <CardHeader className="text-center">
+            <img src="/logoconectaios.png" alt="ConectaIOS" className="h-12 mx-auto mb-4" />
+            <CardTitle className="text-2xl">
+              {!tokenValid ? "Token Inválido" : "Complete seu Cadastro"}
+            </CardTitle>
+            <CardDescription>
+              {!tokenValid
+                ? "Este link de ativação é inválido ou já foi utilizado"
+                : "Crie seu nome de usuário e senha para acessar a plataforma"}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {validating ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
-              <Button 
-                onClick={() => navigate('/checkout')}
-                variant="outline"
-                className="w-full"
-              >
-                Voltar ao Checkout
-              </Button>
-            </div>
-          ) : signupData ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Plan info */}
-              <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Pagamento Confirmado</span>
+            ) : !tokenValid ? (
+              <div className="space-y-4">
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    O link pode ter expirado ou já foi utilizado. Por favor, entre em contato
+                    com o suporte para obter um novo link.
+                  </AlertDescription>
+                </Alert>
+                <Button onClick={() => navigate('/checkout')} className="w-full">
+                  Voltar para Checkout
+                </Button>
+              </div>
+            ) : signupData ? (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="space-y-2">
+                    <p className="text-sm font-medium text-green-800">Pagamento Confirmado</p>
+                    <div className="text-xs text-green-700 space-y-1">
+                      <p>
+                        <strong>Plano:</strong> {formatPlanName(signupData.plan_id)}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {signupData.email}
+                      </p>
+                      <p>
+                        <strong>Nome:</strong> {signupData.name}
+                      </p>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={signupData.email}
+                    disabled
+                    className="bg-muted"
+                  />
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Plano: <span className="font-medium text-foreground">{formatPlanName(signupData.plan_id)}</span>
+
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nome Completo</Label>
+                  <Input
+                    id="name"
+                    value={signupData.name}
+                    disabled
+                    className="bg-muted"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="username">Nome de Usuário *</Label>
+                  <Input
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="seu_usuario"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Escolha um nome de usuário único para sua conta
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Senha *</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                  <p className="text-xs text-muted-foreground">Mínimo 6 caracteres</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loading ? "Criando Conta..." : "Concluir Cadastro"}
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground">
+                  Ao criar sua conta, você concorda com nossos Termos de Uso
                 </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={signupData.email}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">Email não pode ser alterado</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={signupData.name}
-                  disabled
-                  className="bg-muted"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="username">Nome de Usuário *</Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                  placeholder="seu_usuario"
-                  minLength={3}
-                  maxLength={20}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">3-20 caracteres, apenas letras, números e _</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha *</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  minLength={6}
-                  required
-                />
-                <p className="text-xs text-muted-foreground">Mínimo 6 caracteres</p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Senha *</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Criando conta...
-                  </>
-                ) : (
-                  'Finalizar Cadastro'
-                )}
-              </Button>
-
-              <p className="text-xs text-center text-muted-foreground">
-                Ao criar sua conta, você concorda com nossos Termos de Uso
-              </p>
-            </form>
-          ) : null}
-        </CardContent>
-      </Card>
+              </form>
+            ) : null}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

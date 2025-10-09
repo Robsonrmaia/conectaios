@@ -5,10 +5,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Info, Mail, Lock } from 'lucide-react';
 import ConectaLogo from '@/components/ConectaLogo';
+import { CheckoutStepper } from '@/components/CheckoutStepper';
 
 const PLANS = [
   { id: 'basic', name: 'Básico', price: 97.00, features: ['10 imóveis', 'Suporte básico'] },
@@ -105,13 +107,24 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 flex flex-col items-center justify-center p-4">
-      {/* Logo ConectaIOS */}
-      <div className="mb-8">
-        <ConectaLogo width={120} height={40} />
-      </div>
-      
-      <div className="max-w-4xl w-full grid md:grid-cols-2 gap-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
+        <div className="text-center mb-4">
+          <ConectaLogo width={120} height={40} className="mx-auto mb-4" />
+          <h1 className="text-3xl font-bold">Assinar ConectaIOS</h1>
+        </div>
+
+        <CheckoutStepper currentStep={1} />
+
+        <Alert className="mb-6 bg-blue-50 border-blue-200">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            <strong>Como funciona:</strong> Após preencher seus dados e confirmar o pagamento,
+            você receberá um email com o link para criar sua senha e acessar a plataforma.
+          </AlertDescription>
+        </Alert>
+
+        <div className="grid md:grid-cols-2 gap-6">
         {/* Resumo do Plano */}
         <Card>
           <CardHeader>
@@ -157,10 +170,8 @@ export default function Checkout() {
         {/* Formulário */}
         <Card>
           <CardHeader>
-            <CardTitle>Seus dados</CardTitle>
-            <CardDescription>
-              Preencha seus dados para prosseguir com o pagamento
-            </CardDescription>
+            <CardTitle>Seus Dados</CardTitle>
+            <CardDescription>Informações básicas para criar sua conta</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -207,23 +218,30 @@ export default function Checkout() {
                 />
               </div>
 
+              <Alert className="bg-amber-50 border-amber-200">
+                <Lock className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-amber-800 text-sm">
+                  <strong>Próximo passo:</strong> Após o pagamento, você receberá um email
+                  para criar sua senha de acesso.
+                </AlertDescription>
+              </Alert>
+
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processando...
-                  </>
-                ) : (
-                  'Ir para pagamento'
-                )}
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {loading ? "Processando..." : "Continuar para Pagamento"}
               </Button>
 
-              <p className="text-xs text-muted-foreground text-center">
-                Você será redirecionado para o Asaas para concluir o pagamento
-              </p>
+              <div className="space-y-2 text-xs text-center text-muted-foreground">
+                <p className="flex items-center justify-center gap-1">
+                  <Mail className="w-3 h-3" />
+                  Você será redirecionado para o Asaas para concluir o pagamento
+                </p>
+                <p>Pagamento 100% seguro e criptografado</p>
+              </div>
             </form>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
