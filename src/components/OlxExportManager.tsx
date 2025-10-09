@@ -5,10 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Globe, Download, Eye, Edit, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Globe, Download, Eye, Edit, Loader2, CheckCircle, AlertCircle, ShieldAlert } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useBroker } from '@/hooks/useBroker';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { toast } from '@/hooks/use-toast';
 import { OlxPublicationModal } from './OlxPublicationModal';
 
@@ -19,6 +21,10 @@ interface Property {
   description: string;
   city: string;
   neighborhood: string;
+  address: string;
+  zipcode: string;
+  state: string;
+  area_total: number;
   olx_enabled: boolean;
   olx_published_at: string | null;
   olx_data: any;
@@ -28,6 +34,7 @@ interface Property {
 export function OlxExportManager() {
   const { user } = useAuth();
   const { broker } = useBroker();
+  const { isAdmin, loading: adminLoading } = useAdminAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -54,6 +61,10 @@ export function OlxExportManager() {
           description,
           city,
           neighborhood,
+          address,
+          zipcode,
+          state,
+          area_total,
           olx_enabled,
           olx_published_at,
           olx_data,
@@ -78,16 +89,71 @@ export function OlxExportManager() {
   };
 
   const validateProperty = (property: Property) => {
-    const required = ['title', 'price', 'description', 'city', 'neighborhood'];
-    const missing = required.filter(field => !property[field as keyof Property]);
-    const hasImages = property.imovel_images && property.imovel_images.length > 0;
-    const hasContact = property.olx_data?.contact_phone;
+    const errors: string[] = [];
+    
+    // Validar campos básicos do imóvel
+    if (!property.title || property.title.length < 10) {
+      errors.push('Título muito curto (mínimo 10 caracteres)');
+    }
+    if (!property.description || property.description.length < 100) {
+      errors.push('Descrição muito curta (mínimo 100 caracteres)');
+    }
+    if (!property.price || property.price <= 0) {
+      errors.push('Preço inválido');
+    }
+    if (!property.city) {
+      errors.push('Cidade não informada');
+    }
+    if (!property.neighborhood) {
+      errors.push('Bairro não informado');
+    }
+    if (!property.address) {
+      errors.push('Endereço não informado');
+    }
+    
+    // Validar imagens (mínimo 3)
+    const imageCount = property.imovel_images?.length || 0;
+    if (imageCount < 3) {
+      errors.push(`Mínimo 3 fotos (atual: ${imageCount})`);
+    }
+    
+    // Validar dados OLX específicos
+    const olxData = property.olx_data || {};
+    
+    // CEP
+    const cep = olxData.zipcode || property.zipcode || '';
+    if (!cep || cep.replace(/\D/g, '').length !== 8) {
+      errors.push('CEP inválido (8 dígitos)');
+    }
+    
+    // Estado
+    const state = olxData.state || property.state || '';
+    if (!state || !['BA', 'RJ', 'SP', 'MG'].includes(state)) {
+      errors.push('Estado inválido');
+    }
+    
+    // Áreas
+    if (!olxData.area_util || olxData.area_util <= 0) {
+      errors.push('Área útil não informada');
+    }
+    if (!olxData.area_privativa || olxData.area_privativa <= 0) {
+      errors.push('Área privativa não informada');
+    }
+    
+    // Contato
+    if (!olxData.contact_name || olxData.contact_name.trim().length < 3) {
+      errors.push('Nome de contato inválido');
+    }
+    if (!olxData.contact_phone || olxData.contact_phone.replace(/\D/g, '').length < 10) {
+      errors.push('Telefone de contato inválido');
+    }
+    if (!olxData.contact_email || !olxData.contact_email.includes('@')) {
+      errors.push('Email de contato inválido');
+    }
 
     return {
-      isValid: missing.length === 0 && hasImages && hasContact,
-      missing,
-      hasImages,
-      hasContact
+      isValid: errors.length === 0,
+      errors
     };
   };
 
@@ -222,11 +288,29 @@ export function OlxExportManager() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || adminLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
+    );
+  }
+
+  // Restrição de acesso apenas para admins
+  if (!isAdmin) {
+    return (
+      <Card className="border-0 shadow-none">
+        <CardContent className="py-12">
+          <Alert variant="destructive">
+            <ShieldAlert className="h-5 w-5" />
+            <AlertTitle>Acesso Restrito</AlertTitle>
+            <AlertDescription>
+              A exportação XML OLX está disponível apenas para administradores do sistema.
+              Os imóveis marcados para OLX serão incluídos automaticamente na exportação diária.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -303,10 +387,27 @@ export function OlxExportManager() {
                               Pronto
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="gap-1">
-                              <AlertCircle className="h-3 w-3" />
-                              Incompleto
-                            </Badge>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Badge variant="destructive" className="gap-1 cursor-pointer">
+                                  <AlertCircle className="h-3 w-3" />
+                                  Incompleto ({validation.errors.length})
+                                </Badge>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-80">
+                                <div className="space-y-2">
+                                  <h4 className="font-medium text-sm">Campos faltantes:</h4>
+                                  <ul className="text-xs space-y-1">
+                                    {validation.errors.map((error, idx) => (
+                                      <li key={idx} className="flex items-start gap-2">
+                                        <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0 text-destructive" />
+                                        <span>{error}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </PopoverContent>
+                            </Popover>
                           )}
                         </TableCell>
                         <TableCell className="text-right">

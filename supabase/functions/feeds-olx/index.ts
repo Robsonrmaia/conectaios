@@ -150,13 +150,30 @@ function generateOLXXML(properties: any[]): string {
   const xmlFooter = `  </ads>
 </olx_export>`;
 
-  const xmlListings = properties.map(property => {
-    const images = Array.isArray(property.galeria_urls) ? property.galeria_urls : [];
-    const imageElements = images.slice(0, 20).map((url: string) => 
-      `      <image>${url}</image>`
-    ).join('\n');
+  const xmlListings = properties
+    .filter(property => {
+      // Filtrar apenas imóveis com dados OLX completos
+      const olxData = property.olx_data || {};
+      return olxData.zipcode && olxData.state && olxData.area_util && olxData.area_privativa && 
+             olxData.contact_name && olxData.contact_phone && olxData.contact_email;
+    })
+    .map(property => {
+      const images = Array.isArray(property.galeria_urls) ? property.galeria_urls : [];
+      const imageElements = images.slice(0, 20).map((url: string) => 
+        `      <image>${url}</image>`
+      ).join('\n');
 
-    return `    <ad>
+      const olxData = property.olx_data || {};
+      const zipcode = olxData.zipcode || property.zipcode || '';
+      const state = olxData.state || property.state || 'BA';
+      const areaUtil = olxData.area_util || 0;
+      const areaPrivativa = olxData.area_privativa || 0;
+      const contactName = olxData.contact_name || 'ConectaIOS';
+      const contactPhone = olxData.contact_phone || '11999999999';
+      const contactEmail = olxData.contact_email || 'contato@conectaios.com.br';
+      const observations = olxData.observations || '';
+
+      return `    <ad>
       <id>${property.id}</id>
       <title><![CDATA[${property.titulo || ''}]]></title>
       <description><![CDATA[${property.descricao || ''}]]></description>
@@ -168,22 +185,25 @@ function generateOLXXML(properties: any[]): string {
       <bathrooms>${property.banheiros || 0}</bathrooms>
       <parking_spaces>${property.vagas || 0}</parking_spaces>
       <size>${property.metragem || 0}</size>
-      <state>SP</state>
+      <usable_area>${areaUtil}</usable_area>
+      <private_area>${areaPrivativa}</private_area>
+      <state>${state}</state>
       <city>${property.cidade || ''}</city>
       <region>${property.bairro || ''}</region>
       <address>${property.endereco || ''}</address>
-      <zipcode></zipcode>
+      <zipcode>${zipcode}</zipcode>
       <images>
 ${imageElements}
       </images>
       <contact>
-        <name>ConectaIOS</name>
-        <email>contato@conectaios.com.br</email>
-        <phone>11999999999</phone>
+        <name>${contactName}</name>
+        <email>${contactEmail}</email>
+        <phone>${contactPhone}</phone>
       </contact>
-      <url>https://conectaios.com.br/imovel/${property.slug}</url>
+      <url>https://conectaios.com.br/imovel/${property.slug}</url>${observations ? `
+      <observations><![CDATA[${observations}]]></observations>` : ''}
     </ad>`;
-  }).join('\n');
+    }).join('\n');
 
   return xmlHeader + '\n' + xmlListings + '\n' + xmlFooter;
 }

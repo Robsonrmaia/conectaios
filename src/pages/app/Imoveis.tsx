@@ -54,6 +54,7 @@ import { PropertyListSkeleton } from '@/components/ui/skeleton-property-card';
 import { useGamificationIntegration } from '@/hooks/useGamificationIntegration';
 import { testPropertyQualityScoring } from '@/utils/testGamification';
 import { useBroker } from '@/hooks/useBroker';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { usePropertyQuality } from '@/hooks/usePropertyQuality';
 import { QualityIndicator } from '@/components/QualityIndicator';
 import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
@@ -100,6 +101,7 @@ export default function Imoveis() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { broker } = useBroker();
+  const { isAdmin } = useAdminAuth();
   const { canAccessFeature, isSuspended, getBlockMessage, daysUntilExpiration } = useSubscriptionGuard();
   
   // Bloquear acesso se suspenso
@@ -981,17 +983,19 @@ export default function Imoveis() {
               <Upload className="w-4 h-4 mr-2" />
               Importar Av.
             </Button>
-            <Dialog open={isOlxExportOpen} onOpenChange={setIsOlxExportOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="h-11">
-                  <Download className="h-4 w-4 mr-2" />
-                  Exportar XML OLX
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-                <OlxExportManager />
-              </DialogContent>
-            </Dialog>
+            {isAdmin && (
+              <Dialog open={isOlxExportOpen} onOpenChange={setIsOlxExportOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="h-11">
+                    <Download className="h-4 w-4 mr-2" />
+                    Exportar XML OLX
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+                  <OlxExportManager />
+                </DialogContent>
+              </Dialog>
+            )}
             <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-gradient-to-r from-primary to-brand-secondary hover:opacity-90 h-11">
