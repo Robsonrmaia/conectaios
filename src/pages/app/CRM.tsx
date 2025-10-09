@@ -4,9 +4,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Home } from 'lucide-react';
 import PipelineCRM from '@/components/PipelineCRM';
 import SmartCalendar from '@/components/SmartCalendar';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 
 export default function CRM() {
   const navigate = useNavigate();
+  const { canAccessFeature, isSuspended, getBlockMessage } = useSubscriptionGuard();
+  
+  if (isSuspended) {
+    return <SubscriptionBlocker 
+      status="suspended"
+      message={getBlockMessage()}
+    />;
+  }
 
   return (
     <div className="space-y-6">

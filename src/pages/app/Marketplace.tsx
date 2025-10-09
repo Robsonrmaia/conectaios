@@ -31,6 +31,8 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { LazyAutoCarousel } from '@/components/LazyAutoCarousel';
 import { LazyDevelopmentCarousel } from '@/components/LazyDevelopmentCarousel';
 import { CITIES, DEFAULT_CITY, STORAGE_KEYS, getCityLabel } from '@/config/cities';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 
 interface Property {
   id: string;
@@ -86,6 +88,14 @@ export default function Marketplace() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { speak, stop, isSpeaking, isCurrentlySpeaking } = useElevenLabsVoice();
+  const { canAccessFeature, isSuspended, getBlockMessage } = useSubscriptionGuard();
+  
+  if (isSuspended) {
+    return <SubscriptionBlocker 
+      status="suspended"
+      message={getBlockMessage()}
+    />;
+  }
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');

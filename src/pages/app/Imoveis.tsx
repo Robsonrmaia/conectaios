@@ -55,6 +55,8 @@ import { useBroker } from '@/hooks/useBroker';
 import { usePropertyQuality } from '@/hooks/usePropertyQuality';
 import { QualityIndicator } from '@/components/QualityIndicator';
 import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 
 interface Property {
   id: string;
@@ -96,6 +98,15 @@ export default function Imoveis() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { broker } = useBroker();
+  const { canAccessFeature, isSuspended, getBlockMessage, daysUntilExpiration } = useSubscriptionGuard();
+  
+  // Bloquear acesso se suspenso
+  if (isSuspended) {
+    return <SubscriptionBlocker 
+      status="suspended"
+      message={getBlockMessage()}
+    />;
+  }
   const [searchTerm, setSearchTerm] = useState('');
   const [pagination, setPagination] = useState({
     currentPage: 1,

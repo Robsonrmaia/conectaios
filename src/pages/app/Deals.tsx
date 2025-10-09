@@ -13,6 +13,8 @@ import { toast } from 'sonner';
 import { ContractGenerator } from '@/components/ContractGenerator';
 import { useDeals } from '@/hooks/useDeals';
 import { CreateDealDialog } from '@/components/CreateDealDialog';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 
 export default function Deals() {
   const navigate = useNavigate();
@@ -20,6 +22,14 @@ export default function Deals() {
   const [isContractDialogOpen, setIsContractDialogOpen] = useState(false);
   const [isCreateDealOpen, setIsCreateDealOpen] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<any>(null);
+  const { canAccessFeature, isSuspended, getBlockMessage } = useSubscriptionGuard();
+  
+  if (isSuspended) {
+    return <SubscriptionBlocker 
+      status="suspended"
+      message={getBlockMessage()}
+    />;
+  }
 
   const getStatusConfig = (status: string) => {
     switch (status) {

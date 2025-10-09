@@ -36,6 +36,8 @@ import { WhatsAppButton } from '@/components/WhatsAppButton';
 import MinisiteHelpGuide from '@/components/MinisiteHelpGuide';
 import { generateMinisiteUrl, cleanUsername } from '@/lib/urls';
 import { ProtectedFeature } from '@/components/ProtectedFeature';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 
 interface BrokerProfile {
   name: string;
@@ -52,6 +54,14 @@ export default function Minisite() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { broker, updateBrokerProfile } = useBroker();
+  const { canAccessFeature, isSuspended, getBlockMessage } = useSubscriptionGuard();
+  
+  if (isSuspended) {
+    return <SubscriptionBlocker 
+      status="suspended"
+      message={getBlockMessage()}
+    />;
+  }
   const [profile, setProfile] = useState<BrokerProfile>({
     name: '',
     username: '',

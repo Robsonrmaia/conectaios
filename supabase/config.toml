@@ -53,3 +53,9 @@ verify_jwt = false
 
 [functions.import-vrsync]
 verify_jwt = false
+
+[functions.subscription-email-notification]
+verify_jwt = false
+
+[functions.subscription-auto-suspend]
+verify_jwt = false
