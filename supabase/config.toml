@@ -3,6 +3,9 @@ project_id = "paawojkqrggnuvpnnwrc"
 [functions.asaas-integration]
 verify_jwt = false
 
+[functions.sync-asaas-payments]
+verify_jwt = false
+
 [functions.create-public-subscription]
 verify_jwt = false
 
