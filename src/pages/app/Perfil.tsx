@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useBroker } from '@/hooks/useBroker';
 import { useMinisite } from '@/hooks/useMinisite';
 import BrokerSetup from '@/components/BrokerSetup';
@@ -32,11 +33,23 @@ import { AsaasTestButton } from '@/components/AsaasTestButton';
 import { AsaasSubscriptionFlow } from '@/components/AsaasSubscriptionFlow';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
+import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
+import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function Perfil() {
   const { broker, updateBrokerProfile } = useBroker();
   const { ensureMinisiteConfig } = useMinisite();
   const { createFileInput, isUploading } = useImageUpload();
+  const { 
+    isActive, 
+    isTrial, 
+    isOverdue, 
+    isSuspended,
+    daysUntilExpiration,
+    getBlockMessage 
+  } = useSubscriptionGuard();
   
   const [profile, setProfile] = useState({
     name: '',
@@ -139,9 +152,10 @@ export default function Perfil() {
 
       <Tabs defaultValue="perfil" className="space-y-4">
         <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 scroll-smooth-tabs">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-12 gap-1 p-1 min-w-max">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-12 gap-1 p-1 min-w-max">
             <TabsTrigger value="perfil" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Perfil</TabsTrigger>
             <TabsTrigger value="minisite" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Minisite</TabsTrigger>
+            <TabsTrigger value="assinatura" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Assinatura</TabsTrigger>
             <TabsTrigger value="configuracoes" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Config</TabsTrigger>
             <TabsTrigger value="conquistas" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Awards</TabsTrigger>
             <TabsTrigger value="plano" className="text-xs sm:text-sm px-3 py-2 whitespace-nowrap min-h-[44px] touch-target">Plano</TabsTrigger>
@@ -426,6 +440,158 @@ export default function Perfil() {
             </CardHeader>
             <CardContent>
               <MinisiteEditorIntegrated />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="assinatura" className="space-y-6">
+          {/* Status da Assinatura */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Status da Assinatura</CardTitle>
+              <CardDescription>
+                Gerencie sua assinatura e acompanhe pagamentos
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Card de Status Atual */}
+              <div className="p-6 rounded-lg border-2 bg-card">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">
+                      Status Atual
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {broker?.subscription_status === 'active' && 'Sua assinatura está ativa e funcionando perfeitamente'}
+                      {broker?.subscription_status === 'trial' && 'Você está no período de teste gratuito'}
+                      {broker?.subscription_status === 'overdue' && 'Seu pagamento está pendente'}
+                      {broker?.subscription_status === 'suspended' && 'Sua assinatura está suspensa'}
+                    </p>
+                  </div>
+                  
+                  <Badge 
+                    variant={
+                      isActive ? 'default' : 
+                      isTrial ? 'secondary' : 
+                      isOverdue ? 'outline' : 
+                      'destructive'
+                    }
+                    className="text-base px-4 py-2"
+                  >
+                    {isActive && '✓ Ativa'}
+                    {isTrial && '🎁 Trial'}
+                    {isOverdue && '⏰ Atrasada'}
+                    {isSuspended && '🔒 Suspensa'}
+                  </Badge>
+                </div>
+                
+                {/* Informações de Vencimento */}
+                {broker?.subscription_expires_at && (
+                  <div className="p-4 bg-muted rounded-lg mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Próxima cobrança</p>
+                        <p className="text-lg font-semibold">
+                          {format(new Date(broker.subscription_expires_at), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
+                        </p>
+                      </div>
+                      
+                      {daysUntilExpiration !== null && (
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">
+                            {daysUntilExpiration > 0 ? 'Tempo restante' : 'Dias em atraso'}
+                          </p>
+                          <p className={`text-lg font-semibold ${
+                            daysUntilExpiration > 7 ? 'text-success' : 
+                            daysUntilExpiration > 0 ? 'text-warning' : 
+                            'text-destructive'
+                          }`}>
+                            {daysUntilExpiration > 0 
+                              ? `${daysUntilExpiration} dia${daysUntilExpiration !== 1 ? 's' : ''}`
+                              : `${Math.abs(daysUntilExpiration)} dia${Math.abs(daysUntilExpiration) !== 1 ? 's' : ''} atrasado`
+                            }
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Ações Rápidas */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    onClick={() => window.location.href = '/app/checkout'}
+                    className="flex-1"
+                    variant={isOverdue || isSuspended ? 'default' : 'outline'}
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    {isOverdue || isSuspended ? 'Regularizar Pagamento' : 'Atualizar Plano'}
+                  </Button>
+                  
+                  {broker?.referral_code && (
+                    <Button 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        navigator.clipboard.writeText(broker.referral_code || '');
+                        toast({
+                          title: "Código copiado!",
+                          description: "Compartilhe com outros corretores para ganhar benefícios",
+                        });
+                      }}
+                    >
+                      <Award className="h-4 w-4 mr-2" />
+                      Código de Indicação: {broker.referral_code}
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {/* Bloqueador se necessário */}
+              {(isOverdue || isSuspended) && (
+                <SubscriptionBlocker
+                  status={isSuspended ? 'suspended' : 'overdue'}
+                  daysOverdue={daysUntilExpiration ? Math.abs(daysUntilExpiration) : 0}
+                  message={getBlockMessage()}
+                />
+              )}
+              
+              {/* Informações do Plano */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-primary mb-2">
+                      {isTrial ? 'Trial' : 'Premium'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Plano Atual</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold text-success mb-2">
+                      R$ 97,00
+                    </div>
+                    <div className="text-sm text-muted-foreground">Valor Mensal</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-4 text-center">
+                    <div className="text-2xl font-bold mb-2">
+                      {isActive || isTrial ? '✓' : '✗'}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Acesso Total</div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Nota de rodapé */}
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">
+                  💳 Pagamentos processados de forma segura via Asaas
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
