@@ -1,179 +1,164 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+
+const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
+interface EmailRequest {
+  broker_id: string;
+  subscription_id?: string;
+  email_type: 'PAYMENT_CONFIRMED' | 'PAYMENT_OVERDUE' | 'PAYMENT_PENDING' | 'SUBSCRIPTION_SUSPENDED';
+  status: string;
+}
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
+serve(async (req: Request): Promise<Response> => {
+  // Handle CORS preflight
+  if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { broker_id, subscription_id, email_type, status } = await req.json();
+    const { broker_id, subscription_id, email_type, status }: EmailRequest = await req.json();
+    
+    console.log('📧 Email notification request:', { broker_id, email_type, status });
 
-    console.log(`📧 Sending ${email_type} email for broker ${broker_id}`);
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
-
-    // Buscar dados do broker
+    // Fetch broker details
     const { data: broker, error: brokerError } = await supabase
       .from('brokers')
-      .select('name, email')
+      .select('id, name, email, subscription_status, subscription_expires_at')
       .eq('id', broker_id)
       .single();
 
     if (brokerError || !broker) {
+      console.error('❌ Error fetching broker:', brokerError);
       throw new Error('Broker not found');
     }
 
     if (!broker.email) {
+      console.error('❌ Broker has no email:', broker_id);
       throw new Error('Broker email not found');
     }
 
-    // Preparar email baseado no tipo
+    // Email subject and content based on type
     let subject = '';
-    let html = '';
+    let htmlContent = '';
 
     switch (email_type) {
-      case 'subscription_created':
-        subject = 'Assinatura Criada com Sucesso! 🎉';
-        html = `
-          <h1>Olá ${broker.name}!</h1>
-          <p>Sua assinatura foi criada com sucesso.</p>
-          <p>Complete o pagamento para ativar todos os recursos da plataforma.</p>
-          <p><strong>Status:</strong> ${status}</p>
+      case 'PAYMENT_CONFIRMED':
+        subject = '✅ Pagamento Confirmado - ConectaIOS';
+        htmlContent = `
+          <h1>Pagamento Confirmado!</h1>
+          <p>Olá <strong>${broker.name}</strong>,</p>
+          <p>Seu pagamento foi confirmado com sucesso.</p>
+          <p>Sua assinatura está <strong>ativa</strong> e você pode continuar usando todos os recursos do ConectaIOS.</p>
+          <p>Data de vencimento: ${broker.subscription_expires_at ? new Date(broker.subscription_expires_at).toLocaleDateString('pt-BR') : 'Não definido'}</p>
           <br>
-          <p>Obrigado por escolher ConectaIOS!</p>
+          <p>Obrigado por fazer parte do ConectaIOS!</p>
+          <p>Equipe ConectaIOS</p>
         `;
         break;
 
-      case 'subscription_active':
-        subject = 'Sua Assinatura está Ativa! ✅';
-        html = `
-          <h1>Parabéns ${broker.name}!</h1>
-          <p>Sua assinatura foi ativada com sucesso.</p>
-          <p>Agora você tem acesso a todos os recursos premium da plataforma!</p>
+      case 'PAYMENT_OVERDUE':
+        subject = '⚠️ Pagamento Atrasado - ConectaIOS';
+        htmlContent = `
+          <h1>Pagamento em Atraso</h1>
+          <p>Olá <strong>${broker.name}</strong>,</p>
+          <p>Identificamos que seu pagamento está em atraso.</p>
+          <p>Para continuar usando o ConectaIOS sem interrupções, por favor regularize seu pagamento o quanto antes.</p>
+          <p><strong>Importante:</strong> Após 7 dias de atraso, sua conta será suspensa automaticamente.</p>
           <br>
-          <p>Aproveite ao máximo o ConectaIOS!</p>
+          <a href="https://conectaios.com.br/app/checkout" style="background: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Regularizar Pagamento</a>
+          <br><br>
+          <p>Equipe ConectaIOS</p>
         `;
         break;
 
-      case 'subscription_overdue':
-        subject = 'Assinatura em Atraso ⚠️';
-        html = `
-          <h1>Atenção ${broker.name}</h1>
-          <p>Identificamos que sua assinatura está com pagamento em atraso.</p>
-          <p>Por favor, regularize sua situação para continuar aproveitando todos os recursos.</p>
+      case 'PAYMENT_PENDING':
+        subject = '⏳ Pagamento Pendente - ConectaIOS';
+        htmlContent = `
+          <h1>Pagamento Pendente</h1>
+          <p>Olá <strong>${broker.name}</strong>,</p>
+          <p>Seu pagamento está pendente de confirmação.</p>
+          <p>Assim que o pagamento for confirmado, você receberá uma notificação.</p>
+          <p>Se você já realizou o pagamento, por favor aguarde a compensação bancária.</p>
           <br>
           <p>Equipe ConectaIOS</p>
         `;
         break;
 
-      case 'subscription_suspended':
-        subject = 'Assinatura Suspensa';
-        html = `
-          <h1>Olá ${broker.name}</h1>
-          <p>Sua assinatura foi suspensa devido a pagamento não realizado.</p>
-          <p>Regularize sua situação para reativar o acesso completo à plataforma.</p>
+      case 'SUBSCRIPTION_SUSPENDED':
+        subject = '🔒 Assinatura Suspensa - ConectaIOS';
+        htmlContent = `
+          <h1>Assinatura Suspensa</h1>
+          <p>Olá <strong>${broker.name}</strong>,</p>
+          <p>Sua assinatura foi <strong>suspensa</strong> devido à falta de pagamento.</p>
+          <p>Para reativar sua conta e continuar usando o ConectaIOS, por favor regularize seu pagamento.</p>
           <br>
-          <p>Equipe ConectaIOS</p>
-        `;
-        break;
-
-      case 'subscription_cancelled':
-        subject = 'Assinatura Cancelada';
-        html = `
-          <h1>Olá ${broker.name}</h1>
-          <p>Confirmamos o cancelamento da sua assinatura.</p>
-          <p>Sentimos muito em vê-lo partir. Se quiser voltar, estaremos aqui!</p>
-          <br>
+          <a href="https://conectaios.com.br/app/checkout" style="background: #EF4444; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">Reativar Conta</a>
+          <br><br>
           <p>Equipe ConectaIOS</p>
         `;
         break;
 
       default:
-        subject = 'Atualização da Assinatura';
-        html = `
-          <h1>Olá ${broker.name}</h1>
-          <p>Houve uma atualização no status da sua assinatura.</p>
-          <p><strong>Status atual:</strong> ${status}</p>
-          <br>
-          <p>Equipe ConectaIOS</p>
-        `;
+        throw new Error('Invalid email type');
     }
 
-    // Enviar email via Resend
-    if (!RESEND_API_KEY) {
-      console.log('⚠️ RESEND_API_KEY not configured, skipping email send');
-      
-      // Log mesmo assim
-      await supabase.from('subscription_email_logs').insert({
-        broker_id,
-        subscription_id,
+    // Send email via Resend
+    const emailResponse = await resend.emails.send({
+      from: "ConectaIOS <onboarding@resend.dev>",
+      to: [broker.email],
+      subject: subject,
+      html: htmlContent,
+    });
+
+    console.log('✅ Email sent successfully:', emailResponse);
+
+    // Log email sent to audit
+    await supabase.from('audit_log').insert({
+      action: 'EMAIL_SENT',
+      entity: 'subscription_email',
+      entity_id: broker_id,
+      meta: {
         email_type,
-        sent_to: broker.email,
-        success: false,
-        error: 'RESEND_API_KEY not configured'
-      });
-
-      return new Response(
-        JSON.stringify({ success: false, message: 'Email service not configured' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-      );
-    }
-
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
+        status,
+        subscription_id,
+        email_response: emailResponse
       },
-      body: JSON.stringify({
-        from: 'ConectaIOS <noreply@conectaios.com.br>',
-        to: [broker.email],
-        subject,
-        html,
+      actor: null,
+      at: new Date().toISOString()
+    });
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      message: 'Email sent successfully',
+      email_id: emailResponse.id 
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json", ...corsHeaders },
+    });
+
+  } catch (error: any) {
+    console.error("❌ Error in email notification function:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: error.message,
+        details: error.toString()
       }),
-    });
-
-    const emailResult = await emailResponse.json();
-    const success = emailResponse.ok;
-
-    // Registrar log
-    await supabase.from('subscription_email_logs').insert({
-      broker_id,
-      subscription_id,
-      email_type,
-      sent_to: broker.email,
-      success,
-      error: success ? null : JSON.stringify(emailResult)
-    });
-
-    if (!success) {
-      console.error('❌ Email send failed:', emailResult);
-      throw new Error('Failed to send email');
-    }
-
-    console.log('✅ Email sent successfully');
-
-    return new Response(
-      JSON.stringify({ success: true, email_id: emailResult.id }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    );
-
-  } catch (error) {
-    console.error('❌ Error sending email:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      }
     );
   }
 });
