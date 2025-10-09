@@ -72,6 +72,53 @@ async function verifyWebhookSignature(
   }
 }
 
+// Helper: Map Asaas payment status to subscription_payments status
+function mapAsaasStatusToPaymentStatus(asaasStatus: string): string {
+  const statusMap: Record<string, string> = {
+    'PENDING': 'pending',
+    'RECEIVED': 'confirmed',
+    'CONFIRMED': 'confirmed',
+    'OVERDUE': 'overdue',
+    'REFUNDED': 'refunded',
+    'RECEIVED_IN_CASH': 'confirmed',
+    'REFUND_REQUESTED': 'refunded'
+  };
+  
+  return statusMap[asaasStatus] || 'pending';
+}
+
+// Helper: Map Asaas billingType to payment_method
+function mapBillingType(billingType: string): string | null {
+  const typeMap: Record<string, string> = {
+    'PIX': 'pix',
+    'CREDIT_CARD': 'credit_card',
+    'BOLETO': 'boleto'
+  };
+  
+  return typeMap[billingType] || null;
+}
+
+// Helper: Calculate next billing date (monthly)
+function calculateNextBilling(currentDueDate: string): string {
+  const current = new Date(currentDueDate);
+  current.setMonth(current.getMonth() + 1);
+  return current.toISOString();
+}
+
+// Helper: Map event to email notification type
+function mapEventToEmailType(event: string): string {
+  const emailTypeMap: Record<string, string> = {
+    'PAYMENT_CONFIRMED': 'payment_confirmed',
+    'PAYMENT_RECEIVED': 'payment_confirmed',
+    'PAYMENT_OVERDUE': 'payment_overdue',
+    'PAYMENT_CREATED': 'payment_created',
+    'PAYMENT_DELETED': 'payment_deleted',
+    'PAYMENT_REFUNDED': 'payment_refunded'
+  };
+  
+  return emailTypeMap[event] || 'payment_updated';
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -513,6 +560,101 @@ serve(async (req) => {
                 } else {
                   console.log(`[${timestamp}] ✅ Subscription updated successfully`);
                   // Trigger will automatically update broker table via sync_broker_subscription
+                }
+                
+                // ============================================
+                // 🆕 FASE 3.1: INTEGRAÇÃO COM SUBSCRIPTION_PAYMENTS
+                // ============================================
+                
+                // 1. Criar/Atualizar registro em subscription_payments
+                if (payment) {
+                  console.log(`[${timestamp}] 💳 Upserting subscription_payment record`);
+                  
+                  const paymentStatus = mapAsaasStatusToPaymentStatus(payment.status);
+                  const paymentMethod = mapBillingType(payment.billingType);
+                  
+                  const { error: paymentError } = await supabase
+                    .from('subscription_payments')
+                    .upsert({
+                      broker_id: brokerId,
+                      subscription_id: asaasSubscriptionId,
+                      asaas_payment_id: payment.id,
+                      amount: payment.value,
+                      status: paymentStatus,
+                      payment_method: paymentMethod,
+                      due_date: payment.dueDate,
+                      paid_at: payment.paymentDate || (paymentStatus === 'confirmed' ? new Date().toISOString() : null),
+                      invoice_url: payment.invoiceUrl || payment.bankSlipUrl,
+                      description: payment.description || `Mensalidade ConectaIOS - ${new Date(payment.dueDate).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`
+                    }, {
+                      onConflict: 'asaas_payment_id'
+                    });
+                  
+                  if (paymentError) {
+                    console.error(`[${timestamp}] ❌ Error upserting subscription_payment:`, paymentError);
+                  } else {
+                    console.log(`[${timestamp}] ✅ Subscription payment record updated`);
+                  }
+                }
+                
+                // 2. Atualizar status e expiração no brokers
+                console.log(`[${timestamp}] 🔄 Updating broker subscription status`);
+                
+                if (event === 'PAYMENT_CONFIRMED' || event === 'PAYMENT_RECEIVED') {
+                  const { error: brokerUpdateError } = await supabase
+                    .from('brokers')
+                    .update({
+                      subscription_status: 'active',
+                      subscription_expires_at: calculateNextBilling(payment.dueDate)
+                    })
+                    .eq('id', brokerId);
+                  
+                  if (brokerUpdateError) {
+                    console.error(`[${timestamp}] ❌ Error updating broker status:`, brokerUpdateError);
+                  } else {
+                    console.log(`[${timestamp}] ✅ Broker status updated to active`);
+                  }
+                } else if (event === 'PAYMENT_OVERDUE') {
+                  const { error: brokerUpdateError } = await supabase
+                    .from('brokers')
+                    .update({
+                      subscription_status: 'overdue'
+                    })
+                    .eq('id', brokerId);
+                  
+                  if (brokerUpdateError) {
+                    console.error(`[${timestamp}] ❌ Error updating broker to overdue:`, brokerUpdateError);
+                  } else {
+                    console.log(`[${timestamp}] ✅ Broker status updated to overdue`);
+                  }
+                }
+                
+                // 3. Disparar notificação por email
+                console.log(`[${timestamp}] 📧 Triggering email notification`);
+                
+                try {
+                  const emailType = mapEventToEmailType(event);
+                  const { error: emailError } = await supabase.functions.invoke('subscription-email-notification', {
+                    body: {
+                      broker_id: brokerId,
+                      email_type: emailType,
+                      payment_data: {
+                        id: payment?.id,
+                        value: payment?.value,
+                        dueDate: payment?.dueDate,
+                        status: payment?.status,
+                        invoiceUrl: payment?.invoiceUrl || payment?.bankSlipUrl
+                      }
+                    }
+                  });
+                  
+                  if (emailError) {
+                    console.error(`[${timestamp}] ⚠️ Error sending notification (non-critical):`, emailError);
+                  } else {
+                    console.log(`[${timestamp}] ✅ Email notification sent successfully`);
+                  }
+                } catch (emailError) {
+                  console.error(`[${timestamp}] ⚠️ Error invoking notification function (non-critical):`, emailError);
                 }
               }
             }
