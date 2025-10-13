@@ -8,10 +8,89 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, Info, Mail, Lock } from 'lucide-react';
+import { Loader2, Info, Mail, Lock, Check, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import ConectaLogo from '@/components/ConectaLogo';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
+
+// Validação de CPF
+function validarCPF(cpf: string): boolean {
+  cpf = cpf.replace(/\D/g, '');
+  if (cpf.length !== 11 || /^(\d)\1+$/.test(cpf)) return false;
+  
+  let soma = 0;
+  for (let i = 0; i < 9; i++) soma += parseInt(cpf[i]) * (10 - i);
+  let resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  if (resto !== parseInt(cpf[9])) return false;
+  
+  soma = 0;
+  for (let i = 0; i < 10; i++) soma += parseInt(cpf[i]) * (11 - i);
+  resto = (soma * 10) % 11;
+  if (resto === 10 || resto === 11) resto = 0;
+  return resto === parseInt(cpf[10]);
+}
+
+// Validação de CNPJ
+function validarCNPJ(cnpj: string): boolean {
+  cnpj = cnpj.replace(/\D/g, '');
+  if (cnpj.length !== 14 || /^(\d)\1+$/.test(cnpj)) return false;
+  
+  let tamanho = cnpj.length - 2;
+  let numeros = cnpj.substring(0, tamanho);
+  const digitos = cnpj.substring(tamanho);
+  let soma = 0;
+  let pos = tamanho - 7;
+  
+  for (let i = tamanho; i >= 1; i--) {
+    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  
+  let resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  if (resultado !== parseInt(digitos.charAt(0))) return false;
+  
+  tamanho = tamanho + 1;
+  numeros = cnpj.substring(0, tamanho);
+  soma = 0;
+  pos = tamanho - 7;
+  
+  for (let i = tamanho; i >= 1; i--) {
+    soma += parseInt(numeros.charAt(tamanho - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  
+  resultado = soma % 11 < 2 ? 0 : 11 - (soma % 11);
+  return resultado === parseInt(digitos.charAt(1));
+}
+
+// Validador unificado
+function validarCpfCnpj(valor: string): boolean {
+  const numeros = valor.replace(/\D/g, '');
+  if (numeros.length === 11) return validarCPF(numeros);
+  if (numeros.length === 14) return validarCNPJ(numeros);
+  return false;
+}
+
+// Formatação de CPF/CNPJ
+function formatarCpfCnpj(valor: string): string {
+  const numeros = valor.replace(/\D/g, '');
+  
+  if (numeros.length <= 11) {
+    // CPF: 000.000.000-00
+    return numeros
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  } else {
+    // CNPJ: 00.000.000/0000-00
+    return numeros
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+  }
+}
 
 const PLANS = [
   { 
@@ -64,6 +143,7 @@ export default function Checkout() {
   const selectedPlan = PLANS.find(p => p.id === planId) || PLANS[1];
   
   const [loading, setLoading] = useState(false);
+  const [cpfValido, setCpfValido] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -269,13 +349,42 @@ export default function Checkout() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="cpf_cnpj">CPF/CNPJ</Label>
-                <Input
-                  id="cpf_cnpj"
-                  placeholder="000.000.000-00"
-                  value={formData.cpf_cnpj}
-                  onChange={(e) => setFormData({ ...formData, cpf_cnpj: e.target.value })}
-                />
+                <Label htmlFor="cpf_cnpj">CPF/CNPJ (opcional para teste)</Label>
+                <div className="relative">
+                  <Input
+                    id="cpf_cnpj"
+                    placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                    value={formData.cpf_cnpj}
+                    onChange={(e) => {
+                      const valor = formatarCpfCnpj(e.target.value);
+                      setFormData({ ...formData, cpf_cnpj: valor });
+                      
+                      const numeros = valor.replace(/\D/g, '');
+                      if (numeros.length >= 11) {
+                        setCpfValido(validarCpfCnpj(valor));
+                      } else {
+                        setCpfValido(null);
+                      }
+                    }}
+                    className={cpfValido === false ? 'border-red-500 pr-10' : cpfValido === true ? 'border-green-500 pr-10' : ''}
+                  />
+                  {cpfValido === true && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                  )}
+                  {cpfValido === false && (
+                    <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-red-500" />
+                  )}
+                </div>
+                {cpfValido === false && (
+                  <p className="text-sm text-red-500">
+                    CPF/CNPJ inválido. Verifique os dígitos.
+                  </p>
+                )}
+                {!formData.cpf_cnpj && (
+                  <p className="text-xs text-muted-foreground">
+                    Em ambiente de teste, o CPF será preenchido automaticamente
+                  </p>
+                )}
               </div>
 
               <Alert className="bg-amber-50 border-amber-200">

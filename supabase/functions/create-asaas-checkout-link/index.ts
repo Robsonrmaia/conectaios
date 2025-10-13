@@ -26,6 +26,18 @@ serve(async (req) => {
       throw new Error('plan_id é obrigatório');
     }
 
+    // Sanitizar e validar CPF/CNPJ
+    const asaasEnv = Deno.env.get('ASAAS_ENV') || 'sandbox';
+    let cpfCnpjLimpo = cpf_cnpj?.replace(/\D/g, '') || '';
+    
+    // Se estiver em sandbox e CPF/CNPJ inválido, usar CPF de teste
+    if (asaasEnv === 'sandbox' && (!cpfCnpjLimpo || cpfCnpjLimpo.length < 11)) {
+      cpfCnpjLimpo = '11144477735'; // CPF de teste válido do Asaas
+      console.log('⚠️ Usando CPF de teste para sandbox');
+    } else if (cpfCnpjLimpo.length !== 11 && cpfCnpjLimpo.length !== 14) {
+      throw new Error('CPF/CNPJ inválido. Deve ter 11 (CPF) ou 14 (CNPJ) dígitos.');
+    }
+
     // Valores dos planos (preço promocional)
     const PLAN_PRICES: Record<string, { promo: number; regular: number }> = {
       basic: { promo: 49.00, regular: 98.00 },
@@ -47,7 +59,6 @@ serve(async (req) => {
     }
 
     // Configuração do Asaas
-    const asaasEnv = Deno.env.get('ASAAS_ENV') || 'sandbox';
     const asaasApiKey = Deno.env.get('ASAAS_API_KEY');
     const asaasUrl = asaasEnv === 'production' 
       ? 'https://api.asaas.com/v3' 
@@ -68,7 +79,7 @@ serve(async (req) => {
         name: name || 'Novo Cliente ConectaIOS',
         email: email || `temp_${Date.now()}@conectaios.com`,
         phone: phone || '',
-        cpfCnpj: cpf_cnpj || '00000000000',
+        cpfCnpj: cpfCnpjLimpo,
         externalReference,
       }),
     });
