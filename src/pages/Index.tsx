@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle, Home, Check, Sparkles, Zap, Crown } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle, Home, Check, Sparkles, Zap, Crown, Loader2 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 import PageWrapper from '@/components/PageWrapper';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { initParallax } from '@/utils/parallax';
@@ -29,6 +30,7 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [partnerships, setPartnerships] = useState<any[]>([]);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   
   // Refs for 3D animation
   const containerRef = useRef<HTMLDivElement>(null);
@@ -179,6 +181,48 @@ const Index = () => {
     ];
     
     setPartnerships(filteredPartnerships);
+  };
+
+  const handleSubscribe = async (planId: string) => {
+    if (loadingPlan) return; // Prevenir múltiplos cliques
+    
+    setLoadingPlan(planId);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
+        body: { 
+          plan_id: planId,
+          name: '',
+          email: '',
+          phone: '',
+          cpf_cnpj: ''
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.checkoutUrl) {
+        toast({
+          title: "Redirecionando para pagamento",
+          description: "Você será redirecionado para completar sua assinatura no Asaas.",
+        });
+        
+        setTimeout(() => {
+          window.location.href = data.checkoutUrl;
+        }, 1000);
+      } else {
+        throw new Error('URL de checkout não retornada');
+      }
+    } catch (error: any) {
+      console.error('Erro ao criar assinatura:', error);
+      toast({
+        title: "Erro ao processar assinatura",
+        description: error.message || "Tente novamente mais tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingPlan(null);
+    }
   };
 
   return (
@@ -1161,10 +1205,18 @@ const Index = () => {
                     <span className="text-sm">Minisite personalizado</span>
                   </div>
                   <Button 
-                    onClick={() => navigate('/checkout?plan=basic')}
+                    onClick={() => handleSubscribe('basic')}
+                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    Assinar Básico - R$ 49,00/mês
+                    {loadingPlan === 'basic' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      'Assinar Básico - R$ 49,00/mês'
+                    )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 98,00 (após 3 meses)
@@ -1182,7 +1234,7 @@ const Index = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
                     <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
                       <Sparkles className="h-3 w-3" />
-                      <span>50% OFF</span>
+                      <span>50% OFF nos primeiros 3 meses</span>
                     </div>
                   </div>
                 </div>
@@ -1212,10 +1264,18 @@ const Index = () => {
                     <span className="text-sm font-semibold">2 imóveis publicados no OLX</span>
                   </div>
                   <Button 
-                    onClick={() => navigate('/checkout?plan=pro')}
+                    onClick={() => handleSubscribe('pro')}
+                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    Assinar Profissional - R$ 79,00/mês
+                    {loadingPlan === 'pro' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      'Assinar Profissional - R$ 79,00/mês'
+                    )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 148,00 (após 3 meses)
@@ -1260,10 +1320,18 @@ const Index = () => {
                     <span className="text-sm">Suporte prioritário</span>
                   </div>
                   <Button 
-                    onClick={() => navigate('/checkout?plan=enterprise')}
+                    onClick={() => handleSubscribe('enterprise')}
+                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    Assinar Premium - R$ 99,00/mês
+                    {loadingPlan === 'enterprise' ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Processando...
+                      </>
+                    ) : (
+                      'Assinar Premium - R$ 99,00/mês'
+                    )}
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 198,00 (após 3 meses)

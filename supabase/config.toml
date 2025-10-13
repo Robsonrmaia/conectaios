@@ -9,6 +9,9 @@ verify_jwt = false
 [functions.create-public-subscription]
 verify_jwt = false
 
+[functions.create-asaas-checkout-link]
+verify_jwt = false
+
 [functions.claim-subscription]
 verify_jwt = true
 
