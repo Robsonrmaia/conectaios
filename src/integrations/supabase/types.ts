@@ -4949,6 +4949,10 @@ export type Database = {
         Args: { check_user_id?: string }
         Returns: boolean
       }
+      is_group_member: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_member: {
         Args: { conv_id: string; uid: string }
         Returns: boolean
