@@ -21,6 +21,8 @@ import { FeatureDetailDialog } from '@/components/FeatureDetailDialog';
 
 import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { ConectaAIChatButton } from '@/components/ConectaAIChat';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { UserDataForm } from "@/components/UserDataForm";
 
 const garotonectaImg = 'https://paawojkqrggnuvpnnwrc.supabase.co/storage/v1/object/public/assets/branding/iagohero.png?t=' + Date.now();
 import logoconectaiosImg from '@/assets/logoconectaios.png';
@@ -30,6 +32,9 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [partnerships, setPartnerships] = useState<any[]>([]);
+  const [isSubscribeDialogOpen, setIsSubscribeDialogOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
+  const [isSubmittingSubscription, setIsSubmittingSubscription] = useState(false);
   
   // Refs for 3D animation
   const containerRef = useRef<HTMLDivElement>(null);
@@ -182,22 +187,34 @@ const Index = () => {
     setPartnerships(filteredPartnerships);
   };
 
-  const handleSubscribe = async (planId: string) => {
+  const handleSubscribe = (planId: string) => {
+    // Abrir modal para coletar dados ao invés de chamar API diretamente
+    setSelectedPlanId(planId);
+    setIsSubscribeDialogOpen(true);
+  };
+
+  const handleUserDataSubmit = async (userData: { 
+    name: string; 
+    email: string; 
+    phone: string; 
+    cpfCnpj: string; 
+  }) => {
+    setIsSubmittingSubscription(true);
+    
     try {
       toast({
         title: "🔄 Gerando link de pagamento...",
         description: "Aguarde um momento.",
       });
 
-      // Chamar Edge Function que cria customer/subscription no Asaas
+      // Chamar Edge Function com dados REAIS do usuário
       const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
         body: { 
-          plan_id: planId,
-          // Passar CPF de teste para sandbox (Asaas coleta dados reais depois)
-          name: 'Cliente Temporário',
-          email: 'temp@conectaios.com',
-          phone: '11999999999',
-          cpf_cnpj: '11144477735' // CPF de teste válido do Asaas para sandbox
+          plan_id: selectedPlanId,
+          name: userData.name,
+          email: userData.email,
+          phone: userData.phone.replace(/\D/g, ''), // Remove formatação
+          cpf_cnpj: userData.cpfCnpj.replace(/\D/g, '') // Remove formatação
         }
       });
 
@@ -207,6 +224,9 @@ const Index = () => {
       }
 
       if (data?.checkoutUrl) {
+        // Fechar modal
+        setIsSubscribeDialogOpen(false);
+        
         // Abrir checkout do Asaas em nova aba
         window.open(data.checkoutUrl, '_blank');
         
@@ -226,6 +246,8 @@ const Index = () => {
         description: error.message || "Tente novamente em alguns instantes.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmittingSubscription(false);
     }
   };
 
@@ -1448,6 +1470,19 @@ const Index = () => {
           </p>
         </div>
       </footer>
+
+      {/* Modal de coleta de dados do usuário */}
+      <Dialog open={isSubscribeDialogOpen} onOpenChange={setIsSubscribeDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Complete seu Cadastro</DialogTitle>
+          </DialogHeader>
+          <UserDataForm 
+            onSubmit={handleUserDataSubmit}
+            loading={isSubmittingSubscription}
+          />
+        </DialogContent>
+      </Dialog>
       </div>
     </PageWrapper>
   );
