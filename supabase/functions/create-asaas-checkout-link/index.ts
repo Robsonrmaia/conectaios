@@ -19,7 +19,9 @@ serve(async (req) => {
 
     const { plan_id, name, email, phone, cpf_cnpj } = await req.json();
 
+    const asaasEnv = Deno.env.get('ASAAS_ENV') || 'sandbox';
     console.log('📝 Creating Asaas checkout link for plan:', plan_id);
+    console.log('🔧 Sandbox mode:', asaasEnv, '- Auto-applying test CPF if needed');
 
     // Validação básica
     if (!plan_id) {
@@ -27,7 +29,6 @@ serve(async (req) => {
     }
 
     // Sanitizar e validar CPF/CNPJ
-    const asaasEnv = Deno.env.get('ASAAS_ENV') || 'sandbox';
     let cpfCnpjLimpo = cpf_cnpj?.replace(/\D/g, '') || '';
     
     // Se estiver em sandbox e CPF/CNPJ inválido, usar CPF de teste
