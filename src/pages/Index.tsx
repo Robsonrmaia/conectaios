@@ -30,7 +30,6 @@ const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [partnerships, setPartnerships] = useState<any[]>([]);
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   
   // Refs for 3D animation
   const containerRef = useRef<HTMLDivElement>(null);
@@ -183,55 +182,13 @@ const Index = () => {
     setPartnerships(filteredPartnerships);
   };
 
-  const handleSubscribe = async (planId: string) => {
-    if (loadingPlan) return;
+  const handleSubscribe = (planId: string) => {
+    toast({
+      title: "Redirecionando para checkout...",
+      description: "Preencha seus dados para finalizar a assinatura.",
+    });
     
-    setLoadingPlan(planId);
-    
-    try {
-      console.log('🚀 Iniciando assinatura para plano:', planId);
-      
-      const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
-        body: { 
-          plan_id: planId,
-          name: '',
-          email: '',
-          phone: '',
-          cpf_cnpj: ''
-        }
-      });
-      
-      console.log('📦 Resposta da Edge Function:', { data, error });
-      
-      if (error) {
-        console.error('❌ Erro da Edge Function:', error);
-        throw new Error(error.message || 'Erro ao processar assinatura');
-      }
-      
-      if (!data?.checkoutUrl) {
-        console.error('❌ Checkout URL não retornado:', data);
-        throw new Error('Não foi possível gerar link de pagamento');
-      }
-      
-      toast({
-        title: "Redirecionando para pagamento...",
-        description: "Você será redirecionado para finalizar sua assinatura.",
-      });
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      window.location.href = data.checkoutUrl;
-      
-    } catch (error: any) {
-      console.error('❌ Erro completo:', error);
-      toast({
-        title: "Erro ao processar assinatura",
-        description: error.message || "Tente novamente em instantes.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingPlan(null);
-    }
+    navigate(`/checkout?plan=${planId}`);
   };
 
   return (
@@ -1216,17 +1173,9 @@ const Index = () => {
                   </div>
                   <Button 
                     onClick={() => handleSubscribe('basic')}
-                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    {loadingPlan === 'basic' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      'Assinar Básico - R$ 49,00/mês'
-                    )}
+                    Assinar Básico - R$ 49,00/mês
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 98,00 (após 3 meses)
@@ -1281,17 +1230,9 @@ const Index = () => {
                   </div>
                   <Button 
                     onClick={() => handleSubscribe('pro')}
-                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    {loadingPlan === 'pro' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      'Assinar Profissional - R$ 79,00/mês'
-                    )}
+                    Assinar Profissional - R$ 79,00/mês
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 148,00 (após 3 meses)
@@ -1338,17 +1279,9 @@ const Index = () => {
                   </div>
                   <Button 
                     onClick={() => handleSubscribe('enterprise')}
-                    disabled={!!loadingPlan}
                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                   >
-                    {loadingPlan === 'enterprise' ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processando...
-                      </>
-                    ) : (
-                      'Assinar Premium - R$ 99,00/mês'
-                    )}
+                    Assinar Premium - R$ 99,00/mês
                   </Button>
                   <p className="text-xs text-muted-foreground text-center mt-2">
                     Valor normal: R$ 198,00 (após 3 meses)

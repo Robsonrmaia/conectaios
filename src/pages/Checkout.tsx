@@ -233,6 +233,16 @@ export default function Checkout() {
 
         <CheckoutStepper currentStep={1} />
 
+        {planId && (
+          <Alert className="mb-6 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <AlertDescription className="text-blue-900 dark:text-blue-100">
+              ✨ Plano <strong>{selectedPlan.name}</strong> pré-selecionado. 
+              Preencha os dados abaixo para continuar.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Alert className="mb-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 border-orange-200 dark:border-orange-800">
           <Info className="h-4 w-4 text-orange-600 dark:text-orange-400" />
           <AlertDescription className="text-orange-900 dark:text-orange-100">
