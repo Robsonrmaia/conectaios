@@ -184,11 +184,13 @@ const Index = () => {
   };
 
   const handleSubscribe = async (planId: string) => {
-    if (loadingPlan) return; // Prevenir múltiplos cliques
+    if (loadingPlan) return;
     
     setLoadingPlan(planId);
     
     try {
+      console.log('🚀 Iniciando assinatura para plano:', planId);
+      
       const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
         body: { 
           plan_id: planId,
@@ -198,26 +200,33 @@ const Index = () => {
           cpf_cnpj: ''
         }
       });
-
-      if (error) throw error;
-
-      if (data?.checkoutUrl) {
-        toast({
-          title: "Redirecionando para pagamento",
-          description: "Você será redirecionado para completar sua assinatura no Asaas.",
-        });
-        
-        setTimeout(() => {
-          window.location.href = data.checkoutUrl;
-        }, 1000);
-      } else {
-        throw new Error('URL de checkout não retornada');
+      
+      console.log('📦 Resposta da Edge Function:', { data, error });
+      
+      if (error) {
+        console.error('❌ Erro da Edge Function:', error);
+        throw new Error(error.message || 'Erro ao processar assinatura');
       }
+      
+      if (!data?.checkoutUrl) {
+        console.error('❌ Checkout URL não retornado:', data);
+        throw new Error('Não foi possível gerar link de pagamento');
+      }
+      
+      toast({
+        title: "Redirecionando para pagamento...",
+        description: "Você será redirecionado para finalizar sua assinatura.",
+      });
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      window.location.href = data.checkoutUrl;
+      
     } catch (error: any) {
-      console.error('Erro ao criar assinatura:', error);
+      console.error('❌ Erro completo:', error);
       toast({
         title: "Erro ao processar assinatura",
-        description: error.message || "Tente novamente mais tarde.",
+        description: error.message || "Tente novamente em instantes.",
         variant: "destructive",
       });
     } finally {
@@ -1171,7 +1180,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-                <CardHeader>
+                <CardHeader className="pt-8">
                   <CardTitle>Básico</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 49<span className="text-sm font-normal">/mês</span></div>
@@ -1238,7 +1247,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-                <CardHeader>
+                <CardHeader className="pt-8">
                   <CardTitle>Profissional</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 79<span className="text-sm font-normal">/mês</span></div>
@@ -1294,7 +1303,7 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
-                <CardHeader>
+                <CardHeader className="pt-8">
                   <CardTitle>Premium</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 99<span className="text-sm font-normal">/mês</span></div>
