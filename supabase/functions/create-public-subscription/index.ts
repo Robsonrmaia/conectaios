@@ -80,19 +80,17 @@ serve(async (req) => {
     const asaasCustomer = await customerResponse.json();
     console.log('✅ Asaas customer created:', asaasCustomer.id);
 
-    // Valores hardcoded dos planos
+    // Valores dos planos (preço cheio - desconto automático aplicado pelo Asaas)
     const PLAN_PRICES: Record<string, number> = {
-      basic: 97.00,
-      pro: 147.00,
-      enterprise: 197.00,
-      api: 297.00,
+      basic: 98.00,
+      pro: 148.00,
+      enterprise: 198.00,
     };
 
     const PLAN_NAMES: Record<string, string> = {
       basic: 'Básico',
       pro: 'Profissional',
       enterprise: 'Premium',
-      api: 'API Empresarial',
     };
 
     const planPrice = PLAN_PRICES[plan_id];
@@ -102,8 +100,8 @@ serve(async (req) => {
       throw new Error('Plano inválido');
     }
 
-    // Criar assinatura no Asaas
-    console.log('📋 Creating Asaas subscription...');
+    // Criar assinatura no Asaas com desconto de 50% nos 3 primeiros meses
+    console.log('📋 Creating Asaas subscription with 50% discount for 3 months...');
     const subscriptionResponse = await fetch(`${asaasUrl}/subscriptions`, {
       method: 'POST',
       headers: {
@@ -116,8 +114,14 @@ serve(async (req) => {
         value: planPrice,
         nextDueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
         cycle: 'MONTHLY',
-        description: `Assinatura ${planName} - ConectaIOS`,
+        description: `Assinatura ${planName} - ConectaIOS (Promoção 50% OFF nos 3 primeiros meses)`,
         externalReference,
+        discount: {
+          value: 50,
+          dueDateLimitDays: 0,
+          type: 'PERCENTAGE',
+          limitCycles: 3
+        }
       }),
     });
 

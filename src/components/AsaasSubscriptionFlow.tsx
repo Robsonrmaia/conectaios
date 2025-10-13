@@ -23,15 +23,15 @@ const PLANS: Plan[] = [
   {
     id: "basic",
     name: "Básico",
-    value: 97,
-    features: ["Até 50 imóveis", "Minisite personalizado", "CRM básico", "Suporte por email"],
+    value: 49, // Preço promocional (50% OFF)
+    features: ["10 imóveis", "Minisite personalizado", "CRM básico", "Suporte por email"],
   },
   {
     id: "pro",
     name: "Profissional",
-    value: 197,
+    value: 79, // Preço promocional (50% OFF)
     features: [
-      "Imóveis ilimitados",
+      "50 imóveis",
       "Minisite + domínio próprio",
       "CRM avançado + automações",
       "IA para descrições",
@@ -42,12 +42,12 @@ const PLANS: Plan[] = [
   },
   {
     id: "enterprise",
-    name: "Enterprise",
-    value: 397,
+    name: "Premium",
+    value: 99, // Preço promocional (50% OFF)
     features: [
-      "Tudo do Pro +",
+      "Imóveis ilimitados",
       "🌟 Publicação OLX (5 imóveis)",
-      "API dedicada",
+      "API completa",
       "Whitelabel completo",
       "Gerente de conta",
       "SLA garantido"
@@ -204,14 +204,20 @@ export function AsaasSubscriptionFlow() {
               onClick={() => setSelectedPlan(plan)}
             >
               {plan.highlighted && <Badge className="absolute -top-3 left-1/2 -translate-x-1/2">Mais Popular</Badge>}
+              <Badge variant="destructive" className="absolute -top-3 -right-3">
+                🔥 50% OFF
+              </Badge>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   {plan.name}
                   {selectedPlan?.id === plan.id && <Check className="h-5 w-5 text-primary" />}
                 </CardTitle>
                 <CardDescription>
-                  <span className="text-3xl font-bold text-foreground">R$ {plan.value}</span>
-                  <span className="text-muted-foreground">/mês</span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-foreground">R$ {plan.value}</span>
+                    <span className="text-lg line-through text-muted-foreground">R$ {plan.value * 2}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">/mês nos 3 primeiros meses</span>
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -248,7 +254,11 @@ export function AsaasSubscriptionFlow() {
         <CardHeader>
           <CardTitle>Confirme seus dados</CardTitle>
           <CardDescription>
-            Plano {selectedPlan?.name} - R$ {selectedPlan?.value}/mês
+            Plano {selectedPlan?.name} - R$ {selectedPlan?.value}/mês nos 3 primeiros meses
+            <br />
+            <span className="text-xs text-muted-foreground">
+              Após o 3º mês: R$ {(selectedPlan?.value || 0) * 2}/mês
+            </span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

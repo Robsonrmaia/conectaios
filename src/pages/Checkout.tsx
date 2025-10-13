@@ -9,14 +9,32 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Info, Mail, Lock } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import ConectaLogo from '@/components/ConectaLogo';
 import { CheckoutStepper } from '@/components/CheckoutStepper';
 
 const PLANS = [
-  { id: 'basic', name: 'Básico', price: 97.00, features: ['10 imóveis', 'Suporte básico'] },
-  { id: 'pro', name: 'Profissional', price: 147.00, features: ['50 imóveis', 'Suporte prioritário', 'Analytics'] },
-  { id: 'enterprise', name: 'Premium', price: 197.00, features: ['Imóveis ilimitados', 'Suporte 24/7', 'Integração via API'] },
-  { id: 'api', name: 'API Empresarial', price: 297.00, features: ['Acesso total à API REST', 'Webhooks personalizados', 'Imóveis ilimitados', 'Suporte prioritário 24/7', 'Documentação completa', 'Rate limit: 10.000 req/dia'] },
+  { 
+    id: 'basic', 
+    name: 'Básico', 
+    price: 98.00,
+    promoPrice: 49.00,
+    features: ['10 imóveis', 'Suporte básico', 'CRM básico', 'Minisite'] 
+  },
+  { 
+    id: 'pro', 
+    name: 'Profissional', 
+    price: 148.00,
+    promoPrice: 79.00,
+    features: ['50 imóveis', 'Suporte prioritário', 'Analytics', 'IA para descrições', 'CRM avançado'] 
+  },
+  { 
+    id: 'enterprise', 
+    name: 'Premium', 
+    price: 198.00,
+    promoPrice: 99.00,
+    features: ['Imóveis ilimitados', 'Suporte 24/7', 'API completa', 'Whitelabel', 'Gerente de conta'] 
+  },
 ];
 
 export default function Checkout() {
@@ -116,6 +134,19 @@ export default function Checkout() {
 
         <CheckoutStepper currentStep={1} />
 
+        <Alert className="mb-6 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-950 dark:to-red-950 border-orange-200 dark:border-orange-800">
+          <Info className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+          <AlertDescription className="text-orange-900 dark:text-orange-100">
+            <strong className="font-semibold">🔥 Promoção de Lançamento!</strong>
+            <br />
+            Nos primeiros <strong>3 meses</strong>, você paga apenas <strong>50% do valor</strong>.
+            <br />
+            <span className="text-sm text-orange-700 dark:text-orange-300">
+              Após o 3º mês, o valor volta ao normal (R$ {selectedPlan.price.toFixed(2)}/mês)
+            </span>
+          </AlertDescription>
+        </Alert>
+
         <Alert className="mb-6 bg-blue-50 border-blue-200">
           <Info className="h-4 w-4 text-blue-600" />
           <AlertDescription className="text-blue-800">
@@ -132,9 +163,19 @@ export default function Checkout() {
             <CardDescription>Resumo da assinatura</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="text-4xl font-bold text-primary">
-              R$ {selectedPlan.price.toFixed(2)}
-              <span className="text-sm text-muted-foreground">/mês</span>
+            <div className="space-y-2">
+              <div className="flex items-baseline gap-2">
+                <div className="text-4xl font-bold text-primary">
+                  R$ {selectedPlan.promoPrice.toFixed(2)}
+                </div>
+                <div className="text-2xl line-through text-muted-foreground">
+                  R$ {selectedPlan.price.toFixed(2)}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">/mês nos 3 primeiros meses</span>
+                <Badge variant="destructive" className="text-xs">50% OFF</Badge>
+              </div>
             </div>
             
             <div className="space-y-2">
@@ -158,7 +199,7 @@ export default function Checkout() {
                 <SelectContent>
                   {PLANS.map(plan => (
                     <SelectItem key={plan.id} value={plan.id}>
-                      {plan.name} - R$ {plan.price.toFixed(2)}/mês
+                      {plan.name} - R$ {plan.promoPrice.toFixed(2)}/mês (50% OFF por 3 meses)
                     </SelectItem>
                   ))}
                 </SelectContent>
