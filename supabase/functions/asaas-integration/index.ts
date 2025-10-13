@@ -1,3 +1,4 @@
+// Force redeploy: 2025-10-13 18:15 - Fixed ASAAS_ENV and ASAAS_API_KEY secrets
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
 
