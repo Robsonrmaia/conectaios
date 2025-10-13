@@ -193,11 +193,11 @@ const Index = () => {
       const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
         body: { 
           plan_id: planId,
-          // Passar dados vazios - a função usa temporários e Asaas coleta depois
-          name: '',
-          email: '',
-          phone: '',
-          cpf_cnpj: ''
+          // Passar CPF de teste para sandbox (Asaas coleta dados reais depois)
+          name: 'Cliente Temporário',
+          email: 'temp@conectaios.com',
+          phone: '11999999999',
+          cpf_cnpj: '11144477735' // CPF de teste válido do Asaas para sandbox
         }
       });
 
