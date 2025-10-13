@@ -549,7 +549,7 @@ const helpCategories: HelpCategory[] = [
     faqs: [
       {
         question: 'Quais planos estão disponíveis?',
-        answer: 'Temos 3 planos em promoção (50% OFF nos 3 primeiros meses): Básico (R$ 49 → R$ 98): Até 10 imóveis + CRM. Profissional (R$ 79 → R$ 148): Até 50 imóveis + Site + CRM Avançado. Premium (R$ 99 → R$ 198): Imóveis ilimitados + Orientação Jurídica + API.',
+        answer: 'Temos 3 planos em promoção (50% OFF nos 3 primeiros meses): Básico (R$ 49 → R$ 98): Até 20 imóveis, CRM completo, matches ilimitados, chat em tempo real, ferramentas básicas e minisite personalizado. Profissional (R$ 79 → R$ 148): Até 50 imóveis, tudo do Básico, ferramentas avançadas e 2 imóveis publicados no OLX. Premium (R$ 99 → R$ 198): Até 100 imóveis, tudo do Profissional e 5 imóveis no OLX com destaque no topo.',
         tags: ['planos', 'preços', 'funcionalidades', 'upgrade']
       },
       {

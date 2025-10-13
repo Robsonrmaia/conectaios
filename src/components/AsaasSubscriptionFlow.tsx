@@ -23,19 +23,25 @@ const PLANS: Plan[] = [
   {
     id: "basic",
     name: "Básico",
-    value: 49, // Preço promocional (50% OFF)
-    features: ["10 imóveis", "Minisite personalizado", "CRM básico", "Suporte por email"],
+    value: 49,
+    features: [
+      "Até 20 imóveis",
+      "CRM completo",
+      "Matches ilimitados",
+      "Chat em tempo real",
+      "Ferramentas básicas",
+      "Minisite personalizado",
+    ],
   },
   {
     id: "pro",
     name: "Profissional",
-    value: 79, // Preço promocional (50% OFF)
+    value: 79,
     features: [
-      "50 imóveis",
-      "Minisite + domínio próprio",
-      "CRM avançado + automações",
-      "IA para descrições",
-      "🌟 Publicação OLX (2 imóveis)",
+      "Até 50 imóveis",
+      "Tudo do plano Básico",
+      "Ferramentas avançadas",
+      "⚡ 2 imóveis publicados no OLX",
       "Suporte prioritário",
     ],
     highlighted: true,
@@ -43,14 +49,13 @@ const PLANS: Plan[] = [
   {
     id: "enterprise",
     name: "Premium",
-    value: 99, // Preço promocional (50% OFF)
+    value: 99,
     features: [
-      "Imóveis ilimitados",
-      "🌟 Publicação OLX (5 imóveis)",
+      "Até 100 imóveis",
+      "Tudo do plano Profissional",
+      "👑 5 imóveis no OLX (destaque no topo)",
       "API completa",
-      "Whitelabel completo",
-      "Gerente de conta",
-      "SLA garantido"
+      "Gerente de conta dedicado",
     ],
   },
 ];

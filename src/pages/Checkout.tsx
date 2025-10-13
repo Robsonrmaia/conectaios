@@ -19,21 +19,40 @@ const PLANS = [
     name: 'Básico', 
     price: 98.00,
     promoPrice: 49.00,
-    features: ['10 imóveis', 'Suporte básico', 'CRM básico', 'Minisite'] 
+    features: [
+      'Até 20 imóveis',
+      'CRM completo',
+      'Matches ilimitados',
+      'Chat em tempo real',
+      'Ferramentas básicas',
+      'Minisite personalizado'
+    ] 
   },
   { 
     id: 'pro', 
     name: 'Profissional', 
     price: 148.00,
     promoPrice: 79.00,
-    features: ['50 imóveis', 'Suporte prioritário', 'Analytics', 'IA para descrições', 'CRM avançado'] 
+    features: [
+      'Até 50 imóveis',
+      'Tudo do plano Básico',
+      'Ferramentas avançadas',
+      '⚡ 2 imóveis publicados no OLX',
+      'Suporte prioritário'
+    ] 
   },
   { 
     id: 'enterprise', 
     name: 'Premium', 
     price: 198.00,
     promoPrice: 99.00,
-    features: ['Imóveis ilimitados', 'Suporte 24/7', 'API completa', 'Whitelabel', 'Gerente de conta'] 
+    features: [
+      'Até 100 imóveis',
+      'Tudo do plano Profissional',
+      '👑 5 imóveis no OLX (destaque no topo)',
+      'API completa',
+      'Gerente de conta dedicado'
+    ] 
   },
 ];
 

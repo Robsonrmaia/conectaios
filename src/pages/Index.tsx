@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
-import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle, Home } from 'lucide-react';
+import { Building2, ArrowRight, Users, MessageSquare, TrendingUp, Shield, Heart, ExternalLink, FileImage, Wand2, Search, Star, Handshake, Globe, Camera, Sofa, MessageCircle, Home, Check, Sparkles, Zap, Crown } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { supabase } from '@/integrations/supabase/client';
 import PageWrapper from '@/components/PageWrapper';
@@ -1118,9 +1118,13 @@ const Index = () => {
               
               {/* Plano Básico */}
               <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    🔥 50% OFF por 3 meses
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                      <Sparkles className="h-3 w-3" />
+                      <span>50% OFF nos primeiros 3 meses</span>
+                    </div>
                   </div>
                 </div>
                 <CardHeader>
@@ -1129,45 +1133,57 @@ const Index = () => {
                     <div className="text-3xl font-bold">R$ 49<span className="text-sm font-normal">/mês</span></div>
                     <span className="text-sm text-muted-foreground line-through">R$ 98</span>
                   </div>
-                  <CardDescription>Até 10 imóveis</CardDescription>
+                  <CardDescription>Até 20 imóveis</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Até 10 imóveis</span>
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Até 20 imóveis</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <Check className="h-4 w-4 text-success" />
                     <span className="text-sm">CRM completo</span>
                   </div>
-                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-success" />
                     <span className="text-sm">Matches ilimitados</span>
                   </div>
-                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-success" />
                     <span className="text-sm">Chat em tempo real</span>
                   </div>
-                   <Button 
-                     onClick={() => navigate('/checkout?plan=basic')}
-                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
-                   >
-                     Assinar Básico - R$ 49,00/mês
-                   </Button>
-                   <p className="text-xs text-muted-foreground text-center mt-2">
-                     Valor normal: R$ 98,00 (após 3 meses)
-                   </p>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Ferramentas básicas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Minisite personalizado</span>
+                  </div>
+                  <Button 
+                    onClick={() => navigate('/checkout?plan=basic')}
+                    className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                  >
+                    Assinar Básico - R$ 49,00/mês
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Valor normal: R$ 98,00 (após 3 meses)
+                  </p>
                 </CardContent>
               </Card>
 
               {/* Plano Profissional */}
               <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex gap-2">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
                   <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
                     Mais Popular
                   </div>
-                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    🔥 50% OFF
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                      <Sparkles className="h-3 w-3" />
+                      <span>50% OFF</span>
+                    </div>
                   </div>
                 </div>
                 <CardHeader>
@@ -1176,42 +1192,46 @@ const Index = () => {
                     <div className="text-3xl font-bold">R$ 79<span className="text-sm font-normal">/mês</span></div>
                     <span className="text-sm text-muted-foreground line-through">R$ 148</span>
                   </div>
-                  <CardDescription>Até 50 imóveis + site</CardDescription>
+                  <CardDescription>Até 50 imóveis + OLX</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <Check className="h-4 w-4 text-success" />
                     <span className="text-sm">Até 50 imóveis</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Site personalizado</span>
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Tudo do plano Básico</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">CRM avançado</span>
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Ferramentas avançadas</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Contratos digitais</span>
+                    <Zap className="h-4 w-4 text-amber-500" />
+                    <span className="text-sm font-semibold">2 imóveis publicados no OLX</span>
                   </div>
-                   <Button 
-                     onClick={() => navigate('/checkout?plan=pro')}
-                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
-                   >
-                     Assinar Profissional - R$ 79,00/mês
-                   </Button>
-                   <p className="text-xs text-muted-foreground text-center mt-2">
-                     Valor normal: R$ 148,00 (após 3 meses)
-                   </p>
+                  <Button 
+                    onClick={() => navigate('/checkout?plan=pro')}
+                    className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                  >
+                    Assinar Profissional - R$ 79,00/mês
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Valor normal: R$ 148,00 (após 3 meses)
+                  </p>
                 </CardContent>
               </Card>
 
               {/* Plano Premium */}
               <Card className="relative animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    🔥 50% OFF por 3 meses
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
+                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
+                      <Sparkles className="h-3 w-3" />
+                      <span>50% OFF nos primeiros 3 meses</span>
+                    </div>
                   </div>
                 </div>
                 <CardHeader>
@@ -1220,34 +1240,34 @@ const Index = () => {
                     <div className="text-3xl font-bold">R$ 99<span className="text-sm font-normal">/mês</span></div>
                     <span className="text-sm text-muted-foreground line-through">R$ 198</span>
                   </div>
-                  <CardDescription>Orientação jurídica</CardDescription>
+                  <CardDescription>Até 100 imóveis + OLX Premium</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Imóveis ilimitados</span>
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Até 100 imóveis</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Orientação jurídica</span>
+                    <Check className="h-4 w-4 text-success" />
+                    <span className="text-sm">Tudo do plano Profissional</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
+                    <Crown className="h-4 w-4 text-amber-500" />
+                    <span className="text-sm font-semibold">5 imóveis no OLX (destaque no topo)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-success" />
                     <span className="text-sm">Suporte prioritário</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">API personalizada</span>
-                  </div>
-                   <Button 
-                     onClick={() => navigate('/checkout?plan=enterprise')}
-                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
-                   >
-                     Assinar Premium - R$ 99,00/mês
-                   </Button>
-                   <p className="text-xs text-muted-foreground text-center mt-2">
-                     Valor normal: R$ 198,00 (após 3 meses)
-                   </p>
+                  <Button 
+                    onClick={() => navigate('/checkout?plan=enterprise')}
+                    className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
+                  >
+                    Assinar Premium - R$ 99,00/mês
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">
+                    Valor normal: R$ 198,00 (após 3 meses)
+                  </p>
                 </CardContent>
               </Card>
             </div>
