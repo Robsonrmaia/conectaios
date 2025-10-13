@@ -549,7 +549,7 @@ const helpCategories: HelpCategory[] = [
     faqs: [
       {
         question: 'Quais planos estão disponíveis?',
-        answer: 'Básico (R$ 97): CRM + Imóveis. Pro (R$ 197): + IA + Minisite. Premium (R$ 297): + Social + Domínio. Enterprise (R$ 497): + White Label + API.',
+        answer: 'Temos 3 planos em promoção (50% OFF nos 3 primeiros meses): Básico (R$ 49 → R$ 98): Até 10 imóveis + CRM. Profissional (R$ 79 → R$ 148): Até 50 imóveis + Site + CRM Avançado. Premium (R$ 99 → R$ 198): Imóveis ilimitados + Orientação Jurídica + API.',
         tags: ['planos', 'preços', 'funcionalidades', 'upgrade']
       },
       {

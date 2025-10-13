@@ -1119,13 +1119,16 @@ const Index = () => {
               {/* Plano Básico */}
               <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
-                    Mais Popular
+                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    🔥 50% OFF por 3 meses
                   </div>
                 </div>
                 <CardHeader>
                   <CardTitle>Básico</CardTitle>
-                  <div className="text-3xl font-bold">R$ 97<span className="text-sm font-normal">/mês</span></div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-3xl font-bold">R$ 49<span className="text-sm font-normal">/mês</span></div>
+                    <span className="text-sm text-muted-foreground line-through">R$ 98</span>
+                  </div>
                   <CardDescription>Até 10 imóveis</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -1149,16 +1152,30 @@ const Index = () => {
                      onClick={() => navigate('/checkout?plan=basic')}
                      className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                    >
-                     Assinar Básico - R$ 97,00
+                     Assinar Básico - R$ 49,00/mês
                    </Button>
+                   <p className="text-xs text-muted-foreground text-center mt-2">
+                     Valor normal: R$ 98,00 (após 3 meses)
+                   </p>
                 </CardContent>
               </Card>
 
               {/* Plano Profissional */}
-              <Card className="relative animate-fade-in hover-scale">
+              <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    Mais Popular
+                  </div>
+                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    🔥 50% OFF
+                  </div>
+                </div>
                 <CardHeader>
                   <CardTitle>Profissional</CardTitle>
-                  <div className="text-3xl font-bold">R$ 147<span className="text-sm font-normal">/mês</span></div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-3xl font-bold">R$ 79<span className="text-sm font-normal">/mês</span></div>
+                    <span className="text-sm text-muted-foreground line-through">R$ 148</span>
+                  </div>
                   <CardDescription>Até 50 imóveis + site</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -1182,16 +1199,27 @@ const Index = () => {
                      onClick={() => navigate('/checkout?plan=pro')}
                      className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                    >
-                     Assinar Profissional - R$ 147,00
+                     Assinar Profissional - R$ 79,00/mês
                    </Button>
+                   <p className="text-xs text-muted-foreground text-center mt-2">
+                     Valor normal: R$ 148,00 (após 3 meses)
+                   </p>
                 </CardContent>
               </Card>
 
               {/* Plano Premium */}
               <Card className="relative animate-fade-in hover-scale">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <div className="bg-destructive text-white px-3 py-1 rounded-full text-xs font-semibold">
+                    🔥 50% OFF por 3 meses
+                  </div>
+                </div>
                 <CardHeader>
                   <CardTitle>Premium</CardTitle>
-                  <div className="text-3xl font-bold">R$ 197<span className="text-sm font-normal">/mês</span></div>
+                  <div className="flex items-center gap-2">
+                    <div className="text-3xl font-bold">R$ 99<span className="text-sm font-normal">/mês</span></div>
+                    <span className="text-sm text-muted-foreground line-through">R$ 198</span>
+                  </div>
                   <CardDescription>Orientação jurídica</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
@@ -1215,41 +1243,11 @@ const Index = () => {
                      onClick={() => navigate('/checkout?plan=enterprise')}
                      className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
                    >
-                     Assinar Premium - R$ 197,00
+                     Assinar Premium - R$ 99,00/mês
                    </Button>
-                </CardContent>
-              </Card>
-
-              {/* Plano API */}
-              <Card className="relative animate-fade-in hover-scale border-2 border-primary">
-                <CardHeader>
-                  <CardTitle>API Empresarial</CardTitle>
-                  <div className="text-3xl font-bold">R$ 297<span className="text-sm font-normal">/mês</span></div>
-                  <CardDescription>Acesso completo à API</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">API REST completa</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Webhooks personalizados</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">Imóveis ilimitados</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-success rounded-full"></div>
-                    <span className="text-sm">10.000 req/dia</span>
-                  </div>
-                   <Button 
-                     onClick={() => navigate('/checkout?plan=api')}
-                     className="bg-primary hover:bg-primary/90 text-white mt-4 w-full"
-                   >
-                     Assinar API - R$ 297,00
-                    </Button>
+                   <p className="text-xs text-muted-foreground text-center mt-2">
+                     Valor normal: R$ 198,00 (após 3 meses)
+                   </p>
                 </CardContent>
               </Card>
             </div>
