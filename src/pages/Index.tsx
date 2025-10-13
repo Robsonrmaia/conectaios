@@ -1170,17 +1170,18 @@ const Index = () => {
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               
               {/* Plano Básico */}
-              <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-                      <Sparkles className="h-3 w-3" />
-                      <span>50% OFF nos primeiros 3 meses</span>
-                    </div>
-                  </div>
+              <Card className="border-primary shadow-lg animate-fade-in hover-scale">
+                <div className="pt-4 pb-2 px-4 flex justify-center">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="pointer-events-none bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 shadow-lg"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                    50% OFF nos primeiros 3 meses
+                  </Button>
                 </div>
-                <CardHeader className="pt-8">
+                <CardHeader className="pt-2">
                   <CardTitle>Básico</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 49<span className="text-sm font-normal">/mês</span></div>
@@ -1234,20 +1235,26 @@ const Index = () => {
               </Card>
 
               {/* Plano Profissional */}
-              <Card className="relative border-primary shadow-lg animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
-                  <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-semibold">
+              <Card className="border-primary shadow-lg animate-fade-in hover-scale">
+                <div className="pt-4 pb-2 px-4 flex justify-center gap-2 flex-wrap">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="pointer-events-none bg-primary text-white hover:bg-primary/90"
+                  >
+                    <TrendingUp className="h-3.5 w-3.5 mr-1.5" />
                     Mais Popular
-                  </div>
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-                      <Sparkles className="h-3 w-3" />
-                      <span>50% OFF nos primeiros 3 meses</span>
-                    </div>
-                  </div>
+                  </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="pointer-events-none bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 shadow-lg"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                    50% OFF nos primeiros 3 meses
+                  </Button>
                 </div>
-                <CardHeader className="pt-8">
+                <CardHeader className="pt-2">
                   <CardTitle>Profissional</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 79<span className="text-sm font-normal">/mês</span></div>
@@ -1293,17 +1300,18 @@ const Index = () => {
               </Card>
 
               {/* Plano Premium */}
-              <Card className="relative animate-fade-in hover-scale">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full blur-md opacity-75 animate-pulse"></div>
-                    <div className="relative bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-lg flex items-center gap-1.5">
-                      <Sparkles className="h-3 w-3" />
-                      <span>50% OFF nos primeiros 3 meses</span>
-                    </div>
-                  </div>
+              <Card className="animate-fade-in hover-scale">
+                <div className="pt-4 pb-2 px-4 flex justify-center">
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="pointer-events-none bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 text-white hover:from-orange-600 hover:via-amber-600 hover:to-yellow-600 shadow-lg"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                    50% OFF nos primeiros 3 meses
+                  </Button>
                 </div>
-                <CardHeader className="pt-8">
+                <CardHeader className="pt-2">
                   <CardTitle>Premium</CardTitle>
                   <div className="flex items-center gap-2">
                     <div className="text-3xl font-bold">R$ 99<span className="text-sm font-normal">/mês</span></div>
