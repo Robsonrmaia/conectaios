@@ -182,13 +182,51 @@ const Index = () => {
     setPartnerships(filteredPartnerships);
   };
 
-  const handleSubscribe = (planId: string) => {
-    toast({
-      title: "Redirecionando para checkout...",
-      description: "Preencha seus dados para finalizar a assinatura.",
-    });
-    
-    navigate(`/checkout?plan=${planId}`);
+  const handleSubscribe = async (planId: string) => {
+    try {
+      toast({
+        title: "🔄 Gerando link de pagamento...",
+        description: "Aguarde um momento.",
+      });
+
+      // Chamar Edge Function que cria customer/subscription no Asaas
+      const { data, error } = await supabase.functions.invoke('create-asaas-checkout-link', {
+        body: { 
+          plan_id: planId,
+          // Passar dados vazios - a função usa temporários e Asaas coleta depois
+          name: '',
+          email: '',
+          phone: '',
+          cpf_cnpj: ''
+        }
+      });
+
+      if (error) {
+        console.error('Erro ao gerar checkout:', error);
+        throw error;
+      }
+
+      if (data?.checkoutUrl) {
+        // Abrir checkout do Asaas em nova aba
+        window.open(data.checkoutUrl, '_blank');
+        
+        toast({
+          title: "✅ Checkout aberto!",
+          description: "Complete o pagamento na nova aba para ativar sua conta.",
+          duration: 5000,
+        });
+      } else {
+        throw new Error('Checkout URL não recebida');
+      }
+
+    } catch (error: any) {
+      console.error('Erro completo:', error);
+      toast({
+        title: "❌ Erro ao abrir checkout",
+        description: error.message || "Tente novamente em alguns instantes.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

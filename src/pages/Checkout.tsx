@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -150,6 +150,15 @@ export default function Checkout() {
     phone: '',
     cpf_cnpj: '',
   });
+
+  // Redirecionar para homepage se acessar diretamente
+  useEffect(() => {
+    toast({
+      title: "⚠️ Checkout via Asaas",
+      description: "Use os botões de assinatura na página inicial.",
+    });
+    navigate('/');
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
