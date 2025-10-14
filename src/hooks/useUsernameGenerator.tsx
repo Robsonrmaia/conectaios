@@ -41,9 +41,17 @@ export const useUsernameGenerator = () => {
         .eq('username', username)
         .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-        console.error('Error checking username:', error);
-        return true; // Assume taken on error for safety
+      if (error) {
+        // Se a coluna não existe, assumir que username está disponível
+        if (error.code === '42703') { // Postgres: column does not exist
+          console.warn('⚠️ Column username not found. Skipping validation.');
+          return false;
+        }
+        
+        if (error.code !== 'PGRST116') { // PGRST116 = no rows returned
+          console.error('Error checking username:', error);
+          return true; // Assume taken on error for safety
+        }
       }
 
       return !!data;
