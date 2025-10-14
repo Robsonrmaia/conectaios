@@ -54,6 +54,7 @@ interface Property {
   user_id: string;
   owner_id: string; // ID do proprietário/corretor (equivalente a user_id)
   created_at: string;
+  type?: string; // Tipo de imóvel (house, apartment, land, etc)
   listing_type: string;
   property_type?: string;
   neighborhood?: string;
@@ -101,8 +102,9 @@ export default function Marketplace() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [tipoFilter, setTipoFilter] = useState('');
-  const [finalidadeFilter, setFinalidadeFilter] = useState('');
+  const [typeFilter, setTypeFilter] = useState(''); // Tipo de imóvel (casa, apartamento, etc)
+  const [categoriaFilter, setCategoriaFilter] = useState(''); // Categoria (residencial, comercial, etc)
+  const [finalidadeFilter, setFinalidadeFilter] = useState(''); // Finalidade (venda, locação)
   const [minValue, setMinValue] = useState('');
   const [maxValue, setMaxValue] = useState('');
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -123,7 +125,8 @@ export default function Marketplace() {
   
   // Pending filters (applied only when "Buscar" is clicked)
   const [pendingSearchTerm, setPendingSearchTerm] = useState('');
-  const [pendingTipoFilter, setPendingTipoFilter] = useState('');
+  const [pendingTypeFilter, setPendingTypeFilter] = useState('');
+  const [pendingCategoriaFilter, setPendingCategoriaFilter] = useState('');
   const [pendingFinalidadeFilter, setPendingFinalidadeFilter] = useState('');
   const [pendingMinValue, setPendingMinValue] = useState('');
   const [pendingMaxValue, setPendingMaxValue] = useState('');
@@ -182,7 +185,8 @@ export default function Marketplace() {
   // Apply pending filters
   const handleSearch = () => {
     setSearchTerm(pendingSearchTerm);
-    setTipoFilter(pendingTipoFilter);
+    setTypeFilter(pendingTypeFilter);
+    setCategoriaFilter(pendingCategoriaFilter);
     setFinalidadeFilter(pendingFinalidadeFilter);
     setMinValue(pendingMinValue);
     setMaxValue(pendingMaxValue);
@@ -227,6 +231,7 @@ export default function Marketplace() {
           .select(`
             id,
             title,
+            type,
             reference_code,
             price,
             city,
@@ -324,6 +329,7 @@ export default function Marketplace() {
           .select(`
             id,
             title,
+            type,
             reference_code,
             price,
             city,
@@ -435,6 +441,7 @@ export default function Marketplace() {
             created_at: property.created_at || new Date().toISOString(),
             user_id: property.owner_id,
             owner_id: property.owner_id,
+            type: property.type || 'apartment',
             listing_type: property.listing_type || 'venda',
             property_type: property.property_type || 'apartamento',
             banner_type: bannerType,
@@ -516,7 +523,8 @@ export default function Marketplace() {
       const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesTipo = !tipoFilter || tipoFilter === 'todos' || property.property_type === tipoFilter;
+      const matchesType = !typeFilter || typeFilter === 'todos' || property.type === typeFilter;
+      const matchesCategoria = !categoriaFilter || categoriaFilter === 'todos' || property.property_type === categoriaFilter;
       const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.listing_type === finalidadeFilter;
       const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
       const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
@@ -524,7 +532,7 @@ export default function Marketplace() {
       const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
       const matchesCity = property.city === selectedCity; // Filtro por cidade
 
-      return matchesSearch && matchesTipo && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
+      return matchesSearch && matchesType && matchesCategoria && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
     });
     
     // Se "Meus imóveis primeiro" ativado e usuário logado
@@ -535,7 +543,7 @@ export default function Marketplace() {
     }
     
     return filtered;
-  }, [properties, searchTerm, tipoFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
+  }, [properties, searchTerm, typeFilter, categoriaFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
 
   // Pagination logic com primeira página maior
   const totalItems = filteredProperties.length;
@@ -557,7 +565,7 @@ export default function Marketplace() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, tipoFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
+  }, [searchTerm, typeFilter, categoriaFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
 
   const handleContactBroker = useCallback((brokerName: string) => {
     toast({
@@ -865,85 +873,118 @@ export default function Marketplace() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 p-4 bg-card rounded-lg border"
+          className="p-4 bg-card rounded-lg border space-y-4"
         >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar imóveis..."
-              value={pendingSearchTerm}
-              onChange={(e) => setPendingSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-              className="pl-10"
-            />
+          {/* Linha 1: Busca + 3 filtros principais */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar imóveis..."
+                value={pendingSearchTerm}
+                onChange={(e) => setPendingSearchTerm(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                className="pl-10"
+              />
+            </div>
+            
+            {/* Tipo de Imóvel */}
+            <Select value={pendingTypeFilter} onValueChange={setPendingTypeFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tipo de Imóvel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="house">Casa</SelectItem>
+                <SelectItem value="apartment">Apartamento</SelectItem>
+                <SelectItem value="land">Terreno</SelectItem>
+                <SelectItem value="fazenda">Fazenda</SelectItem>
+                <SelectItem value="chacara">Chácara</SelectItem>
+                <SelectItem value="sitio">Sítio</SelectItem>
+                <SelectItem value="cobertura">Cobertura</SelectItem>
+                <SelectItem value="kitnet">Kitnet/Studio</SelectItem>
+                <SelectItem value="loft">Loft</SelectItem>
+                <SelectItem value="sobrado">Sobrado</SelectItem>
+                <SelectItem value="loja">Loja</SelectItem>
+                <SelectItem value="galpao">Galpão</SelectItem>
+                <SelectItem value="predio">Prédio Comercial</SelectItem>
+                <SelectItem value="sala">Sala Comercial</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Categoria */}
+            <Select value={pendingCategoriaFilter} onValueChange={setPendingCategoriaFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas</SelectItem>
+                <SelectItem value="residencial">Residencial</SelectItem>
+                <SelectItem value="comercial">Comercial</SelectItem>
+                <SelectItem value="temporada">Temporada</SelectItem>
+                <SelectItem value="rural">Rural</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Finalidade */}
+            <Select value={pendingFinalidadeFilter} onValueChange={setPendingFinalidadeFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Finalidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todas">Todas</SelectItem>
+                <SelectItem value="venda">Venda</SelectItem>
+                <SelectItem value="locacao">Locação</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
-          <Select value={pendingTipoFilter} onValueChange={setPendingTipoFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Tipo" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todos">Todos os tipos</SelectItem>
-              <SelectItem value="residencial">Residencial</SelectItem>
-              <SelectItem value="comercial">Comercial</SelectItem>
-              <SelectItem value="temporada">Temporada</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Linha 2: Valores + Bairro + Quartos + Botão */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+            <Input
+              placeholder="Valor mínimo"
+              type="number"
+              value={pendingMinValue}
+              onChange={(e) => setPendingMinValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
 
-          <Select value={pendingFinalidadeFilter} onValueChange={setPendingFinalidadeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Finalidade" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todas">Todas</SelectItem>
-              <SelectItem value="venda">Venda</SelectItem>
-              <SelectItem value="locacao">Locação</SelectItem>
-            </SelectContent>
-          </Select>
+            <Input
+              placeholder="Valor máximo"
+              type="number"
+              value={pendingMaxValue}
+              onChange={(e) => setPendingMaxValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
+            
+            <Input
+              placeholder="Buscar por bairro..."
+              value={pendingNeighborhoodFilter}
+              onChange={(e) => setPendingNeighborhoodFilter(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            />
 
-          <Input
-            placeholder="Valor mínimo"
-            type="number"
-            value={pendingMinValue}
-            onChange={(e) => setPendingMinValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-
-          <Input
-            placeholder="Valor máximo"
-            type="number"
-            value={pendingMaxValue}
-            onChange={(e) => setPendingMaxValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-          
-          <Input
-            placeholder="Buscar por bairro..."
-            value={pendingNeighborhoodFilter}
-            onChange={(e) => setPendingNeighborhoodFilter(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          />
-
-          <Select value={pendingBedroomsFilter} onValueChange={setPendingBedroomsFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Quartos" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">Todos</SelectItem>
-              <SelectItem value="1">1 quarto</SelectItem>
-              <SelectItem value="2">2 quartos</SelectItem>
-              <SelectItem value="3">3 quartos</SelectItem>
-              <SelectItem value="4">4+ quartos</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button 
-            onClick={handleSearch}
-            className="gap-2"
-          >
-            <Search className="h-4 w-4" />
-            Buscar
-          </Button>
+            <Select value={pendingBedroomsFilter} onValueChange={setPendingBedroomsFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="Quartos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="1">1 quarto</SelectItem>
+                <SelectItem value="2">2 quartos</SelectItem>
+                <SelectItem value="3">3 quartos</SelectItem>
+                <SelectItem value="4">4+ quartos</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Button 
+              onClick={handleSearch}
+              className="gap-2"
+            >
+              <Search className="h-4 w-4" />
+              Buscar
+            </Button>
+          </div>
         </motion.div>
         
         {/* Selection Toolbar */}
