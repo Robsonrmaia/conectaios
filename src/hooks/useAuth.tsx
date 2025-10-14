@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { CacheManager } from '@/utils/cacheManager';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -24,36 +25,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const checkAndFixCorruptedSession = async () => {
       try {
         const authData = localStorage.getItem('sb-paawojkqrggnuvpnnwrc-auth-token');
-        if (authData) {
+        const corruptedFlag = sessionStorage.getItem('corrupted-session-cleaned');
+        
+        if (authData && !corruptedFlag) {
           const parsed = JSON.parse(authData);
           const refreshToken = parsed?.refresh_token;
+          const accessToken = parsed?.access_token;
           
-          if (refreshToken && refreshToken.length < 100) {
-            console.warn('⚠️ Refresh token corrompido detectado (', refreshToken.length, 'chars)');
-            console.warn('🧹 Limpando sessão corrompida...');
+          // Detectar tokens corrompidos (muito curtos)
+          const isRefreshTokenCorrupted = refreshToken && refreshToken.length < 100;
+          const isAccessTokenCorrupted = accessToken && accessToken.length < 500;
+          
+          if (isRefreshTokenCorrupted || isAccessTokenCorrupted) {
+            console.warn('⚠️ Token corrompido detectado');
+            console.warn('Refresh token:', refreshToken?.length || 0, 'chars');
+            console.warn('Access token:', accessToken?.length || 0, 'chars');
+            
+            // Marcar que já limpamos para evitar loops
+            sessionStorage.setItem('corrupted-session-cleaned', 'true');
+            
+            // Limpar tudo
+            localStorage.removeItem('sb-paawojkqrggnuvpnnwrc-auth-token');
+            sessionStorage.clear();
             
             await supabase.auth.signOut();
-            localStorage.removeItem('sb-paawojkqrggnuvpnnwrc-auth-token');
             
-            console.log('✅ Sessão corrompida removida. Faça login novamente.');
+            // Notificar usuário
+            toast({
+              title: "⚠️ Sessão Corrompida Detectada",
+              description: "Sua sessão foi limpa automaticamente. Por favor, faça login novamente.",
+              variant: "destructive",
+              duration: 6000,
+            });
+            
+            console.log('✅ Sessão corrompida removida. Redirecionando para login...');
+            
+            // Aguardar um pouco antes de definir loading como false
+            setTimeout(() => {
+              setLoading(false);
+              window.location.href = '/auth';
+            }, 1000);
+            
+            return true; // Indica que houve correção
           }
         }
+        
+        return false; // Nenhuma correção necessária
       } catch (error) {
         console.error('Erro ao verificar sessão:', error);
+        return false;
       }
     };
     
-    checkAndFixCorruptedSession();
-    
-    // Check and clear stale cache
-    CacheManager.checkAndClearStaleCache();
-    
-    // Clear stale sessions
-    if (CacheManager.isStaleSession()) {
-      console.log('🧹 Clearing stale session');
-      supabase.auth.signOut();
-    }
-
+    // Executar verificação de forma assíncrona
+    checkAndFixCorruptedSession().then((wasCorrupted) => {
+      // Se detectou corrupção, não continuar com o fluxo normal
+      if (wasCorrupted) {
+        return;
+      }
+      
+      // Check and clear stale cache
+      CacheManager.checkAndClearStaleCache();
+      
+      // Clear stale sessions
+      if (CacheManager.isStaleSession()) {
+        console.log('🧹 Clearing stale session');
+        supabase.auth.signOut();
+      }
+    });
     // Add timeout to prevent infinite loading
     const loadingTimeout = setTimeout(() => {
       if (loading) {
