@@ -819,11 +819,19 @@ export type Database = {
       clients: {
         Row: {
           broker_id: string | null
+          cep: string | null
+          cidade: string | null
           created_at: string | null
           email: string | null
+          endereco: string | null
+          estado: string | null
+          estado_civil: string | null
           historico: Json | null
           id: string
+          indicacao: string | null
           nome: string
+          observacoes: string | null
+          profissao: string | null
           score: number | null
           stage: string | null
           telefone: string | null
@@ -834,11 +842,19 @@ export type Database = {
         }
         Insert: {
           broker_id?: string | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
           email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          estado_civil?: string | null
           historico?: Json | null
           id?: string
+          indicacao?: string | null
           nome: string
+          observacoes?: string | null
+          profissao?: string | null
           score?: number | null
           stage?: string | null
           telefone?: string | null
@@ -849,11 +865,19 @@ export type Database = {
         }
         Update: {
           broker_id?: string | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
           email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          estado_civil?: string | null
           historico?: Json | null
           id?: string
+          indicacao?: string | null
           nome?: string
+          observacoes?: string | null
+          profissao?: string | null
           score?: number | null
           stage?: string | null
           telefone?: string | null
@@ -4706,14 +4730,26 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           broker_id: string | null
+          cover_url: string | null
+          cpf_cnpj: string | null
+          created_at: string | null
           creci: string | null
           display_name: string | null
+          email: string | null
+          instagram: string | null
+          linkedin: string | null
           phone: string | null
+          plan_id: string | null
           referral_code: string | null
+          region_id: string | null
+          specialties: string | null
           status: string | null
+          subscription_expires_at: string | null
           subscription_status: string | null
+          updated_at: string | null
           user_id: string | null
           username: string | null
+          website: string | null
           whatsapp: string | null
         }
         Relationships: [
