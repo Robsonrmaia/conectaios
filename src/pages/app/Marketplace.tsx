@@ -101,6 +101,7 @@ export default function Marketplace() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tipoFilter, setTipoFilter] = useState('');
   const [finalidadeFilter, setFinalidadeFilter] = useState('');
   const [minValue, setMinValue] = useState('');
   const [maxValue, setMaxValue] = useState('');
@@ -122,6 +123,7 @@ export default function Marketplace() {
   
   // Pending filters (applied only when "Buscar" is clicked)
   const [pendingSearchTerm, setPendingSearchTerm] = useState('');
+  const [pendingTipoFilter, setPendingTipoFilter] = useState('');
   const [pendingFinalidadeFilter, setPendingFinalidadeFilter] = useState('');
   const [pendingMinValue, setPendingMinValue] = useState('');
   const [pendingMaxValue, setPendingMaxValue] = useState('');
@@ -180,6 +182,7 @@ export default function Marketplace() {
   // Apply pending filters
   const handleSearch = () => {
     setSearchTerm(pendingSearchTerm);
+    setTipoFilter(pendingTipoFilter);
     setFinalidadeFilter(pendingFinalidadeFilter);
     setMinValue(pendingMinValue);
     setMaxValue(pendingMaxValue);
@@ -513,14 +516,15 @@ export default function Marketplace() {
       const matchesSearch = property.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.descricao?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            property.neighborhood?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.finalidade === finalidadeFilter;
+      const matchesTipo = !tipoFilter || tipoFilter === 'todos' || property.property_type === tipoFilter;
+      const matchesFinalidade = !finalidadeFilter || finalidadeFilter === 'todas' || property.listing_type === finalidadeFilter;
       const matchesMinValue = !minValue || property.valor >= parseFloat(minValue);
       const matchesMaxValue = !maxValue || property.valor <= parseFloat(maxValue);
       const matchesNeighborhood = !neighborhoodFilter || property.neighborhood?.toLowerCase().includes(neighborhoodFilter.toLowerCase());
       const matchesBedrooms = !bedroomsFilter || bedroomsFilter === 'all' || property.quartos === parseInt(bedroomsFilter);
       const matchesCity = property.city === selectedCity; // Filtro por cidade
 
-      return matchesSearch && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
+      return matchesSearch && matchesTipo && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
     });
     
     // Se "Meus imóveis primeiro" ativado e usuário logado
@@ -531,7 +535,7 @@ export default function Marketplace() {
     }
     
     return filtered;
-  }, [properties, searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
+  }, [properties, searchTerm, tipoFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
 
   // Pagination logic com primeira página maior
   const totalItems = filteredProperties.length;
@@ -553,7 +557,7 @@ export default function Marketplace() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
+  }, [searchTerm, tipoFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter]);
 
   const handleContactBroker = useCallback((brokerName: string) => {
     toast({
@@ -861,7 +865,7 @@ export default function Marketplace() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 p-4 bg-card rounded-lg border"
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 p-4 bg-card rounded-lg border"
         >
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -874,15 +878,24 @@ export default function Marketplace() {
             />
           </div>
           
+          <Select value={pendingTipoFilter} onValueChange={setPendingTipoFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="todos">Todos os tipos</SelectItem>
+              <SelectItem value="residencial">Residencial</SelectItem>
+              <SelectItem value="comercial">Comercial</SelectItem>
+              <SelectItem value="temporada">Temporada</SelectItem>
+            </SelectContent>
+          </Select>
+
           <Select value={pendingFinalidadeFilter} onValueChange={setPendingFinalidadeFilter}>
             <SelectTrigger>
               <SelectValue placeholder="Finalidade" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="todas">Todas</SelectItem>
-              <SelectItem value="residencial">Residencial</SelectItem>
-              <SelectItem value="comercial">Comercial</SelectItem>
-              <SelectItem value="temporada">Temporada</SelectItem>
               <SelectItem value="venda">Venda</SelectItem>
               <SelectItem value="locacao">Locação</SelectItem>
             </SelectContent>
