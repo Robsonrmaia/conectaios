@@ -47,6 +47,13 @@ export type Database = {
             foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
             columns: ["broker_id"]
             isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "asaas_coupon_usage_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
@@ -152,6 +159,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "asaas_customers_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: true
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "asaas_customers_broker_id_fkey"
             columns: ["broker_id"]
@@ -783,6 +797,13 @@ export type Database = {
             foreignKeyName: "client_searches_broker_id_fkey"
             columns: ["broker_id"]
             isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "client_searches_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
@@ -1033,6 +1054,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_clients_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "broker_minisites"
             referencedColumns: ["id"]
           },
           {
@@ -1944,6 +1972,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "leads_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leads_broker_id_fkey"
             columns: ["broker_id"]
@@ -3036,6 +3071,13 @@ export type Database = {
             foreignKeyName: "property_submissions_broker_fk"
             columns: ["broker_id"]
             isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_submissions_broker_fk"
+            columns: ["broker_id"]
+            isOneToOne: false
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
@@ -3457,6 +3499,13 @@ export type Database = {
             foreignKeyName: "subscription_email_logs_broker_id_fkey"
             columns: ["broker_id"]
             isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_email_logs_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
@@ -3579,6 +3628,13 @@ export type Database = {
             foreignKeyName: "subscription_payments_broker_id_fkey"
             columns: ["broker_id"]
             isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_payments_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
             referencedRelation: "brokers"
             referencedColumns: ["id"]
           },
@@ -3641,6 +3697,13 @@ export type Database = {
           reason?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "subscription_status_history_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "broker_minisites"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscription_status_history_broker_id_fkey"
             columns: ["broker_id"]
@@ -3835,6 +3898,13 @@ export type Database = {
             columns: ["assignee_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_tickets_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "broker_minisites"
             referencedColumns: ["id"]
           },
           {
@@ -4062,6 +4132,75 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      broker_minisites: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string | null
+          creci: string | null
+          id: string | null
+          instagram: string | null
+          linkedin: string | null
+          name: string | null
+          specialties: string | null
+          status: string | null
+          user_id: string | null
+          username: string | null
+          website: string | null
+          whatsapp: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          creci?: string | null
+          id?: string | null
+          instagram?: string | null
+          linkedin?: string | null
+          name?: string | null
+          specialties?: string | null
+          status?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string | null
+          creci?: string | null
+          id?: string | null
+          instagram?: string | null
+          linkedin?: string | null
+          name?: string | null
+          specialties?: string | null
+          status?: string | null
+          user_id?: string | null
+          username?: string | null
+          website?: string | null
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brokers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       chat_participants_enriched: {
         Row: {
@@ -4983,6 +5122,10 @@ export type Database = {
       }
       is_admin: {
         Args: { check_user_id?: string }
+        Returns: boolean
+      }
+      is_following: {
+        Args: { p_follower_id: string; p_target_id: string }
         Returns: boolean
       }
       is_group_member: {
