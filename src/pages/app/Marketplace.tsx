@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, MessageCircle, Share2, Eye, Home, Target, Volume2, CheckSquare, Square } from 'lucide-react';
+import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Phone, Mail, ExternalLink, Heart, MessageSquare, MessageCircle, Share2, Eye, Home, Target, Volume2, CheckSquare, Square, LayoutGrid, List, Grid2X2 } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { PropertyBanner } from '@/components/PropertyBanner';
@@ -33,6 +33,8 @@ import { LazyDevelopmentCarousel } from '@/components/LazyDevelopmentCarousel';
 import { CITIES, DEFAULT_CITY, STORAGE_KEYS, getCityLabel } from '@/config/cities';
 import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
+import { PropertyListView } from '@/components/marketplace/PropertyListView';
+import { PropertyIconView } from '@/components/marketplace/PropertyIconView';
 
 interface Property {
   id: string;
@@ -129,7 +131,44 @@ export default function Marketplace() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(50); // Aumentado para primeira página
+  
+  // Selection states
+  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+  const [selectMode, setSelectMode] = useState(false);
+  
+  // View mode state (declared before getItemsPerPage)
+  const [viewMode, setViewMode] = useState<'cards' | 'list' | 'icons'>(() => {
+    const saved = localStorage.getItem('marketplace_view_mode');
+    return (saved as 'cards' | 'list' | 'icons') || 'cards';
+  });
+  
+  // Persist view mode preference
+  useEffect(() => {
+    localStorage.setItem('marketplace_view_mode', viewMode);
+  }, [viewMode]);
+  
+  // Dynamic items per page based on view mode
+  const getItemsPerPage = useCallback(() => {
+    if (currentPage === 1) {
+      // First page has more items
+      switch(viewMode) {
+        case 'cards': return 50;
+        case 'list': return 80;
+        case 'icons': return 120;
+        default: return 50;
+      }
+    } else {
+      // Subsequent pages
+      switch(viewMode) {
+        case 'cards': return 12;
+        case 'list': return 20;
+        case 'icons': return 40;
+        default: return 12;
+      }
+    }
+  }, [currentPage, viewMode]);
+  
+  const itemsPerPage = getItemsPerPage();
   const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
   
@@ -137,10 +176,6 @@ export default function Marketplace() {
   const [showStats, setShowStats] = useState(false);
   const [brokerStats, setBrokerStats] = useState<{[key: string]: number}>({});
   const [myPropertiesFirst, setMyPropertiesFirst] = useState(false);
-  
-  // Selection states
-  const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
-  const [selectMode, setSelectMode] = useState(false);
   
   // Apply pending filters
   const handleSearch = () => {
@@ -940,7 +975,7 @@ export default function Marketplace() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex items-center gap-4 p-4 bg-card rounded-lg border"
+          className="flex items-center justify-between gap-4 p-4 bg-card rounded-lg border"
         >
           {/* Selection Mode Toggle */}
           <Button
@@ -951,16 +986,48 @@ export default function Marketplace() {
             {selectMode ? <CheckSquare className="h-4 w-4" /> : <Square className="h-4 w-4" />}
             {selectMode ? 'Selecionando' : 'Selecionar'}
           </Button>
+          
+          {/* View Mode Toggle */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant={viewMode === 'cards' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('cards')}
+              className="flex items-center gap-2"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              <span className="hidden sm:inline">Cards</span>
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="flex items-center gap-2"
+            >
+              <List className="h-4 w-4" />
+              <span className="hidden sm:inline">Lista</span>
+            </Button>
+            <Button
+              variant={viewMode === 'icons' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('icons')}
+              className="flex items-center gap-2"
+            >
+              <Grid2X2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Ícones</span>
+            </Button>
+          </div>
         </motion.div>
 
-        {/* Properties Grid */}
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, staggerChildren: 0.1 }}
-        >
-          {paginatedProperties.map((property, index) => (
+        {/* Properties - Cards View */}
+        {viewMode === 'cards' && (
+          <motion.div 
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, staggerChildren: 0.1 }}
+          >
+            {paginatedProperties.map((property, index) => (
             <motion.div
               key={property.id}
               initial={{ opacity: 0, y: 20 }}
@@ -1213,9 +1280,64 @@ export default function Marketplace() {
                    </div>
                 </CardContent>
               </AnimatedCard>
-            </motion.div>
-          ))}
-        </motion.div>
+             </motion.div>
+            ))}
+          </motion.div>
+        )}
+        
+        {/* Properties - List View */}
+        {viewMode === 'list' && (
+          <motion.div 
+            className="space-y-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            {paginatedProperties.map((property, index) => (
+              <motion.div
+                key={property.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.05 }}
+              >
+                <PropertyListView 
+                  property={property}
+                  onViewDetails={(prop) => {
+                    setSelectedProperty(prop);
+                    setIsDetailDialogOpen(true);
+                  }}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+        
+        {/* Properties - Icons View */}
+        {viewMode === 'icons' && (
+          <motion.div 
+            className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+          >
+            {paginatedProperties.map((property, index) => (
+              <motion.div
+                key={property.id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.02 }}
+              >
+                <PropertyIconView 
+                  property={property}
+                  onViewDetails={(prop) => {
+                    setSelectedProperty(prop);
+                    setIsDetailDialogOpen(true);
+                  }}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
