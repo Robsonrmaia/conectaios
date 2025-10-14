@@ -280,7 +280,7 @@ export default function BrokerMinisite() {
       const { data: config, error: configErr } = await supabase
         .from("minisite_configs")
         .select("id, primary_color, secondary_color, show_contact_form, show_about, template_id")
-        .eq("broker_id", bq.data.id)
+        .eq("user_id", bq.data.user_id)
         .maybeSingle();
 
       if (configErr) pushErr("minisite_configs.query", configErr);

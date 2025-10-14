@@ -36,7 +36,7 @@ export const useUsernameGenerator = () => {
   const isUsernameTaken = async (username: string): Promise<boolean> => {
     try {
       const { data, error } = await supabase
-        .from('conectaios_brokers')
+        .from('brokers')
         .select('username')
         .eq('username', username)
         .maybeSingle();
