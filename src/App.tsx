@@ -16,6 +16,8 @@ import { LogOut, User } from "lucide-react";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import MaintenanceCheck from "@/components/MaintenanceCheck";
+import { ThemeProvider } from "next-themes";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
@@ -107,7 +109,10 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="h-14 flex items-center justify-between border-b bg-background px-4 shrink-0">
             <SidebarTrigger />
-            <UserInfo />
+            <div className="flex items-center gap-3">
+              <ThemeToggle />
+              <UserInfo />
+            </div>
           </header>
           <main className="flex-1 p-4 sm:p-6 overflow-auto">
             {children}
@@ -124,15 +129,16 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <AppErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <AuthProvider>
-          <BrokerProvider>
-            <MinisiteProvider>
-              <BrowserRouter>
-                <MaintenanceCheck>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <AuthProvider>
+            <BrokerProvider>
+              <MinisiteProvider>
+                <BrowserRouter>
+                  <MaintenanceCheck>
                   <Routes>
                    <Route path="/" element={<Index />} />
                    <Route path="/auth" element={<Auth />} />
@@ -184,13 +190,14 @@ const App = () => (
                   } />
                   <Route path="*" element={<NotFound />} />
                   </Routes>
-                </MaintenanceCheck>
-              </BrowserRouter>
-            </MinisiteProvider>
-          </BrokerProvider>
-        </AuthProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+                  </MaintenanceCheck>
+                </BrowserRouter>
+              </MinisiteProvider>
+            </BrokerProvider>
+          </AuthProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   </AppErrorBoundary>
 );
 
