@@ -1225,7 +1225,7 @@ const Index = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-success" />
-                    <span className="text-sm">Multi ferramentas</span>
+                    <span className="text-sm">Ferramentas básicas</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="h-4 w-4 text-success" />
