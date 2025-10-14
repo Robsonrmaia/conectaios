@@ -24,6 +24,36 @@ export function useChatExternal() {
   }, []);
 
   /**
+   * Verifica se usuário existe na view chat_users
+   */
+  const checkUserInChat = useCallback(async (userId: string): Promise<boolean> => {
+    console.log("🔍 Verificando se usuário existe em chat_users:", userId);
+    
+    const { data, error } = await supabase
+      .from('chat_users')
+      .select('id, name, email')
+      .eq('id', userId)
+      .maybeSingle();
+    
+    if (error) {
+      console.error("❌ Erro ao verificar chat_users:", error);
+      return false;
+    }
+    
+    if (!data) {
+      console.error("❌ Usuário não encontrado em chat_users");
+      console.error("📋 Isso pode significar que:");
+      console.error("  1. Usuário não tem registro em conectaios_brokers");
+      console.error("  2. O user_id não está vinculado corretamente");
+      console.error("  3. Usuário não tem role de admin");
+      return false;
+    }
+    
+    console.log("✅ Usuário encontrado em chat_users:", data.name || data.email);
+    return true;
+  }, []);
+
+  /**
    * Envia sessão via postMessage para o bridge
    */
   const sendSessionToChat = useCallback(async (
@@ -50,7 +80,17 @@ export function useChatExternal() {
       throw new Error("Token de refresh inválido");
     }
 
-    console.log("✅ Enviando sessão ao chat (tokens OK)");
+    // ✅ VERIFICAR SE USUÁRIO EXISTE EM CHAT_USERS
+    const userExists = await checkUserInChat(user.id);
+    if (!userExists) {
+      throw new Error(
+        "Usuário não autorizado para o chat. " +
+        "Certifique-se de que seu cadastro está completo em conectaios_brokers."
+      );
+    }
+
+    console.log("✅ Tokens validados, usuário autorizado");
+    console.log("🚀 Enviando CHAT_SET_SESSION para:", targetOrigin);
 
     // Enviar sessão via postMessage
     target.postMessage({
@@ -61,11 +101,13 @@ export function useChatExternal() {
         user: {
           id: user.id,
           email: user.email,
-          name: user.user_metadata?.full_name || user.email || "Usuário"
+          name: user.user_metadata?.name || user.user_metadata?.full_name || user.email || "Usuário"
         }
       }
     }, targetOrigin);
-  }, []);
+    
+    console.log("✅ CHAT_SET_SESSION enviado com sucesso");
+  }, [checkUserInChat]);
 
   /**
    * Abre chat em nova aba com handshake
