@@ -72,28 +72,47 @@ export function useChatExternal() {
    */
   const openChat = useCallback(async (property?: PropertyLite): Promise<void> => {
     try {
+      console.log("🔗 Abrindo chat em nova aba");
       const url = await getChatUrl(property);
+      console.log("🌐 URL do bridge:", url);
+      
       const popup = window.open(url, "_blank", "noopener,noreferrer");
       
       if (!popup) {
+        console.error("❌ Pop-up bloqueado pelo navegador");
         alert("Bloqueador de pop-ups ativado! Permita pop-ups para acessar o chat.");
         return;
       }
 
+      console.log("⏳ Aguardando handshake do Bridge...");
       let handshakeCompleted = false;
       const timeout = setTimeout(() => {
         if (!handshakeCompleted) {
-          console.error("⏱️ Timeout: Bridge não respondeu");
+          console.error("⏱️ Timeout: Bridge não respondeu em 15s");
+          console.error("🔍 Possíveis causas:");
+          console.error("  1. Bridge não está enviando CHAT_BRIDGE_READY");
+          console.error("  2. Middleware do chat está redirecionando /bridge");
+          console.error("  3. CORS/origem bloqueada");
           popup.close();
-          alert("Falha ao conectar com o chat. Tente novamente.");
+          alert("Falha ao conectar com o chat. Verifique o console para mais detalhes.");
         }
       }, HANDSHAKE_TIMEOUT);
 
       // Listener para handshake
       const onMessage = async (ev: MessageEvent) => {
-        if (ev.origin !== CHAT_ORIGIN) return;
-        if (ev.data?.type !== "CHAT_BRIDGE_READY") return;
+        console.log("📨 Mensagem recebida:", { origin: ev.origin, type: ev.data?.type });
+        
+        if (ev.origin !== CHAT_ORIGIN) {
+          console.warn("⚠️ Origem rejeitada:", ev.origin, "- Esperado:", CHAT_ORIGIN);
+          return;
+        }
+        
+        if (ev.data?.type !== "CHAT_BRIDGE_READY") {
+          console.log("📭 Mensagem ignorada (tipo diferente):", ev.data?.type);
+          return;
+        }
 
+        console.log("✅ CHAT_BRIDGE_READY recebido de:", ev.origin);
         handshakeCompleted = true;
         clearTimeout(timeout);
 
@@ -103,7 +122,7 @@ export function useChatExternal() {
         } catch (err) {
           console.error("❌ Erro ao enviar sessão:", err);
           popup.close();
-          alert("Erro ao autenticar no chat. Tente novamente.");
+          alert(`Erro ao autenticar no chat: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
         } finally {
           window.removeEventListener("message", onMessage);
         }
@@ -113,7 +132,7 @@ export function useChatExternal() {
 
     } catch (err) {
       console.error("❌ Erro ao abrir chat:", err);
-      alert("Erro ao abrir o chat. Tente novamente.");
+      alert(`Erro ao abrir o chat: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
     }
   }, [getChatUrl, sendSessionToChat]);
 
@@ -122,57 +141,82 @@ export function useChatExternal() {
    */
   const openChatModal = useCallback(async (property?: PropertyLite): Promise<void> => {
     try {
+      console.log("🔗 Abrindo chat modal");
       const url = await getChatUrl(property);
+      console.log("🌐 URL do bridge:", url);
+      
       setChatUrl(url);
       setModalOpen(true);
 
-      // Aguardar iframe carregar (600ms de buffer)
+      // Aguardar iframe carregar (1500ms para garantir que o Bridge carregue)
       setTimeout(() => {
         const iframe = document.querySelector<HTMLIFrameElement>(
           'iframe[title="ConectaChat - Sistema de Mensageria"]'
         );
         
         if (!iframe?.contentWindow) {
-          console.error("❌ Iframe não encontrado");
+          console.error("❌ Iframe não encontrado no DOM");
+          setModalOpen(false);
+          setChatUrl("");
+          alert("Erro ao carregar iframe do chat. Tente novamente.");
           return;
         }
+
+        console.log("✅ Iframe encontrado, aguardando handshake...");
 
         let handshakeCompleted = false;
         const timeout = setTimeout(() => {
           if (!handshakeCompleted) {
-            console.error("⏱️ Timeout: Bridge (iframe) não respondeu");
-            closeChatModal();
-            alert("Falha ao conectar com o chat. Tente novamente.");
+            console.error("⏱️ Timeout: Bridge (iframe) não respondeu em 15s");
+            console.error("🔍 Possíveis causas:");
+            console.error("  1. Bridge não está enviando CHAT_BRIDGE_READY");
+            console.error("  2. Middleware do chat está redirecionando /bridge");
+            console.error("  3. Iframe sandbox bloqueando scripts");
+            console.error("  4. CORS/origem bloqueada");
+            setModalOpen(false);
+            setChatUrl("");
+            alert("Falha ao conectar com o chat. Verifique o console para mais detalhes.");
           }
         }, HANDSHAKE_TIMEOUT);
 
         // Listener para handshake
         const onMessage = async (ev: MessageEvent) => {
-          if (ev.origin !== CHAT_ORIGIN) return;
-          if (ev.data?.type !== "CHAT_BRIDGE_READY") return;
+          console.log("📨 Mensagem recebida (iframe):", { origin: ev.origin, type: ev.data?.type });
+          
+          if (ev.origin !== CHAT_ORIGIN) {
+            console.warn("⚠️ Origem rejeitada:", ev.origin, "- Esperado:", CHAT_ORIGIN);
+            return;
+          }
+          
+          if (ev.data?.type !== "CHAT_BRIDGE_READY") {
+            console.log("📭 Mensagem ignorada (tipo diferente):", ev.data?.type);
+            return;
+          }
 
+          console.log("✅ CHAT_BRIDGE_READY recebido de:", ev.origin);
           handshakeCompleted = true;
           clearTimeout(timeout);
 
           try {
-            if (!iframe.contentWindow) throw new Error("Iframe perdido");
+            if (!iframe.contentWindow) throw new Error("Iframe perdido após handshake");
             await sendSessionToChat(iframe.contentWindow, CHAT_ORIGIN);
             console.log("✅ Sessão enviada ao chat (iframe)");
           } catch (err) {
             console.error("❌ Erro ao enviar sessão (iframe):", err);
-            closeChatModal();
-            alert("Erro ao autenticar no chat. Tente novamente.");
+            setModalOpen(false);
+            setChatUrl("");
+            alert(`Erro ao autenticar no chat: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
           } finally {
             window.removeEventListener("message", onMessage);
           }
         };
 
         window.addEventListener("message", onMessage);
-      }, 600);
+      }, 1500); // Aumentado de 600ms para 1500ms
 
     } catch (err) {
       console.error("❌ Erro ao abrir modal do chat:", err);
-      alert("Erro ao abrir o chat. Tente novamente.");
+      alert(`Erro ao abrir o chat: ${err instanceof Error ? err.message : 'Erro desconhecido'}`);
     }
   }, [getChatUrl, sendSessionToChat]);
 
