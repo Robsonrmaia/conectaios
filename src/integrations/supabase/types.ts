@@ -819,11 +819,19 @@ export type Database = {
       clients: {
         Row: {
           broker_id: string | null
+          cep: string | null
+          cidade: string | null
           created_at: string | null
           email: string | null
+          endereco: string | null
+          estado: string | null
+          estado_civil: string | null
           historico: Json | null
           id: string
+          indicacao: string | null
           nome: string
+          observacoes: string | null
+          profissao: string | null
           score: number | null
           stage: string | null
           telefone: string | null
@@ -834,11 +842,19 @@ export type Database = {
         }
         Insert: {
           broker_id?: string | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
           email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          estado_civil?: string | null
           historico?: Json | null
           id?: string
+          indicacao?: string | null
           nome: string
+          observacoes?: string | null
+          profissao?: string | null
           score?: number | null
           stage?: string | null
           telefone?: string | null
@@ -849,11 +865,19 @@ export type Database = {
         }
         Update: {
           broker_id?: string | null
+          cep?: string | null
+          cidade?: string | null
           created_at?: string | null
           email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          estado_civil?: string | null
           historico?: Json | null
           id?: string
+          indicacao?: string | null
           nome?: string
+          observacoes?: string | null
+          profissao?: string | null
           score?: number | null
           stage?: string | null
           telefone?: string | null
