@@ -103,7 +103,7 @@ const PLANS = [
       'CRM completo',
       'Matches ilimitados',
       'Chat em tempo real',
-      'Ferramentas básicas',
+      'Multi ferramentas',
       'Minisite personalizado'
     ] 
   },

@@ -97,7 +97,15 @@ export default function PipelineCRM() {
     email: '',
     data_nascimento: '',
     tipo: 'comprador',
-    valor: ''
+    valor: '',
+    endereco: '',
+    cidade: '',
+    estado: '',
+    cep: '',
+    indicacao: '',
+    profissao: '',
+    estado_civil: '',
+    observacoes: ''
   });
 
   const [historyFormData, setHistoryFormData] = useState({
@@ -251,7 +259,15 @@ export default function PipelineCRM() {
           tipo: clientFormData.tipo,
           valor: parseFloat(clientFormData.valor) || 0,
           stage: 'novo_lead',
-          score: 0
+          score: 0,
+          endereco: clientFormData.endereco || null,
+          cidade: clientFormData.cidade || null,
+          estado: clientFormData.estado || null,
+          cep: clientFormData.cep || null,
+          indicacao: clientFormData.indicacao || null,
+          profissao: clientFormData.profissao || null,
+          estado_civil: clientFormData.estado_civil || null,
+          observacoes: clientFormData.observacoes || null
         })
         .select()
         .single();
@@ -288,7 +304,22 @@ export default function PipelineCRM() {
       });
 
       setIsClientDialogOpen(false);
-      setClientFormData({ nome: '', telefone: '', email: '', data_nascimento: '', tipo: 'comprador', valor: '' });
+      setClientFormData({ 
+        nome: '', 
+        telefone: '', 
+        email: '', 
+        data_nascimento: '', 
+        tipo: 'comprador', 
+        valor: '',
+        endereco: '',
+        cidade: '',
+        estado: '',
+        cep: '',
+        indicacao: '',
+        profissao: '',
+        estado_civil: '',
+        observacoes: ''
+      });
       setHistoryFormData({ action: 'ligacao', description: '' });
       fetchData();
     } catch (error) {
@@ -312,7 +343,15 @@ export default function PipelineCRM() {
       data_nascimento: '',
       tipo: voiceData.tipo || voiceData.interesse || 'comprador',
       valor: voiceData.valor || voiceData.budget || voiceData.orcamento ? 
-        parseFloat(String(voiceData.valor || voiceData.budget || voiceData.orcamento).replace(/\D/g, '')) || 0 : 0
+        parseFloat(String(voiceData.valor || voiceData.budget || voiceData.orcamento).replace(/\D/g, '')) || 0 : 0,
+      endereco: '',
+      cidade: '',
+      estado: '',
+      cep: '',
+      indicacao: '',
+      profissao: '',
+      estado_civil: '',
+      observacoes: ''
     };
 
     // Pre-preencher o formulário e abrir o dialog
@@ -606,13 +645,21 @@ export default function PipelineCRM() {
                                 <div className="flex-1 min-w-0 overflow-hidden">
                                   <h4 className="font-medium text-sm truncate">{client.nome}</h4>
                                   <p className="text-xs text-muted-foreground truncate">{client.telefone}</p>
-                                  <Badge variant="outline" className="text-xs mt-1">
+                                   <Badge variant="outline" className="text-xs mt-1">
                                     {client.tipo}
                                   </Badge>
                                   {client.valor > 0 && (
-                                    <p className="text-xs text-green-600 font-medium mt-1 truncate">
-                                      R$ {client.valor.toLocaleString('pt-BR')}
-                                    </p>
+                                    <div className="flex items-center justify-between mt-1">
+                                      <p className="text-xs text-green-600 font-medium truncate">
+                                        R$ {client.valor.toLocaleString('pt-BR')}
+                                      </p>
+                                      {client.valor > 500000 && (
+                                        <Badge variant="destructive" className="text-xs ml-1">
+                                          <Star className="h-3 w-3 mr-1" />
+                                          VIP
+                                        </Badge>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -804,6 +851,68 @@ export default function PipelineCRM() {
                         </div>
                       )}
                     </div>
+                    
+                    {((selectedClient as any).endereco || (selectedClient as any).cidade || (selectedClient as any).profissao) && (
+                      <>
+                        <Separator className="my-4" />
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          {(selectedClient as any).endereco && (
+                            <div className="col-span-2">
+                              <label className="text-sm font-medium flex items-center gap-1">
+                                <MapPin className="h-4 w-4" />
+                                Endereço
+                              </label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).endereco}</p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).cidade && (
+                            <div>
+                              <label className="text-sm font-medium">Cidade</label>
+                              <p className="text-sm text-muted-foreground">
+                                {(selectedClient as any).cidade}{(selectedClient as any).estado ? ` - ${(selectedClient as any).estado}` : ''}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).cep && (
+                            <div>
+                              <label className="text-sm font-medium">CEP</label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).cep}</p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).profissao && (
+                            <div>
+                              <label className="text-sm font-medium">Profissão</label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).profissao}</p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).estado_civil && (
+                            <div>
+                              <label className="text-sm font-medium">Estado Civil</label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).estado_civil}</p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).indicacao && (
+                            <div className="col-span-2">
+                              <label className="text-sm font-medium">Indicação</label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).indicacao}</p>
+                            </div>
+                          )}
+                          
+                          {(selectedClient as any).observacoes && (
+                            <div className="col-span-2">
+                              <label className="text-sm font-medium">Observações</label>
+                              <p className="text-sm text-muted-foreground">{(selectedClient as any).observacoes}</p>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </ScrollArea>
                 </TabsContent>
 
@@ -958,6 +1067,129 @@ export default function PipelineCRM() {
                     value={clientFormData.valor}
                     onChange={(e) => setClientFormData(prev => ({ ...prev, valor: e.target.value }))}
                     placeholder="0"
+                  />
+                </div>
+              </div>
+              
+              <Separator className="my-4" />
+
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold">Informações Complementares (Opcional)</h4>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label htmlFor="endereco">Endereço</Label>
+                    <Input
+                      id="endereco"
+                      value={clientFormData.endereco}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, endereco: e.target.value }))}
+                      placeholder="Rua, número, bairro"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="cidade">Cidade</Label>
+                    <Input
+                      id="cidade"
+                      value={clientFormData.cidade}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, cidade: e.target.value }))}
+                      placeholder="São Paulo"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="estado">Estado</Label>
+                    <Select value={clientFormData.estado} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AC">Acre</SelectItem>
+                        <SelectItem value="AL">Alagoas</SelectItem>
+                        <SelectItem value="AP">Amapá</SelectItem>
+                        <SelectItem value="AM">Amazonas</SelectItem>
+                        <SelectItem value="BA">Bahia</SelectItem>
+                        <SelectItem value="CE">Ceará</SelectItem>
+                        <SelectItem value="DF">Distrito Federal</SelectItem>
+                        <SelectItem value="ES">Espírito Santo</SelectItem>
+                        <SelectItem value="GO">Goiás</SelectItem>
+                        <SelectItem value="MA">Maranhão</SelectItem>
+                        <SelectItem value="MT">Mato Grosso</SelectItem>
+                        <SelectItem value="MS">Mato Grosso do Sul</SelectItem>
+                        <SelectItem value="MG">Minas Gerais</SelectItem>
+                        <SelectItem value="PA">Pará</SelectItem>
+                        <SelectItem value="PB">Paraíba</SelectItem>
+                        <SelectItem value="PR">Paraná</SelectItem>
+                        <SelectItem value="PE">Pernambuco</SelectItem>
+                        <SelectItem value="PI">Piauí</SelectItem>
+                        <SelectItem value="RJ">Rio de Janeiro</SelectItem>
+                        <SelectItem value="RN">Rio Grande do Norte</SelectItem>
+                        <SelectItem value="RS">Rio Grande do Sul</SelectItem>
+                        <SelectItem value="RO">Rondônia</SelectItem>
+                        <SelectItem value="RR">Roraima</SelectItem>
+                        <SelectItem value="SC">Santa Catarina</SelectItem>
+                        <SelectItem value="SP">São Paulo</SelectItem>
+                        <SelectItem value="SE">Sergipe</SelectItem>
+                        <SelectItem value="TO">Tocantins</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="cep">CEP</Label>
+                    <Input
+                      id="cep"
+                      value={clientFormData.cep}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, cep: e.target.value }))}
+                      placeholder="00000-000"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="profissao">Profissão</Label>
+                    <Input
+                      id="profissao"
+                      value={clientFormData.profissao}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, profissao: e.target.value }))}
+                      placeholder="Ex: Empresário"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="estado_civil">Estado Civil</Label>
+                    <Select value={clientFormData.estado_civil} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado_civil: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solteiro">Solteiro(a)</SelectItem>
+                        <SelectItem value="casado">Casado(a)</SelectItem>
+                        <SelectItem value="divorciado">Divorciado(a)</SelectItem>
+                        <SelectItem value="viuvo">Viúvo(a)</SelectItem>
+                        <SelectItem value="uniao_estavel">União Estável</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="indicacao">Como nos conheceu?</Label>
+                    <Input
+                      id="indicacao"
+                      value={clientFormData.indicacao}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, indicacao: e.target.value }))}
+                      placeholder="Ex: Indicação de fulano"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label htmlFor="observacoes">Observações Gerais</Label>
+                  <Textarea
+                    id="observacoes"
+                    value={clientFormData.observacoes}
+                    onChange={(e) => setClientFormData(prev => ({ ...prev, observacoes: e.target.value }))}
+                    placeholder="Anotações importantes sobre o cliente..."
+                    rows={3}
                   />
                 </div>
               </div>
