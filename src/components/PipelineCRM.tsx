@@ -109,13 +109,13 @@ const STAGES = [
     color: 'text-emerald-700 dark:text-emerald-300',
     badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-100'
   },
-  { 
-    id: 'perdido', 
-    name: 'Perdido', 
+  {
+    id: 'perdido',
+    name: 'Perdido',
     icon: XCircle,
-    gradient: 'from-red-500/10 to-red-600/5',
-    color: 'text-red-700 dark:text-red-300',
-    badgeColor: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+    gradient: 'from-orange-500/10 to-orange-600/5',
+    color: 'text-orange-700 dark:text-orange-300',
+    badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100'
   }
 ];
 
@@ -545,7 +545,7 @@ export default function PipelineCRM() {
           </Button>
           <Button 
             onClick={() => setIsVoiceRecorderOpen(true)}
-            className="bg-red-500 hover:bg-red-600 text-white w-full sm:w-auto min-h-[44px] touch-target"
+            className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto min-h-[44px] touch-target"
           >
             <Mic className="h-4 w-4 mr-2" />
             Gravar Cliente
@@ -709,7 +709,7 @@ export default function PipelineCRM() {
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className={`flex items-center gap-1 text-muted-foreground ${avgDays > 14 ? 'text-red-500' : ''}`}>
+                            <span className={`flex items-center gap-1 text-muted-foreground ${avgDays > 14 ? 'text-orange-500' : ''}`}>
                               ⏱️ {avgDays}d
                             </span>
                           </TooltipTrigger>
@@ -764,8 +764,8 @@ export default function PipelineCRM() {
                                     {(() => {
                                       if (daysSinceUpdate <= 2) return (
                                         <div className="relative">
-                                          <div className="absolute inset-0 bg-red-500 rounded-full blur-lg animate-pulse" />
-                                          <Badge className="relative bg-red-500 text-white shadow-2xl backdrop-blur-sm border border-white/20">
+                                          <div className="absolute inset-0 bg-orange-500 rounded-full blur-lg animate-pulse" />
+                                          <Badge className="relative bg-orange-500 text-white shadow-2xl backdrop-blur-sm border border-white/20">
                                             <span className="animate-pulse">🔥</span>
                                           </Badge>
                                         </div>
@@ -1025,7 +1025,7 @@ export default function PipelineCRM() {
             {tasks.filter(task => task.status === 'pending').slice(0, 5).map((task) => {
               const isUrgent = task.due_date && new Date(task.due_date) < new Date(Date.now() + 24 * 60 * 60 * 1000);
               const isToday = task.due_date && new Date(task.due_date).toDateString() === new Date().toDateString();
-              const priorityColor = task.priority === 'high' ? 'border-red-500' : task.priority === 'medium' ? 'border-yellow-500' : 'border-green-500';
+              const priorityColor = task.priority === 'high' ? 'border-orange-500' : task.priority === 'medium' ? 'border-yellow-500' : 'border-green-500';
               const linkedClient = task.client_id ? clients.find(c => c.id === task.client_id) : null;
               
               return (
@@ -1060,7 +1060,7 @@ export default function PipelineCRM() {
                         {task.title}
                       </p>
                       {(isUrgent || isToday) && (
-                        <Badge variant="destructive" className="text-xs shrink-0 animate-pulse">
+                        <Badge className="bg-orange-500 text-white text-xs shrink-0 animate-pulse">
                           {isToday ? 'Hoje' : 'Urgente'}
                         </Badge>
                       )}
