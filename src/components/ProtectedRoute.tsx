@@ -9,10 +9,8 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, loading: authLoading } = useAuth();
-  const { loading: brokerLoading } = useBroker();
 
-  // Otimizado: só mostra loading se auth estiver carregando
-  // Broker loading não deve bloquear a navegação
+  // ✅ APENAS auth loading deve bloquear - broker loading não deve impedir navegação
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">

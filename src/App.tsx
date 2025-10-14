@@ -81,9 +81,12 @@ const UserInfo = () => {
         <div className="text-xs text-muted-foreground">{broker?.creci || 'Corretor'}</div>
       </div>
       <Avatar className="h-8 w-8">
-        <AvatarImage src={broker?.avatar_url} />
+        <AvatarImage 
+          src={broker?.avatar_url || undefined} 
+          alt={broker?.name || 'Avatar'}
+        />
         <AvatarFallback>
-          <User className="h-4 w-4" />
+          {broker?.name?.[0]?.toUpperCase() || <User className="h-4 w-4" />}
         </AvatarFallback>
       </Avatar>
       <Button variant="ghost" size="sm" onClick={signOut}>

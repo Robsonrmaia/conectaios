@@ -57,11 +57,12 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔄 [useBroker] useEffect disparado, user:', user?.id);
     if (user) {
       // Add timeout to prevent infinite loading
       const timeout = setTimeout(() => {
         if (loading) {
-          console.warn('⚠️ Broker profile loading timeout - proceeding without broker');
+          console.warn('⚠️ [useBroker] Timeout - proceeding without broker');
           setLoading(false);
         }
       }, 3000);
@@ -72,6 +73,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       return () => clearTimeout(timeout);
     } else {
+      console.log('⚠️ [useBroker] Sem user, resetando estado');
       setBroker(null);
       setPlan(null);
       setLoading(false);
@@ -79,11 +81,14 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const fetchBrokerProfile = async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('⚠️ [useBroker] Sem user, abortando');
+      return;
+    }
 
     try {
       setLoading(true);
-      console.log('🔄 Fetching broker profile for user:', user.id);
+      console.log('🔄 [useBroker] Iniciando busca de perfil para user:', user.id);
       
       // Use unified view for broker data
       const { data: brokerData, error: brokerError } = await supabase
@@ -91,6 +96,15 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
+
+      console.log('📊 [useBroker] Resultado view:', { 
+        found: !!brokerData, 
+        error: brokerError?.message,
+        avatar_url: brokerData?.avatar_url,
+        plan_id: brokerData?.plan_id,
+        email: brokerData?.email,
+        name: brokerData?.display_name
+      });
 
       if (brokerError) {
         console.error('❌ Error fetching broker profile:', brokerError);
@@ -148,15 +162,16 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
           console.log('ℹ️ No plan_id found, skipping plan fetch');
         }
       } else {
-        console.log('ℹ️ No broker profile found for user');
+        console.log('ℹ️ [useBroker] No broker profile found for user');
         setBroker(null);
       }
     } catch (error) {
-      console.error('❌ Error in fetchBrokerProfile:', error);
+      console.error('❌ [useBroker] Erro em fetchBrokerProfile:', error);
       // Set broker to null on error to prevent infinite loading
       setBroker(null);
       setPlan(null);
     } finally {
+      console.log('✅ [useBroker] finally block - setando loading = false');
       setLoading(false);
     }
   };
