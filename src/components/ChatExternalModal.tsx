@@ -23,7 +23,7 @@ export function ChatExternalModal({ isOpen, onClose, chatUrl }: ChatExternalModa
             src={chatUrl}
             className="w-full h-full border-0 rounded-lg"
             title="ConectaChat - Sistema de Mensageria"
-            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals"
+            sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-modals allow-top-navigation"
             style={{ 
               border: 'none',
               outline: 'none',

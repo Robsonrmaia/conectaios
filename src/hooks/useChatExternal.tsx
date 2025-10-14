@@ -173,6 +173,8 @@ export function useChatExternal() {
             console.error("  2. Middleware do chat está redirecionando /bridge");
             console.error("  3. Iframe sandbox bloqueando scripts");
             console.error("  4. CORS/origem bloqueada");
+            console.error("📋 URL do iframe:", url);
+            console.error("📋 Origem esperada:", CHAT_ORIGIN);
             setModalOpen(false);
             setChatUrl("");
             alert("Falha ao conectar com o chat. Verifique o console para mais detalhes.");
