@@ -25,7 +25,7 @@ export interface ChatUrlOptions {
  * @returns URL do bridge com params de contexto
  */
 export function buildChatUrl(opts?: ChatUrlOptions): string {
-  const base = (opts?.baseUrl || "https://chat.conectaios.com.br/bridge").replace(/\/+$/, "");
+  const base = (opts?.baseUrl || "https://preview--chatconectaios.lovable.app/bridge").replace(/\/+$/, "");
   const params = new URLSearchParams();
 
   if (opts?.originBaseUrl) {

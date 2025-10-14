@@ -6,7 +6,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { buildChatUrl, PropertyLite } from "@/lib/chatExternal";
 
-const CHAT_ORIGIN = "https://chat.conectaios.com.br";
+const CHAT_ORIGIN = "https://preview--chatconectaios.lovable.app";
 const HANDSHAKE_TIMEOUT = 15000; // 15s
 
 export function useChatExternal() {
