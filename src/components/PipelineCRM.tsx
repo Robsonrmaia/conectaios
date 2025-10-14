@@ -10,7 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic, Building, Map as MapIcon, Briefcase, Heart, Users } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic, Building, Map as MapIcon, Briefcase, Heart, Users, Send } from 'lucide-react';
 import { GlobalClientSearch } from './GlobalClientSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -647,43 +649,78 @@ export default function PipelineCRM() {
       </div>
 
       {/* Pipeline Drag & Drop */}
+      <TooltipProvider>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="overflow-x-auto">
-          <div className="flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
-          {STAGES.map((stage) => (
-            <Droppable key={stage.id} droppableId={stage.id}>
-              {(provided, snapshot) => (
-                <Card className={`
-                  min-w-[220px] md:min-w-0 w-[220px] md:w-full h-fit flex-shrink-0
-                  bg-gradient-to-br ${stage.gradient} border-2
-                  ${snapshot.isDraggingOver ? 'border-primary shadow-lg scale-[1.02]' : 'border-transparent'}
-                  transition-all duration-300
-                `}>
-                  <CardHeader className="pb-3 border-b">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stage.gradient}`}>
-                          <stage.icon className={`h-4 w-4 ${stage.color}`} />
+          <div className="flex gap-4 overflow-x-auto pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 md:gap-4 min-w-max md:min-w-0">
+          {STAGES.map((stage) => {
+            const stageClients = clients.filter(c => c.stage === stage.id);
+            const totalValue = stageClients.reduce((acc, c) => acc + c.valor, 0);
+            const avgDays = stageClients.length > 0 
+              ? Math.round(stageClients.reduce((acc, c) => {
+                  const days = Math.floor((Date.now() - new Date(c.created_at).getTime()) / (1000 * 60 * 60 * 24));
+                  return acc + days;
+                }, 0) / stageClients.length)
+              : 0;
+            
+            return (
+              <Droppable key={stage.id} droppableId={stage.id}>
+                {(provided, snapshot) => (
+                  <Card className={`
+                    min-w-[280px] md:min-w-0 w-[280px] md:w-full h-fit flex-shrink-0
+                    bg-gradient-to-br ${stage.gradient} border-2
+                    ${snapshot.isDraggingOver ? 'border-primary shadow-lg scale-[1.02]' : 'border-transparent'}
+                    transition-all duration-300
+                  `}>
+                    <CardHeader className="pb-3 border-b">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stage.gradient}`}>
+                            <stage.icon className={`h-4 w-4 ${stage.color}`} />
+                          </div>
+                          <CardTitle className={`text-sm font-bold ${stage.color}`}>
+                            {stage.name}
+                          </CardTitle>
                         </div>
-                        <CardTitle className={`text-sm font-bold ${stage.color}`}>
-                          {stage.name}
-                        </CardTitle>
+                        <Badge className={`${stage.badgeColor} font-semibold transition-transform hover:scale-110`}>
+                          {stageClients.length}
+                        </Badge>
                       </div>
-                      <Badge className={`${stage.badgeColor} font-semibold transition-transform hover:scale-110`}>
-                        {clients.filter(c => c.stage === stage.id).length}
-                      </Badge>
-                    </div>
-                    <div className="h-1 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full bg-gradient-to-r ${stage.gradient} transition-all duration-500`}
-                        style={{ 
-                          width: `${Math.min(100, (clients.filter(c => c.stage === stage.id).reduce((acc, c) => acc + c.valor, 0) / 1000000) * 100)}%` 
-                        }}
-                      />
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2" {...provided.droppableProps} ref={provided.innerRef}>
-                    {clients.filter(client => client.stage === stage.id).length === 0 && (
+                      {/* Progress Bar */}
+                      <div className="h-1 bg-muted rounded-full overflow-hidden mb-2">
+                        <div 
+                          className={`h-full bg-gradient-to-r ${stage.gradient} transition-all duration-500`}
+                          style={{ 
+                            width: `${Math.min(100, (totalValue / 1000000) * 100)}%` 
+                          }}
+                        />
+                      </div>
+                      {/* KPIs */}
+                      <div className="flex items-center justify-between text-xs">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`flex items-center gap-1 font-semibold ${stage.color}`}>
+                              💰 {totalValue > 0 ? `R$ ${(totalValue / 1000).toFixed(0)}k` : 'R$ 0'}
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Valor total: R$ {totalValue.toLocaleString('pt-BR')}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className={`flex items-center gap-1 text-muted-foreground ${avgDays > 14 ? 'text-red-500' : ''}`}>
+                              ⏱️ {avgDays}d
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Tempo médio no stage: {avgDays} dias</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </CardHeader>
+                  <CardContent className="space-y-3 pt-4" {...provided.droppableProps} ref={provided.innerRef}>
+                    {stageClients.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-8 text-center space-y-2">
                         <div className={`p-3 rounded-full bg-gradient-to-br ${stage.gradient}`}>
                           <stage.icon className={`h-6 w-6 ${stage.color} opacity-50`} />
@@ -696,9 +733,10 @@ export default function PipelineCRM() {
                         </p>
                       </div>
                     )}
-                    {clients
-                      .filter(client => client.stage === stage.id)
-                      .map((client, index) => (
+                    {stageClients.map((client, index) => {
+                      const daysSinceUpdate = Math.floor((Date.now() - new Date(client.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+                      
+                      return (
                         <Draggable key={client.id} draggableId={client.id} index={index}>
                           {(provided, snapshot) => (
                             <div
@@ -706,144 +744,277 @@ export default function PipelineCRM() {
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
                               className={`
-                                group relative p-4 bg-card border-2 rounded-xl cursor-grab
-                                hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 hover:border-primary/50
+                                group relative p-4 rounded-2xl cursor-grab overflow-hidden
+                                backdrop-blur-xl bg-gradient-to-br from-card/95 via-card/90 to-card/85
+                                border border-border/50
+                                shadow-[0_8px_32px_0_rgba(0,0,0,0.08)]
+                                hover:shadow-[0_16px_48px_0_rgba(0,0,0,0.12)]
+                                hover:scale-[1.02] hover:-translate-y-2
                                 active:cursor-grabbing active:scale-[0.98]
-                                transition-all duration-300 ease-out
-                                ${snapshot.isDragging ? 'shadow-2xl scale-105 rotate-2 border-primary' : 'border-border'}
+                                transition-all duration-500 ease-out
+                                before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/5 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:pointer-events-none
+                                ${snapshot.isDragging ? 'shadow-2xl scale-105 rotate-2 border-primary ring-2 ring-primary/50' : ''}
                               `}
                               onClick={() => setSelectedClient(client)}
                             >
-                              {/* Badge de temperatura no canto */}
-                              <div className="absolute -top-2 -right-2 z-10">
-                                {(() => {
-                                  const daysSinceUpdate = Math.floor((Date.now() - new Date(client.updated_at).getTime()) / (1000 * 60 * 60 * 24));
-                                  if (daysSinceUpdate <= 2) return (
-                                    <div className="relative">
-                                      <div className="absolute inset-0 bg-red-500 rounded-full blur-md animate-pulse" />
-                                      <Badge className="relative bg-red-500 text-white shadow-lg">
-                                        <span className="animate-pulse">🔥</span>
-                                      </Badge>
-                                    </div>
-                                  );
-                                  if (daysSinceUpdate <= 7) return (
-                                    <Badge className="bg-orange-500 text-white shadow-md">
-                                      ☀️
-                                    </Badge>
-                                  );
-                                  return (
-                                    <Badge className="bg-blue-400 text-white shadow-sm">
-                                      ❄️
-                                    </Badge>
-                                  );
-                                })()}
+                              {/* Badge de temperatura no canto com backdrop blur */}
+                              <div className="absolute -top-2 -right-2 z-20">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    {(() => {
+                                      if (daysSinceUpdate <= 2) return (
+                                        <div className="relative">
+                                          <div className="absolute inset-0 bg-red-500 rounded-full blur-lg animate-pulse" />
+                                          <Badge className="relative bg-red-500 text-white shadow-2xl backdrop-blur-sm border border-white/20">
+                                            <span className="animate-pulse">🔥</span>
+                                          </Badge>
+                                        </div>
+                                      );
+                                      if (daysSinceUpdate <= 7) return (
+                                        <Badge className="bg-orange-500 text-white shadow-xl backdrop-blur-sm border border-white/20">
+                                          ☀️
+                                        </Badge>
+                                      );
+                                      return (
+                                        <Badge className="bg-blue-400 text-white shadow-lg backdrop-blur-sm border border-white/20">
+                                          ❄️
+                                        </Badge>
+                                      );
+                                    })()}
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      {daysSinceUpdate === 0 ? 'Atualizado hoje' :
+                                       daysSinceUpdate === 1 ? 'Atualizado ontem' :
+                                       `Atualizado há ${daysSinceUpdate} dias`}
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
                               </div>
 
-                              {/* VIP Badge no topo esquerdo */}
+                              {/* VIP Badge no topo esquerdo com shadow glow */}
                               {client.valor > 500000 && (
-                                <div className="absolute -top-2 -left-2 z-10">
-                                  <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold shadow-lg animate-pulse">
-                                    <Star className="h-3 w-3 mr-1 fill-white" />
-                                    VIP
-                                  </Badge>
+                                <div className="absolute -top-2 -left-2 z-20">
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="relative">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full blur-xl opacity-75" />
+                                        <Badge className="relative bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold shadow-2xl backdrop-blur-sm border border-yellow-200/30 animate-pulse">
+                                          <Star className="h-3 w-3 mr-1 fill-white" />
+                                          VIP
+                                        </Badge>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Cliente Premium - Valor acima de R$ 500k</p>
+                                    </TooltipContent>
+                                  </Tooltip>
                                 </div>
                               )}
 
-                              {/* Conteúdo Principal */}
-                              <div className="flex items-start gap-3">
-                                <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-md transition-transform group-hover:scale-110">
-                                  <AvatarImage src={client.photo || undefined} />
-                                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
-                                    <User className="h-5 w-5 text-primary" />
-                                  </AvatarFallback>
-                                </Avatar>
-                                
-                                <div className="flex-1 min-w-0 space-y-2">
-                                  {/* Nome e Score */}
-                                  <div className="flex items-start justify-between gap-2">
-                                    <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors">
-                                      {client.nome}
-                                    </h4>
-                                    {client.score > 0 && (
-                                      <Badge variant="outline" className="text-xs font-semibold shrink-0">
-                                        {client.score}/100
-                                      </Badge>
-                                    )}
-                                  </div>
+                              {/* Conteúdo Principal - 4 Camadas */}
+                              <div className="space-y-3">
+                                {/* Camada 1: Identificação */}
+                                <div className="flex items-start gap-3">
+                                  <Avatar className="h-11 w-11 border-2 border-primary/20 shadow-lg transition-transform group-hover:scale-110 ring-2 ring-background">
+                                    <AvatarImage src={client.photo || undefined} />
+                                    <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
+                                      {client.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
                                   
-                                  {/* Telefone com ícone */}
-                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Phone className="h-3 w-3 shrink-0" />
-                                    <span className="truncate">{client.telefone}</span>
-                                  </div>
-                                  
-                                  {/* Tipo e Email */}
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <Badge variant="secondary" className="text-xs">
-                                      {client.tipo === 'comprador' && '🏠 Comprador'}
-                                      {client.tipo === 'vendedor' && '💰 Vendedor'}
-                                      {client.tipo === 'locatario' && '🔑 Locatário'}
-                                      {client.tipo === 'investidor' && '📈 Investidor'}
-                                    </Badge>
-                                    {client.email && (
-                                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                        <Mail className="h-3 w-3" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  
-                                  {/* Valor de Interesse */}
-                                  {client.valor > 0 && (
-                                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                                      <div className="flex items-center gap-1.5">
-                                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                                          R$ {client.valor.toLocaleString('pt-BR')}
-                                        </span>
-                                      </div>
-                                      {client.data_nascimento && (
-                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                          <Cake className="h-3 w-3" />
-                                          {new Date(client.data_nascimento).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                                        </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors cursor-default">
+                                            {client.nome}
+                                          </h4>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                          <p className="font-semibold">{client.nome}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                      {client.score > 0 && (
+                                        <Tooltip>
+                                          <TooltipTrigger asChild>
+                                            <Badge variant="outline" className="text-xs font-bold shrink-0 border-primary/30">
+                                              {client.score}
+                                            </Badge>
+                                          </TooltipTrigger>
+                                          <TooltipContent>
+                                            <p>Score de qualificação: {client.score}/100</p>
+                                          </TooltipContent>
+                                        </Tooltip>
                                       )}
                                     </div>
+                                    
+                                    {/* Telefone */}
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-default">
+                                          <Phone className="h-3 w-3 shrink-0" />
+                                          <span className="truncate">{client.telefone}</span>
+                                        </div>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>{client.telefone}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                </div>
+                                
+                                {/* Camada 2: Metadata */}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <Badge variant="secondary" className="text-xs font-medium">
+                                    {client.tipo === 'comprador' && '🏠 Comprador'}
+                                    {client.tipo === 'vendedor' && '💰 Vendedor'}
+                                    {client.tipo === 'locatario' && '🔑 Locatário'}
+                                    {client.tipo === 'investidor' && '📈 Investidor'}
+                                  </Badge>
+                                  {client.email && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="text-xs">
+                                          <Mail className="h-3 w-3" />
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p className="max-w-[200px] truncate">{client.email}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  )}
+                                  {client.data_nascimento && (
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge variant="outline" className="text-xs">
+                                          <Cake className="h-3 w-3" />
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Aniversário: {new Date(client.data_nascimento).toLocaleDateString('pt-BR')}</p>
+                                      </TooltipContent>
+                                    </Tooltip>
                                   )}
                                 </div>
+                                
+                                {/* Camada 3: Dados Comerciais */}
+                                {client.valor > 0 && (
+                                  <div className="flex items-center justify-between pt-3 border-t border-border/30">
+                                    <div className="flex items-center gap-1.5">
+                                      <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                      <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                        R$ {client.valor.toLocaleString('pt-BR')}
+                                      </span>
+                                    </div>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Badge variant="secondary" className="text-xs">
+                                          {daysSinceUpdate === 0 ? 'Hoje' :
+                                           daysSinceUpdate === 1 ? 'Ontem' :
+                                           `${daysSinceUpdate}d atrás`}
+                                        </Badge>
+                                      </TooltipTrigger>
+                                      <TooltipContent>
+                                        <p>Última interação há {daysSinceUpdate} dias</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {/* Camada 4: Quick Actions (hover) */}
+                              <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-background/95 to-transparent 
+                                            opacity-0 group-hover:opacity-100 transition-all duration-300 
+                                            flex items-center justify-center gap-2 rounded-b-2xl backdrop-blur-sm">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className="h-7 px-2 hover:bg-green-500/20 hover:text-green-600"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(`https://wa.me/55${client.telefone.replace(/\D/g, '')}`, '_blank');
+                                      }}
+                                    >
+                                      <Send className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>WhatsApp</TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className="h-7 px-2 hover:bg-blue-500/20 hover:text-blue-600"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (client.email) window.location.href = `mailto:${client.email}`;
+                                      }}
+                                      disabled={!client.email}
+                                    >
+                                      <Mail className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Email</TooltipContent>
+                                </Tooltip>
+                                
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      size="sm" 
+                                      variant="ghost" 
+                                      className="h-7 px-2 hover:bg-purple-500/20 hover:text-purple-600"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsTaskDialogOpen(true);
+                                      }}
+                                    >
+                                      <Calendar className="h-3.5 w-3.5" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Agendar</TooltipContent>
+                                </Tooltip>
                               </div>
                               
                               {/* Indicador visual de drag */}
-                              <div className="absolute inset-0 border-2 border-dashed border-primary rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                              <div className="absolute inset-0 border-2 border-dashed border-primary rounded-2xl opacity-0 group-hover:opacity-20 transition-opacity pointer-events-none" />
                             </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    {provided.placeholder}
+                            )}
+                          </Draggable>
+                        );
+                      })}
+                      {provided.placeholder}
                   </CardContent>
-                </Card>
-              )}
-            </Droppable>
-          ))}
+                  </Card>
+                )}
+              </Droppable>
+            );
+          })}
           </div>
         </div>
       </DragDropContext>
+      </TooltipProvider>
 
-      {/* Tasks Section */}
-      <Card className="border-2 bg-gradient-to-br from-primary/5 to-transparent">
-        <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-transparent">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <div className="p-2 rounded-lg bg-primary/10">
+      {/* Tasks Section Premium */}
+      <Card className="border-2 bg-gradient-to-br from-primary/5 via-primary/3 to-transparent backdrop-blur-sm">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <div className="p-2 rounded-xl bg-primary/10 shadow-inner">
                 <CheckCircle className="h-5 w-5 text-primary" />
               </div>
-              Tarefas Pendentes
+              <span>Tarefas Pendentes</span>
               {tasks.filter(task => task.status === 'pending').length > 0 && (
-                <Badge className="bg-primary text-primary-foreground ml-2 animate-pulse">
+                <Badge className="bg-primary text-primary-foreground shadow-lg animate-pulse">
                   {tasks.filter(task => task.status === 'pending').length}
                 </Badge>
               )}
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={() => setIsTaskDialogOpen(true)}>
+            <Button variant="outline" size="sm" onClick={() => setIsTaskDialogOpen(true)} className="shadow-sm hover:shadow-md transition-shadow">
               <Plus className="h-4 w-4 mr-2" />
               Nova Tarefa
             </Button>
@@ -851,42 +1022,94 @@ export default function PipelineCRM() {
         </CardHeader>
         <CardContent className="pt-4">
           <div className="space-y-3">
-            {tasks.filter(task => task.status === 'pending').slice(0, 5).map((task) => (
-              <div 
-                key={task.id} 
-                className="group flex items-center gap-3 p-3 rounded-lg border-2 hover:border-primary/50 hover:shadow-md transition-all duration-200 bg-card"
-              >
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-semibold group-hover:text-primary transition-colors">
-                    {task.title}
-                  </p>
-                  {task.due_date && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Clock className="h-3 w-3" />
-                      {new Date(task.due_date).toLocaleString('pt-BR')}
-                    </p>
-                  )}
-                </div>
-                <Button 
-                  size="sm" 
-                  variant="ghost" 
-                  className="hover:bg-emerald-500 hover:text-white transition-colors"
+            {tasks.filter(task => task.status === 'pending').slice(0, 5).map((task) => {
+              const isUrgent = task.due_date && new Date(task.due_date) < new Date(Date.now() + 24 * 60 * 60 * 1000);
+              const isToday = task.due_date && new Date(task.due_date).toDateString() === new Date().toDateString();
+              const priorityColor = task.priority === 'high' ? 'border-red-500' : task.priority === 'medium' ? 'border-yellow-500' : 'border-green-500';
+              const linkedClient = task.client_id ? clients.find(c => c.id === task.client_id) : null;
+              
+              return (
+                <div 
+                  key={task.id} 
+                  className={`group relative flex items-center gap-3 p-4 rounded-xl border-l-4 ${priorityColor} 
+                             bg-card/50 backdrop-blur-sm hover:bg-card border border-border/50
+                             hover:shadow-xl hover:scale-[1.01] transition-all duration-300`}
                 >
-                  <CheckCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            {tasks.filter(task => task.status === 'pending').length === 0 && (
-              <div className="text-center py-8 space-y-2">
-                <div className="mx-auto w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-emerald-500" />
+                  {/* Avatar do Cliente vinculado */}
+                  {linkedClient && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-md cursor-default">
+                            <AvatarImage src={linkedClient.photo || undefined} />
+                            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-xs font-semibold">
+                              {linkedClient.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p className="font-semibold">{linkedClient.nome}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                  
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-bold group-hover:text-primary transition-colors line-clamp-1">
+                        {task.title}
+                      </p>
+                      {(isUrgent || isToday) && (
+                        <Badge variant="destructive" className="text-xs shrink-0 animate-pulse">
+                          {isToday ? 'Hoje' : 'Urgente'}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      {task.due_date && (
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="h-3 w-3" />
+                          {new Date(task.due_date).toLocaleDateString('pt-BR', { 
+                            day: '2-digit', 
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      )}
+                      {task.priority && (
+                        <Badge variant="outline" className="text-xs">
+                          {task.priority === 'high' ? '🔴 Alta' : 
+                           task.priority === 'medium' ? '🟡 Média' : '🟢 Baixa'}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="h-8 w-8 p-0 rounded-full hover:bg-emerald-500 hover:text-white transition-all duration-300 hover:scale-110"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                  </Button>
                 </div>
-                <p className="text-sm font-medium text-emerald-600">
-                  Tudo pronto! 🎉
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Nenhuma tarefa pendente no momento
-                </p>
+              );
+            })}
+            {tasks.filter(task => task.status === 'pending').length === 0 && (
+              <div className="text-center py-12 space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center shadow-lg">
+                  <CheckCircle className="h-8 w-8 text-emerald-500" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">
+                    Tudo pronto! 🎉
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma tarefa pendente no momento
+                  </p>
+                </div>
               </div>
             )}
           </div>
