@@ -1,6 +1,6 @@
 /**
- * Helper para integração com chat externo ConectaIOS
- * URL base: https://chat.conectaios.com.br/auth/callback
+ * Helper para integração com chat externo ConectaIOS via PostMessage Bridge
+ * URL base: https://chat.conectaios.com.br/bridge
  */
 
 export type PropertyLite = {
@@ -15,55 +15,38 @@ export type PropertyLite = {
 
 export interface ChatUrlOptions {
   property?: PropertyLite;
-  corretorId?: string;
   originBaseUrl?: string;
+  baseUrl?: string; // opcional, para testes
 }
 
 /**
- * Constrói a URL do chat externo com autenticação e parâmetros opcionais
- * @param accessToken - Token de acesso do usuário (session.access_token)
- * @param refreshToken - Token de refresh do usuário (session.refresh_token)
- * @param opts - Opções adicionais (imóvel, corretor, origem)
- * @returns URL completa para abrir o chat externo
+ * Constrói a URL do bridge (SEM tokens - segurança via postMessage)
+ * @param opts - Opções de contexto (imóvel, origem)
+ * @returns URL do bridge com params de contexto
  */
-export function buildChatUrl(
-  accessToken: string,
-  refreshToken: string,
-  opts?: ChatUrlOptions
-): string {
-  const base = "https://chat.conectaios.com.br/auth/callback";
-  const params = new URLSearchParams({
-    token: accessToken,
-    refresh: refreshToken,
-  });
+export function buildChatUrl(opts?: ChatUrlOptions): string {
+  const base = (opts?.baseUrl || "https://chat.conectaios.com.br/bridge").replace(/\/+$/, "");
+  const params = new URLSearchParams();
 
-  // Adicionar ID do corretor se fornecido
-  if (opts?.corretorId) {
-    params.set("corretorId", opts.corretorId);
+  if (opts?.originBaseUrl) {
+    params.set("origin", opts.originBaseUrl);
   }
 
-  // Se houver dados do imóvel, criar mensagem pré-preenchida
+  // Se houver dados do imóvel, adicionar à query
   if (opts?.property) {
     const p = opts.property;
-    const originBase = opts.originBaseUrl ?? "";
-    const linkImovel = `${originBase}/imovel/${p.slug ?? p.id}`;
-    const codigo = p.code ?? p.id.slice(0, 8);
-    const titulo = p.title ?? `Imóvel ${codigo}`;
+    const titulo = p.title || `Imóvel ${p.code || p.id}`;
+    const codigo = p.code || p.slug || p.id.slice(0, 8);
+    const linkImovel = opts.originBaseUrl ? `${opts.originBaseUrl}/imovel/${p.slug || p.id}` : "";
     const local = [p.addressLine, p.city, p.state].filter(Boolean).join(" - ");
     
-    const msg = `Olá! Tenho interesse no imóvel:
-
-📍 ${titulo}
-🏷️ Código: ${codigo}
-📌 Link: ${linkImovel}
-${local ? `📍 Localização: ${local}` : ''}
-
-Pode me passar mais informações?`.trim();
+    const msg = `Olá! Tenho interesse neste imóvel:\n\n📍 ${titulo}\n🏷️ Código: ${codigo}\n📌 Link: ${linkImovel}\n${local ? `📍 Localização: ${local}` : ''}\n\nPode me passar mais informações?`;
 
     params.set("propertyId", p.id);
     params.set("propertyCode", codigo);
-    params.set("message", msg);
+    params.set("message", encodeURIComponent(msg));
   }
 
-  return `${base}?${params.toString()}`;
+  // ZERO tokens na URL - segurança via postMessage!
+  return `${base}${params.toString() ? `?${params.toString()}` : ''}`;
 }
