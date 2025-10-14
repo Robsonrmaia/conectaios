@@ -705,3 +705,182 @@ html,
   .max-w-5xl { max-width: 1024px; }
   .max-w-4xl { max-width: 896px; }
 }
+
+/* ========== ANIMAÇÕES REALISTAS DE STATUS ========== */
+
+/* Animação de Fogo Realista 🔥 */
+@keyframes flame-flicker {
+  0%, 100% {
+    transform: scale(1) translateY(0) rotate(-2deg);
+    filter: brightness(1.2) hue-rotate(0deg);
+  }
+  25% {
+    transform: scale(1.05) translateY(-2px) rotate(2deg);
+    filter: brightness(1.4) hue-rotate(5deg);
+  }
+  50% {
+    transform: scale(0.98) translateY(1px) rotate(-1deg);
+    filter: brightness(1.1) hue-rotate(-3deg);
+  }
+  75% {
+    transform: scale(1.03) translateY(-1px) rotate(1deg);
+    filter: brightness(1.3) hue-rotate(3deg);
+  }
+}
+
+@keyframes flame-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.6),
+                0 0 40px rgba(255, 107, 0, 0.4),
+                0 0 60px rgba(255, 69, 0, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 107, 0, 0.8),
+                0 0 60px rgba(255, 107, 0, 0.6),
+                0 0 90px rgba(255, 69, 0, 0.3);
+  }
+}
+
+@keyframes flame-particles {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-30px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Animação de Sol Brilhante ☀️ */
+@keyframes sun-rays {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: brightness(1.2);
+  }
+  50% {
+    transform: rotate(180deg) scale(1.1);
+    filter: brightness(1.5);
+  }
+}
+
+@keyframes sun-pulse {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.5),
+                0 0 30px rgba(255, 140, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 165, 0, 0.7),
+                0 0 50px rgba(255, 140, 0, 0.5);
+  }
+}
+
+/* Animação de Gelo/Neve ❄️ */
+@keyframes snowflake-fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(15px) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+@keyframes ice-shimmer {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 8px rgba(96, 165, 250, 0.6));
+  }
+  50% {
+    filter: brightness(1.3) drop-shadow(0 0 15px rgba(96, 165, 250, 0.9));
+  }
+}
+
+@keyframes freeze-pulse {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.4),
+                0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.6),
+                0 0 40px rgba(59, 130, 246, 0.5);
+  }
+}
+
+/* Animação de Relógio ⏰ */
+@keyframes clock-tick {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes time-glow {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 5px rgba(234, 179, 8, 0.5));
+  }
+  50% {
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(234, 179, 8, 0.7));
+  }
+}
+
+/* Classes utilitárias */
+.animate-flame-flicker {
+  animation: flame-flicker 0.8s ease-in-out infinite;
+}
+
+.animate-flame-glow {
+  animation: flame-glow 1.5s ease-in-out infinite;
+}
+
+.animate-sun-rays {
+  animation: sun-rays 8s linear infinite;
+}
+
+.animate-sun-pulse {
+  animation: sun-pulse 2s ease-in-out infinite;
+}
+
+.animate-snowflake-fall {
+  animation: snowflake-fall 3s ease-in-out infinite;
+}
+
+.animate-ice-shimmer {
+  animation: ice-shimmer 2s ease-in-out infinite;
+}
+
+.animate-freeze-pulse {
+  animation: freeze-pulse 2s ease-in-out infinite;
+}
+
+.animate-clock-tick {
+  animation: clock-tick 1s ease-in-out infinite;
+}
+
+.animate-time-glow {
+  animation: time-glow 2s ease-in-out infinite;
+}
+
+/* Efeito de partículas de fogo */
+.flame-particles::before,
+.flame-particles::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.8), transparent);
+  border-radius: 50%;
+  animation: flame-particles 1.2s ease-out infinite;
+}
+
+.flame-particles::before {
+  left: 30%;
+  animation-delay: 0.2s;
+}
+
+.flame-particles::after {
+  right: 30%;
+  animation-delay: 0.6s;
+}

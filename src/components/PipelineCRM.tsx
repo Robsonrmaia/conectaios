@@ -545,7 +545,7 @@ export default function PipelineCRM() {
           </Button>
           <Button 
             onClick={() => setIsVoiceRecorderOpen(true)}
-            className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto min-h-[44px] touch-target"
+            className="bg-green-500 hover:bg-green-600 text-white w-full sm:w-auto min-h-[44px] touch-target"
           >
             <Mic className="h-4 w-4 mr-2" />
             Gravar Cliente
@@ -757,33 +757,83 @@ export default function PipelineCRM() {
                               `}
                               onClick={() => setSelectedClient(client)}
                             >
-                              {/* Badge de temperatura no canto com backdrop blur */}
-                              <div className="absolute -top-2 -right-2 z-20">
+                              {/* Animações de status - SEM badges, só animação */}
+                              <div className="absolute -top-3 -right-3 z-20">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     {(() => {
+                                      // 🔥 QUENTE: 0-2 dias (Fogo realista)
                                       if (daysSinceUpdate <= 2) return (
-                                        <div className="relative">
-                                          <div className="absolute inset-0 bg-orange-500 rounded-full blur-lg animate-pulse" />
-                                          <Badge className="relative bg-orange-500 text-white shadow-2xl backdrop-blur-sm border border-white/20">
-                                            <span className="animate-pulse">🔥</span>
-                                          </Badge>
+                                        <div className="relative w-10 h-10 flex items-center justify-center">
+                                          {/* Glow externo */}
+                                          <div className="absolute inset-0 bg-gradient-to-t from-orange-600 via-orange-500 to-yellow-400 rounded-full blur-xl opacity-60 animate-flame-glow" />
+                                          
+                                          {/* Partículas de fogo */}
+                                          <div className="flame-particles absolute inset-0" />
+                                          
+                                          {/* Emoji de fogo com animação */}
+                                          <span className="relative text-2xl animate-flame-flicker filter drop-shadow-[0_0_8px_rgba(255,107,0,0.8)]">
+                                            🔥
+                                          </span>
                                         </div>
                                       );
+                                      
+                                      // ☀️ MORNO: 3-7 dias (Sol brilhante)
                                       if (daysSinceUpdate <= 7) return (
-                                        <Badge className="bg-orange-500 text-white shadow-xl backdrop-blur-sm border border-white/20">
-                                          ☀️
-                                        </Badge>
+                                        <div className="relative w-10 h-10 flex items-center justify-center">
+                                          {/* Raios solares */}
+                                          <div className="absolute inset-0 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-full blur-lg opacity-50 animate-sun-pulse" />
+                                          
+                                          {/* Emoji sol com rotação */}
+                                          <span className="relative text-2xl animate-sun-rays filter drop-shadow-[0_0_10px_rgba(255,165,0,0.7)]">
+                                            ☀️
+                                          </span>
+                                        </div>
                                       );
+                                      
+                                      // ⏰ MODERADO: 8-14 dias (Relógio)
+                                      if (daysSinceUpdate <= 14) return (
+                                        <div className="relative w-10 h-10 flex items-center justify-center">
+                                          {/* Glow amarelo suave */}
+                                          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full blur-md opacity-40 animate-pulse" />
+                                          
+                                          {/* Relógio com tick-tack */}
+                                          <span className="relative text-2xl animate-clock-tick animate-time-glow">
+                                            ⏰
+                                          </span>
+                                        </div>
+                                      );
+                                      
+                                      // ❄️ FRIO: >14 dias (Gelo com neve caindo)
                                       return (
-                                        <Badge className="bg-blue-400 text-white shadow-lg backdrop-blur-sm border border-white/20">
-                                          ❄️
-                                        </Badge>
+                                        <div className="relative w-10 h-10 flex items-center justify-center">
+                                          {/* Névoa gelada */}
+                                          <div className="absolute inset-0 bg-gradient-to-br from-blue-300 to-cyan-400 rounded-full blur-lg opacity-50 animate-freeze-pulse" />
+                                          
+                                          {/* Flocos de neve flutuantes */}
+                                          <div className="absolute inset-0">
+                                            <span className="absolute top-0 left-2 text-xs opacity-70 animate-snowflake-fall">❄</span>
+                                            <span className="absolute top-1 right-2 text-xs opacity-60 animate-snowflake-fall" style={{animationDelay: '0.5s'}}>❄</span>
+                                          </div>
+                                          
+                                          {/* Emoji gelo principal */}
+                                          <span className="relative text-2xl animate-ice-shimmer">
+                                            ❄️
+                                          </span>
+                                        </div>
                                       );
                                     })()}
                                   </TooltipTrigger>
                                   <TooltipContent>
-                                    <p>
+                                    <p className="font-semibold">
+                                      {daysSinceUpdate === 0 ? '🔥 Cliente quentíssimo!' :
+                                       daysSinceUpdate === 1 ? '🔥 Atualizado ontem' :
+                                       daysSinceUpdate <= 2 ? '🔥 Cliente quente' :
+                                       daysSinceUpdate <= 7 ? '☀️ Cliente morno' :
+                                       daysSinceUpdate <= 14 ? '⏰ Atenção necessária' :
+                                       '❄️ Cliente frio'}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
                                       {daysSinceUpdate === 0 ? 'Atualizado hoje' :
                                        daysSinceUpdate === 1 ? 'Atualizado ontem' :
                                        `Atualizado há ${daysSinceUpdate} dias`}
