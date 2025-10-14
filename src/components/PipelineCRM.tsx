@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic } from 'lucide-react';
+import { Plus, UserPlus, User, Phone, Calendar, CheckCircle, XCircle, Clock, Target, Star, FileText, Edit, Search, Mail, MapPin, MessageSquare, Cake, History as HistoryIcon, Mic, Building, Map as MapIcon, Briefcase, Heart, Users } from 'lucide-react';
 import { GlobalClientSearch } from './GlobalClientSearch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -1007,26 +1007,28 @@ export default function PipelineCRM() {
             </TabsList>
             
             <TabsContent value="dados" className="space-y-4">
-              <div>
-                <Label htmlFor="nome">Nome *</Label>
-                <Input
-                  id="nome"
-                  value={clientFormData.nome}
-                  onChange={(e) => setClientFormData(prev => ({ ...prev, nome: e.target.value }))}
-                  placeholder="Nome completo"
-                />
-              </div>
-              <div>
-                <Label htmlFor="telefone">Telefone *</Label>
+              <ScrollArea className="h-[500px] pr-4">
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="nome">Nome *</Label>
+                    <Input
+                      id="nome"
+                      value={clientFormData.nome}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, nome: e.target.value }))}
+                      placeholder="Nome completo"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="telefone">Telefone *</Label>
                 <Input
                   id="telefone"
                   value={clientFormData.telefone}
                   onChange={(e) => setClientFormData(prev => ({ ...prev, telefone: e.target.value }))}
                   placeholder="(11) 99999-9999"
                 />
-              </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -1034,17 +1036,17 @@ export default function PipelineCRM() {
                   onChange={(e) => setClientFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="email@exemplo.com"
                 />
-              </div>
-              <div>
-                <Label htmlFor="data_nascimento">Data de Nascimento</Label>
+                  </div>
+                  <div>
+                    <Label htmlFor="data_nascimento">Data de Nascimento</Label>
                 <Input
                   id="data_nascimento"
                   type="date"
                   value={clientFormData.data_nascimento}
                   onChange={(e) => setClientFormData(prev => ({ ...prev, data_nascimento: e.target.value }))}
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="tipo">Tipo de Cliente</Label>
                   <Select value={clientFormData.tipo} onValueChange={(value) => setClientFormData(prev => ({ ...prev, tipo: value }))}>
@@ -1068,38 +1070,54 @@ export default function PipelineCRM() {
                     onChange={(e) => setClientFormData(prev => ({ ...prev, valor: e.target.value }))}
                     placeholder="0"
                   />
-                </div>
-              </div>
-              
-              <Separator className="my-4" />
+                    </div>
+                  </div>
+                  
+                  <Separator className="my-6" />
 
-              <div className="space-y-4">
-                <h4 className="text-sm font-semibold">Informações Complementares (Opcional)</h4>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="col-span-2">
-                    <Label htmlFor="endereco">Endereço</Label>
-                    <Input
-                      id="endereco"
-                      value={clientFormData.endereco}
-                      onChange={(e) => setClientFormData(prev => ({ ...prev, endereco: e.target.value }))}
-                      placeholder="Rua, número, bairro"
-                    />
+                  <Card className="p-4 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <MapPin className="h-4 w-4 text-primary" />
+                    </div>
+                    <h4 className="text-sm font-semibold">Informações Complementares</h4>
+                    <Badge variant="secondary" className="ml-auto">Opcional</Badge>
                   </div>
                   
-                  <div>
-                    <Label htmlFor="cidade">Cidade</Label>
-                    <Input
-                      id="cidade"
-                      value={clientFormData.cidade}
-                      onChange={(e) => setClientFormData(prev => ({ ...prev, cidade: e.target.value }))}
-                      placeholder="São Paulo"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="estado">Estado</Label>
-                    <Select value={clientFormData.estado} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado: value }))}>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <Label htmlFor="endereco" className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                        Endereço
+                      </Label>
+                      <Input
+                        id="endereco"
+                        value={clientFormData.endereco}
+                        onChange={(e) => setClientFormData(prev => ({ ...prev, endereco: e.target.value }))}
+                        placeholder="Rua, número, bairro"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="cidade" className="flex items-center gap-2">
+                        <Building className="h-3.5 w-3.5 text-primary" />
+                        Cidade
+                      </Label>
+                      <Input
+                        id="cidade"
+                        value={clientFormData.cidade}
+                        onChange={(e) => setClientFormData(prev => ({ ...prev, cidade: e.target.value }))}
+                        placeholder="São Paulo"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="estado" className="flex items-center gap-2">
+                        <MapIcon className="h-3.5 w-3.5 text-primary" />
+                        Estado
+                      </Label>
+                      <Select value={clientFormData.estado} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -1132,32 +1150,41 @@ export default function PipelineCRM() {
                         <SelectItem value="SE">Sergipe</SelectItem>
                         <SelectItem value="TO">Tocantins</SelectItem>
                       </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="cep">CEP</Label>
-                    <Input
-                      id="cep"
-                      value={clientFormData.cep}
-                      onChange={(e) => setClientFormData(prev => ({ ...prev, cep: e.target.value }))}
-                      placeholder="00000-000"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="profissao">Profissão</Label>
-                    <Input
-                      id="profissao"
-                      value={clientFormData.profissao}
-                      onChange={(e) => setClientFormData(prev => ({ ...prev, profissao: e.target.value }))}
-                      placeholder="Ex: Empresário"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="estado_civil">Estado Civil</Label>
-                    <Select value={clientFormData.estado_civil} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado_civil: value }))}>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="cep" className="flex items-center gap-2">
+                        <MapPin className="h-3.5 w-3.5 text-primary" />
+                        CEP
+                      </Label>
+                      <Input
+                        id="cep"
+                        value={clientFormData.cep}
+                        onChange={(e) => setClientFormData(prev => ({ ...prev, cep: e.target.value }))}
+                        placeholder="00000-000"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="profissao" className="flex items-center gap-2">
+                        <Briefcase className="h-3.5 w-3.5 text-primary" />
+                        Profissão
+                      </Label>
+                      <Input
+                        id="profissao"
+                        value={clientFormData.profissao}
+                        onChange={(e) => setClientFormData(prev => ({ ...prev, profissao: e.target.value }))}
+                        placeholder="Ex: Empresário"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="estado_civil" className="flex items-center gap-2">
+                        <Heart className="h-3.5 w-3.5 text-primary" />
+                        Estado Civil
+                      </Label>
+                      <Select value={clientFormData.estado_civil} onValueChange={(value) => setClientFormData(prev => ({ ...prev, estado_civil: value }))}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -1168,31 +1195,40 @@ export default function PipelineCRM() {
                         <SelectItem value="viuvo">Viúvo(a)</SelectItem>
                         <SelectItem value="uniao_estavel">União Estável</SelectItem>
                       </SelectContent>
-                    </Select>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="indicacao" className="flex items-center gap-2">
+                        <Users className="h-3.5 w-3.5 text-primary" />
+                        Como nos conheceu?
+                      </Label>
+                      <Input
+                        id="indicacao"
+                        value={clientFormData.indicacao}
+                        onChange={(e) => setClientFormData(prev => ({ ...prev, indicacao: e.target.value }))}
+                        placeholder="Ex: Indicação de fulano"
+                      />
+                    </div>
                   </div>
                   
                   <div>
-                    <Label htmlFor="indicacao">Como nos conheceu?</Label>
-                    <Input
-                      id="indicacao"
-                      value={clientFormData.indicacao}
-                      onChange={(e) => setClientFormData(prev => ({ ...prev, indicacao: e.target.value }))}
-                      placeholder="Ex: Indicação de fulano"
+                    <Label htmlFor="observacoes" className="flex items-center gap-2">
+                      <FileText className="h-3.5 w-3.5 text-primary" />
+                      Observações Gerais
+                    </Label>
+                    <Textarea
+                      id="observacoes"
+                      value={clientFormData.observacoes}
+                      onChange={(e) => setClientFormData(prev => ({ ...prev, observacoes: e.target.value }))}
+                      placeholder="Anotações importantes sobre o cliente..."
+                      rows={3}
                     />
+                    </div>
                   </div>
+                </Card>
                 </div>
-                
-                <div>
-                  <Label htmlFor="observacoes">Observações Gerais</Label>
-                  <Textarea
-                    id="observacoes"
-                    value={clientFormData.observacoes}
-                    onChange={(e) => setClientFormData(prev => ({ ...prev, observacoes: e.target.value }))}
-                    placeholder="Anotações importantes sobre o cliente..."
-                    rows={3}
-                  />
-                </div>
-              </div>
+              </ScrollArea>
             </TabsContent>
             
             <TabsContent value="historico" className="space-y-4">
