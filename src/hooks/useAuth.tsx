@@ -101,10 +101,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }, 5000);
 
-    // Set up auth state listener
+    // Set up auth state listener with token validation
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('🔐 Auth state changed:', event, !!session);
+        
+        // Validate session tokens before accepting
+        if (session) {
+          const refreshToken = session.refresh_token;
+          const accessToken = session.access_token;
+          
+          if (refreshToken.length < 100 || accessToken.length < 500) {
+            console.error('❌ Sessão corrompida recebida do Supabase!');
+            console.error('Refresh:', refreshToken.length, 'Access:', accessToken.length);
+            
+            // Reject corrupted session
+            supabase.auth.signOut();
+            toast({
+              title: "Erro de Autenticação",
+              description: "Problema detectado na criação da sessão. Tente fazer login novamente.",
+              variant: "destructive",
+              duration: 8000,
+            });
+            setLoading(false);
+            clearTimeout(loadingTimeout);
+            return;
+          }
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
