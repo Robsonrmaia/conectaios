@@ -16,6 +16,7 @@ interface Broker {
   bio?: string;
   avatar_url?: string;
   cover_url?: string;
+  whatsapp?: string;
   status: string;
   subscription_status: string;
   subscription_expires_at?: string;
@@ -104,34 +105,47 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
           id: brokerData.broker_id,
           user_id: brokerData.user_id,
           name: brokerData.display_name || '',
-          email: '', // Will be filled from auth if needed
+          email: brokerData.email || user.email || '',
           phone: brokerData.phone,
           bio: brokerData.bio,
           creci: brokerData.creci,
           username: brokerData.username,
           avatar_url: brokerData.avatar_url,
+          cover_url: brokerData.cover_url,
           whatsapp: brokerData.whatsapp,
           referral_code: brokerData.referral_code,
-          status: 'active',
-          subscription_status: 'trial'
+          region_id: brokerData.region_id,
+          plan_id: brokerData.plan_id,
+          cpf_cnpj: brokerData.cpf_cnpj,
+          status: brokerData.status || 'active',
+          subscription_status: brokerData.subscription_status || 'trial',
+          subscription_expires_at: brokerData.subscription_expires_at,
+          website: brokerData.website,
+          instagram: brokerData.instagram,
+          linkedin: brokerData.linkedin,
+          specialties: brokerData.specialties
         };
         
         setBroker(unifiedBroker);
 
-        // Try to fetch plan if broker_id exists - fallback gracefully
-        try {
-          const { data: planData } = await supabase
-            .from('plans')
-            .select('*')
-            .eq('id', 'default-plan-id')
-            .maybeSingle();
+        // Try to fetch plan if plan_id exists - fallback gracefully
+        if (brokerData.plan_id) {
+          try {
+            const { data: planData } = await supabase
+              .from('plans')
+              .select('*')
+              .eq('id', brokerData.plan_id)
+              .maybeSingle();
 
-          if (planData) {
-            console.log('✅ Plan loaded:', planData.name);
-            setPlan(planData);
+            if (planData) {
+              console.log('✅ Plan loaded:', planData.name);
+              setPlan(planData);
+            }
+          } catch (planError) {
+            console.warn('⚠️ Plan fetch failed, continuing without plan:', planError);
           }
-        } catch (planError) {
-          console.warn('⚠️ Plan fetch failed, continuing without plan:', planError);
+        } else {
+          console.log('ℹ️ No plan_id found, skipping plan fetch');
         }
       } else {
         console.log('ℹ️ No broker profile found for user');
