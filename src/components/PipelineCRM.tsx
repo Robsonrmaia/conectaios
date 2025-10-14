@@ -67,12 +67,54 @@ interface Note {
 }
 
 const STAGES = [
-  { id: 'novo_lead', name: 'Novo Lead', color: 'bg-gray-100 text-gray-800' },
-  { id: 'qualificado', name: 'Qualificado', color: 'bg-blue-100 text-blue-800' },
-  { id: 'proposta', name: 'Proposta', color: 'bg-yellow-100 text-yellow-800' },
-  { id: 'negociacao', name: 'Negociação', color: 'bg-orange-100 text-orange-800' },
-  { id: 'finalizado', name: 'Finalizado', color: 'bg-green-100 text-green-800' },
-  { id: 'perdido', name: 'Perdido', color: 'bg-red-100 text-red-800' }
+  { 
+    id: 'novo_lead', 
+    name: 'Novo Lead', 
+    icon: UserPlus,
+    gradient: 'from-slate-500/10 to-slate-600/5',
+    color: 'text-slate-700 dark:text-slate-300',
+    badgeColor: 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100'
+  },
+  { 
+    id: 'qualificado', 
+    name: 'Qualificado', 
+    icon: Target,
+    gradient: 'from-blue-500/10 to-blue-600/5',
+    color: 'text-blue-700 dark:text-blue-300',
+    badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100'
+  },
+  { 
+    id: 'proposta', 
+    name: 'Proposta', 
+    icon: FileText,
+    gradient: 'from-yellow-500/10 to-yellow-600/5',
+    color: 'text-yellow-700 dark:text-yellow-300',
+    badgeColor: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
+  },
+  { 
+    id: 'negociacao', 
+    name: 'Negociação', 
+    icon: MessageSquare,
+    gradient: 'from-orange-500/10 to-orange-600/5',
+    color: 'text-orange-700 dark:text-orange-300',
+    badgeColor: 'bg-orange-100 text-orange-800 dark:bg-orange-800 dark:text-orange-100'
+  },
+  { 
+    id: 'finalizado', 
+    name: 'Finalizado', 
+    icon: CheckCircle,
+    gradient: 'from-emerald-500/10 to-emerald-600/5',
+    color: 'text-emerald-700 dark:text-emerald-300',
+    badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-800 dark:text-emerald-100'
+  },
+  { 
+    id: 'perdido', 
+    name: 'Perdido', 
+    icon: XCircle,
+    gradient: 'from-red-500/10 to-red-600/5',
+    color: 'text-red-700 dark:text-red-300',
+    badgeColor: 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100'
+  }
 ];
 
 export default function PipelineCRM() {
@@ -607,20 +649,53 @@ export default function PipelineCRM() {
       {/* Pipeline Drag & Drop */}
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="overflow-x-auto">
-          <div className="flex gap-2 overflow-x-auto pb-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
+          <div className="flex gap-3 overflow-x-auto pb-4 md:grid md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 md:gap-4 min-w-max md:min-w-0">
           {STAGES.map((stage) => (
             <Droppable key={stage.id} droppableId={stage.id}>
               {(provided, snapshot) => (
-                <Card className={`min-w-[180px] md:min-w-0 w-[180px] md:w-full h-fit flex-shrink-0 ${snapshot.isDraggingOver ? 'bg-primary/5' : ''}`}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm flex items-center justify-between">
-                      <span className="truncate">{stage.name}</span>
-                      <Badge variant="secondary" className="text-xs ml-2">
+                <Card className={`
+                  min-w-[220px] md:min-w-0 w-[220px] md:w-full h-fit flex-shrink-0
+                  bg-gradient-to-br ${stage.gradient} border-2
+                  ${snapshot.isDraggingOver ? 'border-primary shadow-lg scale-[1.02]' : 'border-transparent'}
+                  transition-all duration-300
+                `}>
+                  <CardHeader className="pb-3 border-b">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className={`p-1.5 rounded-lg bg-gradient-to-br ${stage.gradient}`}>
+                          <stage.icon className={`h-4 w-4 ${stage.color}`} />
+                        </div>
+                        <CardTitle className={`text-sm font-bold ${stage.color}`}>
+                          {stage.name}
+                        </CardTitle>
+                      </div>
+                      <Badge className={`${stage.badgeColor} font-semibold transition-transform hover:scale-110`}>
                         {clients.filter(c => c.stage === stage.id).length}
                       </Badge>
-                    </CardTitle>
+                    </div>
+                    <div className="h-1 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full bg-gradient-to-r ${stage.gradient} transition-all duration-500`}
+                        style={{ 
+                          width: `${Math.min(100, (clients.filter(c => c.stage === stage.id).reduce((acc, c) => acc + c.valor, 0) / 1000000) * 100)}%` 
+                        }}
+                      />
+                    </div>
                   </CardHeader>
                   <CardContent className="space-y-2" {...provided.droppableProps} ref={provided.innerRef}>
+                    {clients.filter(client => client.stage === stage.id).length === 0 && (
+                      <div className="flex flex-col items-center justify-center py-8 text-center space-y-2">
+                        <div className={`p-3 rounded-full bg-gradient-to-br ${stage.gradient}`}>
+                          <stage.icon className={`h-6 w-6 ${stage.color} opacity-50`} />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium">
+                          Nenhum cliente aqui ainda
+                        </p>
+                        <p className="text-xs text-muted-foreground/70">
+                          Arraste um card para cá
+                        </p>
+                      </div>
+                    )}
                     {clients
                       .filter(client => client.stage === stage.id)
                       .map((client, index) => (
@@ -630,39 +705,115 @@ export default function PipelineCRM() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
-                              className={`p-3 bg-background border rounded-lg cursor-pointer hover:shadow-md transition-shadow ${
-                                snapshot.isDragging ? 'shadow-lg' : ''
-                              }`}
+                              className={`
+                                group relative p-4 bg-card border-2 rounded-xl cursor-grab
+                                hover:shadow-2xl hover:scale-[1.03] hover:-translate-y-1 hover:border-primary/50
+                                active:cursor-grabbing active:scale-[0.98]
+                                transition-all duration-300 ease-out
+                                ${snapshot.isDragging ? 'shadow-2xl scale-105 rotate-2 border-primary' : 'border-border'}
+                              `}
                               onClick={() => setSelectedClient(client)}
                             >
-                              <div className="flex items-start gap-2">
-                                <Avatar className="h-8 w-8 flex-shrink-0">
+                              {/* Badge de temperatura no canto */}
+                              <div className="absolute -top-2 -right-2 z-10">
+                                {(() => {
+                                  const daysSinceUpdate = Math.floor((Date.now() - new Date(client.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+                                  if (daysSinceUpdate <= 2) return (
+                                    <div className="relative">
+                                      <div className="absolute inset-0 bg-red-500 rounded-full blur-md animate-pulse" />
+                                      <Badge className="relative bg-red-500 text-white shadow-lg">
+                                        <span className="animate-pulse">🔥</span>
+                                      </Badge>
+                                    </div>
+                                  );
+                                  if (daysSinceUpdate <= 7) return (
+                                    <Badge className="bg-orange-500 text-white shadow-md">
+                                      ☀️
+                                    </Badge>
+                                  );
+                                  return (
+                                    <Badge className="bg-blue-400 text-white shadow-sm">
+                                      ❄️
+                                    </Badge>
+                                  );
+                                })()}
+                              </div>
+
+                              {/* VIP Badge no topo esquerdo */}
+                              {client.valor > 500000 && (
+                                <div className="absolute -top-2 -left-2 z-10">
+                                  <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-bold shadow-lg animate-pulse">
+                                    <Star className="h-3 w-3 mr-1 fill-white" />
+                                    VIP
+                                  </Badge>
+                                </div>
+                              )}
+
+                              {/* Conteúdo Principal */}
+                              <div className="flex items-start gap-3">
+                                <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-md transition-transform group-hover:scale-110">
                                   <AvatarImage src={client.photo || undefined} />
-                                  <AvatarFallback>
-                                    <User className="h-4 w-4" />
+                                  <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10">
+                                    <User className="h-5 w-5 text-primary" />
                                   </AvatarFallback>
                                 </Avatar>
-                                <div className="flex-1 min-w-0 overflow-hidden">
-                                  <h4 className="font-medium text-sm truncate">{client.nome}</h4>
-                                  <p className="text-xs text-muted-foreground truncate">{client.telefone}</p>
-                                   <Badge variant="outline" className="text-xs mt-1">
-                                    {client.tipo}
-                                  </Badge>
+                                
+                                <div className="flex-1 min-w-0 space-y-2">
+                                  {/* Nome e Score */}
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h4 className="font-bold text-sm truncate group-hover:text-primary transition-colors">
+                                      {client.nome}
+                                    </h4>
+                                    {client.score > 0 && (
+                                      <Badge variant="outline" className="text-xs font-semibold shrink-0">
+                                        {client.score}/100
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Telefone com ícone */}
+                                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Phone className="h-3 w-3 shrink-0" />
+                                    <span className="truncate">{client.telefone}</span>
+                                  </div>
+                                  
+                                  {/* Tipo e Email */}
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {client.tipo === 'comprador' && '🏠 Comprador'}
+                                      {client.tipo === 'vendedor' && '💰 Vendedor'}
+                                      {client.tipo === 'locatario' && '🔑 Locatário'}
+                                      {client.tipo === 'investidor' && '📈 Investidor'}
+                                    </Badge>
+                                    {client.email && (
+                                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                                        <Mail className="h-3 w-3" />
+                                      </div>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Valor de Interesse */}
                                   {client.valor > 0 && (
-                                    <div className="flex items-center justify-between mt-1">
-                                      <p className="text-xs text-green-600 font-medium truncate">
-                                        R$ {client.valor.toLocaleString('pt-BR')}
-                                      </p>
-                                      {client.valor > 500000 && (
-                                        <Badge variant="destructive" className="text-xs ml-1">
-                                          <Star className="h-3 w-3 mr-1" />
-                                          VIP
-                                        </Badge>
+                                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                                      <div className="flex items-center gap-1.5">
+                                        <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                                          R$ {client.valor.toLocaleString('pt-BR')}
+                                        </span>
+                                      </div>
+                                      {client.data_nascimento && (
+                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                          <Cake className="h-3 w-3" />
+                                          {new Date(client.data_nascimento).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                                        </div>
                                       )}
                                     </div>
                                   )}
                                 </div>
                               </div>
+                              
+                              {/* Indicador visual de drag */}
+                              <div className="absolute inset-0 border-2 border-dashed border-primary rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                             </div>
                           )}
                         </Draggable>
@@ -678,33 +829,65 @@ export default function PipelineCRM() {
       </DragDropContext>
 
       {/* Tasks Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Tarefas Pendentes
-          </CardTitle>
+      <Card className="border-2 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardHeader className="border-b bg-gradient-to-r from-primary/10 to-transparent">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <CheckCircle className="h-5 w-5 text-primary" />
+              </div>
+              Tarefas Pendentes
+              {tasks.filter(task => task.status === 'pending').length > 0 && (
+                <Badge className="bg-primary text-primary-foreground ml-2 animate-pulse">
+                  {tasks.filter(task => task.status === 'pending').length}
+                </Badge>
+              )}
+            </CardTitle>
+            <Button variant="outline" size="sm" onClick={() => setIsTaskDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Nova Tarefa
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
+        <CardContent className="pt-4">
+          <div className="space-y-3">
             {tasks.filter(task => task.status === 'pending').slice(0, 5).map((task) => (
-              <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg border">
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{task.title}</p>
+              <div 
+                key={task.id} 
+                className="group flex items-center gap-3 p-3 rounded-lg border-2 hover:border-primary/50 hover:shadow-md transition-all duration-200 bg-card"
+              >
+                <div className="flex-1 space-y-1">
+                  <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                    {task.title}
+                  </p>
                   {task.due_date && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                       <Clock className="h-3 w-3" />
                       {new Date(task.due_date).toLocaleString('pt-BR')}
                     </p>
                   )}
                 </div>
-                <Button size="sm" variant="outline">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="hover:bg-emerald-500 hover:text-white transition-colors"
+                >
                   <CheckCircle className="h-4 w-4" />
                 </Button>
               </div>
             ))}
             {tasks.filter(task => task.status === 'pending').length === 0 && (
-              <p className="text-sm text-muted-foreground">Nenhuma tarefa pendente</p>
+              <div className="text-center py-8 space-y-2">
+                <div className="mx-auto w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-emerald-500" />
+                </div>
+                <p className="text-sm font-medium text-emerald-600">
+                  Tudo pronto! 🎉
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Nenhuma tarefa pendente no momento
+                </p>
+              </div>
             )}
           </div>
         </CardContent>
