@@ -76,12 +76,12 @@ export function ConectaAIChatButton() {
   return (
     <>
       {/* Botão do Header - Só o robô com balões */}
-      <div className="relative inline-flex items-center">
+      <div className="relative inline-flex items-center z-50">
         {/* Balão de pergunta animado */}
         <div 
           key={currentQuestion}
           onClick={() => setIsOpen(true)}
-          className="hidden md:block absolute right-full mr-2 top-1/2 -translate-y-1/2 animate-in fade-in slide-in-from-right-5 duration-500 cursor-pointer hover:scale-105 transition-transform max-w-[180px] pointer-events-auto"
+          className="hidden md:block absolute right-full mr-2 top-1/2 -translate-y-1/2 animate-in fade-in slide-in-from-right-5 duration-500 cursor-pointer hover:scale-105 transition-transform max-w-[180px] pointer-events-auto z-50"
         >
           <div className="bg-white rounded-2xl shadow-2xl p-2.5 border-2 border-primary/30 relative">
             <div className="absolute -right-2 top-1/2 -translate-y-1/2 w-3 h-3 bg-white border-r-2 border-t-2 border-primary/30 transform rotate-45"></div>
@@ -93,7 +93,7 @@ export function ConectaAIChatButton() {
         
         <button
           onClick={() => setIsOpen(true)}
-          className="hover:scale-110 transition-transform flex-shrink-0"
+          className="hover:scale-110 transition-transform flex-shrink-0 relative z-10"
           title="Abrir Assistente ConectaIOS"
         >
           <img 
