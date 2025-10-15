@@ -255,8 +255,8 @@ export default function Marketplace() {
             vista_mar,
             distancia_mar,
             status,
-            imovel_images!imovel_images_imovel_fk(url, is_cover, position),
-            imovel_features!imovel_features_imovel_fk(key, value)
+            imovel_images!imovel_images_imovel_id_fkey(url, is_cover, position),
+            imovel_features!imovel_features_imovel_id_fkey(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
@@ -479,9 +479,10 @@ export default function Marketplace() {
       
     } catch (error) {
       console.error('❌ [MARKETPLACE] Erro ao buscar imóveis:', error);
-      if (import.meta.env.DEV) {
-        console.error('❌ [MARKETPLACE] Detalhes do erro:', error);
-      }
+      console.error('❌ [MARKETPLACE] Stack:', (error as any)?.stack);
+      console.error('❌ [MARKETPLACE] Detalhes:', (error as any)?.details);
+      console.error('❌ [MARKETPLACE] Hint:', (error as any)?.hint);
+      console.error('❌ [MARKETPLACE] Message:', (error as any)?.message);
       
       if (page === 0) {
         // Se não há dados, não mostrar erro para listas vazias
@@ -507,11 +508,14 @@ export default function Marketplace() {
     const clearAllCaches = () => {
       // Clear marketplace cache
       const keys = Object.keys(localStorage);
+      console.log('🧹 [MARKETPLACE] Limpando cache...');
       keys.forEach(key => {
         if (key.startsWith('marketplace_properties_') || key.startsWith('minisite_')) {
           localStorage.removeItem(key);
+          console.log('  ✓ Removido:', key);
         }
       });
+      console.log('🧹 [MARKETPLACE] Cache limpo!');
     };
     
     clearAllCaches();
