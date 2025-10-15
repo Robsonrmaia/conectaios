@@ -62,6 +62,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
     // Não executar se Auth ainda está carregando
     if (authLoading) {
       console.log('⏳ [useBroker] Aguardando Auth terminar de carregar...');
+      setLoading(false);
       return;
     }
     
@@ -106,7 +107,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
 
       console.log('📊 [useBroker] Resultado view:', { 
         found: !!brokerData, 
-        error: brokerError?.message,
+        error: brokerError,
         avatar_url: brokerData?.avatar_url,
         plan_id: brokerData?.plan_id,
         email: brokerData?.email,
