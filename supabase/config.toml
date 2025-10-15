@@ -62,3 +62,9 @@ verify_jwt = false
 
 [functions.subscription-auto-suspend]
 verify_jwt = false
+
+[functions.nearby-places]
+verify_jwt = false
+
+[functions.property-ai-assistant]
+verify_jwt = false

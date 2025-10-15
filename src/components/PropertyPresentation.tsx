@@ -14,6 +14,7 @@ import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
+import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 
 interface Property {
   id: string;
@@ -205,17 +206,17 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               }
             </p>
             
-            {/* Property specs with beautiful blue icons - 2x3 grid for mobile */}
+            {/* Property specs with beautiful blue icons - 2x3 grid for mobile - INCREASED SIZE FOR MOBILE */}
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
               {/* Área - only if > 0 */}
               {property.area > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Home className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Home className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Área</div>
-                    <div className="text-sm font-bold">{property.area}m²</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Área</div>
+                    <div className="text-lg sm:text-sm font-bold">{property.area}m²</div>
                   </div>
                 </div>
               )}
@@ -223,12 +224,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Quartos - only if > 0 */}
               {property.quartos > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Bed className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bed className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Quartos</div>
-                    <div className="text-sm font-bold">{property.quartos}</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Quartos</div>
+                    <div className="text-lg sm:text-sm font-bold">{property.quartos}</div>
                   </div>
                 </div>
               )}
@@ -236,12 +237,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Banheiros - only if > 0 */}
               {(property.bathrooms || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Bath className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bath className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Banheiros</div>
-                    <div className="text-sm font-bold">{property.bathrooms}</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Banheiros</div>
+                    <div className="text-lg sm:text-sm font-bold">{property.bathrooms}</div>
                   </div>
                 </div>
               )}
@@ -249,12 +250,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Vagas - only if > 0 */}
               {(property.parking_spots || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Car className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Car className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Vagas</div>
-                    <div className="text-sm font-bold">{property.parking_spots}</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Vagas</div>
+                    <div className="text-lg sm:text-sm font-bold">{property.parking_spots}</div>
                   </div>
                 </div>
               )}
@@ -262,12 +263,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Vista do Mar */}
               {property.has_sea_view && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Waves className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Waves className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Vista</div>
-                    <div className="text-sm font-bold">Mar</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Vista</div>
+                    <div className="text-lg sm:text-sm font-bold">Mar</div>
                   </div>
                 </div>
               )}
@@ -275,12 +276,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Mobiliado */}
               {property.furnishing_type && property.furnishing_type !== 'unfurnished' && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Package className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Package className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Mobiliado</div>
-                    <div className="text-sm font-bold">Sim</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Mobiliado</div>
+                    <div className="text-lg sm:text-sm font-bold">Sim</div>
                   </div>
                 </div>
               )}
@@ -288,12 +289,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Distância do Mar - only if > 0 */}
               {(property.sea_distance || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <MapPin className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <MapPin className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Praia</div>
-                    <div className="text-sm font-bold">{property.sea_distance}m</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Praia</div>
+                    <div className="text-lg sm:text-sm font-bold">{property.sea_distance}m</div>
                   </div>
                 </div>
               )}
@@ -301,12 +302,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Luxo/Exclusivo - only if high value */}
               {(property.valor || 0) > 2000000 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Eye className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Eye className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
                   </div>
                   <div>
-                    <div className="text-xs text-gray-300">Categoria</div>
-                    <div className="text-sm font-bold">Luxo</div>
+                    <div className="text-sm sm:text-xs text-gray-300">Categoria</div>
+                    <div className="text-lg sm:text-sm font-bold">Luxo</div>
                   </div>
                 </div>
               )}
@@ -316,7 +317,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </div>
         
         {/* Value - At the bottom of the image in blue tones */}
-        <div className="absolute bottom-4 left-4 right-4 z-10">
+        <div className="absolute bottom-4 left-4 right-4 z-10 space-y-3">
           <div className="flex items-center gap-3 bg-black/60 rounded-xl p-4 backdrop-blur-sm">
             <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
               <span className="text-lg font-bold text-white">R$</span>
@@ -326,6 +327,23 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               <div className="text-2xl font-bold text-blue-300">{formatCurrency(property.valor)}</div>
             </div>
           </div>
+          
+          {/* Botão Gerar Esboço - REPOSICIONADO */}
+          {property.fotos && property.fotos.length > 0 && (
+            <Button 
+              onClick={() => {
+                setSelectedImageForSketch(property.fotos[0]);
+                setShowSketchProcessor(true);
+              }}
+              variant="outline" 
+              className="w-full bg-white/90 hover:bg-white backdrop-blur-sm 
+                border-2 border-blue-500 text-blue-600 font-semibold
+                flex items-center justify-center gap-2 py-3"
+            >
+              <Palette className="h-5 w-5" />
+              Criar Esboço com ConectAIOS
+            </Button>
+          )}
         </div>
       </div>
 
@@ -385,7 +403,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           />
           
 
-          {/* Photo Gallery */}
+          {/* Photo Gallery - MELHORADA COM ANIMAÇÕES */}
           {property.fotos && property.fotos.length > 1 && (
             <div className="mb-8">
               <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
@@ -393,14 +411,22 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 {property.fotos.slice(0, 9).map((foto, index) => (
                   <div
                     key={index}
-                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer group hover:scale-105 transition-transform duration-200"
+                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
+                      group hover:scale-105 transition-all duration-300 
+                      hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
+                      hover:brightness-110"
                     onClick={() => openPhotoGallery(property.fotos, index)}
                   >
                     <img
                       src={foto}
                       alt={`Foto ${index + 1} do imóvel`}
-                      className="w-full h-full object-cover group-hover:brightness-110 transition-all duration-200"
+                      className="w-full h-full object-cover transition-all duration-300"
                     />
+                    {/* Badge "Toque para ampliar" em mobile */}
+                    <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
+                      <ZoomIn className="h-3 w-3" />
+                    </div>
                     {index === 8 && property.fotos.length > 9 && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                         <span className="text-white font-semibold">
@@ -411,26 +437,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                   </div>
                 ))}
               </div>
-              
-              {/* Sketch Generator for photos */}
-              {property.fotos && property.fotos.length > 0 && (
-                <div className="mt-4 flex justify-center">
-                  <Button 
-                    onClick={() => {
-                      setSelectedImageForSketch(property.fotos[0]);
-                      setShowSketchProcessor(true);
-                    }}
-                    variant="outline" 
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Gerar Esboço
-                  </Button>
-                </div>
-              )}
             </div>
           )}
 
@@ -683,6 +689,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           }}
         />
       )}
+
+      {/* Assistente Virtual AI */}
+      <PropertyAIAssistant property={property} />
 
     </div>
   );

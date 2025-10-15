@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PlaceOfInterest {
   name: string;
@@ -15,75 +16,116 @@ interface UseRealPlacesProps {
   sea_distance?: number;
   furnishing_type?: string;
   property_type?: string;
+  city?: string;
+  state?: string;
 }
 
-export function useRealPlaces({ zipcode, neighborhood, address, has_sea_view, sea_distance, furnishing_type, property_type }: UseRealPlacesProps) {
+export function useRealPlaces({
+  zipcode,
+  neighborhood,
+  address,
+  has_sea_view,
+  sea_distance,
+  furnishing_type,
+  property_type,
+  city,
+  state
+}: UseRealPlacesProps) {
   const [places, setPlaces] = useState<PlaceOfInterest[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchPlaces = async () => {
-      if (!zipcode && !neighborhood && !address) {
-        // Set default places for fallback
-        setPlaces([
-          { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'Compras', icon: 'shopping-bag' },
-          { name: 'Estação Vila Madalena', distance: '800 m', category: 'Transporte', icon: 'train' },
-          { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'Saúde', icon: 'hospital' },
-          { name: 'PUC-SP', distance: '1.8 km', category: 'Educação', icon: 'graduation-cap' },
-          { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'Lazer', icon: 'tree-pine' },
-        ]);
-        return;
-      }
-
       setLoading(true);
       setError(null);
 
+      // If no location data, provide default places
+      if (!zipcode && !neighborhood && !address) {
+        setPlaces(getDefaultPlaces());
+        setLoading(false);
+        return;
+      }
+
       try {
-        // Create search query based on available location data
-        const query = address || `${neighborhood || ''} ${zipcode || ''}`.trim();
+        console.log('🔍 Buscando lugares próximos...');
         
-        if (!query) {
-          throw new Error('Localização não especificada');
+        // Chamar edge function para buscar lugares reais
+        const { data, error: functionError } = await supabase.functions.invoke('nearby-places', {
+          body: {
+            zipcode,
+            neighborhood,
+            address,
+            city,
+            state
+          }
+        });
+
+        if (functionError) {
+          console.error('❌ Erro na edge function:', functionError);
+          throw functionError;
         }
 
-        // In a real implementation, this would call Google Places API
-        // For now, we'll simulate with location-aware data and integrate real property features
-        const simulatedPlaces = await simulateNearbyPlaces(query, neighborhood, {
+        console.log('✅ Lugares recebidos:', data?.places?.length || 0);
+        
+        // Se não encontrou lugares, usar simulação como fallback
+        if (!data?.places || data.places.length === 0) {
+          console.log('⚠️ Nenhum lugar encontrado, usando fallback');
+          const fallbackPlaces = await simulateNearbyPlaces({
+            zipcode,
+            neighborhood,
+            address,
+            has_sea_view,
+            sea_distance,
+            furnishing_type,
+            property_type
+          });
+          setPlaces(fallbackPlaces);
+        } else {
+          setPlaces(data.places);
+        }
+      } catch (err) {
+        console.error('❌ Erro ao buscar lugares:', err);
+        setError(err as Error);
+        
+        // Fallback para simulação em caso de erro
+        const fallbackPlaces = await simulateNearbyPlaces({
+          zipcode,
+          neighborhood,
+          address,
           has_sea_view,
           sea_distance,
           furnishing_type,
           property_type
         });
-        setPlaces(simulatedPlaces);
-      } catch (err) {
-        console.error('Error fetching places:', err);
-        setError(err instanceof Error ? err.message : 'Erro ao buscar pontos de interesse');
-        
-        // Fallback to default places on error
-        setPlaces([
-          { name: 'Centro Comercial Local', distance: '500 m', category: 'Compras', icon: 'shopping-bag' },
-          { name: 'Transporte Público', distance: '300 m', category: 'Transporte', icon: 'train' },
-          { name: 'Hospital da Região', distance: '1.2 km', category: 'Saúde', icon: 'hospital' },
-          { name: 'Escola Municipal', distance: '800 m', category: 'Educação', icon: 'graduation-cap' },
-          { name: 'Praça Local', distance: '400 m', category: 'Lazer', icon: 'tree-pine' },
-        ]);
+        setPlaces(fallbackPlaces);
       } finally {
         setLoading(false);
       }
     };
 
     fetchPlaces();
-  }, [zipcode, neighborhood, address]);
+  }, [zipcode, neighborhood, address, has_sea_view, sea_distance, furnishing_type, property_type, city, state]);
 
   return { places, loading, error };
 }
 
+function getDefaultPlaces(): PlaceOfInterest[] {
+  return [
+    { name: 'Shopping Villa-Lobos', distance: '1.2 km', category: 'Compras', icon: 'ShoppingBag' },
+    { name: 'Estação Vila Madalena', distance: '800 m', category: 'Transporte', icon: 'Train' },
+    { name: 'Hospital Sírio-Libanês', distance: '2.5 km', category: 'Saúde', icon: 'Hospital' },
+    { name: 'PUC-SP', distance: '1.8 km', category: 'Educação', icon: 'GraduationCap' },
+    { name: 'Parque Villa-Lobos', distance: '1.5 km', category: 'Lazer', icon: 'TreePine' },
+  ];
+}
+
 // Simulate nearby places based on location and property features
 async function simulateNearbyPlaces(
-  query: string, 
-  neighborhood?: string, 
-  propertyFeatures?: {
+  propertyFeatures: {
+    zipcode?: string;
+    neighborhood?: string;
+    address?: string;
     has_sea_view?: boolean;
     sea_distance?: number;
     furnishing_type?: string;
@@ -95,6 +137,7 @@ async function simulateNearbyPlaces(
 
   // Location-specific places based on neighborhood
   const locationSpecificPlaces: Record<string, PlaceOfInterest[]> = {
+    // ... keep existing code
     // Nossa Senhora da Vitória, BA
     'Nossa Senhora da Vitória': [
       { name: 'Dique do Tororó', distance: '800m', category: 'Lazer', icon: 'waves' },
@@ -150,12 +193,12 @@ async function simulateNearbyPlaces(
   
   // Check for Nossa Senhora da Vitória - flexible matching
   const nsVitoriaPattern = /nossa\s+senhora\s+da\s+vit[oó]ria/i;
-  const isNossaSenhoraVitoria = neighborhood && nsVitoriaPattern.test(neighborhood);
+  const isNossaSenhoraVitoria = propertyFeatures.neighborhood && nsVitoriaPattern.test(propertyFeatures.neighborhood);
   
   if (isNossaSenhoraVitoria && locationSpecificPlaces['Nossa Senhora da Vitória']) {
     basePlaces = [...locationSpecificPlaces['Nossa Senhora da Vitória']];
-  } else if (neighborhood && locationSpecificPlaces[neighborhood]) {
-    basePlaces = [...locationSpecificPlaces[neighborhood]];
+  } else if (propertyFeatures.neighborhood && locationSpecificPlaces[propertyFeatures.neighborhood]) {
+    basePlaces = [...locationSpecificPlaces[propertyFeatures.neighborhood]];
   } else {
     basePlaces = [
       { name: 'Shopping Center Local', distance: '1.5 km', category: 'Compras', icon: 'shopping-bag' },

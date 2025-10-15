@@ -119,9 +119,11 @@ const RealPropertyMap = ({
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current!,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/streets-v12', // Mais colorido
         center: [lng, lat],
-        zoom: 15,
+        zoom: 16, // Mais próximo
+        pitch: 45, // Inclinação 3D
+        bearing: 0,
         attributionControl: false
       });
 
@@ -135,7 +137,35 @@ const RealPropertyMap = ({
       // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
+      // Adicionar terreno 3D e edifícios
       map.current.on('load', () => {
+        // Adicionar fonte de terreno 3D
+        map.current!.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          'tileSize': 512,
+          'maxzoom': 14
+        });
+        
+        // Configurar terreno 3D
+        map.current!.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+        
+        // Adicionar camada de edifícios 3D
+        map.current!.addLayer({
+          'id': '3d-buildings',
+          'source': 'composite',
+          'source-layer': 'building',
+          'filter': ['==', 'extrude', 'true'],
+          'type': 'fill-extrusion',
+          'minzoom': 15,
+          'paint': {
+            'fill-extrusion-color': '#aaa',
+            'fill-extrusion-height': ['get', 'height'],
+            'fill-extrusion-base': ['get', 'min_height'],
+            'fill-extrusion-opacity': 0.6
+          }
+        });
+        
         setIsLoading(false);
       });
 

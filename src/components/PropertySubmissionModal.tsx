@@ -72,11 +72,16 @@ export function PropertySubmissionModal({ open, onOpenChange }: PropertySubmissi
   const sendViaWhatsApp = () => {
     const message = `Olá${ownerName ? ` ${ownerName}` : ''}! 🏡
 
+Sou ${broker?.name || 'seu corretor'}${broker?.creci ? `, CRECI ${broker.creci}` : ''}.
+
 Para cadastrar seu imóvel de forma rápida e segura, preencha este formulário:
 
 ${generatedLink}
 
-É simples e demora apenas alguns minutos. Após o envio, analisarei seu imóvel e entraremos em contato!
+${broker?.phone ? `📱 WhatsApp: ${broker.phone}` : ''}
+${broker?.email ? `✉️ Email: ${broker.email}` : ''}
+
+É simples e rápido! Após o envio, analisarei seu imóvel e entraremos em contato.
 
 Qualquer dúvida, estou à disposição! 😊`;
 
