@@ -484,12 +484,12 @@ export default function MinisiteView() {
     <div className="min-h-screen bg-background" style={{ '--primary': config.primary_color, '--secondary': config.secondary_color } as any}>
       {/* Header with conditional template styles */}
       <header 
-        className={`${templateStyles.heroHeight} ${templateStyles.headerBg} flex items-center justify-center relative overflow-hidden`}
+        className={`${templateStyles.heroHeight} ${templateStyles.headerBg} ${templateStyles.heroBg} flex items-center justify-center relative overflow-hidden`}
         style={templateStyles.useBackgroundImage ? {
           backgroundImage: `url(${heroImageUrl})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center'
-        } : { backgroundColor: config.primary_color }}
+        } : undefined}
       >
         {/* Overlay for Hero Visual template */}
         {templateStyles.useBackgroundImage && (
