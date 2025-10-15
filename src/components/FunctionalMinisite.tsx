@@ -22,7 +22,8 @@ import {
   Eye,
   Share2,
   Layout,
-  FileText
+  FileText,
+  Building2
 } from 'lucide-react';
 import { useBroker } from '@/hooks/useBroker';
 import { useAuth } from '@/hooks/useAuth';
@@ -46,9 +47,7 @@ interface MinisiteConfig {
 
 const TEMPLATES = [
   { id: 'modern', name: 'Moderno', colors: { primary: '#1CA9C9', secondary: '#6DDDEB' } },
-  { id: 'elegant', name: 'Elegante', colors: { primary: '#8B5CF6', secondary: '#A78BFA' } },
-  { id: 'professional', name: 'Profissional', colors: { primary: '#059669', secondary: '#10B981' } },
-  { id: 'luxury', name: 'Luxo', colors: { primary: '#DC2626', secondary: '#EF4444' } }
+  { id: 'hero-visual', name: 'Hero Visual', colors: { primary: '#1CA9C9', secondary: '#6DDDEB' } }
 ];
 
 export function FunctionalMinisite() {
@@ -181,72 +180,96 @@ export function FunctionalMinisite() {
     }
   };
 
-  const MinisitePreview = () => (
-    <div className="border rounded-lg overflow-hidden">
-      <div 
-        className="h-96 p-6"
-        style={{ 
-          background: `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})`,
-          color: 'white'
-        }}
-      >
-        {/* Preview Content */}
-        <div className="text-center space-y-4">
-          <div className="w-20 h-20 bg-white/20 rounded-full mx-auto flex items-center justify-center">
-            <Globe className="h-10 w-10 text-white" />
-          </div>
-          
-          <div>
-            <h1 className="text-2xl font-bold mb-2">{config.title}</h1>
-            <p className="text-white/90">{config.description}</p>
-          </div>
-          
-          <div className="space-y-2 text-sm">
-            <div className="flex items-center justify-center gap-2">
-              <Phone className="h-4 w-4" />
-              {config.phone}
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <Mail className="h-4 w-4" />
-              {config.email}
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <MapPin className="h-4 w-4" />
-              São Paulo, SP
-            </div>
-          </div>
-          
-          {config.customMessage && (
-            <div className="bg-white/10 rounded-lg p-3 text-sm">
-              "{config.customMessage}"
-            </div>
+  const MinisitePreview = () => {
+    const isHeroVisual = config.template === 'hero-visual';
+    
+    return (
+      <div className="border rounded-lg overflow-hidden shadow-xl">
+        {/* Hero com imagem de fundo para hero-visual */}
+        <div 
+          className={`relative ${isHeroVisual ? 'h-96' : 'h-64'} p-6 flex items-center justify-center`}
+          style={{ 
+            background: isHeroVisual 
+              ? `linear-gradient(135deg, ${config.primaryColor}dd, ${config.secondaryColor}dd), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop') center/cover`
+              : `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})`,
+            color: 'white'
+          }}
+        >
+          {isHeroVisual && (
+            <div className="absolute inset-0 bg-black/40"></div>
           )}
           
-          <div className="flex justify-center gap-2">
-            <Button size="sm" variant="secondary">
-              Ver Imóveis
-            </Button>
-            <Button size="sm" variant="outline" className="text-white border-white">
-              Contato
-            </Button>
+          <div className={`relative text-center space-y-4 ${isHeroVisual ? 'max-w-2xl' : ''}`}>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm">
+              <Building2 className="h-4 w-4" />
+              Atendimento especializado
+            </div>
+            
+            {/* Título */}
+            <h1 className={`font-bold text-white ${isHeroVisual ? 'text-4xl md:text-5xl' : 'text-2xl'}`}>
+              {config.title}
+            </h1>
+            
+            {/* Descrição */}
+            <p className={`text-white/90 ${isHeroVisual ? 'text-lg max-w-lg mx-auto' : 'text-base'}`}>
+              {config.description}
+            </p>
+            
+            {/* Contatos */}
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-center gap-2">
+                <Phone className="h-4 w-4" />
+                {config.phone}
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <Mail className="h-4 w-4" />
+                {config.email}
+              </div>
+            </div>
+            
+            {/* CTAs */}
+            <div className="flex justify-center gap-3 mt-6">
+              <Button 
+                size={isHeroVisual ? "lg" : "default"}
+                className="bg-white text-gray-900 hover:bg-white/90 font-semibold"
+              >
+                Ver Imóveis
+              </Button>
+              <Button 
+                size={isHeroVisual ? "lg" : "default"}
+                variant="outline" 
+                className="border-white text-white hover:bg-white/20"
+              >
+                Contato
+              </Button>
+            </div>
           </div>
         </div>
         
-        {/* Mock sections */}
-        <div className="mt-8 space-y-4 bg-white/10 rounded-lg p-4">
-          <div className="flex justify-between text-sm">
-            <span>📍 Imóveis Disponíveis</span>
-            <Badge variant="secondary">12 imóveis</Badge>
+        {/* Preview de imóveis (simplificado) */}
+        <div className="p-6 bg-white">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold text-gray-900">Imóveis em Destaque</h2>
+            <Badge>12 disponíveis</Badge>
           </div>
-          {config.showAbout && (
-            <div className="text-xs">
-              ⭐ "Excelente atendimento!" - Cliente satisfeito
-            </div>
-          )}
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2].map((i) => (
+              <div key={i} className="border rounded-lg overflow-hidden">
+                <div className="aspect-video bg-gradient-to-br from-blue-100 to-gray-100"></div>
+                <div className="p-3">
+                  <p className="text-sm font-medium text-gray-900">Apartamento</p>
+                  <p className="text-lg font-bold" style={{ color: config.primaryColor }}>
+                    R$ 450.000
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -283,14 +306,14 @@ export function FunctionalMinisite() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {TEMPLATES.map((template) => (
                   <div
                     key={template.id}
-                    className={`cursor-pointer rounded-lg border-2 p-3 text-center ${
+                    className={`cursor-pointer rounded-xl border-2 overflow-hidden transition-all ${
                       config.template === template.id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-muted-foreground'
+                        ? 'border-primary shadow-lg scale-105' 
+                        : 'border-border hover:border-muted-foreground hover:shadow-md'
                     }`}
                     onClick={() => setConfig({
                       ...config, 
@@ -299,11 +322,46 @@ export function FunctionalMinisite() {
                       secondaryColor: template.colors.secondary
                     })}
                   >
+                    {/* Preview visual do template */}
                     <div 
-                      className="w-full h-12 rounded mb-2"
-                      style={{ background: `linear-gradient(135deg, ${template.colors.primary}, ${template.colors.secondary})` }}
-                    />
-                    <p className="text-sm font-medium">{template.name}</p>
+                      className={`w-full ${template.id === 'hero-visual' ? 'h-32' : 'h-20'} relative`}
+                      style={{ 
+                        background: template.id === 'hero-visual'
+                          ? `linear-gradient(135deg, ${template.colors.primary}dd, ${template.colors.secondary}dd), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=400&h=300&fit=crop') center/cover`
+                          : `linear-gradient(135deg, ${template.colors.primary}, ${template.colors.secondary})`
+                      }}
+                    >
+                      {template.id === 'hero-visual' && (
+                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                          <div className="text-white text-center px-4">
+                            <p className="text-xs font-semibold">Hero com imagem</p>
+                            <p className="text-[10px] opacity-80">Visual impactante</p>
+                          </div>
+                        </div>
+                      )}
+                      {template.id === 'modern' && (
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="text-white text-center px-4">
+                            <p className="text-xs font-semibold">Layout limpo</p>
+                            <p className="text-[10px] opacity-80">Profissional</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Nome do template */}
+                    <div className={`p-3 text-center ${
+                      config.template === template.id 
+                        ? 'bg-primary/5' 
+                        : 'bg-white'
+                    }`}>
+                      <p className="text-sm font-semibold">{template.name}</p>
+                      {config.template === template.id && (
+                        <Badge className="mt-1" variant="default">
+                          Ativo
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
