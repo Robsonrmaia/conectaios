@@ -22,50 +22,14 @@ export default function MinisitePreview({ config, broker, properties = [], previ
 
   const getTemplateStyles = () => {
     switch (templateId) {
-      case 'classic':
-        return {
-          headerBg: 'bg-gradient-to-r from-gray-800 to-gray-900',
-          heroBg: 'bg-gradient-to-b from-gray-50 to-white',
-          cardStyle: 'shadow-md hover:shadow-lg transition-shadow',
-          fontFamily: 'serif',
-          heroHeight: 'h-48',
-          propertyLayout: 'grid'
-        };
-      case 'minimal':
-        return {
-          headerBg: 'bg-white border-b-2',
-          heroBg: 'bg-white',
-          cardStyle: 'border border-gray-200 hover:border-gray-300 transition-colors',
-          fontFamily: 'sans-serif',
-          heroHeight: 'h-48',
-          propertyLayout: 'grid'
-        };
-      case 'luxury':
-        return {
-          headerBg: 'bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200',
-          heroBg: 'bg-gradient-to-b from-amber-50 via-orange-50 to-white',
-          cardStyle: 'shadow-xl border border-amber-100 hover:shadow-2xl transition-all',
-          fontFamily: 'serif',
-          heroHeight: 'h-48',
-          propertyLayout: 'grid'
-        };
       case 'hero-visual':
         return {
           headerBg: 'bg-black/80 backdrop-blur border-b border-white/10',
           heroBg: 'bg-gradient-to-b from-black/60 via-black/40 to-transparent',
           cardStyle: 'shadow-2xl border-0 overflow-hidden hover:scale-105 transition-transform',
           fontFamily: 'sans-serif',
-          heroHeight: 'h-96',
-          propertyLayout: 'carousel'
-        };
-      case 'gallery-premium':
-        return {
-          headerBg: 'bg-gradient-to-r from-stone-100 to-amber-50 border-b border-amber-200',
-          heroBg: 'bg-gradient-to-b from-stone-50 to-white',
-          cardStyle: 'shadow-lg border border-stone-200 hover:shadow-xl transition-all group',
-          fontFamily: 'serif',
-          heroHeight: 'h-64',
-          propertyLayout: 'gallery'
+          heroHeight: 'min-h-[80vh]',
+          propertyLayout: 'grid'
         };
       case 'modern':
       default:
@@ -74,7 +38,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
           heroBg: 'bg-gradient-to-b from-blue-50 to-white',
           cardStyle: 'shadow-sm hover:shadow-md transition-shadow',
           fontFamily: 'sans-serif',
-          heroHeight: 'h-48',
+          heroHeight: 'h-64',
           propertyLayout: 'grid'
         };
     }
@@ -220,78 +184,113 @@ export default function MinisitePreview({ config, broker, properties = [], previ
 
         {/* Hero Section */}
         <section className="relative">
-          {/* Cover Image */}
-          {broker?.cover_url && (
+          {templateId === 'hero-visual' ? (
+            /* ========== HERO VISUAL: Hero gigante com imagem full ========== */
             <div 
-              className={`${templateStyles.heroHeight} bg-cover bg-center relative`}
-              style={{ backgroundImage: `url(${broker.cover_url})` }}
+              className={`${templateStyles.heroHeight} bg-cover bg-center relative flex items-center justify-center`}
+              style={{ 
+                backgroundImage: broker?.cover_url 
+                  ? `url(${broker.cover_url})` 
+                  : `url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&h=1080&fit=crop')`
+              }}
             >
-              <div className={`absolute inset-0 ${templateId === 'hero-visual' ? 'bg-black/40' : 'bg-black/20'}`}></div>
+              {/* Overlay escuro */}
+              <div className="absolute inset-0 bg-black/50"></div>
               
-              {/* Hero Visual specific overlay content */}
-              {templateId === 'hero-visual' && (
-                <div className="absolute inset-0 flex items-center justify-center text-center text-white p-6">
-                  <div className="space-y-4 max-w-2xl">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm">
-                      <Building2 className="h-4 w-4" />
-                      Atendimento especializado
-                    </div>
-                    <h1 className="text-3xl md:text-5xl font-bold">
-                      {config?.title || 'Encontre seu imóvel dos sonhos'}
-                    </h1>
-                    <p className="text-lg text-white/90 max-w-lg mx-auto">
-                      {config?.description || broker?.bio || 'Especialista em imóveis com atendimento personalizado e transparente.'}
-                    </p>
-                    <div className="flex gap-3 justify-center">
-                      <Button 
-                        size="lg" 
-                        className="text-white font-semibold px-8"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        Ver Imóveis
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="lg" 
-                        className="bg-white/20 backdrop-blur border-white/30 text-white hover:bg-white/30"
-                      >
-                        Fale Conosco
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {/* Regular hero content for other templates */}
-          {templateId !== 'hero-visual' && (
-            <div className={`p-6 ${broker?.cover_url ? 'bg-white -mt-6 mx-4 rounded-t-xl relative z-10 shadow-lg' : templateStyles.heroBg}`}>
-              <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
-                  <Building2 className="h-4 w-4" />
+              {/* Conteúdo centralizado */}
+              <div className="relative z-10 text-center text-white px-6 max-w-4xl space-y-8">
+                {/* Badge */}
+                <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white/20 backdrop-blur text-white text-sm font-medium">
+                  <Building2 className="h-5 w-5" />
                   Atendimento especializado
                 </div>
-                <h1 className={`text-2xl md:text-3xl font-bold text-gray-900 ${templateId === 'classic' || templateId === 'luxury' || templateId === 'gallery-premium' ? 'font-serif' : ''}`}>
-                  {config?.title || 'Encontre seu imóvel ideal'}
+                
+                {/* Título GIGANTE */}
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
+                  {config?.title || 'Encontre seu imóvel dos sonhos'}
                 </h1>
-                <p className="text-gray-600 max-w-md mx-auto text-sm">
+                
+                {/* Descrição */}
+                <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto leading-relaxed">
                   {config?.description || broker?.bio || 'Especialista em imóveis com atendimento personalizado e transparente.'}
                 </p>
-                <div className="flex gap-2 justify-center">
+                
+                {/* Contatos */}
+                <div className="flex flex-wrap items-center justify-center gap-6 text-base">
+                  {broker?.phone && (
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-5 w-5" />
+                      {broker.phone}
+                    </div>
+                  )}
+                  {broker?.email && (
+                    <div className="flex items-center gap-2">
+                      <Mail className="h-5 w-5" />
+                      {broker.email}
+                    </div>
+                  )}
+                </div>
+                
+                {/* CTAs grandes */}
+                <div className="flex flex-wrap justify-center gap-4 pt-4">
                   <Button 
-                    size="sm" 
-                    className="text-white"
+                    size="lg" 
+                    className="text-white font-semibold px-10 py-6 text-lg"
                     style={{ backgroundColor: primaryColor }}
                   >
                     Ver Imóveis
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="bg-white/20 backdrop-blur border-2 border-white/30 text-white hover:bg-white/30 px-10 py-6 text-lg font-semibold"
+                  >
                     Fale Conosco
                   </Button>
                 </div>
               </div>
             </div>
+          ) : (
+            /* ========== MODERN: Hero simples com gradiente ========== */
+            <>
+              {/* Cover Image (se existir) */}
+              {broker?.cover_url && (
+                <div 
+                  className="h-48 bg-cover bg-center relative"
+                  style={{ backgroundImage: `url(${broker.cover_url})` }}
+                >
+                  <div className="absolute inset-0 bg-black/20"></div>
+                </div>
+              )}
+              
+              {/* Conteúdo do hero */}
+              <div className={`p-6 ${broker?.cover_url ? 'bg-white -mt-6 mx-4 rounded-t-xl relative z-10 shadow-lg' : templateStyles.heroBg}`}>
+                <div className="text-center space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+                    <Building2 className="h-4 w-4" />
+                    Atendimento especializado
+                  </div>
+                  <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                    {config?.title || 'Encontre seu imóvel ideal'}
+                  </h1>
+                  <p className="text-gray-600 max-w-md mx-auto text-sm">
+                    {config?.description || broker?.bio || 'Especialista em imóveis com atendimento personalizado e transparente.'}
+                  </p>
+                  <div className="flex gap-2 justify-center">
+                    <Button 
+                      size="sm" 
+                      className="text-white"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      Ver Imóveis
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Fale Conosco
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </section>
 

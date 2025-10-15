@@ -185,69 +185,123 @@ export function FunctionalMinisite() {
     
     return (
       <div className="border rounded-lg overflow-hidden shadow-xl">
-        {/* Hero com imagem de fundo para hero-visual */}
-        <div 
-          className={`relative ${isHeroVisual ? 'h-96' : 'h-64'} p-6 flex items-center justify-center`}
-          style={{ 
-            background: isHeroVisual 
-              ? `linear-gradient(135deg, ${config.primaryColor}dd, ${config.secondaryColor}dd), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop') center/cover`
-              : `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})`,
-            color: 'white'
-          }}
-        >
-          {isHeroVisual && (
-            <div className="absolute inset-0 bg-black/40"></div>
-          )}
-          
-          <div className={`relative text-center space-y-4 ${isHeroVisual ? 'max-w-2xl' : ''}`}>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm">
-              <Building2 className="h-4 w-4" />
-              Atendimento especializado
-            </div>
+        {isHeroVisual ? (
+          /* ========== HERO VISUAL: Preview gigante ========== */
+          <div 
+            className="relative min-h-[500px] bg-cover bg-center flex items-center justify-center"
+            style={{ 
+              backgroundImage: `url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&h=800&fit=crop')`
+            }}
+          >
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black/50"></div>
             
-            {/* Título */}
-            <h1 className={`font-bold text-white ${isHeroVisual ? 'text-4xl md:text-5xl' : 'text-2xl'}`}>
-              {config.title}
-            </h1>
-            
-            {/* Descrição */}
-            <p className={`text-white/90 ${isHeroVisual ? 'text-lg max-w-lg mx-auto' : 'text-base'}`}>
-              {config.description}
-            </p>
-            
-            {/* Contatos */}
-            <div className="space-y-2 text-sm">
-              <div className="flex items-center justify-center gap-2">
-                <Phone className="h-4 w-4" />
-                {config.phone}
+            {/* Conteúdo */}
+            <div className="relative text-center text-white px-6 max-w-3xl space-y-6">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm font-medium">
+                <Building2 className="h-4 w-4" />
+                Atendimento especializado
               </div>
-              <div className="flex items-center justify-center gap-2">
-                <Mail className="h-4 w-4" />
-                {config.email}
+              
+              {/* Título GRANDE */}
+              <h1 className="text-4xl md:text-5xl font-bold leading-tight">
+                {config.title}
+              </h1>
+              
+              {/* Descrição */}
+              <p className="text-lg text-white/90 max-w-xl mx-auto">
+                {config.description}
+              </p>
+              
+              {/* Contatos */}
+              <div className="flex flex-wrap items-center justify-center gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  {config.phone}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  {config.email}
+                </div>
               </div>
-            </div>
-            
-            {/* CTAs */}
-            <div className="flex justify-center gap-3 mt-6">
-              <Button 
-                size={isHeroVisual ? "lg" : "default"}
-                className="bg-white text-gray-900 hover:bg-white/90 font-semibold"
-              >
-                Ver Imóveis
-              </Button>
-              <Button 
-                size={isHeroVisual ? "lg" : "default"}
-                variant="outline" 
-                className="border-white text-white hover:bg-white/20"
-              >
-                Contato
-              </Button>
+              
+              {/* CTAs grandes */}
+              <div className="flex justify-center gap-3 pt-2">
+                <Button 
+                  size="lg"
+                  className="bg-white text-gray-900 hover:bg-white/90 font-semibold px-8"
+                >
+                  Ver Imóveis
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  className="border-2 border-white text-white bg-white/10 hover:bg-white/20 backdrop-blur font-semibold px-8"
+                >
+                  Contato
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          /* ========== MODERN: Preview simples ========== */
+          <div 
+            className="relative h-64 p-6 flex items-center justify-center"
+            style={{ 
+              background: `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})`
+            }}
+          >
+            <div className="text-center space-y-4 text-white max-w-lg">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur text-white text-sm">
+                <Building2 className="h-4 w-4" />
+                Atendimento especializado
+              </div>
+              
+              {/* Título */}
+              <h1 className="text-2xl font-bold">
+                {config.title}
+              </h1>
+              
+              {/* Descrição */}
+              <p className="text-white/90 text-sm">
+                {config.description}
+              </p>
+              
+              {/* Contatos */}
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center justify-center gap-2">
+                  <Phone className="h-3 w-3" />
+                  {config.phone}
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Mail className="h-3 w-3" />
+                  {config.email}
+                </div>
+              </div>
+              
+              {/* CTAs */}
+              <div className="flex justify-center gap-2">
+                <Button 
+                  size="sm"
+                  className="bg-white text-gray-900 hover:bg-white/90 font-semibold"
+                >
+                  Ver Imóveis
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="sm"
+                  className="border-white text-white hover:bg-white/20"
+                >
+                  Contato
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
         
-        {/* Preview de imóveis (simplificado) */}
+        {/* Preview de imóveis (igual para ambos) */}
         <div className="p-6 bg-white">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-gray-900">Imóveis em Destaque</h2>
