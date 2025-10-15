@@ -56,6 +56,7 @@ interface MinisiteConfig {
     bio: string;
     avatar_url: string;
     creci: string;
+    cover_url?: string;
   };
 }
 
@@ -133,7 +134,7 @@ export default function MinisiteView() {
       // 1. Buscar broker pelo username
       const { data: brokerData, error: brokerError } = await supabase
         .from('brokers')
-        .select('id, user_id, name, bio, avatar_url, creci')
+        .select('id, user_id, name, bio, avatar_url, creci, cover_url')
         .eq('username', urlToFind)
         .maybeSingle();
 
@@ -149,7 +150,7 @@ export default function MinisiteView() {
         
         const { data: altBrokerData, error: altBrokerError } = await supabase
           .from('brokers')
-          .select('id, user_id, name, bio, avatar_url, creci')
+          .select('id, user_id, name, bio, avatar_url, creci, cover_url')
           .eq('username', altUrlToFind)
           .maybeSingle();
         
@@ -186,7 +187,8 @@ export default function MinisiteView() {
           name: finalBrokerData.name,
           bio: finalBrokerData.bio,
           avatar_url: finalBrokerData.avatar_url,
-          creci: finalBrokerData.creci
+          creci: finalBrokerData.creci,
+          cover_url: finalBrokerData.cover_url
         }
       });
 
@@ -438,22 +440,75 @@ export default function MinisiteView() {
     );
   }
 
+  // Template styles based on template_id
+  const getTemplateStyles = () => {
+    const templateId = config?.template_id || 'modern';
+    
+    switch (templateId) {
+      case 'hero-visual':
+        return {
+          heroHeight: 'min-h-[80vh]',
+          headerBg: 'bg-black/80 backdrop-blur',
+          heroBg: 'bg-gradient-to-b from-black/60 via-black/40 to-transparent',
+          titleSize: 'text-4xl md:text-6xl lg:text-7xl',
+          useBackgroundImage: true,
+          ctaSize: 'lg',
+          textColor: 'text-white',
+          avatarBorder: 'border-white'
+        };
+      case 'modern':
+      default:
+        return {
+          heroHeight: 'py-8',
+          headerBg: 'bg-white/90 backdrop-blur',
+          heroBg: 'bg-gradient-to-b from-blue-50 to-white',
+          titleSize: 'text-4xl',
+          useBackgroundImage: false,
+          ctaSize: 'default',
+          textColor: 'text-white',
+          avatarBorder: 'border-white'
+        };
+    }
+  };
+
+  const templateStyles = getTemplateStyles();
+  
+  // Fallback image for Hero Visual template
+  const heroImageUrl = config.broker?.cover_url || 
+    'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1600&q=80';
+
   return (
     <div className="min-h-screen bg-background" style={{ '--primary': config.primary_color, '--secondary': config.secondary_color } as any}>
-      {/* Header */}
-      <header className="py-8 text-center" style={{ backgroundColor: config.primary_color }}>
-        <div className="container mx-auto px-4">
+      {/* Header with conditional template styles */}
+      <header 
+        className={`${templateStyles.heroHeight} ${templateStyles.headerBg} flex items-center justify-center relative overflow-hidden`}
+        style={templateStyles.useBackgroundImage ? {
+          backgroundImage: `url(${heroImageUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : { backgroundColor: config.primary_color }}
+      >
+        {/* Overlay for Hero Visual template */}
+        {templateStyles.useBackgroundImage && (
+          <div className="absolute inset-0 bg-black/50"></div>
+        )}
+        
+        <div className="container mx-auto px-4 text-center relative z-10">
           {config.broker?.avatar_url && (
             <img 
               src={config.broker.avatar_url} 
               alt={config.broker.name}
-              className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white"
+              className={`w-24 h-24 rounded-full mx-auto mb-4 border-4 ${templateStyles.avatarBorder}`}
             />
           )}
-          <h1 className="text-4xl font-bold text-white mb-2">{config.title}</h1>
-          <p className="text-white/90 text-lg">{config.description}</p>
+          <h1 className={`${templateStyles.titleSize} font-bold ${templateStyles.textColor} mb-2`}>
+            {config.title}
+          </h1>
+          <p className={`${templateStyles.textColor}/90 text-lg max-w-2xl mx-auto`}>
+            {config.description}
+          </p>
           {config.broker && (
-            <p className="text-white/80 mt-2">
+            <p className={`${templateStyles.textColor}/80 mt-2`}>
               {config.broker.name} {config.broker.creci && `- CRECI: ${config.broker.creci}`}
             </p>
           )}
