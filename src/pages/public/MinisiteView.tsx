@@ -468,8 +468,8 @@ export default function MinisiteView() {
           titleSize: 'text-4xl',
           useBackgroundImage: false,
           ctaSize: 'default',
-          textColor: 'text-white',
-          avatarBorder: 'border-white'
+          textColor: 'text-gray-900',
+          avatarBorder: 'border-primary'
         };
     }
   };
