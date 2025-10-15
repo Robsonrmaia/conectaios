@@ -444,10 +444,17 @@ export default function MinisiteView() {
   const getTemplateStyles = () => {
     const templateId = config?.template_id || 'modern';
     
-    console.log('🎨 Template ID:', templateId);
+    console.log('🎨 [TEMPLATE DEBUG]', {
+      template_id: config?.template_id,
+      templateId,
+      tipo: typeof templateId,
+      config_exists: !!config,
+      broker_id: config?.broker_id
+    });
     
     switch (templateId) {
       case 'hero-visual':
+        console.log('✅ Aplicando template HERO VISUAL');
         return {
           heroHeight: 'min-h-[80vh]',
           headerBg: 'bg-black/80 backdrop-blur',
@@ -459,8 +466,20 @@ export default function MinisiteView() {
           avatarBorder: 'border-white'
         };
       case 'modern':
+        console.log('✅ Aplicando template MODERNO');
+        return {
+          heroHeight: 'py-8',
+          headerBg: 'bg-white/90 backdrop-blur',
+          heroBg: 'bg-gradient-to-b from-blue-50 to-white',
+          titleSize: 'text-4xl',
+          useBackgroundImage: false,
+          ctaSize: 'default',
+          textColor: 'text-gray-900',
+          avatarBorder: 'border-primary'
+        };
       case 'default':
       default:
+        console.log('⚠️ Aplicando template DEFAULT (fallback)', templateId);
         return {
           heroHeight: 'py-8',
           headerBg: 'bg-white/90 backdrop-blur',
