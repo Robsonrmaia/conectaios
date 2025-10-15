@@ -41,49 +41,17 @@ const TEMPLATES = [
     id: 'modern', 
     name: 'Moderno', 
     preview: '/templates/modern.jpg',
-    description: 'Design limpo e contemporâneo',
+    description: 'Design limpo e profissional com gradiente suave',
     colors: { primary: '#1CA9C9', secondary: '#64748B' },
     style: 'modern'
-  },
-  { 
-    id: 'classic', 
-    name: 'Clássico', 
-    preview: '/templates/classic.jpg',
-    description: 'Elegante e tradicional',
-    colors: { primary: '#8B5CF6', secondary: '#374151' },
-    style: 'classic'
-  },
-  { 
-    id: 'minimal', 
-    name: 'Minimalista', 
-    preview: '/templates/minimal.jpg',
-    description: 'Simplicidade e foco no conteúdo',
-    colors: { primary: '#10B981', secondary: '#6B7280' },
-    style: 'minimal'
-  },
-  { 
-    id: 'luxury', 
-    name: 'Luxo', 
-    preview: '/templates/luxury.jpg',
-    description: 'Sofisticado para imóveis premium',
-    colors: { primary: '#F59E0B', secondary: '#1F2937' },
-    style: 'luxury'
   },
   { 
     id: 'hero-visual', 
     name: 'Hero Visual', 
     preview: '/templates/hero-visual.jpg',
-    description: 'Impacto visual com hero grande e slider',
-    colors: { primary: '#DC2626', secondary: '#1F2937' },
+    description: 'Hero gigante com imagem de fundo impactante',
+    colors: { primary: '#1CA9C9', secondary: '#6DDDEB' },
     style: 'hero-visual'
-  },
-  { 
-    id: 'gallery-premium', 
-    name: 'Galeria Premium', 
-    preview: '/templates/gallery-premium.jpg',
-    description: 'Layout em galeria elegante e sofisticado',
-    colors: { primary: '#B45309', secondary: '#78716C' },
-    style: 'gallery-premium'
   }
 ];
 
@@ -437,95 +405,39 @@ export function MinisiteEditorIntegrated() {
                          <div className="aspect-video rounded mb-2 bg-gradient-to-br overflow-hidden" style={{
                            background: `linear-gradient(135deg, ${template.colors.primary}15, ${template.colors.secondary}15)`
                          }}>
-                           {template.id === 'modern' && (
-                             <svg viewBox="0 0 200 120" className="w-full h-full">
-                               <rect width="200" height="120" fill="#f8fafc"/>
-                               <rect width="200" height="20" fill={template.colors.primary}/>
-                               <rect x="20" y="35" width="160" height="8" rx="4" fill="#e2e8f0"/>
-                               <rect x="20" y="50" width="120" height="6" rx="3" fill="#cbd5e1"/>
-                               <rect x="20" y="70" width="50" height="30" rx="8" fill={template.colors.primary} opacity="0.8"/>
-                               <rect x="80" y="70" width="50" height="30" rx="8" fill={template.colors.secondary} opacity="0.6"/>
-                               <rect x="140" y="70" width="40" height="30" rx="8" fill="#e2e8f0"/>
-                             </svg>
-                           )}
-                           {template.id === 'classic' && (
-                             <svg viewBox="0 0 200 120" className="w-full h-full">
-                               <rect width="200" height="120" fill="#fefefe"/>
-                               <rect x="10" y="10" width="180" height="100" rx="8" fill="none" stroke={template.colors.primary} strokeWidth="2"/>
-                               <rect x="20" y="25" width="160" height="12" rx="6" fill={template.colors.primary}/>
-                               <rect x="30" y="45" width="140" height="6" rx="3" fill="#94a3b8"/>
-                               <rect x="30" y="60" width="100" height="4" rx="2" fill="#cbd5e1"/>
-                               <circle cx="40" cy="85" r="8" fill={template.colors.secondary}/>
-                               <circle cx="65" cy="85" r="8" fill={template.colors.secondary} opacity="0.7"/>
-                               <circle cx="90" cy="85" r="8" fill={template.colors.secondary} opacity="0.5"/>
-                               <rect x="120" y="77" width="60" height="16" rx="8" fill={template.colors.primary} opacity="0.8"/>
-                             </svg>
-                           )}
-                           {template.id === 'minimal' && (
-                             <svg viewBox="0 0 200 120" className="w-full h-full">
-                               <rect width="200" height="120" fill="#ffffff"/>
-                               <line x1="20" y1="30" x2="180" y2="30" stroke={template.colors.primary} strokeWidth="1"/>
-                               <rect x="20" y="40" width="80" height="4" rx="2" fill="#64748b"/>
-                               <rect x="20" y="50" width="60" height="3" rx="1.5" fill="#94a3b8"/>
-                               <rect x="140" y="40" width="40" height="40" rx="20" fill={template.colors.primary} opacity="0.1"/>
-                               <circle cx="160" cy="60" r="15" fill="none" stroke={template.colors.primary} strokeWidth="2"/>
-                               <rect x="20" y="70" width="30" height="3" rx="1.5" fill="#cbd5e1"/>
-                               <rect x="20" y="80" width="25" height="3" rx="1.5" fill="#e2e8f0"/>
-                             </svg>
-                           )}
-                            {template.id === 'luxury' && (
+                            {template.id === 'modern' && (
                               <svg viewBox="0 0 200 120" className="w-full h-full">
-                                <defs>
-                                  <linearGradient id="luxuryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor={template.colors.primary}/>
-                                    <stop offset="100%" stopColor={template.colors.secondary}/>
-                                  </linearGradient>
-                                </defs>
-                                <rect width="200" height="120" fill="#0f172a"/>
-                                <rect x="20" y="20" width="160" height="80" rx="12" fill="url(#luxuryGrad)" opacity="0.15"/>
-                                <rect x="30" y="30" width="140" height="8" rx="4" fill={template.colors.primary}/>
-                                <rect x="40" y="45" width="120" height="4" rx="2" fill="#fbbf24"/>
-                                <polygon points="60,65 80,55 100,65 80,75" fill={template.colors.primary} opacity="0.8"/>
-                                <polygon points="110,65 130,55 150,65 130,75" fill={template.colors.secondary} opacity="0.6"/>
-                                <rect x="40" y="85" width="120" height="2" rx="1" fill="#fbbf24" opacity="0.5"/>
+                                <rect width="200" height="120" fill="#f8fafc"/>
+                                <rect width="200" height="24" fill={template.colors.primary}/>
+                                <rect x="20" y="38" width="160" height="10" rx="5" fill="#e2e8f0"/>
+                                <rect x="20" y="56" width="120" height="6" rx="3" fill="#cbd5e1"/>
+                                <rect x="20" y="72" width="50" height="32" rx="8" fill={template.colors.primary} opacity="0.8"/>
+                                <rect x="78" y="72" width="50" height="32" rx="8" fill={template.colors.secondary} opacity="0.6"/>
+                                <rect x="136" y="72" width="44" height="32" rx="8" fill="#e2e8f0"/>
+                                <text x="100" y="18" fontSize="10" fontWeight="bold" fill="white" textAnchor="middle">Moderno</text>
                               </svg>
                             )}
                             {template.id === 'hero-visual' && (
                               <svg viewBox="0 0 200 120" className="w-full h-full">
-                                <rect width="200" height="120" fill="#1f2937"/>
-                                <rect width="200" height="80" fill={`url(#heroGradient-${template.id})`}/>
-                                <rect x="50" y="25" width="100" height="8" rx="4" fill="white" opacity="0.9"/>
-                                <rect x="60" y="40" width="80" height="6" rx="3" fill="white" opacity="0.7"/>
-                                <rect x="70" y="55" width="60" height="12" rx="6" fill={template.colors.primary}/>
-                                <rect x="20" y="90" width="50" height="25" rx="4" fill="white" opacity="0.1"/>
-                                <rect x="80" y="90" width="50" height="25" rx="4" fill="white" opacity="0.1"/>
-                                <rect x="140" y="90" width="40" height="25" rx="4" fill="white" opacity="0.1"/>
                                 <defs>
                                   <linearGradient id={`heroGradient-${template.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                                     <stop offset="0%" stopColor={template.colors.primary} stopOpacity="0.8"/>
                                     <stop offset="100%" stopColor="#000000" stopOpacity="0.4"/>
                                   </linearGradient>
+                                  <pattern id="heroPattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                                    <rect width="20" height="20" fill="#374151"/>
+                                    <circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/>
+                                  </pattern>
                                 </defs>
-                              </svg>
-                            )}
-                            {template.id === 'gallery-premium' && (
-                              <svg viewBox="0 0 200 120" className="w-full h-full">
-                                <rect width="200" height="120" fill="#fafaf9"/>
-                                <rect width="200" height="18" fill="url(#galleryGradient)" opacity="0.8"/>
-                                <rect x="15" y="35" width="80" height="50" rx="8" fill={template.colors.primary} opacity="0.9"/>
-                                <rect x="105" y="35" width="80" height="50" rx="8" fill={template.colors.secondary} opacity="0.7"/>
-                                <rect x="20" y="90" width="70" height="4" rx="2" fill="#78716c"/>
-                                <rect x="20" y="96" width="50" height="3" rx="1" fill="#a8a29e"/>
-                                <rect x="110" y="90" width="70" height="4" rx="2" fill="#78716c"/>
-                                <rect x="110" y="96" width="50" height="3" rx="1" fill="#a8a29e"/>
-                                <circle cx="25" cy="40" r="3" fill="white" opacity="0.9"/>
-                                <circle cx="110" cy="40" r="3" fill="white" opacity="0.9"/>
-                                <defs>
-                                  <linearGradient id="galleryGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor="#f5f5f4"/>
-                                    <stop offset="100%" stopColor={template.colors.primary} stopOpacity="0.3"/>
-                                  </linearGradient>
-                                </defs>
+                                <rect width="200" height="120" fill="url(#heroPattern)"/>
+                                <rect width="200" height="95" fill={`url(#heroGradient-${template.id})`}/>
+                                <rect x="40" y="30" width="120" height="12" rx="6" fill="white" opacity="0.9"/>
+                                <rect x="50" y="48" width="100" height="8" rx="4" fill="white" opacity="0.7"/>
+                                <rect x="60" y="64" width="80" height="16" rx="8" fill="white"/>
+                                <rect x="20" y="98" width="52" height="18" rx="4" fill="white" opacity="0.15"/>
+                                <rect x="78" y="98" width="52" height="18" rx="4" fill="white" opacity="0.15"/>
+                                <rect x="136" y="98" width="44" height="18" rx="4" fill="white" opacity="0.15"/>
+                                <text x="100" y="38" fontSize="9" fontWeight="bold" fill="white" textAnchor="middle">HERO GIGANTE</text>
                               </svg>
                             )}
                          </div>

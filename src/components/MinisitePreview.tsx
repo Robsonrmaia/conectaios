@@ -167,7 +167,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
                   <Building2 className="h-5 w-5" />
                 )}
               </div>
-              <span className={`font-semibold text-lg ${templateId === 'classic' || templateId === 'luxury' ? 'font-serif' : ''}`}>
+              <span className={`font-semibold text-lg`}>
                 {broker?.name || config?.title || 'Corretor'}
               </span>
             </div>
@@ -297,7 +297,7 @@ export default function MinisitePreview({ config, broker, properties = [], previ
         {/* Properties Section */}
         {config?.show_properties !== false && (
           <section className="p-6">
-            <h2 className={`text-xl font-bold mb-4 ${templateId === 'classic' || templateId === 'luxury' || templateId === 'gallery-premium' ? 'font-serif' : ''}`}>
+            <h2 className={`text-xl font-bold mb-4`}>
               Imóveis em Destaque
             </h2>
             
