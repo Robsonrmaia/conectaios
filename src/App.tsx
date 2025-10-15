@@ -17,6 +17,7 @@ import { LogOut, User } from "lucide-react";
 import { OnboardingTour } from "@/components/OnboardingTour";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import MaintenanceCheck from "@/components/MaintenanceCheck";
+import { ConectaAIChatButton } from "@/components/ConectaAIChat";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/app/Dashboard";
@@ -136,7 +137,10 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 flex flex-col overflow-hidden">
           <header className="h-14 flex items-center justify-between border-b bg-background px-4 shrink-0">
             <SidebarTrigger />
-            <UserInfo />
+            <div className="flex items-center gap-3">
+              <ConectaAIChatButton />
+              <UserInfo />
+            </div>
           </header>
           <main className="flex-1 p-4 sm:p-6 overflow-auto">
             {children}
