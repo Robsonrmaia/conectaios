@@ -69,8 +69,16 @@ const MinisiteRedirect = () => {
 const queryClient = new QueryClient();
 
 const UserInfo = () => {
-  const { user, signOut } = useAuth();
-  const { broker } = useBroker();
+  const { user, signOut, loading: authLoading } = useAuth();
+  const { broker, loading: brokerLoading } = useBroker();
+
+  if (authLoading || brokerLoading) {
+    return (
+      <div className="flex items-center gap-3">
+        <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+      </div>
+    );
+  }
 
   if (!user) return null;
 

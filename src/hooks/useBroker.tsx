@@ -50,14 +50,21 @@ interface BrokerContextType {
 const BrokerContext = createContext<BrokerContextType | undefined>(undefined);
 
 export function BrokerProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { generateUsername } = useUsernameGenerator();
   const [broker, setBroker] = useState<Broker | null>(null);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('🔄 [useBroker] useEffect disparado, user:', user?.id);
+    console.log('🔄 [useBroker] useEffect disparado, user:', user?.id, 'authLoading:', authLoading);
+    
+    // Não executar se Auth ainda está carregando
+    if (authLoading) {
+      console.log('⏳ [useBroker] Aguardando Auth terminar de carregar...');
+      return;
+    }
+    
     if (user) {
       // Add timeout to prevent infinite loading
       const timeout = setTimeout(() => {
@@ -78,7 +85,7 @@ export function BrokerProvider({ children }: { children: React.ReactNode }) {
       setPlan(null);
       setLoading(false);
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   const fetchBrokerProfile = async () => {
     if (!user) {
