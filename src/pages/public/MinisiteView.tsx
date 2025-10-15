@@ -444,6 +444,8 @@ export default function MinisiteView() {
   const getTemplateStyles = () => {
     const templateId = config?.template_id || 'modern';
     
+    console.log('🎨 Template ID:', templateId);
+    
     switch (templateId) {
       case 'hero-visual':
         return {
@@ -457,6 +459,7 @@ export default function MinisiteView() {
           avatarBorder: 'border-white'
         };
       case 'modern':
+      case 'default':
       default:
         return {
           heroHeight: 'py-8',
