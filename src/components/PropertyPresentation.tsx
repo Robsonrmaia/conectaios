@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
@@ -101,6 +101,19 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
     fetchPropertyBroker();
   }, [property.user_id]);
+
+  // Auto-gerar esboço ao abrir a proposta
+  useEffect(() => {
+    if (isOpen && property.fotos && property.fotos.length > 0 && !selectedImageForSketch) {
+      const timer = setTimeout(() => {
+        console.log('🎨 Gerando esboço automaticamente...');
+        setSelectedImageForSketch(property.fotos[0]);
+        setShowSketchProcessor(true);
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, property.fotos, selectedImageForSketch]);
 
   const displayBroker = brokerData || broker;
 
@@ -327,23 +340,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               <div className="text-2xl font-bold text-blue-300">{formatCurrency(property.valor)}</div>
             </div>
           </div>
-          
-          {/* Botão Gerar Esboço - REPOSICIONADO */}
-          {property.fotos && property.fotos.length > 0 && (
-            <Button 
-              onClick={() => {
-                setSelectedImageForSketch(property.fotos[0]);
-                setShowSketchProcessor(true);
-              }}
-              variant="outline" 
-              className="w-full bg-white/90 hover:bg-white backdrop-blur-sm 
-                border-2 border-blue-500 text-blue-600 font-semibold
-                flex items-center justify-center gap-2 py-3"
-            >
-              <Palette className="h-5 w-5" />
-              Criar Esboço com ConectAIOS
-            </Button>
-          )}
         </div>
       </div>
 
@@ -510,10 +506,25 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           </div>
         </section>
 
+        {/* Descrição do Imóvel */}
+        {property.descricao && (
+          <section className="px-6 py-12">
+            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="h-6 w-6 text-blue-600" />
+              Sobre Este Imóvel
+            </h3>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+              {property.descricao}
+            </p>
+          </section>
+        )}
+
         {/* Localização Section */}
         <section className="px-6 py-12 bg-gray-50">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Localização Privilegiada</h2>
-          <p className="text-gray-600 text-lg mb-8">No coração da Vila Madalena, próximo a tudo que você precisa</p>
+          <p className="text-gray-600 text-lg mb-8">
+            {property.neighborhood ? `${property.neighborhood}, ` : ''}{property.city || ''} - Próximo de tudo que você precisa
+          </p>
           
           {/* Map Integration - Enhanced with debug logging */}
           <div className="mb-8">

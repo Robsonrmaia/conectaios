@@ -45,8 +45,11 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
   if (!photos.length) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-2rem)] max-w-4xl h-[90vh] p-0 mx-auto">
+    <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
+      <DialogContent 
+        className="w-[calc(100vw-2rem)] max-w-4xl h-[90vh] p-0 mx-auto"
+        style={{ zIndex: 10020 }}
+      >
         <div className="relative w-full h-full bg-black rounded-lg overflow-hidden">
           {/* Close Button */}
           <Button
