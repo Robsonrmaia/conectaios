@@ -120,7 +120,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     const brokerInfo = {
       name: displayBroker?.name || broker?.name || 'Corretor',
       phone: displayBroker?.phone || broker?.phone,
-      email: displayBroker?.email || broker?.email,
       minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
     };
     
@@ -364,10 +363,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             
             <Button 
               onClick={handleShare}
-              className="py-3 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
+              className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
               size="default"
             >
-              <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               Compartilhar
             </Button>
           </div>

@@ -92,13 +92,12 @@ export function useWhatsAppMessage() {
         message += `📞 ${brokerInfo.phone}\n`;
       }
       
-      // Link do minisite no final (único link adicional permitido)
+      // Link do minisite no final
       if (brokerInfo.minisite) {
-        message += `\n🌐 Mais Imóveis:\n`;
+        message += `\n🌐 *Veja mais imóveis:*\n`;
         message += `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
       }
     } else if (brokerName) {
-      // Fallback apenas com nome
       message += `\n👤 *${brokerName}*\n`;
       message += `_Corretor de Imóveis_`;
     }
