@@ -12,7 +12,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
-import { ClientAIPropertyDescription } from '@/components/ClientAIPropertyDescription';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 
@@ -386,26 +385,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Content Sections */}
       <div className="bg-white">
 
-        {/* Sobre o Imóvel Section */}
+        {/* Photo Gallery Section */}
         <section className="px-6 py-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Sobre o Imóvel</h2>
-          
-          <ClientAIPropertyDescription 
-            property={{
-              ...property,
-              bathrooms: property.bathrooms || 0,
-              parking_spots: property.parking_spots || 0,
-              listing_type: property.listing_type || 'venda',
-              property_type: property.property_type || 'apartamento'
-            }}
-            onDescriptionGenerated={(description) => {
-              // Description will be used internally by the component
-              presentationState.updateDescriptionState(true);
-            }}
-          />
-          
-
-          {/* Photo Gallery - MELHORADA COM ANIMAÇÕES */}
           {property.fotos && property.fotos.length > 1 && (
             <div className="mb-8">
               <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
@@ -512,18 +493,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           </div>
         </section>
 
-        {/* Descrição do Imóvel */}
-        {property.descricao && (
-          <section className="px-6 py-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="h-6 w-6 text-blue-600" />
-              Sobre Este Imóvel
-            </h3>
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-              {property.descricao}
-            </p>
-          </section>
-        )}
 
         {/* Esboço do Imóvel - Se Disponível */}
         {property.sketch_url && (
@@ -689,6 +658,21 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               <Mail className="h-5 w-5" />
               Enviar E-mail
             </Button>
+          </div>
+
+          {/* Botão de Compartilhar WhatsApp Premium */}
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <Button 
+              onClick={handleShare}
+              className="w-full py-4 text-lg font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+              size="lg"
+            >
+              <Share2 className="h-5 w-5" />
+              Compartilhar Proposta
+            </Button>
+            <p className="text-center text-sm text-gray-500 mt-2">
+              Envie esta proposta completa para seus clientes
+            </p>
           </div>
         </section>
 
