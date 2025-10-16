@@ -25,6 +25,7 @@ interface Property {
   bathrooms?: number;
   parking_spots?: number;
   fotos: string[];
+  sketch_url?: string | null;
   user_id?: string;
   listing_type?: string;
   property_type?: string;
@@ -69,8 +70,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     brokerLoading
   });
   const [brokerData, setBrokerData] = useState<any>(null);
-  const [showSketchProcessor, setShowSketchProcessor] = useState(false);
-  const [selectedImageForSketch, setSelectedImageForSketch] = useState<string>('');
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
@@ -102,18 +101,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     fetchPropertyBroker();
   }, [property.user_id]);
 
-  // Auto-gerar esboço ao abrir a proposta
-  useEffect(() => {
-    if (isOpen && property.fotos && property.fotos.length > 0 && !selectedImageForSketch) {
-      const timer = setTimeout(() => {
-        console.log('🎨 Gerando esboço automaticamente...');
-        setSelectedImageForSketch(property.fotos[0]);
-        setShowSketchProcessor(true);
-      }, 2000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [isOpen, property.fotos, selectedImageForSketch]);
 
   const displayBroker = brokerData || broker;
 
@@ -519,6 +506,33 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
           </section>
         )}
 
+        {/* Esboço do Imóvel - Se Disponível */}
+        {property.sketch_url && (
+          <section className="px-6 py-12">
+            <div className="p-6 bg-gradient-to-br from-purple-50 to-white rounded-xl">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Palette className="h-6 w-6 text-purple-600" />
+                Esboço Artístico
+              </h3>
+              <div className="rounded-xl overflow-hidden shadow-lg">
+                <img 
+                  src={property.sketch_url} 
+                  alt="Esboço do imóvel" 
+                  className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                  onClick={() => {
+                    setGalleryPhotos([property.sketch_url!]);
+                    setGalleryInitialIndex(0);
+                    setIsGalleryOpen(true);
+                  }}
+                />
+              </div>
+              <p className="text-sm text-gray-600 mt-3 text-center">
+                ✨ Esboço criado com tecnologia ConectAIOS
+              </p>
+            </div>
+          </section>
+        )}
+
         {/* Localização Section */}
         <section className="px-6 py-12 bg-gray-50">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Localização Privilegiada</h2>
@@ -685,21 +699,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
       />
-
-      {/* Sketch Processor Modal */}
-      {showSketchProcessor && (
-        <ConectaIOSImageProcessor
-          type="sketch"
-          initialImage={selectedImageForSketch}
-          isOpen={showSketchProcessor}
-          onClose={() => setShowSketchProcessor(false)}
-          onImageProcessed={(processedImageUrl) => {
-            console.log('Esboço gerado:', processedImageUrl);
-            setShowSketchProcessor(false);
-            // Aqui você pode salvar o esboço ou exibir em uma galeria
-          }}
-        />
-      )}
 
       {/* Assistente Virtual AI */}
       <PropertyAIAssistant property={{

@@ -83,6 +83,7 @@ interface Property {
   has_sea_view?: boolean;
   watermark_enabled?: boolean;
   furnishing_type?: 'none' | 'furnished' | 'semi_furnished';
+  sketch_url?: string | null;
   sea_distance?: number;
   neighborhood?: string;
   zipcode?: string;
@@ -199,6 +200,50 @@ export default function Imoveis() {
     sea_distance: '',
   });
 
+  const handleSketchProcessed = async (sketchUrl: string, propertyId: string) => {
+    try {
+      console.log('💾 Salvando esboço no banco...', { propertyId, sketchUrl });
+      
+      const { error } = await supabase
+        .from('imovel_features')
+        .upsert({
+          imovel_id: propertyId,
+          key: 'sketch_url',
+          value: sketchUrl
+        }, {
+          onConflict: 'imovel_id,key'
+        });
+      
+      if (error) {
+        console.error('❌ Erro ao salvar esboço:', error);
+        throw error;
+      }
+      
+      console.log('✅ Esboço salvo com sucesso!');
+      
+      setProperties(prev => prev.map(prop => 
+        prop.id === propertyId 
+          ? { ...prop, sketch_url: sketchUrl }
+          : prop
+      ));
+      
+      toast({
+        title: "Esboço Salvo! ✨",
+        description: "O esboço foi gerado e salvo no imóvel",
+      });
+      
+      fetchProperties(pagination.currentPage, pagination.itemsPerPage, true);
+      
+    } catch (error) {
+      console.error('❌ Erro ao salvar esboço:', error);
+      toast({
+        title: "Erro ao Salvar",
+        description: "Não foi possível salvar o esboço. Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const fetchProperties = useCallback(async (page = 1, pageSize = 20, forceRefresh = false) => {
     try {
       setIsLoading(true);
@@ -272,12 +317,12 @@ export default function Imoveis() {
           });
         }
         
-        // Buscar features (banner_type, furnishing_type)
-        const { data: featuresData, error: featuresError } = await supabase
-          .from('imovel_features')
-          .select('imovel_id, key, value')
-          .in('imovel_id', propertyIds)
-          .in('key', ['banner_type', 'furnishing_type']);
+    // Buscar features (banner_type, furnishing_type, sketch_url)
+    const { data: featuresData, error: featuresError } = await supabase
+      .from('imovel_features')
+      .select('imovel_id, key, value')
+      .in('imovel_id', propertyIds)
+      .in('key', ['banner_type', 'furnishing_type', 'sketch_url']);
         
         if (featuresError) {
           console.error('❌ [ADMIN] Erro ao buscar features:', featuresError);
@@ -316,9 +361,10 @@ export default function Imoveis() {
           videos: [],
           descricao: prop.description || '',
           reference_code: prop.reference_code || '',
-          banner_type: features.banner_type || 'none',
-          furnishing_type: (features.furnishing_type || (prop.is_furnished ? 'furnished' : 'none')) as 'none' | 'furnished' | 'semi_furnished',
-          sea_distance: prop.distancia_mar || null,
+        banner_type: features.banner_type || 'none',
+        furnishing_type: (features.furnishing_type || (prop.is_furnished ? 'furnished' : 'none')) as 'none' | 'furnished' | 'semi_furnished',
+        sketch_url: features.sketch_url || null,
+        sea_distance: prop.distancia_mar || null,
           has_sea_view: prop.vista_mar || false,
           neighborhood: prop.neighborhood || '',
           city: prop.city || '',
@@ -1889,6 +1935,29 @@ export default function Imoveis() {
                         <Wand2 className="h-3 w-3 mr-1" />
                         Móveis
                       </Button>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          if (property.fotos && property.fotos.length > 0) {
+                            setSelectedProperty(property);
+                            setProcessorType('sketch');
+                            setIsProcessorOpen(true);
+                          } else {
+                            toast({
+                              title: "Sem Fotos",
+                              description: "Adicione fotos ao imóvel primeiro",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                        title="Gerar Esboço"
+                        className="h-8 text-xs"
+                      >
+                        <Palette className="h-3 w-3 mr-1" />
+                        Esboço
+                      </Button>
                     </div>
                   
                     <div className="grid grid-cols-2 gap-2">
@@ -2366,6 +2435,46 @@ export default function Imoveis() {
             try {
               console.log('Processing image URL:', imageUrl);
               
+              // Se for esboço, tratar diferente
+              if (processorType === 'sketch') {
+                let finalImageUrl = imageUrl;
+                
+                // Upload para Supabase se necessário
+                if (imageUrl.startsWith('blob:') || imageUrl.includes('conectaios') || imageUrl.startsWith('data:')) {
+                  console.log('Converting sketch URL to Supabase upload...');
+                  
+                  const response = await fetch(imageUrl);
+                  if (!response.ok) {
+                    throw new Error('Failed to fetch processed image');
+                  }
+                  
+                  const blob = await response.blob();
+                  const fileName = `sketch-${selectedProperty.id}-${Date.now()}.${blob.type.split('/')[1] || 'jpg'}`;
+                  
+                  const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('property-images')
+                    .upload(fileName, blob);
+                  
+                  if (uploadError) {
+                    console.error('Upload error:', uploadError);
+                    throw uploadError;
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage
+                    .from('property-images')
+                    .getPublicUrl(uploadData.path);
+                  
+                  finalImageUrl = publicUrl;
+                  console.log('Sketch uploaded successfully:', finalImageUrl);
+                }
+                
+                // Salvar sketch usando a função dedicada
+                await handleSketchProcessed(finalImageUrl, selectedProperty.id);
+                setIsProcessorOpen(false);
+                return;
+              }
+              
+              // Para outros tipos (enhance, staging), manter lógica original
               let finalImageUrl = imageUrl;
               
               // Se a URL é um blob ou URL local, fazer upload para Supabase
