@@ -5,17 +5,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatCurrency } from '@/lib/utils';
 
 interface Property {
-  titulo: string;
-  valor: number;
+  id: string;
+  title: string;
+  price: number;
   area: number;
-  quartos: number;
+  bedrooms: number;
   bathrooms?: number;
-  parking_spots?: number;
+  parking?: number;
   neighborhood?: string;
   city?: string;
-  descricao?: string;
-  listing_type?: string;
-  property_type?: string;
+  description?: string;
+  purpose?: string;
+  type?: string;
+  owner_id: string;
 }
 
 interface Message {
@@ -32,7 +34,7 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: `Olá! 👋 Sou seu assistente virtual e estou aqui para ajudá-lo com informações sobre este imóvel incrível. O que gostaria de saber?`
+      content: `Olá! 👋 Sou seu assistente virtual especializado em imóveis.\n\nEstou aqui para ajudá-lo com informações sobre:\n• Este imóvel e seus diferenciais\n• A localização e vizinhança\n• Outros imóveis similares disponíveis\n• Processo de compra/locação\n\nComo posso ajudá-lo? 😊`
     }
   ]);
   const [input, setInput] = useState('');
@@ -63,18 +65,20 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
       const { data, error } = await supabase.functions.invoke('property-ai-assistant', {
         body: {
           property: {
-            titulo: property.titulo,
-            valor: property.valor,
+            id: property.id,
+            title: property.title,
+            price: property.price,
             area: property.area,
-            quartos: property.quartos,
+            bedrooms: property.bedrooms,
             bathrooms: property.bathrooms || 0,
-            parking_spots: property.parking_spots || 0,
+            parking: property.parking || 0,
             neighborhood: property.neighborhood || '',
             city: property.city || '',
-            descricao: property.descricao || '',
-            listing_type: property.listing_type || 'venda',
-            property_type: property.property_type || 'apartamento'
+            description: property.description || '',
+            purpose: property.purpose || 'sale',
+            type: property.type || 'apartment'
           },
+          brokerId: property.owner_id,
           messages: [...messages, userMessage]
         }
       });

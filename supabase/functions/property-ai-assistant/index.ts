@@ -11,9 +11,36 @@ serve(async (req) => {
   }
 
   try {
-    const { property, messages } = await req.json();
+    const { property, messages, brokerId } = await req.json();
     
     console.log('🤖 Property AI Assistant - Nova mensagem');
+    
+    // Buscar imóveis similares do mesmo corretor
+    let similarProperties = [];
+    try {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+      
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const { data, error } = await supabase
+          .from('imoveis')
+          .select('id, title, price, area_total, bedrooms, bathrooms, parking, neighborhood, city, purpose')
+          .eq('owner_id', brokerId)
+          .neq('id', property.id)
+          .eq('status', 'available')
+          .limit(5);
+        
+        if (!error && data) {
+          similarProperties = data;
+          console.log(`✅ Encontrados ${data.length} imóveis similares`);
+        }
+      }
+    } catch (err) {
+      console.error('⚠️ Erro ao buscar imóveis similares:', err);
+    }
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
@@ -25,37 +52,42 @@ serve(async (req) => {
     const systemPrompt = `Você é um assistente virtual especializado em imóveis, representando este imóvel específico:
 
 **Detalhes do Imóvel:**
-- Título: ${property.titulo}
-- Valor: R$ ${property.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-- Área: ${property.area}m²
-- Quartos: ${property.quartos}
-- Banheiros: ${property.bathrooms}
-- Vagas de Garagem: ${property.parking_spots}
-- Localização: ${property.neighborhood}, ${property.city}
-- Tipo: ${property.property_type === 'apartamento' ? 'Apartamento' : property.property_type}
-- Finalidade: ${property.listing_type === 'venda' ? 'Venda' : 'Locação'}
-${property.descricao ? `- Descrição: ${property.descricao}` : ''}
+- Título: ${property.title}
+- Valor: R$ ${property.price?.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) || 'Consultar'}
+- Área: ${property.area || 'N/A'}m²
+- Quartos: ${property.bedrooms || 0}
+- Banheiros: ${property.bathrooms || 0}
+- Vagas de Garagem: ${property.parking || 0}
+- Localização: ${property.neighborhood || ''}, ${property.city || ''}
+- Tipo: ${property.type || 'Imóvel'}
+- Finalidade: ${property.purpose === 'sale' ? 'Venda' : 'Locação'}
+${property.description ? `- Descrição: ${property.description}` : ''}
+
+${similarProperties.length > 0 ? `
+**Outros Imóveis Disponíveis do Mesmo Corretor:**
+${similarProperties.map((prop: any, idx: number) => `
+${idx + 1}. ${prop.title || 'Imóvel'}
+   - Valor: R$ ${prop.price?.toLocaleString('pt-BR') || 'Consultar'}
+   - Área: ${prop.area_total || 'N/A'}m² | Quartos: ${prop.bedrooms || 0} | Banheiros: ${prop.bathrooms || 0}
+   - Localização: ${prop.neighborhood || ''}, ${prop.city || ''}
+`).join('\n')}
+` : ''}
 
 **Sua Missão:**
 1. Convencer o cliente sobre a **qualidade e localização privilegiada** deste imóvel
 2. Responder perguntas de forma **clara, objetiva e persuasiva**
-3. Destacar os **diferenciais e benefícios** do imóvel
-4. Se o cliente demonstrar interesse, **incentivá-lo a agendar uma visita**
-5. Ser sempre **profissional, amigável e prestativo**
+3. Se perguntado sobre outros imóveis, você pode **recomendar os imóveis similares listados acima**
+4. Destacar os **diferenciais e benefícios** do imóvel
+5. Se o cliente demonstrar interesse, **incentivá-lo a agendar uma visita**
+6. Ser sempre **profissional, amigável e prestativo**
 
 **Diretrizes:**
 - Use emojis de forma moderada para tornar a conversa mais agradável
-- Seja breve e direto, evite respostas muito longas
+- Seja breve e direto, evite respostas muito longas (máximo 3-4 parágrafos)
 - Se não souber algo específico, seja honesto mas destaque outras qualidades
 - Sempre termine suas respostas incentivando o próximo passo (visita, contato, etc.)
 - NUNCA invente informações que não foram fornecidas sobre o imóvel
-
-**Exemplos de perguntas que você pode responder:**
-- Sobre o bairro e localização
-- Sobre as características do imóvel
-- Sobre documentação e financiamento
-- Sobre o processo de compra/locação
-- Sobre os diferenciais do imóvel`;
+- Ao recomendar outros imóveis, destaque suas vantagens e diferenças`;
 
     console.log('📤 Enviando requisição para Lovable AI...');
     
@@ -76,7 +108,7 @@ ${property.descricao ? `- Descrição: ${property.descricao}` : ''}
           }))
         ],
         temperature: 0.8,
-        max_tokens: 500
+        max_tokens: 1500
       })
     });
 
