@@ -57,6 +57,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     zipcode: property.zipcode,
     neighborhood: property.neighborhood,
     address: property.address,
+    city: property.city,
+    state: property.state,
     has_sea_view: property.has_sea_view,
     sea_distance: property.sea_distance,
     furnishing_type: property.furnishing_type,

@@ -30,8 +30,11 @@ interface PropertyAIAssistantProps {
 }
 
 export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
+  console.log('🤖 PropertyAIAssistant: Componente montado', { propertyId: property.id });
+  
   // SSR safety check
   if (typeof window === 'undefined') {
+    console.log('🤖 PropertyAIAssistant: SSR detectado, não renderizando');
     return null;
   }
 

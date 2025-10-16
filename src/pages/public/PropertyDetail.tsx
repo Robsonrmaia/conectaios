@@ -43,8 +43,12 @@ export default function PropertyDetail() {
 
   // SSR safety
   useEffect(() => {
+    console.log('🔄 PropertyDetail: Montando componente, isMounted será true');
     setIsMounted(true);
-    return () => setIsMounted(false);
+    return () => {
+      console.log('🔄 PropertyDetail: Desmontando componente');
+      setIsMounted(false);
+    };
   }, []);
 
   useEffect(() => {
@@ -146,23 +150,28 @@ export default function PropertyDetail() {
       />
 
       {/* AI Assistant - only renders on client side */}
-      {isMounted && createPortal(
-        <PropertyAIAssistant property={{
-          id: property.id,
-          title: property.titulo,
-          price: property.valor,
-          area: property.area,
-          bedrooms: property.quartos,
-          bathrooms: property.bathrooms,
-          parking: property.parking_spots,
-          neighborhood: property.neighborhood,
-          city: property.city,
-          description: property.descricao,
-          purpose: property.listing_type,
-          type: property.property_type,
-          owner_id: property.user_id || ''
-        }} />,
-        document.body
+      {isMounted && (
+        <>
+          {console.log('🤖 PropertyDetail: Renderizando PropertyAIAssistant via createPortal', { isMounted, propertyId: property.id })}
+          {createPortal(
+            <PropertyAIAssistant property={{
+              id: property.id,
+              title: property.titulo,
+              price: property.valor,
+              area: property.area,
+              bedrooms: property.quartos,
+              bathrooms: property.bathrooms,
+              parking: property.parking_spots,
+              neighborhood: property.neighborhood,
+              city: property.city,
+              description: property.descricao,
+              purpose: property.listing_type,
+              type: property.property_type,
+              owner_id: property.user_id || ''
+            }} />,
+            document.body
+          )}
+        </>
       )}
     </>
   );
