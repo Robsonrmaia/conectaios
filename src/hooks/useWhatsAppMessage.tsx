@@ -36,11 +36,7 @@ export function useWhatsAppMessage() {
       check: '✅'
     };
 
-    // Linha divisória elegante
-    const divider = '━━━━━━━━━━━━━━━━━';
-
-    let message = `${emojis.house} *OPORTUNIDADE EXCLUSIVA*\n`;
-    message += `${divider}\n\n`;
+    let message = `${emojis.house} *OPORTUNIDADE EXCLUSIVA*\n\n`;
     
     // Título do imóvel
     message += `*${property.titulo.toUpperCase()}*\n\n`;
@@ -52,8 +48,7 @@ export function useWhatsAppMessage() {
     }
     
     // Especificações em formato elegante
-    message += `${emojis.sparkles} *Especificações:*\n`;
-    message += `${divider}\n`;
+    message += `${emojis.sparkles} *Especificações:*\n\n`;
     message += `${emojis.ruler} Área: *${property.area}m²*\n`;
     message += `${emojis.bed} Quartos: *${property.quartos}*\n`;
     
@@ -84,15 +79,13 @@ export function useWhatsAppMessage() {
         ? presentationUrl 
         : `https://www.conectaios.com.br${presentationUrl}`;
       
-      message += `${divider}\n\n`;
-      message += `🎯 *VEJA MAIS DETALHES E FOTOS:*\n`;
+      message += `\n🎯 *VEJA MAIS DETALHES E FOTOS:*\n`;
       message += `${fullUrl}\n\n`;
     }
     
     // Assinatura do corretor com TODOS os dados
     if (brokerInfo) {
-      message += `${divider}\n`;
-      message += `👤 *${brokerInfo.name}*\n`;
+      message += `\n👤 *${brokerInfo.name}*\n`;
       message += `_Corretor de Imóveis_\n\n`;
       
       if (brokerInfo.phone) {
@@ -109,8 +102,7 @@ export function useWhatsAppMessage() {
       }
     } else if (brokerName) {
       // Fallback apenas com nome
-      message += `${divider}\n`;
-      message += `📞 *${brokerName}*\n`;
+      message += `\n📞 *${brokerName}*\n`;
       message += `_Corretor de Imóveis_\n`;
     }
 

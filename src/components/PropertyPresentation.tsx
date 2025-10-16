@@ -111,9 +111,11 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
   const handleShare = async () => {
     const currentUrl = window.location.href;
+    // Sempre usar URL atual quando estiver na página de apresentação
+    // Caso contrário, construir URL manualmente com origem atual
     const presentationUrl = currentUrl.includes('/apresentar/') 
       ? currentUrl 
-      : generatePropertyUrl(property.id);
+      : `${window.location.origin}/apresentar/${property.id}`;
     
     const brokerInfo = {
       name: displayBroker?.name || broker?.name || 'Corretor',
@@ -360,24 +362,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               Agendar Visita
             </Button>
             
-            <Button 
-              onClick={handleShare}
-              disabled={!presentationState.isReadyForSharing}
-              className="py-3 text-sm font-semibold bg-green-600 hover:bg-green-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-              size="default"
-            >
-              {!presentationState.isReadyForSharing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                  Carregando...
-                </>
-              ) : (
-                <>
-                  <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                  Compartilhar
-                </>
-              )}
-            </Button>
           </div>
         </div>
       </div>
