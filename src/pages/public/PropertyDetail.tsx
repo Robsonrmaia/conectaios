@@ -82,11 +82,13 @@ export default function PropertyDetail() {
 
       console.log('✅ Imóvel carregado:', data.property.titulo);
       
-      // Map property data correctly
+      // Map property data correctly - ADICIONAR MAPEAMENTO DAS IMAGENS
       const mappedProperty = {
         ...data.property,
-        fotos: data.property.fotos || []
+        fotos: data.images?.map((img: any) => img.url) || data.property.fotos || []
       };
+
+      console.log('📸 Total de fotos carregadas:', mappedProperty.fotos.length);
 
       setProperty(mappedProperty);
       console.log('✅ Dados carregados com sucesso');

@@ -237,12 +237,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Área - only if > 0 */}
               {property.area > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Home className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Home className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Área</div>
-                    <div className="text-lg sm:text-sm font-bold">{property.area}m²</div>
+                    <div className="text-sm md:text-base text-gray-300">Área</div>
+                    <div className="text-lg md:text-2xl font-bold">{property.area}m²</div>
                   </div>
                 </div>
               )}
@@ -250,12 +250,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Quartos - only if > 0 */}
               {property.quartos > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Bed className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bed className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Quartos</div>
-                    <div className="text-lg sm:text-sm font-bold">{property.quartos}</div>
+                    <div className="text-sm md:text-base text-gray-300">Quartos</div>
+                    <div className="text-lg md:text-2xl font-bold">{property.quartos}</div>
                   </div>
                 </div>
               )}
@@ -263,12 +263,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Banheiros - only if > 0 */}
               {(property.bathrooms || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Bath className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Bath className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Banheiros</div>
-                    <div className="text-lg sm:text-sm font-bold">{property.bathrooms}</div>
+                    <div className="text-sm md:text-base text-gray-300">Banheiros</div>
+                    <div className="text-lg md:text-2xl font-bold">{property.bathrooms}</div>
                   </div>
                 </div>
               )}
@@ -276,12 +276,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Vagas - only if > 0 */}
               {(property.parking_spots || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Car className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Car className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Vagas</div>
-                    <div className="text-lg sm:text-sm font-bold">{property.parking_spots}</div>
+                    <div className="text-sm md:text-base text-gray-300">Vagas</div>
+                    <div className="text-lg md:text-2xl font-bold">{property.parking_spots}</div>
                   </div>
                 </div>
               )}
@@ -289,12 +289,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Vista do Mar */}
               {property.has_sea_view && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Waves className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Waves className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Vista</div>
-                    <div className="text-lg sm:text-sm font-bold">Mar</div>
+                    <div className="text-sm md:text-base text-gray-300">Vista</div>
+                    <div className="text-lg md:text-2xl font-bold">Mar</div>
                   </div>
                 </div>
               )}
@@ -302,12 +302,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Mobiliado */}
               {property.furnishing_type && property.furnishing_type !== 'unfurnished' && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Package className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Package className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Mobiliado</div>
-                    <div className="text-lg sm:text-sm font-bold">Sim</div>
+                    <div className="text-sm md:text-base text-gray-300">Mobiliado</div>
+                    <div className="text-lg md:text-2xl font-bold">Sim</div>
                   </div>
                 </div>
               )}
@@ -315,12 +315,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Distância do Mar - only if > 0 */}
               {(property.sea_distance || 0) > 0 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <MapPin className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <MapPin className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Praia</div>
-                    <div className="text-lg sm:text-sm font-bold">{property.sea_distance}m</div>
+                    <div className="text-sm md:text-base text-gray-300">Praia</div>
+                    <div className="text-lg md:text-2xl font-bold">{property.sea_distance}m</div>
                   </div>
                 </div>
               )}
@@ -328,12 +328,12 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               {/* Luxo/Exclusivo - only if high value */}
               {(property.valor || 0) > 2000000 && (
                 <div className="flex items-center gap-2">
-                  <div className="flex items-center justify-center w-12 h-12 sm:w-8 sm:h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
-                    <Eye className="h-6 w-6 sm:h-4 sm:w-4 text-white" />
+                  <div className="flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full shadow-lg">
+                    <Eye className="h-6 w-6 md:h-8 md:w-8 text-white" />
                   </div>
                   <div>
-                    <div className="text-sm sm:text-xs text-gray-300">Categoria</div>
-                    <div className="text-lg sm:text-sm font-bold">Luxo</div>
+                    <div className="text-sm md:text-base text-gray-300">Categoria</div>
+                    <div className="text-lg md:text-2xl font-bold">Luxo</div>
                   </div>
                 </div>
               )}
@@ -419,6 +419,26 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                 ))}
               </div>
             </div>
+          )}
+
+          {/* Descrição do Imóvel */}
+          {property.descricao && (
+            <>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                  Sobre o Imóvel
+                </h2>
+                <div className="prose prose-lg max-w-none">
+                  <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                    {property.descricao}
+                  </p>
+                </div>
+              </div>
+
+              {/* Separador visual */}
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mb-8" />
+            </>
           )}
 
           {/* Two column layout for specifications */}

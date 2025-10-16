@@ -119,7 +119,13 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-[10020] h-14 w-14 rounded-full shadow-xl 
+        style={{ 
+          position: 'fixed',
+          bottom: '1.5rem',
+          right: '1.5rem',
+          zIndex: 99999
+        }}
+        className="h-14 w-14 rounded-full shadow-xl 
           bg-white hover:bg-gray-50
           border-2 border-gray-800 hover:border-blue-600
           transition-all duration-300 hover:scale-110
@@ -145,9 +151,17 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[10020] w-96 max-w-[calc(100vw-3rem)] 
-      bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col 
-      animate-fade-in animate-scale-in overflow-hidden">
+    <div 
+      style={{ 
+        position: 'fixed',
+        bottom: '1.5rem',
+        right: '1.5rem',
+        zIndex: 99999
+      }}
+      className="w-96 max-w-[calc(100vw-3rem)] 
+        bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col 
+        animate-fade-in animate-scale-in overflow-hidden"
+    >
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
