@@ -77,13 +77,13 @@ export function useWhatsAppMessage() {
     if (presentationUrl) {
       const fullUrl = presentationUrl.startsWith('http') 
         ? presentationUrl 
-        : `https://www.conectaios.com.br${presentationUrl}`;
+        : `https://conectaios.com.br${presentationUrl}`;
       
-      message += `\n🎯 *VEJA MAIS DETALHES E FOTOS:*\n`;
+      message += `\n🎯 *VEJA A PROPOSTA COMPLETA:*\n`;
       message += `${fullUrl}\n`;
     }
     
-    // Assinatura do corretor
+    // Assinatura do corretor (apenas minisite link no final)
     if (brokerInfo) {
       message += `\n👤 *${brokerInfo.name}*\n`;
       message += `_Corretor de Imóveis_\n`;
@@ -92,9 +92,9 @@ export function useWhatsAppMessage() {
         message += `📞 ${brokerInfo.phone}\n`;
       }
       
-      // Link do minisite no final
+      // APENAS o link do minisite no final
       if (brokerInfo.minisite) {
-        message += `\n🌐 *Veja mais imóveis:*\n`;
+        message += `\n🌐 *Mais Imóveis:*\n`;
         message += `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
       }
     } else if (brokerName) {

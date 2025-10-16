@@ -111,11 +111,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
   const handleShare = async () => {
     const currentUrl = window.location.href;
-    // Sempre usar URL atual quando estiver na página de apresentação
-    // Caso contrário, construir URL manualmente com origem atual
-    const presentationUrl = currentUrl.includes('/apresentar/') 
+    // Usar rota /imovel/:id que existe no App.tsx
+    const presentationUrl = currentUrl.includes('/imovel/') 
       ? currentUrl 
-      : `${window.location.origin}/apresentar/${property.id}`;
+      : `https://conectaios.com.br/imovel/${property.id}`;
     
     const brokerInfo = {
       name: displayBroker?.name || broker?.name || 'Corretor',
