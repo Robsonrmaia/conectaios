@@ -100,38 +100,49 @@ export default function PropertyDetail() {
 
   const fetchPropertyAndBroker = async () => {
     try {
-      console.log('🔍 Buscando imóvel via edge function:', id);
+      console.log('🔍 Buscando imóvel:', id);
       
-      // Use edge function to fetch property (bypasses RLS)
+      // Use edge function to fetch property
       const { data, error } = await supabase.functions.invoke('get-property-public', {
         body: { propertyId: id }
       });
 
+      console.log('📦 Resposta da edge function:', { 
+        hasData: !!data, 
+        hasProperty: !!data?.property,
+        hasBroker: !!data?.broker,
+        imageCount: data?.images?.length || 0,
+        error 
+      });
+
       if (error) {
-        console.error('Edge function error:', error);
+        console.error('❌ Edge function error:', error);
         throw new Error('Erro ao buscar imóvel');
       }
 
-      if (!data || !data.property) {
+      if (!data?.property) {
+        console.error('❌ Propriedade não encontrada no retorno');
         throw new Error('Imóvel não encontrado');
       }
 
-      console.log('✅ Imóvel carregado:', data.property.title);
+      console.log('✅ Imóvel carregado:', data.property.titulo);
       
-      setProperty(data.property);
-      setBroker(data.broker);
+      // Map property data correctly
+      const mappedProperty = {
+        ...data.property,
+        fotos: data.property.fotos || []
+      };
 
-      // Fetch images separately if needed
-      if (data.images && data.images.length > 0) {
-        const imageUrls = data.images.map((img: any) => img.url);
-        setProperty((prev: any) => prev ? { ...prev, fotos: imageUrls } : null);
-      }
+      setProperty(mappedProperty);
+      setBroker(data.broker);
+      
+      console.log('✅ Dados carregados com sucesso');
 
     } catch (error) {
-      console.error('Error fetching property:', error);
+      console.error('💥 Erro fatal:', error);
       toast({
-        title: "Erro",
-        description: "Imóvel não encontrado ou não disponível",
+        title: "Erro ao carregar imóvel",
+        description: error instanceof Error ? error.message : "Erro desconhecido",
         variant: "destructive",
       });
     } finally {

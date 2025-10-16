@@ -74,6 +74,13 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // SSR safety: detect client-side mounting
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -687,7 +694,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       />
 
       {/* Assistente Virtual AI - Usando portal para garantir position fixed correto */}
-      {createPortal(
+      {isMounted && createPortal(
         <PropertyAIAssistant property={{
           id: property.id,
           title: property.titulo,
