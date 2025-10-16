@@ -692,26 +692,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
       />
-
-      {/* Assistente Virtual AI - Usando portal para garantir position fixed correto */}
-      {isMounted && createPortal(
-        <PropertyAIAssistant property={{
-          id: property.id,
-          title: property.titulo,
-          price: property.valor,
-          area: property.area,
-          bedrooms: property.quartos,
-          bathrooms: property.bathrooms,
-          parking: property.parking_spots,
-          neighborhood: property.neighborhood,
-          city: property.city,
-          description: property.descricao,
-          purpose: property.listing_type,
-          type: property.property_type,
-          owner_id: property.user_id || ''
-        }} />,
-        document.body
-      )}
     </div>
   );
 }

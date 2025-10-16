@@ -22,6 +22,46 @@ serve(async (req) => {
     
     console.log('🔍 Buscando lugares próximos para:', { zipcode, neighborhood, address, city, state });
 
+    // Função para retornar lugares reais de Ilhéus
+    function getLocalPlaces(city: string, neighborhood: string): PlaceOfInterest[] {
+      const cityNorm = (city || '').toLowerCase();
+      const neighborhoodNorm = (neighborhood || '').toLowerCase();
+      
+      // Pontos específicos para Ilhéus, bairro Nossa Senhora da Vitória
+      if (cityNorm.includes('ilh') || cityNorm.includes('ilheus')) {
+        if (neighborhoodNorm.includes('vit') || neighborhoodNorm.includes('nossa')) {
+          return [
+            { name: 'Praia do Cristo', distance: '350m', category: 'Lazer', icon: 'waves' },
+            { name: 'Catedral de São Sebastião', distance: '800m', category: 'Cultura', icon: 'building-2' },
+            { name: 'Hospital São José', distance: '1.2km', category: 'Saúde', icon: 'hospital' },
+            { name: 'Shopping Jequitibá', distance: '2.5km', category: 'Compras', icon: 'shopping-bag' },
+            { name: 'UESC - Universidade Estadual', distance: '5km', category: 'Educação', icon: 'graduation-cap' }
+          ];
+        }
+        
+        // Pontos gerais de Ilhéus (outros bairros)
+        return [
+          { name: 'Centro Histórico', distance: '1km', category: 'Cultura', icon: 'building-2' },
+          { name: 'Praia dos Milionários', distance: '2km', category: 'Lazer', icon: 'waves' },
+          { name: 'Aeroporto Jorge Amado', distance: '3km', category: 'Transporte', icon: 'train' },
+          { name: 'Mercado Municipal', distance: '1.5km', category: 'Compras', icon: 'shopping-bag' },
+          { name: 'Casa de Cultura Jorge Amado', distance: '800m', category: 'Cultura', icon: 'graduation-cap' }
+        ];
+      }
+      
+      return []; // Se não for Ilhéus, retornar vazio e usar Mapbox
+    }
+
+    // Verificar se temos lugares locais pré-definidos
+    const localPlaces = getLocalPlaces(city, neighborhood);
+    if (localPlaces.length > 0) {
+      console.log('✅ Usando pontos de interesse locais pré-definidos para Ilhéus');
+      return new Response(
+        JSON.stringify({ places: localPlaces }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get Mapbox token from secrets
     const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
     
