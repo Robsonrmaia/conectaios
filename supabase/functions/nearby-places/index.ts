@@ -62,48 +62,52 @@ serve(async (req) => {
     const [longitude, latitude] = geocodeData.features[0].center;
     console.log('✅ Coordenadas encontradas:', { latitude, longitude });
 
-    // Search for nearby places using Mapbox POI
-    const categories = [
-      'shopping_mall,convenience,supermarket', // Compras
-      'transit_station,bus_station,subway_station', // Transporte
-      'hospital,clinic,pharmacy', // Saúde  
-      'school,university,college', // Educação
-      'park,beach,recreation', // Lazer
-    ];
-
+    // Search for nearby places using Mapbox Search API
     const places: PlaceOfInterest[] = [];
     
-    for (const category of categories) {
-      const poiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?proximity=${longitude},${latitude}&access_token=${MAPBOX_TOKEN}&limit=2&types=poi`;
-      
+    // Define search categories and their mapping
+    const searchCategories = [
+      { query: 'shopping mall', category: 'Compras', icon: 'shopping-bag' },
+      { query: 'supermarket', category: 'Compras', icon: 'shopping-bag' },
+      { query: 'bus station', category: 'Transporte', icon: 'train' },
+      { query: 'hospital', category: 'Saúde', icon: 'hospital' },
+      { query: 'pharmacy', category: 'Saúde', icon: 'hospital' },
+      { query: 'school', category: 'Educação', icon: 'graduation-cap' },
+      { query: 'park', category: 'Lazer', icon: 'tree-pine' },
+      { query: 'beach', category: 'Lazer', icon: 'waves' },
+    ];
+
+    for (const searchItem of searchCategories) {
       try {
-        const poiResponse = await fetch(poiUrl);
-        const poiData = await poiResponse.json();
+        // Use Mapbox Geocoding API with types=poi
+        const searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchItem.query)}.json?proximity=${longitude},${latitude}&access_token=${MAPBOX_TOKEN}&limit=1&types=poi`;
+        
+        const searchResponse = await fetch(searchUrl);
+        const searchData = await searchResponse.json();
 
-        if (poiData.features && poiData.features.length > 0) {
-          for (const feature of poiData.features) {
-            const placeName = feature.text || feature.place_name;
-            const placeCoords = feature.center;
-            
-            // Calculate distance
-            const distance = calculateDistance(
-              latitude, longitude,
-              placeCoords[1], placeCoords[0]
-            );
+        if (searchData.features && searchData.features.length > 0) {
+          const feature = searchData.features[0];
+          const placeName = feature.text || feature.place_name;
+          const placeCoords = feature.center;
+          
+          // Calculate distance
+          const distance = calculateDistance(
+            latitude, longitude,
+            placeCoords[1], placeCoords[0]
+          );
 
-            // Map category to icon and label
-            const categoryInfo = mapCategory(feature.properties?.category || category.split(',')[0]);
-            
+          // Only add if distance is reasonable (< 5km)
+          if (distance < 5) {
             places.push({
               name: placeName,
               distance: formatDistance(distance),
-              category: categoryInfo.label,
-              icon: categoryInfo.icon
+              category: searchItem.category,
+              icon: searchItem.icon
             });
           }
         }
       } catch (error) {
-        console.error('❌ Erro ao buscar POIs:', error);
+        console.error(`❌ Erro ao buscar ${searchItem.query}:`, error);
       }
     }
 

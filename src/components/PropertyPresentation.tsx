@@ -687,7 +687,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       />
 
       {/* Assistente Virtual AI - Usando portal para garantir position fixed correto */}
-      {isOpen && createPortal(
+      {createPortal(
         <PropertyAIAssistant property={{
           id: property.id,
           title: property.titulo,

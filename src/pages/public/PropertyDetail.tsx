@@ -100,34 +100,32 @@ export default function PropertyDetail() {
 
   const fetchPropertyAndBroker = async () => {
     try {
-      // Fetch property - Simplificado para aceitar qualquer imóvel disponível
-      const { data: propertyData, error: propertyError } = await supabase
-        .from('imoveis')
-        .select('*')
-        .eq('id', id)
-        .single();
+      console.log('🔍 Buscando imóvel via edge function:', id);
+      
+      // Use edge function to fetch property (bypasses RLS)
+      const { data, error } = await supabase.functions.invoke('get-property-public', {
+        body: { propertyId: id }
+      });
 
-      if (propertyError) {
-        console.error('Property fetch error:', propertyError);
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error('Erro ao buscar imóvel');
+      }
+
+      if (!data || !data.property) {
         throw new Error('Imóvel não encontrado');
       }
+
+      console.log('✅ Imóvel carregado:', data.property.title);
       
-      if (!propertyData) {
-        throw new Error('Imóvel não encontrado');
+      setProperty(data.property);
+      setBroker(data.broker);
+
+      // Fetch images separately if needed
+      if (data.images && data.images.length > 0) {
+        const imageUrls = data.images.map((img: any) => img.url);
+        setProperty((prev: any) => prev ? { ...prev, fotos: imageUrls } : null);
       }
-      
-      setProperty(propertyData);
-
-      // Fetch broker info (only business-safe fields for public access)
-      const { data: brokerData, error: brokerError } = await supabase
-        .from('conectaios_brokers')
-        .select('id, name, username, bio, avatar_url, cover_url, status')
-        .eq('user_id', propertyData.user_id)
-        .eq('status', 'active')
-        .single();
-
-      if (brokerError) throw brokerError;
-      setBroker(brokerData);
 
     } catch (error) {
       console.error('Error fetching property:', error);
