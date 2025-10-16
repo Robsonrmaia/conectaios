@@ -210,7 +210,7 @@ export function ConectaIOSImageProcessor({
           )}
           
           <iframe
-            src={`https://imagens-conectaios-420832656535.us-west1.run.app${initialImage ? `?imageUrl=${encodeURIComponent(initialImage)}&action=${type}` : ''}`}
+            src={`https://imagens-conectaios-420832656535.us-west1.run.app${initialImage ? `?imageUrl=${encodeURIComponent(initialImage)}&action=${type}${type === 'sketch' ? '&autoSelect=sketch' : ''}` : ''}`}
             className="w-full h-full border-0 rounded-lg"
             title="ConectAIOS Image Processor"
             sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-downloads allow-top-navigation"

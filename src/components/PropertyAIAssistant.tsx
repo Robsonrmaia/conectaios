@@ -114,12 +114,24 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-2xl 
-          bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800
-          animate-pulse hover:animate-none transition-all duration-300 hover:scale-110"
+        className="fixed bottom-6 right-6 z-50 h-16 w-16 rounded-full shadow-2xl 
+          bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 
+          hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800
+          ring-4 ring-purple-200/50 hover:ring-purple-300/70
+          transition-all duration-500 hover:scale-105
+          group relative overflow-hidden"
         size="icon"
       >
-        <Bot className="h-6 w-6" />
+        {/* Efeito de brilho sutil */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 
+          opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        
+        {/* Pulsação suave */}
+        <div className="absolute inset-0 rounded-full bg-purple-400/30 
+          animate-ping-slow opacity-75" />
+        
+        {/* Ícone */}
+        <Bot className="h-7 w-7 relative z-10 text-white drop-shadow-lg" />
       </Button>
     );
   }

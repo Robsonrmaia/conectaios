@@ -11,43 +11,77 @@ interface Property {
 }
 
 export function useWhatsAppMessage() {
-  const generatePropertyMessage = (property: Property, presentationUrl?: string) => {
+  const generatePropertyMessage = (property: Property, presentationUrl?: string, brokerName?: string) => {
     const emojis = {
       house: '🏡',
       sparkles: '✨',
       bed: '🛏️',
+      bath: '🚿',
       car: '🚗',
-      money: '💰'
+      money: '💰',
+      location: '📍',
+      ruler: '📐',
+      check: '✅'
     };
 
-    let message = `${emojis.house} *${property.titulo}*\n\n`;
+    // Linha divisória elegante
+    const divider = '━━━━━━━━━━━━━━━━━';
+
+    let message = `${emojis.house} *OPORTUNIDADE EXCLUSIVA*\n`;
+    message += `${divider}\n\n`;
     
-    // Adicionar localização se disponível
+    // Título do imóvel
+    message += `*${property.titulo.toUpperCase()}*\n\n`;
+    
+    // Localização em destaque
     if (property.neighborhood) {
-      message += `📍 *${property.neighborhood}*\n\n`;
+      message += `${emojis.location} *Localização:*\n`;
+      message += `   ${property.neighborhood}\n\n`;
     }
     
-    message += `${emojis.sparkles} ${property.area}m² de área construída\n`;
-    message += `${emojis.bed} ${property.quartos} ${property.quartos > 1 ? 'quartos' : 'quarto'}\n`;
+    // Especificações em formato elegante
+    message += `${emojis.sparkles} *Especificações:*\n`;
+    message += `${divider}\n`;
+    message += `${emojis.ruler} Área: *${property.area}m²*\n`;
+    message += `${emojis.bed} Quartos: *${property.quartos}*\n`;
     
-    // Adicionar banheiros se disponível
     if (property.bathrooms && property.bathrooms > 0) {
-      message += `🚿 ${property.bathrooms} ${property.bathrooms > 1 ? 'banheiros' : 'banheiro'}\n`;
+      message += `${emojis.bath} Banheiros: *${property.bathrooms}*\n`;
     }
     
     if (property.parking_spots && property.parking_spots > 0) {
-      message += `${emojis.car} ${property.parking_spots} ${property.parking_spots > 1 ? 'vagas de garagem' : 'vaga de garagem'}\n`;
+      message += `${emojis.car} Vagas: *${property.parking_spots}*\n`;
     }
     
-    message += `\n${emojis.money} *${formatCurrency(property.valor)}*\n\n`;
-    message += `🏠 Imóvel de alto padrão em localização privilegiada!\n\n`;
+    message += `\n`;
     
+    // Valor em destaque com box
+    message += `╭─────────────────╮\n`;
+    message += `│ ${emojis.money} *VALOR*          │\n`;
+    message += `│ *${formatCurrency(property.valor)}* │\n`;
+    message += `╰─────────────────╯\n\n`;
+    
+    // Diferenciais
+    message += `${emojis.check} *Imóvel Premium*\n`;
+    message += `${emojis.check} *Localização Privilegiada*\n`;
+    message += `${emojis.check} *Pronto para Morar*\n\n`;
+    
+    // CTA com link
     if (presentationUrl) {
-      // Se for uma URL relativa, converter para URL completa
       const fullUrl = presentationUrl.startsWith('http') 
         ? presentationUrl 
         : `https://www.conectaios.com.br${presentationUrl}`;
-      message += `Veja mais detalhes: ${fullUrl}`;
+      
+      message += `${divider}\n\n`;
+      message += `🎯 *VEJA MAIS DETALHES E FOTOS:*\n`;
+      message += `${fullUrl}\n\n`;
+    }
+    
+    // Assinatura do corretor
+    if (brokerName) {
+      message += `${divider}\n`;
+      message += `📞 *${brokerName}*\n`;
+      message += `_Corretor de Imóveis_\n`;
     }
 
     return message;

@@ -1858,7 +1858,8 @@ export default function Imoveis() {
                        />
                     </div>
                   
-                    <div className="grid grid-cols-2 gap-2">
+                    {/* Segunda linha - IA Desc, Avaliar, Qualidade */}
+                    <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -1876,7 +1877,6 @@ export default function Imoveis() {
                         variant="outline" 
                         size="sm"
                         onClick={() => {
-                          // Add evaluation functionality here
                           toast({
                             title: "Avaliação de Imóvel",
                             description: "Funcionalidade em desenvolvimento",
@@ -1888,9 +1888,6 @@ export default function Imoveis() {
                         <TrendingUp className="h-3 w-3 mr-1" />
                         Avaliar
                       </Button>
-                    </div>
-                   
-                    <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -1913,6 +1910,10 @@ export default function Imoveis() {
                         <Sparkles className="h-3 w-3 mr-1" />
                         Qualidade
                       </Button>
+                    </div>
+                   
+                    {/* Terceira linha - Móveis, Esboço, Editar */}
+                    <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -1959,7 +1960,8 @@ export default function Imoveis() {
                         Esboço
                       </Button>
                     </div>
-                  
+
+                    {/* Quarta linha - Editar e Excluir */}
                     <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 

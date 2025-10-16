@@ -41,6 +41,23 @@ serve(async (req) => {
     } catch (err) {
       console.error('⚠️ Erro ao buscar imóveis similares:', err);
     }
+
+    // Buscar dados do corretor para obter minisite
+    let brokerInfo = null;
+    try {
+      const { data: brokerData, error: brokerError } = await supabase
+        .from('brokers')
+        .select('name, minisite_slug, username, phone, email')
+        .eq('user_id', brokerId)
+        .single();
+      
+      if (!brokerError && brokerData) {
+        brokerInfo = brokerData;
+        console.log(`✅ Dados do corretor: ${brokerData.name}`);
+      }
+    } catch (err) {
+      console.error('⚠️ Erro ao buscar corretor:', err);
+    }
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
@@ -71,6 +88,16 @@ ${idx + 1}. ${prop.title || 'Imóvel'}
    - Área: ${prop.area_total || 'N/A'}m² | Quartos: ${prop.bedrooms || 0} | Banheiros: ${prop.bathrooms || 0}
    - Localização: ${prop.neighborhood || ''}, ${prop.city || ''}
 `).join('\n')}
+` : ''}
+
+${brokerInfo ? `
+**Informações do Corretor:**
+- Nome: ${brokerInfo.name || 'Corretor'}
+- Minisite: https://conectaios.com.br/minisite/${brokerInfo.minisite_slug || brokerInfo.username || brokerId}
+${brokerInfo.phone ? `- WhatsApp: ${brokerInfo.phone}` : ''}
+${brokerInfo.email ? `- Email: ${brokerInfo.email}` : ''}
+
+**IMPORTANTE:** Quando o cliente demonstrar interesse ou pedir contato, forneça o link do minisite do corretor para que ele possa ver mais imóveis e entrar em contato diretamente.
 ` : ''}
 
 **Sua Missão:**
