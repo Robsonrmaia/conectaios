@@ -135,6 +135,35 @@ export function ConectaIOSImageProcessor({
 
   useEffect(() => {
     if (isOpen) {
+      toast({
+        title: "Processando Imagem",
+        description: "Aguarde enquanto processamos sua imagem...",
+      });
+    }
+  }, [isOpen]);
+
+  // Auto-select sketch tool when opening sketch mode
+  useEffect(() => {
+    if (isOpen && type === 'sketch') {
+      const timer = setTimeout(() => {
+        const iframe = document.querySelector('iframe[title="ConectAIOS Image Processor"]') as HTMLIFrameElement;
+        
+        if (iframe && iframe.contentWindow) {
+          addDebugInfo('📤 Enviando comando para selecionar esboço...');
+          
+          iframe.contentWindow.postMessage({
+            type: 'SELECT_TOOL',
+            tool: 'sketch'
+          }, 'https://imagens-conectaios-420832656535.us-west1.run.app');
+        }
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, type]);
+
+  useEffect(() => {
+    if (isOpen) {
       const typeLabel = getTitle();
       toast({
         title: "ConectAIOS Processamento",

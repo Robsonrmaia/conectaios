@@ -10,8 +10,20 @@ interface Property {
   bathrooms?: number;
 }
 
+interface BrokerInfo {
+  name: string;
+  phone?: string;
+  email?: string;
+  minisite?: string;
+}
+
 export function useWhatsAppMessage() {
-  const generatePropertyMessage = (property: Property, presentationUrl?: string, brokerName?: string) => {
+  const generatePropertyMessage = (
+    property: Property, 
+    presentationUrl?: string, 
+    brokerName?: string,
+    brokerInfo?: BrokerInfo
+  ) => {
     const emojis = {
       house: '🏡',
       sparkles: '✨',
@@ -77,8 +89,26 @@ export function useWhatsAppMessage() {
       message += `${fullUrl}\n\n`;
     }
     
-    // Assinatura do corretor
-    if (brokerName) {
+    // Assinatura do corretor com TODOS os dados
+    if (brokerInfo) {
+      message += `${divider}\n`;
+      message += `👤 *${brokerInfo.name}*\n`;
+      message += `_Corretor de Imóveis_\n\n`;
+      
+      if (brokerInfo.phone) {
+        message += `📞 WhatsApp: *${brokerInfo.phone}*\n`;
+      }
+      
+      if (brokerInfo.email) {
+        message += `📧 Email: ${brokerInfo.email}\n`;
+      }
+      
+      if (brokerInfo.minisite) {
+        const minisiteUrl = `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
+        message += `🌐 Mais Imóveis: ${minisiteUrl}\n`;
+      }
+    } else if (brokerName) {
+      // Fallback apenas com nome
       message += `${divider}\n`;
       message += `📞 *${brokerName}*\n`;
       message += `_Corretor de Imóveis_\n`;

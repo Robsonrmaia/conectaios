@@ -30,14 +30,12 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
   const [generatedDescription, setGeneratedDescription] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const { sendMessage, loading } = useAI();
-  const hasGeneratedRef = useRef(false);
 
   const generateClientDescription = async () => {
-    if (isGenerating || loading || hasGeneratedRef.current) {
+    if (isGenerating || loading) {
       return;
     }
 
-    hasGeneratedRef.current = true;
     setIsGenerating(true);
     
     const prompt = `
@@ -109,26 +107,24 @@ export function ClientAIPropertyDescription({ property, onDescriptionGenerated }
     }
   };
 
-  // Auto-generate on mount - single execution
-  useEffect(() => {
-    if (property.id && property.titulo && !hasGeneratedRef.current) {
-      console.log('Starting AI description generation for:', property.titulo);
-      generateClientDescription();
-    }
-  }, [property.id]);
-
   return (
     <div className="text-center py-2">
+      {!isGenerating && !loading && !generatedDescription && (
+        <div className="text-sm text-muted-foreground">
+          Descrição disponível para compartilhamento
+        </div>
+      )}
+      
       {(isGenerating || loading) && (
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
-          Personalizando descrição para clientes...
+          Gerando descrição personalizada...
         </div>
       )}
       
       {generatedDescription && !isGenerating && !loading && (
-        <div className="text-sm text-muted-foreground">
-          ✨ Descrição personalizada para clientes
+        <div className="prose prose-sm max-w-none text-gray-700 leading-relaxed">
+          {generatedDescription}
         </div>
       )}
     </div>

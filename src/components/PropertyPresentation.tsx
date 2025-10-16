@@ -111,13 +111,32 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   };
 
   const handleShare = async () => {
-    // Use a URL da própria apresentação que está aberta
     const currentUrl = window.location.href;
     const presentationUrl = currentUrl.includes('/apresentar/') 
       ? currentUrl 
       : generatePropertyUrl(property.id);
     
-    const message = generatePropertyMessage(property as any, presentationUrl);
+    const brokerInfo = {
+      name: displayBroker?.name || broker?.name || 'Corretor',
+      phone: displayBroker?.phone || broker?.phone,
+      email: displayBroker?.email || broker?.email,
+      minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
+    };
+    
+    const message = generatePropertyMessage(
+      {
+        titulo: property.titulo,
+        valor: property.valor,
+        area: property.area,
+        quartos: property.quartos,
+        bathrooms: property.bathrooms,
+        parking_spots: property.parking_spots,
+        neighborhood: property.neighborhood
+      } as any, 
+      presentationUrl,
+      brokerInfo.name,
+      brokerInfo
+    );
     
     if (navigator.share) {
       await navigator.share({
