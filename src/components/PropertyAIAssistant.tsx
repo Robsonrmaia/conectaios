@@ -118,15 +118,21 @@ export function PropertyAIAssistant({ property }: PropertyAIAssistantProps) {
           bg-white hover:bg-gray-50
           border-2 border-gray-800 hover:border-blue-600
           transition-all duration-300 hover:scale-110
-          group relative"
+          group relative
+          animate-bounce-gentle"
         size="icon"
       >
-        {/* Pulsação suave externa */}
-        <div className="absolute inset-0 rounded-full border-2 border-gray-400 
-          animate-ping-slow opacity-30" />
+        {/* Pulsação suave externa - anel que expande */}
+        <div className="absolute inset-0 rounded-full border-2 border-blue-400 
+          animate-ping opacity-20" />
         
-        {/* Ícone de Contorno */}
-        <Bot className="h-6 w-6 relative z-10 text-gray-800 group-hover:text-blue-600 transition-colors" 
+        {/* Segundo anel de pulsação */}
+        <div className="absolute inset-0 rounded-full border-2 border-gray-400 
+          animate-pulse opacity-30" />
+        
+        {/* Ícone com movimento suave */}
+        <Bot className="h-6 w-6 relative z-10 text-gray-800 group-hover:text-blue-600 
+          transition-all duration-300 group-hover:rotate-12" 
           strokeWidth={2.5} 
         />
       </Button>

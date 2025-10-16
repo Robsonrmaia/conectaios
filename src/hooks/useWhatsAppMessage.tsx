@@ -79,7 +79,7 @@ export function useWhatsAppMessage() {
         ? presentationUrl 
         : `https://conectaios.com.br${presentationUrl}`;
       
-      message += `\n🎯 *VEJA A PROPOSTA COMPLETA:*\n`;
+      message += `\n🎯 *VER PROPOSTA COMPLETA:*\n`;
       message += `${fullUrl}\n`;
     }
     

@@ -134,22 +134,27 @@ export default {
 					'50%': { 'stroke-dasharray': '100 100', opacity: '0.6' },
 					'100%': { 'stroke-dasharray': '200 0', opacity: '0.3' }
 				},
-				'neural-float': {
-					'0%, 100%': { transform: 'translateY(0px)' },
-					'50%': { transform: 'translateY(-5px)' }
-				}
+			'neural-float': {
+				'0%, 100%': { transform: 'translateY(0px)' },
+				'50%': { transform: 'translateY(-5px)' }
 			},
+			'bounce-gentle': {
+				'0%, 100%': { transform: 'translateY(0)' },
+				'50%': { transform: 'translateY(-10px)' }
+			}
+		},
 			animation: {
 				'gradient-shift': 'gradient-shift 2s linear infinite',
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
 				'line-draw': 'line-draw 8s ease-in-out infinite',
 				'pulse-gentle': 'pulse-gentle 4s ease-in-out infinite',
-				'typing-dot': 'typing-dot 1.4s ease-in-out infinite',
-				'neural-glow': 'neural-glow 4s ease-in-out infinite',
-				'network-line': 'network-line 3s ease-in-out infinite',
-				'neural-float': 'neural-float 6s ease-in-out infinite'
-			}
+			'typing-dot': 'typing-dot 1.4s ease-in-out infinite',
+			'neural-glow': 'neural-glow 4s ease-in-out infinite',
+			'network-line': 'network-line 3s ease-in-out infinite',
+			'neural-float': 'neural-float 6s ease-in-out infinite',
+			'bounce-gentle': 'bounce-gentle 3s ease-in-out infinite'
+		}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

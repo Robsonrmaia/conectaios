@@ -5,6 +5,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface PlaceOfInterest {
+  name: string;
+  distance: string;
+  category: string;
+  icon: string;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -14,147 +21,155 @@ serve(async (req) => {
     const { zipcode, neighborhood, address, city, state } = await req.json();
     
     console.log('🔍 Buscando lugares próximos para:', { zipcode, neighborhood, address, city, state });
-    
-    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_PUBLIC_TOKEN');
+
+    // Get Mapbox token from secrets
+    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
     
     if (!MAPBOX_TOKEN) {
-      throw new Error('MAPBOX_PUBLIC_TOKEN não configurado');
+      console.warn('⚠️ MAPBOX_TOKEN não configurado, usando fallback');
+      return new Response(
+        JSON.stringify({ places: [] }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    // Build search query
+    const searchQuery = [address, neighborhood, city, state].filter(Boolean).join(', ');
     
-    // Construir query de localização
-    let locationQuery = '';
-    if (address) {
-      locationQuery = `${address}, ${city || ''} ${state || ''} Brazil`.trim();
-    } else {
-      const parts = [neighborhood, city, state, 'Brazil'].filter(Boolean);
-      locationQuery = parts.join(', ');
+    if (!searchQuery) {
+      console.log('⚠️ Sem dados de localização suficientes');
+      return new Response(
+        JSON.stringify({ places: [] }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-    
-    if (zipcode) {
-      locationQuery = `${locationQuery} ${zipcode}`.trim();
+
+    console.log('📍 Buscando coordenadas para:', searchQuery);
+
+    // Get coordinates from address using Mapbox Geocoding
+    const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&limit=1`;
+    const geocodeResponse = await fetch(geocodeUrl);
+    const geocodeData = await geocodeResponse.json();
+
+    if (!geocodeData.features || geocodeData.features.length === 0) {
+      console.log('❌ Coordenadas não encontradas');
+      return new Response(
+        JSON.stringify({ places: [] }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-    
-    console.log('📍 Location query:', locationQuery);
-    
-    // Primeiro, obter coordenadas da localização
-    const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(locationQuery)}.json?access_token=${MAPBOX_TOKEN}&country=BR&limit=1`;
-    
-    const geocodingResponse = await fetch(geocodingUrl);
-    const geocodingData = await geocodingResponse.json();
-    
-    if (!geocodingData.features || geocodingData.features.length === 0) {
-      console.log('⚠️ Coordenadas não encontradas');
-      return new Response(JSON.stringify({ places: [] }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    
-    const [lng, lat] = geocodingData.features[0].center;
-    console.log('✅ Coordenadas encontradas:', { lat, lng });
-    
-    // Categorias de pontos de interesse
+
+    const [longitude, latitude] = geocodeData.features[0].center;
+    console.log('✅ Coordenadas encontradas:', { latitude, longitude });
+
+    // Search for nearby places using Mapbox POI
     const categories = [
-      'supermarket',
-      'pharmacy',
-      'hospital',
-      'school',
-      'restaurant',
-      'shopping_mall',
-      'beach',
-      'park'
+      'shopping_mall,convenience,supermarket', // Compras
+      'transit_station,bus_station,subway_station', // Transporte
+      'hospital,clinic,pharmacy', // Saúde  
+      'school,university,college', // Educação
+      'park,beach,recreation', // Lazer
     ];
+
+    const places: PlaceOfInterest[] = [];
     
-    const places = [];
-    
-    // Buscar lugares próximos para cada categoria
-    for (const category of categories.slice(0, 4)) { // Limitar a 4 categorias
+    for (const category of categories) {
+      const poiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?proximity=${longitude},${latitude}&access_token=${MAPBOX_TOKEN}&limit=2&types=poi`;
+      
       try {
-        const searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${category}.json?access_token=${MAPBOX_TOKEN}&proximity=${lng},${lat}&limit=1&types=poi&country=BR`;
-        
-        const searchResponse = await fetch(searchUrl);
-        const searchData = await searchResponse.json();
-        
-        if (searchData.features && searchData.features.length > 0) {
-          const place = searchData.features[0];
-          const [placeLng, placeLat] = place.center;
-          
-          // Calcular distância aproximada em metros
-          const distance = calculateDistance(lat, lng, placeLat, placeLng);
-          
-          places.push({
-            name: place.text || place.place_name,
-            distance: formatDistance(distance),
-            category: getCategoryName(category),
-            icon: getCategoryIcon(category)
-          });
+        const poiResponse = await fetch(poiUrl);
+        const poiData = await poiResponse.json();
+
+        if (poiData.features && poiData.features.length > 0) {
+          for (const feature of poiData.features) {
+            const placeName = feature.text || feature.place_name;
+            const placeCoords = feature.center;
+            
+            // Calculate distance
+            const distance = calculateDistance(
+              latitude, longitude,
+              placeCoords[1], placeCoords[0]
+            );
+
+            // Map category to icon and label
+            const categoryInfo = mapCategory(feature.properties?.category || category.split(',')[0]);
+            
+            places.push({
+              name: placeName,
+              distance: formatDistance(distance),
+              category: categoryInfo.label,
+              icon: categoryInfo.icon
+            });
+          }
         }
       } catch (error) {
-        console.error(`Erro ao buscar ${category}:`, error);
+        console.error('❌ Erro ao buscar POIs:', error);
       }
     }
-    
-    console.log('✅ Lugares encontrados:', places.length);
-    
-    return new Response(JSON.stringify({ places }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-    
+
+    console.log(`✅ ${places.length} lugares encontrados`);
+
+    return new Response(
+      JSON.stringify({ places: places.slice(0, 6) }), // Limit to 6 places
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
   } catch (error) {
-    console.error('❌ Erro:', error);
-    return new Response(JSON.stringify({ error: error.message, places: [] }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    console.error('❌ Erro na função nearby-places:', error);
+    return new Response(
+      JSON.stringify({ error: error.message, places: [] }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
 
-// Função para calcular distância entre duas coordenadas (fórmula de Haversine)
+// Calculate distance between two coordinates (Haversine formula)
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371e3; // Raio da Terra em metros
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-          Math.cos(φ1) * Math.cos(φ2) *
-          Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const R = 6371; // Earth radius in km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
   return R * c;
 }
 
-function formatDistance(meters: number): string {
-  if (meters < 1000) {
-    return `${Math.round(meters)}m`;
+function toRad(degrees: number): number {
+  return degrees * (Math.PI / 180);
+}
+
+function formatDistance(km: number): string {
+  if (km < 1) {
+    return `${Math.round(km * 1000)}m`;
   }
-  return `${(meters / 1000).toFixed(1)}km`;
+  return `${km.toFixed(1)} km`;
 }
 
-function getCategoryName(category: string): string {
-  const names: { [key: string]: string } = {
-    'supermarket': 'Supermercado',
-    'pharmacy': 'Farmácia',
-    'hospital': 'Hospital',
-    'school': 'Escola',
-    'restaurant': 'Restaurante',
-    'shopping_mall': 'Shopping',
-    'beach': 'Praia',
-    'park': 'Parque'
+function mapCategory(category: string): { label: string; icon: string } {
+  const categoryMap: Record<string, { label: string; icon: string }> = {
+    'shopping_mall': { label: 'Compras', icon: 'shopping-bag' },
+    'convenience': { label: 'Compras', icon: 'shopping-bag' },
+    'supermarket': { label: 'Compras', icon: 'shopping-bag' },
+    'transit_station': { label: 'Transporte', icon: 'train' },
+    'bus_station': { label: 'Transporte', icon: 'train' },
+    'subway_station': { label: 'Transporte', icon: 'train' },
+    'hospital': { label: 'Saúde', icon: 'hospital' },
+    'clinic': { label: 'Saúde', icon: 'hospital' },
+    'pharmacy': { label: 'Saúde', icon: 'hospital' },
+    'school': { label: 'Educação', icon: 'graduation-cap' },
+    'university': { label: 'Educação', icon: 'graduation-cap' },
+    'college': { label: 'Educação', icon: 'graduation-cap' },
+    'park': { label: 'Lazer', icon: 'tree-pine' },
+    'beach': { label: 'Lazer', icon: 'waves' },
+    'recreation': { label: 'Lazer', icon: 'tree-pine' },
   };
-  return names[category] || category;
-}
 
-function getCategoryIcon(category: string): string {
-  const icons: { [key: string]: string } = {
-    'supermarket': 'ShoppingBag',
-    'pharmacy': 'Hospital',
-    'hospital': 'Hospital',
-    'school': 'GraduationCap',
-    'restaurant': 'Utensils',
-    'shopping_mall': 'ShoppingBag',
-    'beach': 'Waves',
-    'park': 'TreePine'
-  };
-  return icons[category] || 'MapPin';
+  return categoryMap[category] || { label: 'Ponto de Interesse', icon: 'map-pin' };
 }
