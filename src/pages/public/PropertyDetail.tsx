@@ -71,6 +71,9 @@ export default function PropertyDetail() {
         hasProperty: !!data?.property,
         hasBroker: !!data?.broker,
         imageCount: data?.images?.length || 0,
+        propertyFotosCount: data?.property?.fotos?.length || 0,
+        rawImages: data?.images,
+        propertyFotos: data?.property?.fotos,
         error 
       });
 
@@ -87,12 +90,23 @@ export default function PropertyDetail() {
       console.log('✅ Imóvel carregado:', data.property.titulo);
       
       // Map property data correctly - ADICIONAR MAPEAMENTO DAS IMAGENS
+      const imagesFromEdgeFunction = data.images?.map((img: any) => img.url) || [];
+      const imagesFromProperty = data.property.fotos || [];
+      
+      console.log('🔍 Debug de imagens:', {
+        imagesFromEdgeFunction,
+        imagesFromProperty,
+        totalImagesFromEdgeFunction: imagesFromEdgeFunction.length,
+        totalImagesFromProperty: imagesFromProperty.length
+      });
+
       const mappedProperty = {
         ...data.property,
-        fotos: data.images?.map((img: any) => img.url) || data.property.fotos || []
+        fotos: imagesFromEdgeFunction.length > 0 ? imagesFromEdgeFunction : imagesFromProperty
       };
 
       console.log('📸 Total de fotos carregadas:', mappedProperty.fotos.length);
+      console.log('📸 Primeira foto:', mappedProperty.fotos[0]);
 
       setProperty(mappedProperty);
       console.log('✅ Dados carregados com sucesso');
