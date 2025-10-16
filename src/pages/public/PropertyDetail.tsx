@@ -100,17 +100,22 @@ export default function PropertyDetail() {
 
   const fetchPropertyAndBroker = async () => {
     try {
-      // Fetch property
+      // Fetch property - Simplificado para aceitar qualquer imóvel disponível
       const { data: propertyData, error: propertyError } = await supabase
         .from('imoveis')
         .select('*')
         .eq('id', id)
-        .eq('is_public', true)
-        .or('visibility.eq.public_site,and(visibility.eq.partners,show_on_site.eq.true)')
-        .eq('status', 'available')
         .single();
 
-      if (propertyError) throw propertyError;
+      if (propertyError) {
+        console.error('Property fetch error:', propertyError);
+        throw new Error('Imóvel não encontrado');
+      }
+      
+      if (!propertyData) {
+        throw new Error('Imóvel não encontrado');
+      }
+      
       setProperty(propertyData);
 
       // Fetch broker info (only business-safe fields for public access)

@@ -1,4 +1,5 @@
 import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
@@ -141,7 +142,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       await navigator.share({
         title: property.titulo,
         text: message,
-        url: presentationUrl,
+        // NÃO adicionar url aqui para evitar duplicação (já está na mensagem)
       });
     } else {
       shareToWhatsApp(message, displayBroker?.phone);
@@ -685,23 +686,25 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         onClose={() => setIsGalleryOpen(false)}
       />
 
-      {/* Assistente Virtual AI */}
-      <PropertyAIAssistant property={{
-        id: property.id,
-        title: property.titulo,
-        price: property.valor,
-        area: property.area,
-        bedrooms: property.quartos,
-        bathrooms: property.bathrooms,
-        parking: property.parking_spots,
-        neighborhood: property.neighborhood,
-        city: property.city,
-        description: property.descricao,
-        purpose: property.listing_type,
-        type: property.property_type,
-        owner_id: property.user_id || ''
-      }} />
-
+      {/* Assistente Virtual AI - Usando portal para garantir position fixed correto */}
+      {isOpen && createPortal(
+        <PropertyAIAssistant property={{
+          id: property.id,
+          title: property.titulo,
+          price: property.valor,
+          area: property.area,
+          bedrooms: property.quartos,
+          bathrooms: property.bathrooms,
+          parking: property.parking_spots,
+          neighborhood: property.neighborhood,
+          city: property.city,
+          description: property.descricao,
+          purpose: property.listing_type,
+          type: property.property_type,
+          owner_id: property.user_id || ''
+        }} />,
+        document.body
+      )}
     </div>
   );
 }
