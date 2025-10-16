@@ -2920,6 +2920,73 @@ export type Database = {
         }
         Relationships: []
       }
+      property_interactions: {
+        Row: {
+          created_at: string
+          id: string
+          interaction_data: Json | null
+          interaction_type: string
+          share_link_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          interaction_data?: Json | null
+          interaction_type: string
+          share_link_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          interaction_data?: Json | null
+          interaction_type?: string
+          share_link_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_interactions_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "property_share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_link_views: {
+        Row: {
+          created_at: string
+          id: string
+          referrer: string | null
+          share_link_id: string
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referrer?: string | null
+          share_link_id: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referrer?: string | null
+          share_link_id?: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_link_views_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "property_share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       property_proposals: {
         Row: {
           broker_id: string
@@ -2992,6 +3059,67 @@ export type Database = {
           },
           {
             foreignKeyName: "property_proposals_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_share_links: {
+        Row: {
+          broker_id: string
+          created_at: string
+          first_view_at: string | null
+          id: string
+          last_view_at: string | null
+          property_id: string
+          share_channel: string
+          share_date: string
+          share_id: string
+          view_count: number
+        }
+        Insert: {
+          broker_id: string
+          created_at?: string
+          first_view_at?: string | null
+          id?: string
+          last_view_at?: string | null
+          property_id: string
+          share_channel?: string
+          share_date?: string
+          share_id: string
+          view_count?: number
+        }
+        Update: {
+          broker_id?: string
+          created_at?: string
+          first_view_at?: string | null
+          id?: string
+          last_view_at?: string | null
+          property_id?: string
+          share_channel?: string
+          share_date?: string
+          share_id?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_share_links_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_share_links_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_share_links_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties_market"

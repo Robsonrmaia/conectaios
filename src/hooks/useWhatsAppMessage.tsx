@@ -73,37 +73,34 @@ export function useWhatsAppMessage() {
     message += `${emojis.check} *Localização Privilegiada*\n`;
     message += `${emojis.check} *Pronto para Morar*\n\n`;
     
-    // CTA com link
+    // CTA com link da proposta
     if (presentationUrl) {
       const fullUrl = presentationUrl.startsWith('http') 
         ? presentationUrl 
         : `https://www.conectaios.com.br${presentationUrl}`;
       
       message += `\n🎯 *VEJA MAIS DETALHES E FOTOS:*\n`;
-      message += `${fullUrl}\n\n`;
+      message += `${fullUrl}\n`;
     }
     
-    // Assinatura do corretor com TODOS os dados
+    // Assinatura do corretor
     if (brokerInfo) {
       message += `\n👤 *${brokerInfo.name}*\n`;
-      message += `_Corretor de Imóveis_\n\n`;
+      message += `_Corretor de Imóveis_\n`;
       
       if (brokerInfo.phone) {
-        message += `📞 WhatsApp: *${brokerInfo.phone}*\n`;
+        message += `📞 ${brokerInfo.phone}\n`;
       }
       
-      if (brokerInfo.email) {
-        message += `📧 Email: ${brokerInfo.email}\n`;
-      }
-      
+      // Link do minisite no final (único link adicional permitido)
       if (brokerInfo.minisite) {
-        const minisiteUrl = `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
-        message += `🌐 Mais Imóveis: ${minisiteUrl}\n`;
+        message += `\n🌐 Mais Imóveis:\n`;
+        message += `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
       }
     } else if (brokerName) {
       // Fallback apenas com nome
-      message += `\n📞 *${brokerName}*\n`;
-      message += `_Corretor de Imóveis_\n`;
+      message += `\n👤 *${brokerName}*\n`;
+      message += `_Corretor de Imóveis_`;
     }
 
     return message;

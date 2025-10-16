@@ -362,6 +362,14 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               Agendar Visita
             </Button>
             
+            <Button 
+              onClick={handleShare}
+              className="py-3 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
+              size="default"
+            >
+              <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
+              Compartilhar
+            </Button>
           </div>
         </div>
       </div>
@@ -644,18 +652,10 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
             </Button>
           </div>
 
-          {/* Botão de Compartilhar WhatsApp Premium */}
+          {/* Info sobre o botão de compartilhar */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <Button 
-              onClick={handleShare}
-              className="w-full py-4 text-lg font-semibold bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
-              size="lg"
-            >
-              <Share2 className="h-5 w-5" />
-              Compartilhar Proposta
-            </Button>
-            <p className="text-center text-sm text-gray-500 mt-2">
-              Envie esta proposta completa para seus clientes
+            <p className="text-center text-sm text-gray-600">
+              💡 Use o botão verde "Compartilhar" no topo da página para enviar esta proposta aos seus clientes via WhatsApp
             </p>
           </div>
         </section>
