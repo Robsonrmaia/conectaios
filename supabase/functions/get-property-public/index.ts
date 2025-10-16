@@ -1,16 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
-import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Input validation schema
-const PropertyIdSchema = z.object({
-  propertyId: z.string().uuid('ID de propriedade inválido')
-});
+// Simple UUID validation (without external dependencies)
+function isValidUUID(uuid: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(uuid);
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -18,11 +18,32 @@ serve(async (req) => {
   }
 
   try {
-    // Parse and validate input
     const body = await req.json();
-    console.log('📥 Request body:', { hasPropertyId: !!body.propertyId });
+    const propertyId = body?.propertyId;
     
-    const { propertyId } = PropertyIdSchema.parse(body);
+    console.log('📥 Request for property:', propertyId);
+    
+    // Validate input
+    if (!propertyId || typeof propertyId !== 'string') {
+      return new Response(
+        JSON.stringify({ error: 'Property ID is required' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    if (!isValidUUID(propertyId)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid property ID format' }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     console.log('🔍 Buscando imóvel público:', propertyId);
 
     // Create Supabase client with service role to bypass RLS
@@ -119,21 +140,6 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
-      console.error('❌ Erro de validação:', error.errors);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid input', 
-          details: error.errors 
-        }),
-        { 
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
     // Log error details server-side only
     console.error('❌ Erro na função:', {
       message: error.message,
