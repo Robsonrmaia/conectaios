@@ -277,7 +277,7 @@ export function MediaUploader({
   };
 
   return (
-    <div className="space-y-4 w-full max-w-4xl mx-auto px-4">
+    <div className="space-y-4 w-full sm:max-w-3xl mx-auto px-2 sm:px-4">
       <div className="flex items-center justify-between">
         <Label>Mídia do Imóvel (Fotos e Vídeos)</Label>
         <div className="flex items-center gap-4">
