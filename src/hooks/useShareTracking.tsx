@@ -137,9 +137,9 @@ export function useShareTracking() {
           *,
           imoveis!property_share_links_property_id_fkey (
             id,
-            title,
-            price,
-            neighborhood,
+            titulo,
+            valor,
+            bairro,
             fotos
           ),
           property_link_views (

@@ -34,7 +34,7 @@ interface ShareLinkWithDetails {
     id: string;
     titulo: string;
     valor: number;
-    neighborhood: string;
+    bairro: string;
     fotos: string[];
   };
 }
@@ -284,7 +284,7 @@ export default function RelatoriosCompartilhamento() {
                             {property.titulo}
                           </CardTitle>
                           <CardDescription>
-                            {property.neighborhood && `${property.neighborhood} • `}
+                            {property.bairro && `${property.bairro} • `}
                             {formatCurrency(property.valor)}
                           </CardDescription>
 

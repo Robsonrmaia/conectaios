@@ -1593,6 +1593,9 @@ export default function Imoveis() {
                         alt={property.titulo}
                         loading="lazy"
                         decoding="async"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
                         className="w-full h-full object-cover"
                       />
                     ) : (
