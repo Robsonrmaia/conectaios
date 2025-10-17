@@ -67,7 +67,18 @@ export function usePropertyVideoUpload() {
 
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast.error(error.message || 'Erro ao fazer upload do vídeo');
+      
+      let errorMessage = 'Erro ao fazer upload do vídeo';
+      
+      if (error.message?.includes('row-level security')) {
+        errorMessage = 'Erro de permissão. Verifique se você está autenticado.';
+      } else if (error.message?.includes('exceeds maximum')) {
+        errorMessage = 'Arquivo muito grande. Máximo 100MB.';
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
       throw error;
     } finally {
       setIsUploading(false);

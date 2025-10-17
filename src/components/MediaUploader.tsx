@@ -277,7 +277,7 @@ export function MediaUploader({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 w-full max-w-6xl mx-auto px-4">
       <div className="flex items-center justify-between">
         <Label>Mídia do Imóvel (Fotos e Vídeos)</Label>
         <div className="flex items-center gap-4">
@@ -301,7 +301,7 @@ export function MediaUploader({
       </div>
       
       {/* File Upload */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full">
+      <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
         {/* Photo Upload */}
         <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
           <input
@@ -351,7 +351,7 @@ export function MediaUploader({
       </div>
 
       {/* URL Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full">
+      <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
         <div className="space-y-2 w-full">
           <Label>Ou adicione URL de foto</Label>
           <div className="flex flex-col sm:flex-row gap-2 w-full">
@@ -410,7 +410,7 @@ export function MediaUploader({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="space-y-2 w-full overflow-x-auto"
+                  className="space-y-2 w-full max-w-4xl mx-auto overflow-x-hidden"
                 >
                   {media.map((item, index) => (
                     <Draggable key={index} draggableId={`media-${index}`} index={index}>
