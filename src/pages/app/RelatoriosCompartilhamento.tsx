@@ -61,7 +61,7 @@ export default function RelatoriosCompartilhamento() {
     };
 
     fetchStats();
-  }, [session, getShareStats]);
+  }, [session?.user?.id]); // ✅ Removido getShareStats para evitar loop infinito
 
   // Filtrar por imóvel se houver parâmetro
   const filteredShareData = propertyFilter
