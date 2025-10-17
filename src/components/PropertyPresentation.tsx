@@ -149,44 +149,69 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
 
   const handleShare = async () => {
     try {
-      // Gerar link rastreável
-      const trackingData = await generateTrackableLink(property.id, 'whatsapp');
-      
-      if (!trackingData) {
-        toast({ title: 'Erro ao gerar link de compartilhamento', variant: 'destructive' });
-        return;
-      }
+      // Se o usuário estiver logado, gera link rastreável
+      if (broker) {
+        const trackingData = await generateTrackableLink(property.id, 'whatsapp');
+        
+        if (!trackingData) {
+          toast({ title: 'Erro ao gerar link de compartilhamento', variant: 'destructive' });
+          return;
+        }
 
-      const { trackableUrl } = trackingData;
-      
-      const brokerInfo = {
-        name: displayBroker?.name || broker?.name || 'Corretor',
-        phone: displayBroker?.phone || broker?.phone,
-        minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
-      };
-      
-      const message = generatePropertyMessage(
-        {
-          titulo: property.titulo,
-          valor: property.valor,
-          area: property.area,
-          quartos: property.quartos,
-          bathrooms: property.bathrooms,
-          parking_spots: property.parking_spots,
-          neighborhood: property.neighborhood
-        } as any, 
-        trackableUrl,
-        brokerInfo.name,
-        brokerInfo
-      );
-      
-      if (navigator.share) {
-        await navigator.share({
-          title: property.titulo,
-          text: message,
-        });
+        const { trackableUrl } = trackingData;
+        
+        const brokerInfo = {
+          name: displayBroker?.name || broker?.name || 'Corretor',
+          phone: displayBroker?.phone || broker?.phone,
+          minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
+        };
+        
+        const message = generatePropertyMessage(
+          {
+            titulo: property.titulo,
+            valor: property.valor,
+            area: property.area,
+            quartos: property.quartos,
+            bathrooms: property.bathrooms,
+            parking_spots: property.parking_spots,
+            neighborhood: property.neighborhood
+          } as any, 
+          trackableUrl,
+          brokerInfo.name,
+          brokerInfo
+        );
+        
+        if (navigator.share) {
+          await navigator.share({
+            title: property.titulo,
+            text: message,
+          });
+        } else {
+          shareToWhatsApp(message, displayBroker?.phone);
+        }
       } else {
-        shareToWhatsApp(message, displayBroker?.phone);
+        // Se não estiver logado, compartilha URL pública simples
+        const propertyUrl = `${window.location.origin}/imovel/${property.id}`;
+        
+        if (navigator.share) {
+          await navigator.share({
+            title: property.titulo,
+            text: `Confira este imóvel: ${property.titulo} - ${formatCurrency(property.valor)}`,
+            url: propertyUrl
+          });
+          
+          toast({
+            title: "Compartilhado!",
+            description: "Imóvel compartilhado com sucesso",
+          });
+        } else {
+          await navigator.clipboard.writeText(propertyUrl);
+          
+          toast({
+            title: "Link copiado!",
+            description: "Cole o link onde desejar compartilhar",
+          });
+        }
       }
     } catch (error) {
       console.error('Erro ao compartilhar:', error);
@@ -194,36 +219,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     }
   };
 
-  // Função de compartilhamento público (não requer login)
-  const handlePublicShare = async () => {
-    try {
-      const propertyUrl = `${window.location.origin}/imovel/${property.id}`;
-      
-      // Se navegador suporta Web Share API
-      if (navigator.share) {
-        await navigator.share({
-          title: property.titulo,
-          text: `Confira este imóvel: ${property.titulo} - ${formatCurrency(property.valor)}`,
-          url: propertyUrl
-        });
-        
-        toast({
-          title: "Compartilhado!",
-          description: "Imóvel compartilhado com sucesso",
-        });
-      } else {
-        // Fallback: copiar para clipboard
-        await navigator.clipboard.writeText(propertyUrl);
-        
-        toast({
-          title: "Link copiado!",
-          description: "Cole o link onde desejar compartilhar",
-        });
-      }
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-    }
-  };
 
   const handleExternalTool = () => {
     const propertyUrl = generatePropertyUrl(property.id);
@@ -445,7 +440,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Action Buttons - Connected directly to image without gap */}  
       <div className="bg-white">
         <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 sm:justify-center">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:justify-center">
             <Button 
               onClick={handleScheduleVisit}
               className="py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
@@ -463,14 +458,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               Compartilhar
             </Button>
 
-            <Button 
-              onClick={handlePublicShare}
-              className="py-3 text-sm font-semibold bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center justify-center gap-2 sm:w-full sm:max-w-xs sm:py-4 sm:text-lg col-span-2 sm:col-span-1"
-              size="default"
-            >
-              <Share2 className="h-4 w-4 sm:h-5 sm:w-5" />
-              Compartilhar Link
-            </Button>
           </div>
         </div>
       </div>
