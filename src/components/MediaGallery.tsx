@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, Building2, Play } from 'lucide-react';
-import { MediaItem, getEmbedUrl } from '@/types/media';
+import { ChevronLeft, ChevronRight, X, Building2, Video } from 'lucide-react';
+import { MediaItem } from '@/types/media';
 
 interface MediaGalleryProps {
   media: MediaItem[];
@@ -42,6 +42,18 @@ export function MediaGallery({ media, initialIndex = 0, isOpen, onClose, autopla
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev - 1 + media.length) % media.length);
+  };
+
+  const getEmbedUrl = (url: string): string => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+      return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
+    }
+    if (url.includes('vimeo.com')) {
+      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+      return `https://player.vimeo.com/video/${videoId}`;
+    }
+    return url;
   };
 
   if (!media.length) return null;
@@ -159,7 +171,7 @@ export function MediaGallery({ media, initialIndex = 0, isOpen, onClose, autopla
                           <div className="w-full h-full bg-black" />
                         )}
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                          <Play className="h-3 w-3 text-white" />
+                          <Video className="h-3 w-3 text-white" />
                         </div>
                       </>
                     )}

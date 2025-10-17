@@ -415,13 +415,13 @@ export function MediaUploader({
                   {media.map((item, index) => (
                     <Draggable key={index} draggableId={`media-${index}`} index={index}>
                       {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`group relative border rounded-lg overflow-hidden ${
-                            index === 0 ? 'border-2 border-primary bg-primary/5' : ''
-                          } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
-                        >
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    className={`group relative border rounded-lg overflow-hidden w-full max-w-full ${
+                      index === 0 ? 'border-2 border-primary bg-primary/5' : ''
+                    } ${snapshot.isDragging ? 'shadow-lg' : ''}`}
+                  >
                           {index === 0 && (
                             <Badge className="absolute top-2 right-2 z-10 bg-primary">
                               <Crown className="h-3 w-3 mr-1" />
@@ -429,14 +429,14 @@ export function MediaUploader({
                             </Badge>
                           )}
 
-                          <div className="flex items-center gap-3 p-3">
+                           <div className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 w-full max-w-full overflow-hidden">
                             {/* Drag Handle */}
-                            <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing">
-                              <GripVertical className="h-5 w-5 text-muted-foreground" />
+                            <div {...provided.dragHandleProps} className="cursor-grab active:cursor-grabbing flex-shrink-0">
+                              <GripVertical className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
                             </div>
 
                             {/* Thumbnail */}
-                            <div className="relative w-24 h-16 rounded overflow-hidden bg-muted flex-shrink-0">
+                            <div className="relative w-16 h-12 sm:w-24 sm:h-16 rounded overflow-hidden bg-muted flex-shrink-0">
                               {item.type === 'photo' ? (
                                 <img src={item.url} alt="" className="w-full h-full object-cover" />
                               ) : (
@@ -447,24 +447,24 @@ export function MediaUploader({
                                     <div className="w-full h-full bg-black" />
                                   )}
                                   <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                    <Play className="h-6 w-6 text-white" />
+                                    <Video className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
                                   </div>
                                 </>
                               )}
                             </div>
 
                             {/* Info */}
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium">
+                            <div className="flex-1 min-w-0 overflow-hidden media-card-info">
+                              <p className="text-xs sm:text-sm font-medium truncate">
                                 {item.type === 'photo' ? 'Foto' : 'Vídeo'} #{index + 1}
                               </p>
-                              <p className="text-xs text-muted-foreground truncate">
+                              <p className="text-xs text-muted-foreground truncate break-all">
                                 {item.filename || item.url}
                               </p>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 flex-wrap media-card-actions">
                               {index !== 0 && (
                                 <Button
                                   type="button"
@@ -472,8 +472,9 @@ export function MediaUploader({
                                   size="sm"
                                   onClick={() => moveToTop(index)}
                                   title="Definir como capa"
+                                  className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                                 >
-                                  <Crown className="h-4 w-4" />
+                                  <Crown className="h-3 w-3 sm:h-4 sm:w-4" />
                                 </Button>
                               )}
                               <Button
@@ -482,8 +483,9 @@ export function MediaUploader({
                                 size="sm"
                                 onClick={() => moveUp(index)}
                                 disabled={index === 0}
+                                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                               >
-                                <ArrowUp className="h-4 w-4" />
+                                <ArrowUp className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
                               <Button
                                 type="button"
@@ -491,8 +493,9 @@ export function MediaUploader({
                                 size="sm"
                                 onClick={() => moveDown(index)}
                                 disabled={index === media.length - 1}
+                                className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                               >
-                                <ArrowDown className="h-4 w-4" />
+                                <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
                               {item.type === 'photo' && (
                                 <>

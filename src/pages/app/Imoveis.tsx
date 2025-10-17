@@ -30,7 +30,6 @@ const formatCurrencyBR = (n?: number | null): string => {
   return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 import { MediaUploader } from '@/components/MediaUploader';
-import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { WatermarkManager } from '@/components/WatermarkManager';
 import { PropertyBanner } from '@/components/PropertyBanner';

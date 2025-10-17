@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video, Play } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -91,7 +91,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
@@ -237,21 +236,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     window.open(propertyUrl, '_blank');
   };
 
-  const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
-    setGalleryPhotos(photos);
-    setGalleryInitialIndex(initialIndex);
-    setIsGalleryOpen(true);
-    
-    // Registrar interação de abertura da galeria
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shareId = urlParams.get('share');
-      if (shareId) {
-        recordInteraction(shareId, 'photo_gallery_opened', { photoIndex: initialIndex });
-      }
-    }
-  };
-
   const openMediaGallery = (initialIndex: number = 0) => {
     const media = convertToMediaArray(property.fotos || [], property.videos || []);
     setGalleryMedia(media);
@@ -268,6 +252,18 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     }
   };
 
+  const getAutoplayEmbedUrl = (url: string): string => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1`;
+    }
+    if (url.includes('vimeo.com')) {
+      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
+      return `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&loop=1&background=1`;
+    }
+    return url;
+  };
+
   
   // Don't render if not open
   if (!isOpen) return null;
@@ -276,18 +272,52 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     <div className="fixed inset-0 bg-white z-[10010] overflow-y-auto">
       {/* Hero Section - Full screen */}
       <div className="relative h-screen w-full">
-        {/* Hero Image with overlays */}
+        {/* Hero Image/Video with overlays */}
         <div 
           className="relative h-full w-full bg-cover bg-center cursor-pointer property-hero-mobile"
           style={{
-            backgroundImage: property.fotos && property.fotos.length > 0 
-              ? `url(${property.fotos[0]})` 
-              : `url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)`,
+            backgroundImage: (() => {
+              const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
+              const coverMedia = allMedia[0];
+              if (!coverMedia || coverMedia.type !== 'photo') {
+                return 'url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)';
+              }
+              return `url(${coverMedia.url})`;
+            })()
           }}
           onClick={() => openMediaGallery(0)}
         >
+          {(() => {
+            const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
+            const coverMedia = allMedia[0];
+            if (coverMedia?.type === 'video') {
+              return (
+                <div className="absolute inset-0 w-full h-full bg-black">
+                  {coverMedia.videoType === 'url' ? (
+                    <iframe
+                      src={getAutoplayEmbedUrl(coverMedia.url)}
+                      className="w-full h-full"
+                      allow="autoplay; fullscreen; picture-in-picture"
+                      style={{ border: 'none' }}
+                    />
+                  ) : (
+                    <video
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="w-full h-full object-cover"
+                    >
+                      <source src={coverMedia.url} type="video/mp4" />
+                    </video>
+                  )}
+                </div>
+              );
+            }
+            return null;
+          })()}
           {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
           
           {/* Header with back button */}
           <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
@@ -529,13 +559,13 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                           )}
                           <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                             <div className="bg-white/90 rounded-full p-3">
-                              <Play className="h-6 w-6 text-primary" />
+                              <Video className="h-6 w-6 text-primary" />
                             </div>
                           </div>
                         </>
                       )}
                       {/* Badge "Toque para ampliar" em mobile */}
-                      <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
+                      <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full
                         opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
                         <ZoomIn className="h-3 w-3" />
                       </div>
@@ -732,7 +762,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                   alt="Esboço do imóvel" 
                   className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
                   onClick={() => {
-                    setGalleryPhotos([property.sketch_url!]);
+                    setGalleryMedia([{ type: 'photo', url: property.sketch_url! }]);
                     setGalleryInitialIndex(0);
                     setIsGalleryOpen(true);
                   }}

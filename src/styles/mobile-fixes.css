@@ -62,3 +62,27 @@ button, input, select, textarea { min-width: 0; }
 /* Espaçamento consistente em mobile */
 .space-mobile { gap: 0.75rem; }
 @media (min-width: 640px) { .space-mobile { gap: 1rem; } }
+
+/* Media Uploader Responsiveness */
+.media-card-actions {
+  @apply flex items-center gap-1 flex-shrink-0;
+  max-width: min(40vw, 200px);
+}
+
+.media-card-info {
+  @apply flex-1 min-w-0 overflow-hidden;
+}
+
+.media-card-info p {
+  @apply truncate;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+/* Força truncate em containers flex */
+.truncate-flex {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
