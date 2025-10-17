@@ -36,6 +36,7 @@ import {
   Activity,
   HelpCircle,
   Trophy,
+  BarChart3,
 } from 'lucide-react';
 
 const navigationItems = [
@@ -93,6 +94,11 @@ const toolsItems = [
     title: 'Ferramentas',
     url: '/app/ferramentas',
     icon: Wrench,
+  },
+  {
+    title: 'Relatórios',
+    url: '/app/relatorios-compartilhamento',
+    icon: BarChart3,
   },
   {
     title: 'Gamificação',

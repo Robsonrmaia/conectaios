@@ -7,6 +7,7 @@ import { useBroker } from '@/hooks/useBroker';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 import { useRealPlaces } from '@/hooks/useRealPlaces';
 import { usePropertyPresentationState } from '@/hooks/usePropertyPresentationState';
+import { useShareTracking } from '@/hooks/useShareTracking';
 import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,6 +54,7 @@ interface PropertyPresentationProps {
 export function PropertyPresentation({ property, isOpen, onClose }: PropertyPresentationProps) {
   const { broker, loading: brokerLoading } = useBroker();
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
+  const { generateTrackableLink, recordView, recordInteraction, isGenerating } = useShareTracking();
   const { places, loading: placesLoading } = useRealPlaces({
     zipcode: property.zipcode,
     neighborhood: property.neighborhood,
@@ -83,6 +85,19 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
+
+  // Registrar visualização quando abrir a apresentação com shareId na URL
+  useEffect(() => {
+    if (isOpen && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shareId = urlParams.get('share');
+      
+      if (shareId) {
+        console.log('📊 Registrando view do shareId:', shareId);
+        recordView(shareId);
+      }
+    }
+  }, [isOpen, recordView]);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -117,44 +132,61 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     const message = `Olá! Gostaria de agendar uma visita ao imóvel "${property.titulo}" - ${formatCurrency(property.valor)}`;
     const phone = displayBroker?.phone || '5511999999999';
     shareToWhatsApp(message, phone);
+    
+    // Registrar interação de agendamento
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shareId = urlParams.get('share');
+      if (shareId) {
+        recordInteraction(shareId, 'schedule_visit_clicked');
+      }
+    }
   };
 
   const handleShare = async () => {
-    const currentUrl = window.location.href;
-    // Usar rota /imovel/:id que existe no App.tsx
-    const presentationUrl = currentUrl.includes('/imovel/') 
-      ? currentUrl 
-      : `https://conectaios.com.br/imovel/${property.id}`;
-    
-    const brokerInfo = {
-      name: displayBroker?.name || broker?.name || 'Corretor',
-      phone: displayBroker?.phone || broker?.phone,
-      minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
-    };
-    
-    const message = generatePropertyMessage(
-      {
-        titulo: property.titulo,
-        valor: property.valor,
-        area: property.area,
-        quartos: property.quartos,
-        bathrooms: property.bathrooms,
-        parking_spots: property.parking_spots,
-        neighborhood: property.neighborhood
-      } as any, 
-      presentationUrl,
-      brokerInfo.name,
-      brokerInfo
-    );
-    
-    if (navigator.share) {
-      await navigator.share({
-        title: property.titulo,
-        text: message,
-        // NÃO adicionar url aqui para evitar duplicação (já está na mensagem)
-      });
-    } else {
-      shareToWhatsApp(message, displayBroker?.phone);
+    try {
+      // Gerar link rastreável
+      const trackingData = await generateTrackableLink(property.id, 'whatsapp');
+      
+      if (!trackingData) {
+        toast({ title: 'Erro ao gerar link de compartilhamento', variant: 'destructive' });
+        return;
+      }
+
+      const { trackableUrl } = trackingData;
+      
+      const brokerInfo = {
+        name: displayBroker?.name || broker?.name || 'Corretor',
+        phone: displayBroker?.phone || broker?.phone,
+        minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
+      };
+      
+      const message = generatePropertyMessage(
+        {
+          titulo: property.titulo,
+          valor: property.valor,
+          area: property.area,
+          quartos: property.quartos,
+          bathrooms: property.bathrooms,
+          parking_spots: property.parking_spots,
+          neighborhood: property.neighborhood
+        } as any, 
+        trackableUrl,
+        brokerInfo.name,
+        brokerInfo
+      );
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: property.titulo,
+          text: message,
+        });
+      } else {
+        shareToWhatsApp(message, displayBroker?.phone);
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      toast({ title: 'Erro ao compartilhar imóvel', variant: 'destructive' });
     }
   };
 
@@ -167,6 +199,15 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     setGalleryPhotos(photos);
     setGalleryInitialIndex(initialIndex);
     setIsGalleryOpen(true);
+    
+    // Registrar interação de abertura da galeria
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shareId = urlParams.get('share');
+      if (shareId) {
+        recordInteraction(shareId, 'photo_gallery_opened', { photoIndex: initialIndex });
+      }
+    }
   };
 
   
