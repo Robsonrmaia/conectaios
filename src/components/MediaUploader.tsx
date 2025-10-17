@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { FileImage, Upload, X, Loader, Wand2, Play, Video, GripVertical, Crown, ArrowUp, ArrowDown } from 'lucide-react';
+import { FileImage, Upload, X, Loader, Wand2, Play, Video, GripVertical, Crown, ArrowUp, ArrowDown, Sparkles } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Switch } from '@/components/ui/switch';
@@ -497,7 +497,7 @@ export function MediaUploader({
                               >
                                 <ArrowDown className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
-                              {item.type === 'photo' && (
+                               {item.type === 'photo' && (
                                 <>
                                   <Button
                                     type="button"
@@ -509,8 +509,9 @@ export function MediaUploader({
                                       setIsProcessorOpen(true);
                                     }}
                                     title="Virtual Staging"
+                                    className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                                   >
-                                    <Wand2 className="h-4 w-4" />
+                                    <Wand2 className="h-3 w-3 sm:h-4 sm:w-4" />
                                   </Button>
                                   <Button
                                     type="button"
@@ -522,8 +523,9 @@ export function MediaUploader({
                                       setIsProcessorOpen(true);
                                     }}
                                     title="Melhorar"
+                                    className="h-8 w-8 p-0 sm:h-9 sm:w-9"
                                   >
-                                    ✨
+                                    <Sparkles className="h-3 w-3 sm:h-4 sm:w-4" />
                                   </Button>
                                 </>
                               )}
@@ -532,9 +534,10 @@ export function MediaUploader({
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removeMedia(index)}
-                                className="text-destructive hover:text-destructive"
+                                title="Remover"
+                                className="h-8 w-8 p-0 sm:h-9 sm:w-9 text-destructive hover:text-destructive"
                               >
-                                <X className="h-4 w-4" />
+                                <X className="h-3 w-3 sm:h-4 sm:w-4" />
                               </Button>
                             </div>
                           </div>
