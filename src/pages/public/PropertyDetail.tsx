@@ -8,6 +8,15 @@ import { PropertyPresentation } from '@/components/PropertyPresentation';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface PropertyVideo {
+  type: 'url' | 'upload';
+  url: string;
+  title?: string;
+  thumbnail?: string;
+  filename?: string;
+  size?: number;
+}
+
 interface Property {
   id: string;
   titulo: string;
@@ -20,7 +29,7 @@ interface Property {
   property_type: string;
   descricao: string;
   fotos: string[];
-  videos: string[];
+  videos: PropertyVideo[];
   address: string;
   neighborhood: string;
   city: string;

@@ -14,7 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download, BarChart3 } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download, BarChart3, Video, X, Link as LinkIcon } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
@@ -59,6 +59,16 @@ import { QualityIndicator } from '@/components/QualityIndicator';
 import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
 import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
+import { usePropertyVideoUpload } from '@/hooks/usePropertyVideoUpload';
+
+interface PropertyVideo {
+  type: 'url' | 'upload';
+  url: string;
+  title?: string;
+  thumbnail?: string;
+  filename?: string;
+  size?: number;
+}
 
 interface Property {
   id: string;
@@ -75,7 +85,7 @@ interface Property {
   show_on_site?: boolean;
   descricao: string;
   fotos: string[];
-  videos: string[];
+  videos: PropertyVideo[];
   created_at: string;
   reference_code?: string;
   banner_type?: string | null;
@@ -150,6 +160,8 @@ export default function Imoveis() {
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+  const [videoUrlInput, setVideoUrlInput] = useState('');
+  const { uploadVideo, deleteVideo, isUploading: isVideoUploading } = usePropertyVideoUpload();
   
   const toggleCardExpansion = (propertyId: string) => {
     setExpandedCards(prev => {
@@ -178,7 +190,7 @@ export default function Imoveis() {
     broker_minisite_enabled: false,
     descricao: '',
     fotos: [] as string[],
-    videos: '',
+    videos: [] as PropertyVideo[],
     address: '',
     neighborhood: '',
     city: DEFAULT_CITY, // Valor padrão: Ilhéus
@@ -242,6 +254,95 @@ export default function Imoveis() {
         variant: "destructive",
       });
     }
+  };
+
+  // Funções de gerenciamento de vídeos
+  const addVideoUrl = () => {
+    if (!videoUrlInput.trim()) {
+      toast({ title: 'Digite uma URL válida', variant: 'destructive' });
+      return;
+    }
+
+    // Validar se é URL do YouTube/Vimeo
+    const isYoutube = /youtube\.com|youtu\.be/.test(videoUrlInput);
+    const isVimeo = /vimeo\.com/.test(videoUrlInput);
+
+    if (!isYoutube && !isVimeo) {
+      toast({ 
+        title: 'URL não suportada', 
+        description: 'Use links do YouTube ou Vimeo',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      videos: [
+        ...prev.videos,
+        {
+          type: 'url' as const,
+          url: videoUrlInput,
+          title: `Vídeo ${prev.videos.length + 1}`
+        }
+      ]
+    }));
+
+    setVideoUrlInput('');
+    toast({ title: 'URL de vídeo adicionada!' });
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedProperty) return;
+
+    // Verificar limite de uploads
+    const uploadCount = formData.videos.filter(v => v.type === 'upload').length;
+    if (uploadCount >= 2) {
+      toast({ 
+        title: 'Limite atingido', 
+        description: 'Máximo 2 vídeos via upload',
+        variant: 'destructive' 
+      });
+      return;
+    }
+
+    try {
+      const videoData = await uploadVideo(file, selectedProperty.id);
+      
+      setFormData(prev => ({
+        ...prev,
+        videos: [...prev.videos, videoData]
+      }));
+
+      toast({ title: 'Vídeo adicionado com sucesso!' });
+    } catch (error) {
+      // Erro já tratado pelo hook
+    }
+
+    // Limpar o input
+    e.target.value = '';
+  };
+
+  const removeVideo = async (index: number) => {
+    const video = formData.videos[index];
+    
+    // Se for upload, deletar do storage
+    if (video.type === 'upload' && selectedProperty) {
+      try {
+        await deleteVideo(selectedProperty.id, video.url);
+      } catch (error) {
+        // Erro já tratado
+        return;
+      }
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      videos: prev.videos.filter((_, i) => i !== index)
+    }));
+
+    toast({ title: 'Vídeo removido!' });
   };
 
   const fetchProperties = useCallback(async (page = 1, pageSize = 20, forceRefresh = false) => {
@@ -747,7 +848,7 @@ export default function Imoveis() {
         broker_minisite_enabled: false,
         descricao: '',
         fotos: [],
-        videos: '',
+        videos: [],
         address: '',
         neighborhood: '',
         city: '',
@@ -1418,15 +1519,115 @@ export default function Imoveis() {
                 </div>
               )}
 
-              <div>
-                <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
-                <Textarea
-                  id="videos"
-                  value={formData.videos}
-                  onChange={(e) => setFormData({...formData, videos: e.target.value})}
-                  placeholder="https://youtube.com/watch?v=..., https://vimeo.com/..."
-                />
-              </div>
+              {/* Seção de Vídeos */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Video className="h-5 w-5" />
+                    Vídeos do Imóvel
+                  </CardTitle>
+                  <CardDescription>
+                    Adicione URLs do YouTube/Vimeo (ilimitadas) ou faça upload de até 2 vídeos (100MB cada)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  
+                  {/* Lista de vídeos existentes */}
+                  {formData.videos.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.videos.map((video, index) => (
+                        <div 
+                          key={index} 
+                          className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50"
+                        >
+                          <Video className="h-5 w-5 text-muted-foreground" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {video.type === 'url' ? '📺 URL Externa' : '📤 Upload'}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {video.type === 'url' ? video.url : video.filename}
+                            </p>
+                            {video.size && (
+                              <p className="text-xs text-muted-foreground">
+                                {(video.size / 1024 / 1024).toFixed(2)} MB
+                              </p>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => removeVideo(index)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Adicionar URL do YouTube/Vimeo */}
+                  <div className="space-y-2">
+                    <Label className="flex items-center gap-2">
+                      <LinkIcon className="h-4 w-4" />
+                      Adicionar URL de Vídeo (YouTube/Vimeo)
+                    </Label>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
+                        value={videoUrlInput}
+                        onChange={(e) => setVideoUrlInput(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && addVideoUrl()}
+                      />
+                      <Button 
+                        onClick={addVideoUrl}
+                        disabled={!videoUrlInput.trim()}
+                      >
+                        Adicionar
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Upload de vídeo */}
+                  <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime"
+                      onChange={handleVideoUpload}
+                      disabled={
+                        isVideoUploading || 
+                        !selectedProperty ||
+                        formData.videos.filter(v => v.type === 'upload').length >= 2
+                      }
+                      className="hidden"
+                      id="video-upload-input"
+                    />
+                    <label 
+                      htmlFor="video-upload-input" 
+                      className={`cursor-pointer ${
+                        formData.videos.filter(v => v.type === 'upload').length >= 2 
+                          ? 'opacity-50 cursor-not-allowed' 
+                          : ''
+                      }`}
+                    >
+                      <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm font-medium mb-1">
+                        {isVideoUploading ? 'Enviando vídeo...' : 'Fazer upload de vídeo'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formData.videos.filter(v => v.type === 'upload').length >= 2
+                          ? '❌ Limite de 2 vídeos via upload atingido'
+                          : '✅ Máximo 100MB • MP4, WEBM ou MOV'}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {formData.videos.filter(v => v.type === 'upload').length}/2 vídeos enviados
+                      </p>
+                    </label>
+                  </div>
+
+                </CardContent>
+              </Card>
 
               {/* Commission Calculator */}
               {formData.valor && parseValueInput(formData.valor) > 0 && (
@@ -2004,7 +2205,7 @@ export default function Imoveis() {
                             broker_minisite_enabled: false,
                             descricao: property.descricao || '',
                             fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                            videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
+                            videos: Array.isArray(property.videos) ? property.videos : [],
                             address: property.address || '',
                             neighborhood: property.neighborhood || '',
                             city: property.city || '',
@@ -2241,7 +2442,7 @@ export default function Imoveis() {
                              broker_minisite_enabled: false,
                              descricao: selectedProperty.descricao || '',
                              fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
+                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos : [],
                              address: selectedProperty.address || '',
                              neighborhood: selectedProperty.neighborhood || '',
                              city: selectedProperty.city || '',

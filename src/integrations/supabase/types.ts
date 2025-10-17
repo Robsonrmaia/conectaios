@@ -1937,6 +1937,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -1986,6 +1987,7 @@ export type Database = {
           title: string
           type?: string | null
           updated_at?: string | null
+          videos?: Json | null
           visibility?: string | null
           vista_mar?: boolean | null
           zipcode?: string | null
@@ -2035,6 +2037,7 @@ export type Database = {
           title?: string
           type?: string | null
           updated_at?: string | null
+          videos?: Json | null
           visibility?: string | null
           vista_mar?: boolean | null
           zipcode?: string | null
@@ -5525,6 +5528,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5590,6 +5594,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5803,6 +5808,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5861,6 +5867,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null

@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +17,15 @@ import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 
+interface PropertyVideo {
+  type: 'url' | 'upload';
+  url: string;
+  title?: string;
+  thumbnail?: string;
+  filename?: string;
+  size?: number;
+}
+
 interface Property {
   id: string;
   titulo: string;
@@ -26,6 +35,7 @@ interface Property {
   bathrooms?: number;
   parking_spots?: number;
   fotos: string[];
+  videos?: PropertyVideo[];
   sketch_url?: string | null;
   user_id?: string;
   listing_type?: string;
@@ -496,6 +506,80 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                           +{property.fotos.length - 8}
                         </span>
                       </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Seção de Vídeos */}
+          {property.videos && property.videos.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Video className="h-6 w-6 text-primary" />
+                Vídeos do Imóvel
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {property.videos.map((video, index) => (
+                  <div key={index} className="space-y-2">
+                    {video.title && (
+                      <p className="text-sm font-medium text-gray-700">
+                        {video.title}
+                      </p>
+                    )}
+                    
+                    {video.type === 'url' ? (
+                      // Embed do YouTube/Vimeo
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                        {video.url.includes('youtube.com') || video.url.includes('youtu.be') ? (
+                          <iframe
+                            src={video.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                            className="w-full h-full"
+                            allowFullScreen
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            title={video.title || `Vídeo ${index + 1}`}
+                          />
+                        ) : video.url.includes('vimeo.com') ? (
+                          <iframe
+                            src={video.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                            className="w-full h-full"
+                            allowFullScreen
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            title={video.title || `Vídeo ${index + 1}`}
+                          />
+                        ) : (
+                          <video 
+                            controls 
+                            className="w-full h-full"
+                            poster={video.thumbnail}
+                          >
+                            <source src={video.url} />
+                          </video>
+                        )}
+                      </div>
+                    ) : (
+                      // Player HTML5 para uploads diretos
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                        <video 
+                          controls 
+                          className="w-full h-full"
+                          poster={video.thumbnail}
+                          preload="metadata"
+                        >
+                          <source src={video.url} type="video/mp4" />
+                          <source src={video.url} type="video/webm" />
+                          Seu navegador não suporta reprodução de vídeo.
+                        </video>
+                      </div>
+                    )}
+                    
+                    {video.filename && (
+                      <p className="text-xs text-gray-500">
+                        📁 {video.filename}
+                        {video.size && ` • ${(video.size / 1024 / 1024).toFixed(2)} MB`}
+                      </p>
                     )}
                   </div>
                 ))}
