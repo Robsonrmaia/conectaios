@@ -1453,33 +1453,22 @@ export default function Imoveis() {
 
               <MediaUploader 
                 media={formData.media}
-                onMediaChange={(media) => setFormData({...formData, media})}
+                onMediaChange={(media) => {
+                  // Sincronizar media → fotos + videos
+                  const { photos, videos } = convertFromMediaArray(media);
+                  setFormData({
+                    ...formData, 
+                    media,
+                    fotos: photos,
+                    videos
+                  });
+                }}
                 watermarkEnabled={formData.watermark_enabled}
                 onWatermarkEnabledChange={(enabled) => {
                   setFormData({...formData, watermark_enabled: enabled});
                 }}
                 watermarkText="ConectaIOS"
               />
-              
-              {/* Photo Order Manager */}
-              {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
-                <div className="border-t pt-4">
-                  <PhotoOrderManager
-                    photos={formData.fotos}
-                    onPhotosReorder={(reorderedPhotos) => {
-                      setFormData({...formData, fotos: reorderedPhotos});
-                    }}
-                    onCoverPhotoSelect={(coverIndex) => {
-                      // Move selected photo to first position
-                      const newPhotos = [...formData.fotos];
-                      const [coverPhoto] = newPhotos.splice(coverIndex, 1);
-                      newPhotos.unshift(coverPhoto);
-                      setFormData({...formData, fotos: newPhotos});
-                    }}
-                    coverPhotoIndex={0}
-                  />
-                </div>
-              )}
 
               {/* Tour 360° Generator */}
               {Array.isArray(formData.fotos) && formData.fotos.length > 0 && (
@@ -1524,115 +1513,6 @@ export default function Imoveis() {
                 </div>
               )}
 
-              {/* Seção de Vídeos */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Video className="h-5 w-5" />
-                    Vídeos do Imóvel
-                  </CardTitle>
-                  <CardDescription>
-                    Adicione URLs do YouTube/Vimeo (ilimitadas) ou faça upload de até 2 vídeos (100MB cada)
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  
-                  {/* Lista de vídeos existentes */}
-                  {formData.videos.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.videos.map((video, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50"
-                        >
-                          <Video className="h-5 w-5 text-muted-foreground" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {video.type === 'url' ? '📺 URL Externa' : '📤 Upload'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {video.type === 'url' ? video.url : video.filename}
-                            </p>
-                            {video.size && (
-                              <p className="text-xs text-muted-foreground">
-                                {(video.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeVideo(index)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Adicionar URL do YouTube/Vimeo */}
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <LinkIcon className="h-4 w-4" />
-                      Adicionar URL de Vídeo (YouTube/Vimeo)
-                    </Label>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="https://youtube.com/watch?v=... ou https://vimeo.com/..."
-                        value={videoUrlInput}
-                        onChange={(e) => setVideoUrlInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && addVideoUrl()}
-                      />
-                      <Button 
-                        onClick={addVideoUrl}
-                        disabled={!videoUrlInput.trim()}
-                      >
-                        Adicionar
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Upload de vídeo */}
-                  <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      onChange={handleVideoUpload}
-                      disabled={
-                        isVideoUploading || 
-                        !selectedProperty ||
-                        formData.videos.filter(v => v.type === 'upload').length >= 2
-                      }
-                      className="hidden"
-                      id="video-upload-input"
-                    />
-                    <label 
-                      htmlFor="video-upload-input" 
-                      className={`cursor-pointer ${
-                        formData.videos.filter(v => v.type === 'upload').length >= 2 
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : ''
-                      }`}
-                    >
-                      <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-sm font-medium mb-1">
-                        {isVideoUploading ? 'Enviando vídeo...' : 'Fazer upload de vídeo'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formData.videos.filter(v => v.type === 'upload').length >= 2
-                          ? '❌ Limite de 2 vídeos via upload atingido'
-                          : '✅ Máximo 100MB • MP4, WEBM ou MOV'}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formData.videos.filter(v => v.type === 'upload').length}/2 vídeos enviados
-                      </p>
-                    </label>
-                  </div>
-
-                </CardContent>
-              </Card>
 
               {/* Commission Calculator */}
               {formData.valor && parseValueInput(formData.valor) > 0 && (

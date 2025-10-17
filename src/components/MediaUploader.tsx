@@ -301,7 +301,7 @@ export function MediaUploader({
       </div>
       
       {/* File Upload */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full">
         {/* Photo Upload */}
         <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
           <input
@@ -351,40 +351,44 @@ export function MediaUploader({
       </div>
 
       {/* URL Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-full">
+        <div className="space-y-2 w-full">
           <Label>Ou adicione URL de foto</Label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
               value={newPhotoUrl}
               onChange={(e) => setNewPhotoUrl(e.target.value)}
               placeholder="https://exemplo.com/foto.jpg"
               disabled={photoCount >= MAX_PHOTOS}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addPhotoUrl())}
+              className="w-full wrap-any"
             />
             <Button 
               type="button" 
               onClick={addPhotoUrl} 
               disabled={!newPhotoUrl.trim() || photoCount >= MAX_PHOTOS}
+              className="w-full sm:w-auto flex-shrink-0"
             >
               Adicionar
             </Button>
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-2 w-full">
           <Label>Ou adicione URL de vídeo (YouTube/Vimeo)</Label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2 w-full">
             <Input
               value={newVideoUrl}
               onChange={(e) => setNewVideoUrl(e.target.value)}
               placeholder="https://youtube.com/watch?v=..."
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVideoUrl())}
+              className="w-full wrap-any"
             />
             <Button 
               type="button" 
               onClick={addVideoUrl} 
               disabled={!newVideoUrl.trim()}
+              className="w-full sm:w-auto flex-shrink-0"
             >
               Adicionar
             </Button>
@@ -394,7 +398,7 @@ export function MediaUploader({
 
       {/* Media List with Drag & Drop */}
       {media.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2 w-full max-w-full overflow-hidden">
           <Label>Mídia ({media.length})</Label>
           <p className="text-xs text-muted-foreground">
             Arraste para reordenar. A primeira mídia será a capa.
@@ -406,7 +410,7 @@ export function MediaUploader({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="space-y-2"
+                  className="space-y-2 w-full overflow-x-auto"
                 >
                   {media.map((item, index) => (
                     <Draggable key={index} draggableId={`media-${index}`} index={index}>
