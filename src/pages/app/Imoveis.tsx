@@ -1,5 +1,6 @@
 import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { convertToMediaArray, convertFromMediaArray, MediaItem } from '@/types/media';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -28,14 +29,14 @@ const formatCurrencyBR = (n?: number | null): string => {
   if (typeof n !== 'number' || !Number.isFinite(n)) return '';
   return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
-import { PhotoUploader } from '@/components/PhotoUploader';
+import { MediaUploader } from '@/components/MediaUploader';
 import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { WatermarkManager } from '@/components/WatermarkManager';
 import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
-import { PhotoGallery } from '@/components/PhotoGallery';
+import { MediaGallery } from '@/components/MediaGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
@@ -85,6 +86,7 @@ interface Property {
   show_on_site?: boolean;
   descricao: string;
   fotos: string[];
+  media: MediaItem[];
   videos: PropertyVideo[];
   created_at: string;
   reference_code?: string;
@@ -627,7 +629,7 @@ export default function Imoveis() {
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
-        zipcode: formData.zipcode,
+        videos: videos.length > 0 ? videos : [],
         condo_fee: toNumber(formData.condominium_fee),
         iptu: toNumber(formData.iptu),
         is_furnished: formData.is_furnished,
@@ -847,7 +849,8 @@ export default function Imoveis() {
         showOnMarketplace: false,
         broker_minisite_enabled: false,
         descricao: '',
-        fotos: [],
+    fotos: [],
+    media: [],
         videos: [],
         address: '',
         neighborhood: '',
@@ -1442,14 +1445,9 @@ export default function Imoveis() {
                 />
               </div>
 
-              <PhotoUploader 
-                photos={Array.isArray(formData.fotos) ? formData.fotos : []}
-                onPhotosChange={(photos) => {
-                  console.log('PhotoUploader onPhotosChange called with:', photos);
-                  console.log('Photos type:', typeof photos);
-                  console.log('Photos length:', Array.isArray(photos) ? photos.length : 'not array');
-                  setFormData({...formData, fotos: photos});
-                }}
+              <MediaUploader 
+                media={formData.media}
+                onMediaChange={(media) => setFormData({...formData, media})}
                 watermarkEnabled={formData.watermark_enabled}
                 onWatermarkEnabledChange={(enabled) => {
                   setFormData({...formData, watermark_enabled: enabled});
@@ -2498,8 +2496,8 @@ export default function Imoveis() {
       </Dialog>
 
       {/* Photo Gallery */}
-      <PhotoGallery
-        photos={galleryPhotos}
+      <MediaGallery
+        media={convertToMediaArray(galleryPhotos, [])}
         initialIndex={galleryInitialIndex}
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}

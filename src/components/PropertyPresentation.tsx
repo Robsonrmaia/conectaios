@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
+import { convertToMediaArray, convertFromMediaArray, MediaItem } from '@/types/media';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 import { useRealPlaces } from '@/hooks/useRealPlaces';
 import { usePropertyPresentationState } from '@/hooks/usePropertyPresentationState';
@@ -13,7 +14,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
-import { PhotoGallery } from '@/components/PhotoGallery';
+import { MediaGallery } from '@/components/MediaGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 
@@ -871,9 +872,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </section>
       </div>
 
-      {/* Photo Gallery */}
-      <PhotoGallery
-        photos={property.fotos && property.fotos.length > 0 ? [property.fotos[0], ...property.fotos.slice(1)] : []}
+      {/* Media Gallery */}
+      <MediaGallery
+        media={convertToMediaArray(property.fotos, property.videos)}
         initialIndex={galleryInitialIndex}
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}

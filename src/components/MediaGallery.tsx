@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, Building2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Building2, Play } from 'lucide-react';
+import { MediaItem, getEmbedUrl } from '@/types/media';
 
-interface PhotoGalleryProps {
-  photos: string[];
+interface MediaGalleryProps {
+  media: MediaItem[];
   initialIndex?: number;
   isOpen: boolean;
   onClose: () => void;
+  autoplayFirstVideo?: boolean;
 }
 
-export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: PhotoGalleryProps) {
+export function MediaGallery({ media, initialIndex = 0, isOpen, onClose, autoplayFirstVideo = false }: MediaGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   useEffect(() => {
@@ -32,17 +34,19 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isOpen, currentIndex, photos.length]);
+  }, [isOpen, currentIndex, media.length]);
 
   const goToNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
+    setCurrentIndex((prev) => (prev + 1) % media.length);
   };
 
   const goToPrevious = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    setCurrentIndex((prev) => (prev - 1 + media.length) % media.length);
   };
 
-  if (!photos.length) return null;
+  if (!media.length) return null;
+
+  const currentMedia = media[currentIndex];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose} modal={true}>
@@ -61,29 +65,49 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
             <X className="h-4 w-4" />
           </Button>
 
-          {/* Image Counter */}
+          {/* Media Counter */}
           <div className="absolute top-4 left-4 z-10 bg-black/50 text-white px-3 py-1 rounded">
-            {currentIndex + 1} / {photos.length}
+            {currentIndex + 1} / {media.length}
           </div>
 
-          {/* Main Image */}
+          {/* Main Media */}
           <div className="w-full h-full flex items-center justify-center">
-            {photos[currentIndex] ? (
-              <img
-                src={photos[currentIndex]}
-                alt={`Foto ${currentIndex + 1}`}
-                className="max-w-full max-h-full object-contain"
-              />
+            {currentMedia ? (
+              currentMedia.type === 'photo' ? (
+                <img
+                  src={currentMedia.url}
+                  alt={`Mídia ${currentIndex + 1}`}
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : currentMedia.videoType === 'url' ? (
+                <iframe
+                  src={getEmbedUrl(currentMedia.url)}
+                  className="w-full h-full"
+                  allowFullScreen
+                  allow="autoplay; fullscreen"
+                />
+              ) : (
+                <video
+                  controls
+                  autoPlay={autoplayFirstVideo && currentIndex === 0}
+                  muted={autoplayFirstVideo && currentIndex === 0}
+                  loop={autoplayFirstVideo && currentIndex === 0}
+                  playsInline
+                  className="max-w-full max-h-full"
+                >
+                  <source src={currentMedia.url} />
+                </video>
+              )
             ) : (
               <div className="flex flex-col items-center text-white">
                 <Building2 className="h-16 w-16 mb-4" />
-                <p>Imagem não disponível</p>
+                <p>Mídia não disponível</p>
               </div>
             )}
           </div>
 
           {/* Navigation Buttons */}
-          {photos.length > 1 && (
+          {media.length > 1 && (
             <>
               <Button
                 variant="ghost"
@@ -106,22 +130,39 @@ export function PhotoGallery({ photos, initialIndex = 0, isOpen, onClose }: Phot
           )}
 
           {/* Thumbnail Strip */}
-          {photos.length > 1 && (
+          {media.length > 1 && (
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 max-w-[90vw] overflow-x-auto">
               <div className="flex gap-2 bg-black/50 p-2 rounded min-w-max">
-                {photos.map((photo, index) => (
+                {media.map((item, index) => (
                   <button
                     key={index}
-                    className={`w-12 h-8 rounded overflow-hidden border-2 transition-colors flex-shrink-0 ${
+                    className={`relative w-12 h-8 rounded overflow-hidden border-2 transition-colors flex-shrink-0 ${
                       index === currentIndex ? 'border-primary' : 'border-transparent'
                     }`}
                     onClick={() => setCurrentIndex(index)}
                   >
-                    <img
-                      src={photo}
-                      alt={`Miniatura ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                    {item.type === 'photo' ? (
+                      <img
+                        src={item.url}
+                        alt={`Miniatura ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <>
+                        {item.thumbnail ? (
+                          <img
+                            src={item.thumbnail}
+                            alt={`Miniatura ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-black" />
+                        )}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <Play className="h-3 w-3 text-white" />
+                        </div>
+                      </>
+                    )}
                   </button>
                 ))}
               </div>
