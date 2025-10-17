@@ -308,9 +308,7 @@ export default function Imoveis() {
             }
             // ✅ Validar que é uma URL válida do storage (não base64)
             if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
-              // Adicionar cache busting timestamp na URL
-              const urlWithCacheBust = CacheManager.addCacheBusting(img.url);
-              imagesMap[img.imovel_id].push(urlWithCacheBust);
+              imagesMap[img.imovel_id].push(img.url);
             } else {
               console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
             }

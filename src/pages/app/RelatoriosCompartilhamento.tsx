@@ -35,7 +35,7 @@ interface ShareLinkWithDetails {
     titulo: string;
     valor: number;
     bairro: string;
-    fotos: string[];
+    cover_url?: string | null;
   };
 }
 
@@ -270,9 +270,9 @@ export default function RelatoriosCompartilhamento() {
                     <CardHeader>
                       <div className="flex gap-4">
                         {/* Foto do imóvel */}
-                        {property.fotos && property.fotos.length > 0 && (
+                        {property.cover_url && (
                           <img
-                            src={property.fotos[0]}
+                            src={property.cover_url}
                             alt={property.titulo}
                             className="w-24 h-24 object-cover rounded-lg"
                           />
