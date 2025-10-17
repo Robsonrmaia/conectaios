@@ -1141,7 +1141,7 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
@@ -1467,6 +1467,7 @@ export default function Imoveis() {
                   setFormData({...formData, watermark_enabled: enabled});
                 }}
                 watermarkText="ConectaIOS"
+                propertyId={selectedProperty?.id}
               />
 
               {/* Tour 360° Generator */}

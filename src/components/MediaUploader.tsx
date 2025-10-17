@@ -20,6 +20,7 @@ interface MediaUploaderProps {
   watermarkEnabled?: boolean;
   onWatermarkEnabledChange?: (enabled: boolean) => void;
   watermarkText?: string;
+  propertyId?: string;
 }
 
 export function MediaUploader({ 
@@ -27,7 +28,8 @@ export function MediaUploader({
   onMediaChange, 
   watermarkEnabled = false, 
   onWatermarkEnabledChange,
-  watermarkText = "ConectaIOS" 
+  watermarkText = "ConectaIOS",
+  propertyId
 }: MediaUploaderProps) {
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [newVideoUrl, setNewVideoUrl] = useState('');
@@ -193,6 +195,16 @@ export function MediaUploader({
     
     const file = e.target.files[0];
 
+    // Validar se propertyId existe
+    if (!propertyId) {
+      toast({
+        title: "Salve o imóvel primeiro",
+        description: "Você precisa salvar o imóvel antes de adicionar vídeos.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (uploadedVideoCount >= MAX_VIDEOS) {
       toast({
         title: "Limite atingido",
@@ -212,7 +224,6 @@ export function MediaUploader({
     }
 
     try {
-      const propertyId = 'temp-' + Date.now();
       const result = await uploadVideo(file, propertyId);
       
       const updatedMedia = [...media, { 
