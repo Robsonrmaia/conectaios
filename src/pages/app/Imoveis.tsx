@@ -1591,6 +1591,8 @@ export default function Imoveis() {
                       <img
                         src={String(photosArray[0])}
                         alt={property.titulo}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -1912,7 +1914,7 @@ export default function Imoveis() {
                       </Button>
                     </div>
                    
-                    {/* Terceira linha - Móveis, Esboço, Editar */}
+                    {/* Terceira linha - Móveis, Esboço, Relatórios */}
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
@@ -1960,6 +1962,20 @@ export default function Imoveis() {
                         Esboço
                       </Button>
 
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(`/app/relatorios-compartilhamento?property=${property.id}`)}
+                        title="Ver Relatórios de Compartilhamento"
+                        className="h-8 text-xs"
+                      >
+                        <BarChart3 className="h-3 w-3 mr-1" />
+                        Relatórios
+                      </Button>
+                    </div>
+                   
+                    {/* Quarta linha - Editar, Excluir */}
+                    <div className="grid grid-cols-2 gap-2">
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -2018,6 +2034,7 @@ export default function Imoveis() {
                         <Edit className="h-3 w-3 mr-1" />
                         Editar
                       </Button>
+                      
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -2027,20 +2044,6 @@ export default function Imoveis() {
                       >
                         <Trash2 className="h-3 w-3 mr-1" />
                         Excluir
-                      </Button>
-                    </div>
-                   
-                    {/* Quarta linha - Relatórios */}
-                    <div className="grid grid-cols-3 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/app/relatorios-compartilhamento?property=${property.id}`)}
-                        title="Ver Relatórios de Compartilhamento"
-                        className="h-8 text-xs"
-                      >
-                        <BarChart3 className="h-3 w-3 mr-1" />
-                        Relatórios
                       </Button>
                     </div>
                   </div>

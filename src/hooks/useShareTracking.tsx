@@ -135,13 +135,22 @@ export function useShareTracking() {
         .from('property_share_links')
         .select(`
           *,
+          imoveis!property_share_links_property_id_fkey (
+            id,
+            title,
+            price,
+            neighborhood,
+            fotos
+          ),
           property_link_views (
             id,
             viewed_at
           ),
           property_interactions (
             id,
-            interaction_type
+            interaction_type,
+            interaction_data,
+            created_at
           )
         `)
         .eq('broker_id', session.user.id)
