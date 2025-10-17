@@ -420,7 +420,6 @@ export default function Imoveis() {
         }
 
     // Buscar vídeos
-    let videosMap: Record<string, any[]> = {};
     const { data: videosData, error: videosError } = await supabase
       .from('imovel_videos')
       .select('imovel_id, url, filename, size, video_type, thumbnail, position')
