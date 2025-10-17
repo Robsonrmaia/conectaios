@@ -43,6 +43,8 @@ interface Property {
   tour_360_url?: string;
   state?: string;
   address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface PropertyPresentationProps {
@@ -61,6 +63,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     address: property.address,
     city: property.city,
     state: property.state,
+    latitude: property.latitude,
+    longitude: property.longitude,
     has_sea_view: property.has_sea_view,
     sea_distance: property.sea_distance,
     furnishing_type: property.furnishing_type,

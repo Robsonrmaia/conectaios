@@ -18,9 +18,9 @@ serve(async (req) => {
   }
 
   try {
-    const { zipcode, neighborhood, address, city, state } = await req.json();
+    const { zipcode, neighborhood, address, city, state, latitude, longitude } = await req.json();
     
-    console.log('🔍 Buscando lugares próximos para:', { zipcode, neighborhood, address, city, state });
+    console.log('🔍 Buscando lugares próximos para:', { zipcode, neighborhood, address, city, state, latitude, longitude });
 
     // Função para retornar lugares reais de Ilhéus
     function getLocalPlaces(city: string, neighborhood: string): PlaceOfInterest[] {
@@ -52,55 +52,54 @@ serve(async (req) => {
       return []; // Se não for Ilhéus, retornar vazio e usar Mapbox
     }
 
-    // Verificar se temos lugares locais pré-definidos
-    const localPlaces = getLocalPlaces(city, neighborhood);
-    if (localPlaces.length > 0) {
-      console.log('✅ Usando pontos de interesse locais pré-definidos para Ilhéus');
+    // Get Mapbox token from secrets
+    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
+    
+    if (!MAPBOX_TOKEN) {
+      console.warn('⚠️ MAPBOX_TOKEN não configurado');
+      // Usar lugares locais como fallback
+      const localPlaces = getLocalPlaces(city, neighborhood);
       return new Response(
         JSON.stringify({ places: localPlaces }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get Mapbox token from secrets
-    const MAPBOX_TOKEN = Deno.env.get('MAPBOX_TOKEN');
+    // Usar coordenadas fornecidas ou geocodificar o endereço
+    let lat = latitude;
+    let lon = longitude;
     
-    if (!MAPBOX_TOKEN) {
-      console.warn('⚠️ MAPBOX_TOKEN não configurado, usando fallback');
-      return new Response(
-        JSON.stringify({ places: [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!lat || !lon) {
+      console.log('📍 Geocodificando endereço...');
+      const searchQuery = [address, neighborhood, city, state].filter(Boolean).join(', ');
+      
+      if (!searchQuery) {
+        console.log('⚠️ Sem dados de localização suficientes');
+        const localPlaces = getLocalPlaces(city, neighborhood);
+        return new Response(
+          JSON.stringify({ places: localPlaces }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&limit=1`;
+      const geocodeResponse = await fetch(geocodeUrl);
+      const geocodeData = await geocodeResponse.json();
+
+      if (geocodeData.features && geocodeData.features.length > 0) {
+        [lon, lat] = geocodeData.features[0].center;
+        console.log('✅ Coordenadas obtidas via geocoding:', { lat, lon });
+      } else {
+        console.log('❌ Não foi possível geocodificar, usando lugares locais');
+        const localPlaces = getLocalPlaces(city, neighborhood);
+        return new Response(
+          JSON.stringify({ places: localPlaces }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      console.log('✅ Usando coordenadas fornecidas:', { lat, lon });
     }
-
-    // Build search query
-    const searchQuery = [address, neighborhood, city, state].filter(Boolean).join(', ');
-    
-    if (!searchQuery) {
-      console.log('⚠️ Sem dados de localização suficientes');
-      return new Response(
-        JSON.stringify({ places: [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    console.log('📍 Buscando coordenadas para:', searchQuery);
-
-    // Get coordinates from address using Mapbox Geocoding
-    const geocodeUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchQuery)}.json?access_token=${MAPBOX_TOKEN}&limit=1`;
-    const geocodeResponse = await fetch(geocodeUrl);
-    const geocodeData = await geocodeResponse.json();
-
-    if (!geocodeData.features || geocodeData.features.length === 0) {
-      console.log('❌ Coordenadas não encontradas');
-      return new Response(
-        JSON.stringify({ places: [] }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const [longitude, latitude] = geocodeData.features[0].center;
-    console.log('✅ Coordenadas encontradas:', { latitude, longitude });
 
     // Search for nearby places using Mapbox Search API
     const places: PlaceOfInterest[] = [];
@@ -120,7 +119,7 @@ serve(async (req) => {
     for (const searchItem of searchCategories) {
       try {
         // Use Mapbox Geocoding API with types=poi
-        const searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchItem.query)}.json?proximity=${longitude},${latitude}&access_token=${MAPBOX_TOKEN}&limit=1&types=poi`;
+        const searchUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(searchItem.query)}.json?proximity=${lon},${lat}&access_token=${MAPBOX_TOKEN}&limit=1&types=poi`;
         
         const searchResponse = await fetch(searchUrl);
         const searchData = await searchResponse.json();
@@ -132,7 +131,7 @@ serve(async (req) => {
           
           // Calculate distance
           const distance = calculateDistance(
-            latitude, longitude,
+            lat, lon,
             placeCoords[1], placeCoords[0]
           );
 

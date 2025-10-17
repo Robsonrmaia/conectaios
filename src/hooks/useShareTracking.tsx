@@ -46,7 +46,7 @@ export function useShareTracking() {
       }
 
       // Construir URL rastreável
-      const trackableUrl = `${window.location.origin}/apresentar/${propertyId}?share=${shareId}`;
+      const trackableUrl = `${window.location.origin}/imovel/${propertyId}?share=${shareId}`;
 
       return {
         shareId,
