@@ -192,6 +192,7 @@ export default function Imoveis() {
     broker_minisite_enabled: false,
     descricao: '',
     fotos: [] as string[],
+    media: [] as MediaItem[],
     videos: [] as PropertyVideo[],
     address: '',
     neighborhood: '',
@@ -443,6 +444,10 @@ export default function Imoveis() {
       // Map data com fotos, features e todos os dados carregados do banco
       const mappedData = (data || []).map(prop => {
         const features = featuresMap[prop.id] || {};
+        const photos = imagesMap[prop.id] || [];
+        const videos = [];
+        const media = convertToMediaArray(photos, videos);
+        
         return {
           id: prop.id,
           titulo: prop.title || 'Sem título',
@@ -458,8 +463,9 @@ export default function Imoveis() {
           show_on_site: prop.show_on_site || false,
           show_on_marketplace: prop.show_on_marketplace || false,
           show_on_minisite: prop.show_on_minisite || false,
-          fotos: imagesMap[prop.id] || [],
-          videos: [],
+          fotos: photos,
+          media: media,
+          videos: videos,
           descricao: prop.description || '',
           reference_code: prop.reference_code || '',
         banner_type: features.banner_type || 'none',
@@ -629,7 +635,7 @@ export default function Imoveis() {
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
-        videos: videos.length > 0 ? videos : [],
+        videos: convertFromMediaArray(formData.media).videos.length > 0 ? convertFromMediaArray(formData.media).videos : [],
         condo_fee: toNumber(formData.condominium_fee),
         iptu: toNumber(formData.iptu),
         is_furnished: formData.is_furnished,
@@ -849,8 +855,8 @@ export default function Imoveis() {
         showOnMarketplace: false,
         broker_minisite_enabled: false,
         descricao: '',
-    fotos: [],
-    media: [],
+        fotos: [],
+        media: [],
         videos: [],
         address: '',
         neighborhood: '',
@@ -1489,7 +1495,7 @@ export default function Imoveis() {
                       variant="outline"
                       onClick={() => {
                         // Criar objeto temporário com dados do formData para o Tour 360°
-                        const tempProperty = {
+                        const tempProperty: Property = {
                           id: selectedProperty?.id || 'temp-id',
                           titulo: formData.titulo,
                           valor: parseFloat(formData.valor?.toString() || '0'),
@@ -1501,6 +1507,7 @@ export default function Imoveis() {
                           listing_type: formData.listing_type,
                           descricao: formData.descricao,
                           fotos: formData.fotos,
+                          media: formData.media,
                           visibility: selectedProperty?.visibility || 'private',
                           videos: selectedProperty?.videos || [],
                           created_at: selectedProperty?.created_at || new Date().toISOString()
@@ -2203,6 +2210,10 @@ export default function Imoveis() {
                             broker_minisite_enabled: false,
                             descricao: property.descricao || '',
                             fotos: Array.isArray(property.fotos) ? property.fotos : [],
+                            media: convertToMediaArray(
+                              Array.isArray(property.fotos) ? property.fotos : [],
+                              Array.isArray(property.videos) ? property.videos : []
+                            ),
                             videos: Array.isArray(property.videos) ? property.videos : [],
                             address: property.address || '',
                             neighborhood: property.neighborhood || '',
@@ -2440,6 +2451,10 @@ export default function Imoveis() {
                              broker_minisite_enabled: false,
                              descricao: selectedProperty.descricao || '',
                              fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
+                             media: convertToMediaArray(
+                               Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
+                               Array.isArray(selectedProperty.videos) ? selectedProperty.videos : []
+                             ),
                              videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos : [],
                              address: selectedProperty.address || '',
                              neighborhood: selectedProperty.neighborhood || '',
