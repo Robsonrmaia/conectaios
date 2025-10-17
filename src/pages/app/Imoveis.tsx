@@ -387,6 +387,7 @@ export default function Imoveis() {
       // ✅ FIX: Buscar imagens e features de cada imóvel
       const propertyIds = (data || []).map(p => p.id);
       let imagesMap: Record<string, string[]> = {};
+      let videosMap: Record<string, any[]> = {};
       let featuresMap: Record<string, Record<string, string>> = {};
       
       if (propertyIds.length > 0) {
@@ -417,6 +418,34 @@ export default function Imoveis() {
             }
           });
         }
+
+    // Buscar vídeos
+    let videosMap: Record<string, any[]> = {};
+    const { data: videosData, error: videosError } = await supabase
+      .from('imovel_videos')
+      .select('imovel_id, url, filename, size, video_type, thumbnail, position')
+      .in('imovel_id', propertyIds)
+      .order('position', { ascending: true });
+    
+    if (videosError) {
+      console.error('❌ [ADMIN] Erro ao buscar vídeos:', videosError);
+    } else {
+      console.log('✅ [ADMIN] Vídeos carregados:', videosData?.length);
+      
+      // Agrupar vídeos por imovel_id
+      videosData?.forEach(video => {
+        if (!videosMap[video.imovel_id]) {
+          videosMap[video.imovel_id] = [];
+        }
+        videosMap[video.imovel_id].push({
+          type: video.video_type || 'youtube',
+          url: video.url,
+          filename: video.filename,
+          size: video.size,
+          thumbnail: video.thumbnail
+        });
+      });
+    }
         
     // Buscar features (banner_type, furnishing_type, sketch_url)
     const { data: featuresData, error: featuresError } = await supabase
@@ -444,7 +473,7 @@ export default function Imoveis() {
       const mappedData = (data || []).map(prop => {
         const features = featuresMap[prop.id] || {};
         const photos = imagesMap[prop.id] || [];
-        const videos = [];
+        const videos = videosMap[prop.id] || [];
         const media = convertToMediaArray(photos, videos);
         
         return {
@@ -576,6 +605,9 @@ export default function Imoveis() {
 
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
+      
+      // Processar vídeos do formData.media
+      const videosArray = formData.media.filter(item => item.type === 'video');
       
       // Calcular visibility e flags baseado nos checkboxes
       let dbVisibility: string;
@@ -757,6 +789,66 @@ export default function Imoveis() {
           }
         } catch (imageError) {
           console.error('❌ Erro inesperado ao salvar imagens:', imageError);
+        }
+      }
+
+      // ✅ Salvar vídeos na tabela imovel_videos
+      if (result.data?.id && videosArray.length > 0) {
+        console.log('=== SALVANDO VÍDEOS NA TABELA ===');
+        console.log('Property ID:', result.data.id);
+        console.log('Total de vídeos:', videosArray.length);
+        
+        try {
+          // Preparar registros de vídeos
+          const videoRecords = formData.media
+            .filter(item => item.type === 'video')
+            .map((item, index) => ({
+              imovel_id: result.data.id,
+              url: item.url,
+              storage_path: item.url.includes('supabase.co/storage') ? item.url.split('/storage/v1/object/public/property-videos/')[1] : null,
+              filename: item.filename || null,
+              size: item.size || null,
+              video_type: item.videoType || 'youtube',
+              thumbnail: item.thumbnail || null,
+              position: index,
+              is_cover: index === 0,
+              created_at: new Date().toISOString()
+            }));
+
+          console.log('🎬 Registros de vídeos preparados:', videoRecords);
+
+          // Se for edição, remover vídeos antigos primeiro
+          if (selectedProperty) {
+            const { error: deleteError } = await supabase
+              .from('imovel_videos')
+              .delete()
+              .eq('imovel_id', result.data.id);
+            
+            if (deleteError) {
+              console.error('❌ Erro ao remover vídeos antigos:', deleteError);
+            } else {
+              console.log('✅ Vídeos antigos removidos');
+            }
+          }
+
+          // Inserir novos registros de vídeos
+          const { data: insertedVideos, error: videosError } = await supabase
+            .from('imovel_videos')
+            .insert(videoRecords)
+            .select();
+
+          if (videosError) {
+            console.error('❌ Erro ao salvar vídeos:', videosError);
+            toast({
+              title: "Aviso",
+              description: "Imóvel salvo, mas houve erro ao salvar alguns vídeos",
+              variant: "destructive",
+            });
+          } else {
+            console.log('✅ Vídeos salvos com sucesso:', insertedVideos);
+          }
+        } catch (videoError) {
+          console.error('❌ Erro inesperado ao salvar vídeos:', videoError);
         }
       }
 

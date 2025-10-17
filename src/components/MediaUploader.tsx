@@ -288,7 +288,7 @@ export function MediaUploader({
   };
 
   return (
-    <div className="space-y-4 w-full sm:max-w-3xl mx-auto px-2 sm:px-4">
+    <div className="w-full px-0 sm:px-4 space-y-4">
       <div className="flex items-center justify-between">
         <Label>Mídia do Imóvel (Fotos e Vídeos)</Label>
         <div className="flex items-center gap-4">
@@ -312,7 +312,7 @@ export function MediaUploader({
       </div>
       
       {/* File Upload */}
-      <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 gap-4 w-full">
         {/* Photo Upload */}
         <div className="border-2 border-dashed border-muted rounded-lg p-6 text-center">
           <input
@@ -362,7 +362,7 @@ export function MediaUploader({
       </div>
 
       {/* URL Inputs */}
-      <div className="grid grid-cols-1 gap-4 w-full max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 gap-4 w-full">
         <div className="space-y-2 w-full">
           <Label>Ou adicione URL de foto</Label>
           <div className="flex flex-col sm:flex-row gap-2 w-full">

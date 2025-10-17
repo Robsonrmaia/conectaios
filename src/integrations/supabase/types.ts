@@ -2237,6 +2237,73 @@ export type Database = {
           },
         ]
       }
+      imovel_videos: {
+        Row: {
+          created_at: string | null
+          filename: string | null
+          id: string
+          imovel_id: string
+          is_cover: boolean | null
+          position: number | null
+          size: number | null
+          storage_path: string | null
+          thumbnail: string | null
+          updated_at: string | null
+          url: string
+          video_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url: string
+          video_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id?: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url?: string
+          video_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       indication_discounts: {
         Row: {
           created_at: string | null
