@@ -67,7 +67,7 @@ export function useWhatsAppMessage() {
         ? presentationUrl 
         : `https://conectaios.com.br${presentationUrl}`;
       
-      message += `${emojis.target} *Ver Proposta Completa:*\n${fullUrl}\n`;
+      message += `${emojis.target} *Toque no link abaixo para ver todas as fotos e detalhes:*\n${fullUrl}\n`;
     }
     
     // Rodapé compacto com informações do corretor

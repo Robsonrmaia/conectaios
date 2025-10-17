@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useShareTracking } from '@/hooks/useShareTracking';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/utils';
-import { Share2, Eye, Clock, MousePointerClick, TrendingUp, Calendar } from 'lucide-react';
+import { Share2, Eye, Clock, MousePointerClick, TrendingUp, Calendar, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -40,6 +42,8 @@ interface ShareLinkWithDetails {
 export default function RelatoriosCompartilhamento() {
   const { session } = useAuth();
   const { getShareStats } = useShareTracking();
+  const [searchParams] = useSearchParams();
+  const propertyFilter = searchParams.get('property');
   const [shareData, setShareData] = useState<ShareLinkWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedProperty, setExpandedProperty] = useState<string | null>(null);
@@ -59,8 +63,13 @@ export default function RelatoriosCompartilhamento() {
     fetchStats();
   }, [session, getShareStats]);
 
+  // Filtrar por imóvel se houver parâmetro
+  const filteredShareData = propertyFilter
+    ? shareData.filter(s => s.property_id === propertyFilter)
+    : shareData;
+
   // Agrupar por imóvel
-  const groupedByProperty = shareData.reduce((acc, share) => {
+  const groupedByProperty = filteredShareData.reduce((acc, share) => {
     const propId = share.property_id;
     if (!acc[propId]) {
       acc[propId] = [];
@@ -69,10 +78,10 @@ export default function RelatoriosCompartilhamento() {
     return acc;
   }, {} as Record<string, ShareLinkWithDetails[]>);
 
-  // Calcular estatísticas gerais
-  const totalShares = shareData.length;
-  const totalViews = shareData.reduce((sum, s) => sum + s.view_count, 0);
-  const totalInteractions = shareData.reduce(
+  // Calcular estatísticas gerais (sobre dados filtrados)
+  const totalShares = filteredShareData.length;
+  const totalViews = filteredShareData.reduce((sum, s) => sum + s.view_count, 0);
+  const totalInteractions = filteredShareData.reduce(
     (sum, s) => sum + (s.property_interactions?.length || 0), 
     0
   );
@@ -134,6 +143,27 @@ export default function RelatoriosCompartilhamento() {
           <p className="text-muted-foreground mt-1">
             Acompanhe o desempenho dos seus compartilhamentos
           </p>
+          
+          {/* Breadcrumb quando filtrado por imóvel */}
+          {propertyFilter && filteredShareData.length > 0 && (
+            <div className="mt-4 flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                asChild
+                className="gap-2"
+              >
+                <Link to="/app/relatorios-compartilhamento">
+                  <ArrowLeft className="h-4 w-4" />
+                  Ver Todos os Relatórios
+                </Link>
+              </Button>
+              <span className="text-muted-foreground">•</span>
+              <span className="font-medium">
+                {filteredShareData[0]?.imoveis?.titulo || 'Imóvel Selecionado'}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Métricas Gerais */}
