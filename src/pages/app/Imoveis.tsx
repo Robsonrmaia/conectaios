@@ -473,7 +473,18 @@ export default function Imoveis() {
         const features = featuresMap[prop.id] || {};
         const photos = imagesMap[prop.id] || [];
         const videos = videosMap[prop.id] || [];
-        const media = convertToMediaArray(photos, videos);
+        
+        // Ordenar media para garantir que capa vem primeiro
+        const allItems = [...photos.map((url, idx) => ({ url, is_cover: false, position: idx, type: 'photo' })), ...videos.map(v => ({ ...v, type: 'video' }))];
+        allItems.sort((a, b) => {
+          if (a.is_cover && !b.is_cover) return -1;
+          if (!a.is_cover && b.is_cover) return 1;
+          return a.position - b.position;
+        });
+        
+        const sortedPhotos = allItems.filter(item => item.type === 'photo').map(p => p.url);
+        const sortedVideos = allItems.filter(item => item.type === 'video');
+        const media = convertToMediaArray(sortedPhotos, sortedVideos);
         
         return {
           id: prop.id,
@@ -750,7 +761,7 @@ export default function Imoveis() {
             url: url,
             storage_path: url.includes('supabase.co/storage') ? url.split('/storage/v1/object/public/imoveis/')[1] : null,
             position: index,
-            is_cover: index === 0,
+            is_cover: (url === formData.media[0]?.url),
             created_at: new Date().toISOString()
           }));
 
@@ -810,7 +821,7 @@ export default function Imoveis() {
               video_type: item.videoType || 'youtube',
               thumbnail: item.thumbnail || null,
               position: index,
-              is_cover: index === 0,
+              is_cover: (item.url === formData.media[0]?.url),
               created_at: new Date().toISOString()
             }));
 
@@ -1232,7 +1243,7 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
