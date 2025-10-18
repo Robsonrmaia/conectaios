@@ -1,6 +1,5 @@
 import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { convertToMediaArray, convertFromMediaArray, MediaItem } from '@/types/media';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -14,9 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download, BarChart3, Video, X, Link as LinkIcon } from 'lucide-react';
+import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
 import { toast } from '@/components/ui/use-toast';
 import { FavoritesManager } from '@/components/FavoritesManager';
@@ -30,13 +28,14 @@ const formatCurrencyBR = (n?: number | null): string => {
   if (typeof n !== 'number' || !Number.isFinite(n)) return '';
   return n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
-import { MediaUploader } from '@/components/MediaUploader';
+import { PhotoUploader } from '@/components/PhotoUploader';
+import { PhotoOrderManager } from '@/components/PhotoOrderManager';
 import { WatermarkGenerator } from '@/components/WatermarkGenerator';
 import { WatermarkManager } from '@/components/WatermarkManager';
 import { PropertyBanner } from '@/components/PropertyBanner';
 import { PhotoEnhancer } from '@/components/PhotoEnhancer';
 import { FurnitureDetector } from '@/components/FurnitureDetector';
-import { MediaGallery } from '@/components/MediaGallery';
+import { PhotoGallery } from '@/components/PhotoGallery';
 import { VirtualStaging } from '@/components/VirtualStaging';
 import { CommissionCalculator } from '@/components/CommissionCalculator';
 import { AIPropertyDescription } from '@/components/AIPropertyDescription';
@@ -60,16 +59,6 @@ import { QualityIndicator } from '@/components/QualityIndicator';
 import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
 import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
-import { usePropertyVideoUpload } from '@/hooks/usePropertyVideoUpload';
-
-interface PropertyVideo {
-  type: 'url' | 'upload';
-  url: string;
-  title?: string;
-  thumbnail?: string;
-  filename?: string;
-  size?: number;
-}
 
 interface Property {
   id: string;
@@ -86,8 +75,7 @@ interface Property {
   show_on_site?: boolean;
   descricao: string;
   fotos: string[];
-  media: MediaItem[];
-  videos: PropertyVideo[];
+  videos: string[];
   created_at: string;
   reference_code?: string;
   banner_type?: string | null;
@@ -162,8 +150,6 @@ export default function Imoveis() {
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
-  const [videoUrlInput, setVideoUrlInput] = useState('');
-  const { uploadVideo, deleteVideo, isUploading: isVideoUploading } = usePropertyVideoUpload();
   
   const toggleCardExpansion = (propertyId: string) => {
     setExpandedCards(prev => {
@@ -192,8 +178,7 @@ export default function Imoveis() {
     broker_minisite_enabled: false,
     descricao: '',
     fotos: [] as string[],
-    media: [] as MediaItem[],
-    videos: [] as PropertyVideo[],
+    videos: '',
     address: '',
     neighborhood: '',
     city: DEFAULT_CITY, // Valor padrão: Ilhéus
@@ -259,95 +244,6 @@ export default function Imoveis() {
     }
   };
 
-  // Funções de gerenciamento de vídeos
-  const addVideoUrl = () => {
-    if (!videoUrlInput.trim()) {
-      toast({ title: 'Digite uma URL válida', variant: 'destructive' });
-      return;
-    }
-
-    // Validar se é URL do YouTube/Vimeo
-    const isYoutube = /youtube\.com|youtu\.be/.test(videoUrlInput);
-    const isVimeo = /vimeo\.com/.test(videoUrlInput);
-
-    if (!isYoutube && !isVimeo) {
-      toast({ 
-        title: 'URL não suportada', 
-        description: 'Use links do YouTube ou Vimeo',
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      videos: [
-        ...prev.videos,
-        {
-          type: 'url' as const,
-          url: videoUrlInput,
-          title: `Vídeo ${prev.videos.length + 1}`
-        }
-      ]
-    }));
-
-    setVideoUrlInput('');
-    toast({ title: 'URL de vídeo adicionada!' });
-  };
-
-  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !selectedProperty) return;
-
-    // Verificar limite de uploads
-    const uploadCount = formData.videos.filter(v => v.type === 'upload').length;
-    if (uploadCount >= 2) {
-      toast({ 
-        title: 'Limite atingido', 
-        description: 'Máximo 2 vídeos via upload',
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    try {
-      const videoData = await uploadVideo(file, selectedProperty.id);
-      
-      setFormData(prev => ({
-        ...prev,
-        videos: [...prev.videos, videoData]
-      }));
-
-      toast({ title: 'Vídeo adicionado com sucesso!' });
-    } catch (error) {
-      // Erro já tratado pelo hook
-    }
-
-    // Limpar o input
-    e.target.value = '';
-  };
-
-  const removeVideo = async (index: number) => {
-    const video = formData.videos[index];
-    
-    // Se for upload, deletar do storage
-    if (video.type === 'upload' && selectedProperty) {
-      try {
-        await deleteVideo(selectedProperty.id, video.url);
-      } catch (error) {
-        // Erro já tratado
-        return;
-      }
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      videos: prev.videos.filter((_, i) => i !== index)
-    }));
-
-    toast({ title: 'Vídeo removido!' });
-  };
-
   const fetchProperties = useCallback(async (page = 1, pageSize = 20, forceRefresh = false) => {
     try {
       setIsLoading(true);
@@ -387,8 +283,7 @@ export default function Imoveis() {
       
       // ✅ FIX: Buscar imagens e features de cada imóvel
       const propertyIds = (data || []).map(p => p.id);
-      let imagesMap: Record<string, Array<{url: string, position: number, is_cover: boolean}>> = {};
-      let videosMap: Record<string, any[]> = {};
+      let imagesMap: Record<string, string[]> = {};
       let featuresMap: Record<string, Record<string, string>> = {};
       
       if (propertyIds.length > 0) {
@@ -406,52 +301,21 @@ export default function Imoveis() {
         } else {
           console.log('✅ [ADMIN] Imagens carregadas:', imagesData?.length);
           
-        // Agrupar imagens por imovel_id preservando is_cover e position
-        imagesData?.forEach(img => {
-          if (!imagesMap[img.imovel_id]) {
-            imagesMap[img.imovel_id] = [];
-          }
-          // ✅ Validar que é uma URL válida do storage (não base64)
-          if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
-            imagesMap[img.imovel_id].push({
-              url: img.url,
-              position: img.position,
-              is_cover: img.is_cover
-            });
-          } else {
-            console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
-          }
-        });
-        }
-
-    // Buscar vídeos
-    const { data: videosData, error: videosError } = await supabase
-      .from('imovel_videos')
-      .select('imovel_id, url, filename, size, video_type, thumbnail, position, is_cover')
-      .in('imovel_id', propertyIds)
-      .order('position', { ascending: true });
-    
-    if (videosError) {
-      console.error('❌ [ADMIN] Erro ao buscar vídeos:', videosError);
-    } else {
-      console.log('✅ [ADMIN] Vídeos carregados:', videosData?.length);
-      
-      // Agrupar vídeos por imovel_id
-      videosData?.forEach(video => {
-        if (!videosMap[video.imovel_id]) {
-          videosMap[video.imovel_id] = [];
-        }
-          videosMap[video.imovel_id].push({
-            type: video.video_type || 'youtube',
-            url: video.url,
-            filename: video.filename,
-            size: video.size,
-            thumbnail: video.thumbnail,
-            position: video.position,
-            is_cover: video.is_cover
+          // Agrupar imagens por imovel_id com cache busting e validação de URL
+          imagesData?.forEach(img => {
+            if (!imagesMap[img.imovel_id]) {
+              imagesMap[img.imovel_id] = [];
+            }
+            // ✅ Validar que é uma URL válida do storage (não base64)
+            if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
+              // Adicionar cache busting timestamp na URL
+              const urlWithCacheBust = CacheManager.addCacheBusting(img.url);
+              imagesMap[img.imovel_id].push(urlWithCacheBust);
+            } else {
+              console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
+            }
           });
-      });
-    }
+        }
         
     // Buscar features (banner_type, furnishing_type, sketch_url)
     const { data: featuresData, error: featuresError } = await supabase
@@ -478,27 +342,6 @@ export default function Imoveis() {
       // Map data com fotos, features e todos os dados carregados do banco
       const mappedData = (data || []).map(prop => {
         const features = featuresMap[prop.id] || {};
-        const photos = imagesMap[prop.id] || [];
-        const videos = videosMap[prop.id] || [];
-        
-        // Ordenar media usando is_cover e position do banco
-        const allItems = [
-          ...photos.map(p => ({ ...p, type: 'photo' as const })),
-          ...videos.map(v => ({ ...v, type: 'video' as const }))
-        ];
-
-        // Ordenar: capa primeiro, depois por position
-        allItems.sort((a, b) => {
-          if (a.is_cover && !b.is_cover) return -1;
-          if (!a.is_cover && b.is_cover) return 1;
-          return a.position - b.position;
-        });
-
-        // Separar fotos e vídeos mantendo ordem
-        const sortedPhotos = allItems.filter(item => item.type === 'photo').map(p => p.url);
-        const sortedVideos = allItems.filter(item => item.type === 'video');
-        const media = convertToMediaArray(sortedPhotos, sortedVideos);
-        
         return {
           id: prop.id,
           titulo: prop.title || 'Sem título',
@@ -514,9 +357,8 @@ export default function Imoveis() {
           show_on_site: prop.show_on_site || false,
           show_on_marketplace: prop.show_on_marketplace || false,
           show_on_minisite: prop.show_on_minisite || false,
-          fotos: sortedPhotos,
-          media: media,
-          videos: sortedVideos,
+          fotos: imagesMap[prop.id] || [],
+          videos: [],
           descricao: prop.description || '',
           reference_code: prop.reference_code || '',
         banner_type: features.banner_type || 'none',
@@ -629,9 +471,6 @@ export default function Imoveis() {
       // Processar fotos com validação
       const photosArray = Array.isArray(formData.fotos) ? formData.fotos : [];
       
-      // Processar vídeos do formData.media
-      const videosArray = formData.media.filter(item => item.type === 'video');
-      
       // Calcular visibility e flags baseado nos checkboxes
       let dbVisibility: string;
       let isPublic: boolean;
@@ -689,7 +528,7 @@ export default function Imoveis() {
         neighborhood: formData.neighborhood,
         city: formData.city,
         state: formData.state,
-        videos: convertFromMediaArray(formData.media).videos.length > 0 ? convertFromMediaArray(formData.media).videos : [],
+        zipcode: formData.zipcode,
         condo_fee: toNumber(formData.condominium_fee),
         iptu: toNumber(formData.iptu),
         is_furnished: formData.is_furnished,
@@ -774,7 +613,7 @@ export default function Imoveis() {
             url: url,
             storage_path: url.includes('supabase.co/storage') ? url.split('/storage/v1/object/public/imoveis/')[1] : null,
             position: index,
-            is_cover: (url === formData.media[0]?.url),
+            is_cover: index === 0,
             created_at: new Date().toISOString()
           }));
 
@@ -812,66 +651,6 @@ export default function Imoveis() {
           }
         } catch (imageError) {
           console.error('❌ Erro inesperado ao salvar imagens:', imageError);
-        }
-      }
-
-      // ✅ Salvar vídeos na tabela imovel_videos
-      if (result.data?.id && videosArray.length > 0) {
-        console.log('=== SALVANDO VÍDEOS NA TABELA ===');
-        console.log('Property ID:', result.data.id);
-        console.log('Total de vídeos:', videosArray.length);
-        
-        try {
-          // Preparar registros de vídeos
-          const videoRecords = formData.media
-            .filter(item => item.type === 'video')
-            .map((item, index) => ({
-              imovel_id: result.data.id,
-              url: item.url,
-              storage_path: item.url.includes('supabase.co/storage') ? item.url.split('/storage/v1/object/public/property-videos/')[1] : null,
-              filename: item.filename || null,
-              size: item.size || null,
-              video_type: item.videoType || 'youtube',
-              thumbnail: item.thumbnail || null,
-              position: index,
-              is_cover: (item.url === formData.media[0]?.url),
-              created_at: new Date().toISOString()
-            }));
-
-          console.log('🎬 Registros de vídeos preparados:', videoRecords);
-
-          // Se for edição, remover vídeos antigos primeiro
-          if (selectedProperty) {
-            const { error: deleteError } = await supabase
-              .from('imovel_videos')
-              .delete()
-              .eq('imovel_id', result.data.id);
-            
-            if (deleteError) {
-              console.error('❌ Erro ao remover vídeos antigos:', deleteError);
-            } else {
-              console.log('✅ Vídeos antigos removidos');
-            }
-          }
-
-          // Inserir novos registros de vídeos
-          const { data: insertedVideos, error: videosError } = await supabase
-            .from('imovel_videos')
-            .insert(videoRecords)
-            .select();
-
-          if (videosError) {
-            console.error('❌ Erro ao salvar vídeos:', videosError);
-            toast({
-              title: "Aviso",
-              description: "Imóvel salvo, mas houve erro ao salvar alguns vídeos",
-              variant: "destructive",
-            });
-          } else {
-            console.log('✅ Vídeos salvos com sucesso:', insertedVideos);
-          }
-        } catch (videoError) {
-          console.error('❌ Erro inesperado ao salvar vídeos:', videoError);
         }
       }
 
@@ -970,8 +749,7 @@ export default function Imoveis() {
         broker_minisite_enabled: false,
         descricao: '',
         fotos: [],
-        media: [],
-        videos: [],
+        videos: '',
         address: '',
         neighborhood: '',
         city: '',
@@ -1256,19 +1034,16 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[calc(100vw-1rem)] sm:w-[85vw] md:w-[75vw] lg:w-[65vw] xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-0">
-              <DialogHeader className="px-4 sm:px-6 pt-6">
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
                   {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
                 </DialogDescription>
               </DialogHeader>
               
-              {/* Wrapper com padding controlado e overflow protection */}
-              <div className="w-full max-w-full px-3 sm:px-4 md:px-6 overflow-x-hidden">
-              
               {/* Botão Envio Flash - Fora do header para não sobrepor o X */}
-              <div className="flex justify-end pt-2 pb-2">
+              <div className="flex justify-end px-6 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -1281,7 +1056,7 @@ export default function Imoveis() {
               </div>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="min-w-0">
+                <div>
                   <Label htmlFor="titulo">Título</Label>
                   <Input
                     id="titulo"
@@ -1291,7 +1066,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                 </div>
-                <div className="min-w-0">
+                <div>
                   <Label htmlFor="valor">Valor (R$)</Label>
                   <Input
                     id="valor"
@@ -1306,8 +1081,8 @@ export default function Imoveis() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                <div className="min-w-0">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
                   <Label htmlFor="area">Área (m²)</Label>
                   <Input
                     id="area"
@@ -1318,7 +1093,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                 </div>
-                <div className="min-w-0">
+                <div>
                   <Label htmlFor="quartos">Quartos</Label>
                   <Input
                     id="quartos"
@@ -1329,7 +1104,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                  </div>
-                 <div className="min-w-0">
+                 <div>
                    <Label htmlFor="bathrooms">Banheiros</Label>
                    <Input
                      id="bathrooms"
@@ -1340,7 +1115,7 @@ export default function Imoveis() {
                      className="h-11"
                    />
                  </div>
-                  <div className="min-w-0">
+                  <div>
                     <Label htmlFor="suites">Suítes</Label>
                     <Input
                       id="suites"
@@ -1353,8 +1128,8 @@ export default function Imoveis() {
                   </div>
                 </div>
 
-                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                   <div className="min-w-0">
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                   <div>
                      <Label htmlFor="parking_spots">Vagas</Label>
                      <Input
                        id="parking_spots"
@@ -1364,7 +1139,7 @@ export default function Imoveis() {
                        placeholder="1"
                      />
                    </div>
-                   <div className="min-w-0">
+                   <div>
                      <Label htmlFor="listing_type">Finalidade</Label>
                      <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
                        <SelectTrigger>
@@ -1377,7 +1152,7 @@ export default function Imoveis() {
                        </SelectContent>
                      </Select>
                    </div>
-                  <div className="min-w-0">
+                  <div>
                     <Label htmlFor="property_type">Tipo</Label>
                     <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
                       <SelectTrigger>
@@ -1422,7 +1197,7 @@ export default function Imoveis() {
 
                 {/* CEP, Bairro, IPTU e Condomínio */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="min-w-0">
+                          <div>
                             <Label htmlFor="zipcode">CEP</Label>
                             <Input
                               id="zipcode"
@@ -1432,7 +1207,7 @@ export default function Imoveis() {
                               className="h-11"
                             />
                           </div>
-                          <div className="min-w-0">
+                          <div>
                             <Label htmlFor="neighborhood">Bairro</Label>
                             <Input
                               id="neighborhood"
@@ -1445,7 +1220,7 @@ export default function Imoveis() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="min-w-0">
+                          <div>
                             <Label htmlFor="year_built">Ano de Construção</Label>
                             <Input
                               id="year_built"
@@ -1456,7 +1231,7 @@ export default function Imoveis() {
                               className="h-11"
                             />
                           </div>
-                          <div className="min-w-0">
+                          <div>
                             <Label htmlFor="condominium_fee">Taxa de Condomínio (R$)</Label>
                             <Input
                               id="condominium_fee"
@@ -1472,7 +1247,7 @@ export default function Imoveis() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="min-w-0">
+                          <div>
                             <Label htmlFor="iptu">IPTU (R$)</Label>
                             <Input
                               id="iptu"
@@ -1488,7 +1263,7 @@ export default function Imoveis() {
                         </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="min-w-0">
+                  <div>
                     <Label htmlFor="banner_type">Banner</Label>
                     <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
                       <SelectTrigger>
@@ -1504,7 +1279,7 @@ export default function Imoveis() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="min-w-0">
+                  <div>
                     <Label htmlFor="furnishing_type">Mobília</Label>
                     <Select value={formData.furnishing_type} onValueChange={(value: 'none' | 'furnished' | 'semi_furnished') => setFormData({...formData, furnishing_type: value})}>
                       <SelectTrigger>
@@ -1520,7 +1295,7 @@ export default function Imoveis() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="min-w-0">
+                  <div>
                     <Label htmlFor="sea_distance">Distância do Mar (metros)</Label>
                     <Input
                       id="sea_distance"
@@ -1534,7 +1309,7 @@ export default function Imoveis() {
                       Deixe vazio se não aplicável
                     </p>
                   </div>
-                  <div className="min-w-0 space-y-4">
+                  <div className="space-y-4">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="has_sea_view"
@@ -1568,30 +1343,40 @@ export default function Imoveis() {
                 />
               </div>
 
-              <div className="space-y-2 w-full">
-                <Label>Mídia (Fotos e Vídeos)</Label>
-                <div className="w-full max-w-full overflow-hidden">
-              <MediaUploader
-                media={formData.media}
-                onMediaChange={(media) => {
-                  // Sincronizar media → fotos + videos
-                  const { photos, videos } = convertFromMediaArray(media);
-                  setFormData({
-                    ...formData, 
-                    media,
-                    fotos: photos,
-                    videos
-                  });
+              <PhotoUploader 
+                photos={Array.isArray(formData.fotos) ? formData.fotos : []}
+                onPhotosChange={(photos) => {
+                  console.log('PhotoUploader onPhotosChange called with:', photos);
+                  console.log('Photos type:', typeof photos);
+                  console.log('Photos length:', Array.isArray(photos) ? photos.length : 'not array');
+                  setFormData({...formData, fotos: photos});
                 }}
                 watermarkEnabled={formData.watermark_enabled}
                 onWatermarkEnabledChange={(enabled) => {
                   setFormData({...formData, watermark_enabled: enabled});
                 }}
                 watermarkText="ConectaIOS"
-                propertyId={selectedProperty?.id}
               />
+              
+              {/* Photo Order Manager */}
+              {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
+                <div className="border-t pt-4">
+                  <PhotoOrderManager
+                    photos={formData.fotos}
+                    onPhotosReorder={(reorderedPhotos) => {
+                      setFormData({...formData, fotos: reorderedPhotos});
+                    }}
+                    onCoverPhotoSelect={(coverIndex) => {
+                      // Move selected photo to first position
+                      const newPhotos = [...formData.fotos];
+                      const [coverPhoto] = newPhotos.splice(coverIndex, 1);
+                      newPhotos.unshift(coverPhoto);
+                      setFormData({...formData, fotos: newPhotos});
+                    }}
+                    coverPhotoIndex={0}
+                  />
                 </div>
-              </div>
+              )}
 
               {/* Tour 360° Generator */}
               {Array.isArray(formData.fotos) && formData.fotos.length > 0 && (
@@ -1607,7 +1392,7 @@ export default function Imoveis() {
                       variant="outline"
                       onClick={() => {
                         // Criar objeto temporário com dados do formData para o Tour 360°
-                        const tempProperty: Property = {
+                        const tempProperty = {
                           id: selectedProperty?.id || 'temp-id',
                           titulo: formData.titulo,
                           valor: parseFloat(formData.valor?.toString() || '0'),
@@ -1619,7 +1404,6 @@ export default function Imoveis() {
                           listing_type: formData.listing_type,
                           descricao: formData.descricao,
                           fotos: formData.fotos,
-                          media: formData.media,
                           visibility: selectedProperty?.visibility || 'private',
                           videos: selectedProperty?.videos || [],
                           created_at: selectedProperty?.created_at || new Date().toISOString()
@@ -1636,6 +1420,15 @@ export default function Imoveis() {
                 </div>
               )}
 
+              <div>
+                <Label htmlFor="videos">URLs dos Vídeos (separadas por vírgula)</Label>
+                <Textarea
+                  id="videos"
+                  value={formData.videos}
+                  onChange={(e) => setFormData({...formData, videos: e.target.value})}
+                  placeholder="https://youtube.com/watch?v=..., https://vimeo.com/..."
+                />
+              </div>
 
               {/* Commission Calculator */}
               {formData.valor && parseValueInput(formData.valor) > 0 && (
@@ -1714,9 +1507,9 @@ export default function Imoveis() {
                   )}
                 </div>
               </div>
-             </div>
-             <div className="flex justify-end gap-2">
-               <Button variant="outline" onClick={() => {
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => {
                 setIsAddDialogOpen(false);
                 setSelectedProperty(null);
               }}>
@@ -1737,8 +1530,6 @@ export default function Imoveis() {
                 )}
               </Button>
              </div>
-             
-            </div> {/* Fechar wrapper com padding controlado */}
            </DialogContent>
         </Dialog>
         </div>
@@ -1800,11 +1591,6 @@ export default function Imoveis() {
                       <img
                         src={String(photosArray[0])}
                         alt={property.titulo}
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -2126,7 +1912,7 @@ export default function Imoveis() {
                       </Button>
                     </div>
                    
-                    {/* Terceira linha - Móveis, Esboço, Relatórios */}
+                    {/* Terceira linha - Móveis, Esboço, Editar */}
                     <div className="grid grid-cols-3 gap-2">
                       <Button 
                         variant="outline" 
@@ -2177,20 +1963,6 @@ export default function Imoveis() {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => navigate(`/app/relatorios-compartilhamento?property=${property.id}`)}
-                        title="Ver Relatórios de Compartilhamento"
-                        className="h-8 text-xs"
-                      >
-                        <BarChart3 className="h-3 w-3 mr-1" />
-                        Relatórios
-                      </Button>
-                    </div>
-                   
-                    {/* Quarta linha - Editar, Excluir */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
                         onClick={() => {
                           // Busca propriedade ATUAL do estado para garantir sincronização
                           const currentProperty = properties.find(p => p.id === property.id) || property;
@@ -2215,11 +1987,7 @@ export default function Imoveis() {
                             broker_minisite_enabled: false,
                             descricao: property.descricao || '',
                             fotos: Array.isArray(property.fotos) ? property.fotos : [],
-                            media: convertToMediaArray(
-                              Array.isArray(property.fotos) ? property.fotos : [],
-                              Array.isArray(property.videos) ? property.videos : []
-                            ),
-                            videos: Array.isArray(property.videos) ? property.videos : [],
+                            videos: Array.isArray(property.videos) ? property.videos.join(', ') : '',
                             address: property.address || '',
                             neighborhood: property.neighborhood || '',
                             city: property.city || '',
@@ -2250,7 +2018,6 @@ export default function Imoveis() {
                         <Edit className="h-3 w-3 mr-1" />
                         Editar
                       </Button>
-                      
                       <Button 
                         variant="outline" 
                         size="sm"
@@ -2456,11 +2223,7 @@ export default function Imoveis() {
                              broker_minisite_enabled: false,
                              descricao: selectedProperty.descricao || '',
                              fotos: Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                             media: convertToMediaArray(
-                               Array.isArray(selectedProperty.fotos) ? selectedProperty.fotos : [],
-                               Array.isArray(selectedProperty.videos) ? selectedProperty.videos : []
-                             ),
-                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos : [],
+                             videos: Array.isArray(selectedProperty.videos) ? selectedProperty.videos.join(', ') : '',
                              address: selectedProperty.address || '',
                              neighborhood: selectedProperty.neighborhood || '',
                              city: selectedProperty.city || '',
@@ -2516,8 +2279,8 @@ export default function Imoveis() {
       </Dialog>
 
       {/* Photo Gallery */}
-      <MediaGallery
-        media={convertToMediaArray(galleryPhotos, [])}
+      <PhotoGallery
+        photos={galleryPhotos}
         initialIndex={galleryInitialIndex}
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}

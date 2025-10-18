@@ -1,31 +1,20 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
-import { convertToMediaArray, convertFromMediaArray, MediaItem } from '@/types/media';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 import { useRealPlaces } from '@/hooks/useRealPlaces';
 import { usePropertyPresentationState } from '@/hooks/usePropertyPresentationState';
-import { useShareTracking } from '@/hooks/useShareTracking';
 import { generatePropertyUrl } from '@/lib/urls';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
-import { MediaGallery } from '@/components/MediaGallery';
+import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
-
-interface PropertyVideo {
-  type: 'url' | 'upload';
-  url: string;
-  title?: string;
-  thumbnail?: string;
-  filename?: string;
-  size?: number;
-}
 
 interface Property {
   id: string;
@@ -36,7 +25,6 @@ interface Property {
   bathrooms?: number;
   parking_spots?: number;
   fotos: string[];
-  videos?: PropertyVideo[];
   sketch_url?: string | null;
   user_id?: string;
   listing_type?: string;
@@ -54,8 +42,6 @@ interface Property {
   tour_360_url?: string;
   state?: string;
   address?: string;
-  latitude?: number;
-  longitude?: number;
 }
 
 interface PropertyPresentationProps {
@@ -67,15 +53,10 @@ interface PropertyPresentationProps {
 export function PropertyPresentation({ property, isOpen, onClose }: PropertyPresentationProps) {
   const { broker, loading: brokerLoading } = useBroker();
   const { generatePropertyMessage, shareToWhatsApp, copyMessageToClipboard } = useWhatsAppMessage();
-  const { generateTrackableLink, recordView, recordInteraction, isGenerating } = useShareTracking();
   const { places, loading: placesLoading } = useRealPlaces({
     zipcode: property.zipcode,
     neighborhood: property.neighborhood,
     address: property.address,
-    city: property.city,
-    state: property.state,
-    latitude: property.latitude,
-    longitude: property.longitude,
     has_sea_view: property.has_sea_view,
     sea_distance: property.sea_distance,
     furnishing_type: property.furnishing_type,
@@ -91,7 +72,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -100,19 +81,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     setIsMounted(true);
     return () => setIsMounted(false);
   }, []);
-
-  // Registrar visualização quando abrir a apresentação com shareId na URL
-  useEffect(() => {
-    if (isOpen && typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shareId = urlParams.get('share');
-      
-      if (shareId) {
-        console.log('📊 Registrando view do shareId:', shareId);
-        recordView(shareId);
-      }
-    }
-  }, [isOpen, recordView]);
 
   // Fetch broker data for the property owner
   useEffect(() => {
@@ -147,121 +115,56 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     const message = `Olá! Gostaria de agendar uma visita ao imóvel "${property.titulo}" - ${formatCurrency(property.valor)}`;
     const phone = displayBroker?.phone || '5511999999999';
     shareToWhatsApp(message, phone);
-    
-    // Registrar interação de agendamento
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shareId = urlParams.get('share');
-      if (shareId) {
-        recordInteraction(shareId, 'schedule_visit_clicked');
-      }
-    }
   };
 
   const handleShare = async () => {
-    try {
-      // Se o usuário estiver logado, gera link rastreável
-      if (broker) {
-        const trackingData = await generateTrackableLink(property.id, 'whatsapp');
-        
-        if (!trackingData) {
-          toast({ title: 'Erro ao gerar link de compartilhamento', variant: 'destructive' });
-          return;
-        }
-
-        const { trackableUrl } = trackingData;
-        
-        const brokerInfo = {
-          name: displayBroker?.name || broker?.name || 'Corretor',
-          phone: displayBroker?.phone || broker?.phone,
-          minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
-        };
-        
-        const message = generatePropertyMessage(
-          {
-            titulo: property.titulo,
-            valor: property.valor,
-            area: property.area,
-            quartos: property.quartos,
-            bathrooms: property.bathrooms,
-            parking_spots: property.parking_spots,
-            neighborhood: property.neighborhood
-          } as any, 
-          trackableUrl,
-          brokerInfo.name,
-          brokerInfo
-        );
-        
-        if (navigator.share) {
-          await navigator.share({
-            title: property.titulo,
-            text: message,
-          });
-        } else {
-          shareToWhatsApp(message, displayBroker?.phone);
-        }
-      } else {
-        // Se não estiver logado, compartilha URL pública simples
-        const propertyUrl = `${window.location.origin}/imovel/${property.id}`;
-        
-        if (navigator.share) {
-          await navigator.share({
-            title: property.titulo,
-            text: `Confira este imóvel: ${property.titulo} - ${formatCurrency(property.valor)}`,
-            url: propertyUrl
-          });
-          
-          toast({
-            title: "Compartilhado!",
-            description: "Imóvel compartilhado com sucesso",
-          });
-        } else {
-          await navigator.clipboard.writeText(propertyUrl);
-          
-          toast({
-            title: "Link copiado!",
-            description: "Cole o link onde desejar compartilhar",
-          });
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao compartilhar:', error);
-      toast({ title: 'Erro ao compartilhar imóvel', variant: 'destructive' });
+    const currentUrl = window.location.href;
+    // Usar rota /imovel/:id que existe no App.tsx
+    const presentationUrl = currentUrl.includes('/imovel/') 
+      ? currentUrl 
+      : `https://conectaios.com.br/imovel/${property.id}`;
+    
+    const brokerInfo = {
+      name: displayBroker?.name || broker?.name || 'Corretor',
+      phone: displayBroker?.phone || broker?.phone,
+      minisite: displayBroker?.minisite_slug || displayBroker?.username || broker?.username
+    };
+    
+    const message = generatePropertyMessage(
+      {
+        titulo: property.titulo,
+        valor: property.valor,
+        area: property.area,
+        quartos: property.quartos,
+        bathrooms: property.bathrooms,
+        parking_spots: property.parking_spots,
+        neighborhood: property.neighborhood
+      } as any, 
+      presentationUrl,
+      brokerInfo.name,
+      brokerInfo
+    );
+    
+    if (navigator.share) {
+      await navigator.share({
+        title: property.titulo,
+        text: message,
+        // NÃO adicionar url aqui para evitar duplicação (já está na mensagem)
+      });
+    } else {
+      shareToWhatsApp(message, displayBroker?.phone);
     }
   };
-
 
   const handleExternalTool = () => {
     const propertyUrl = generatePropertyUrl(property.id);
     window.open(propertyUrl, '_blank');
   };
 
-  const openMediaGallery = (initialIndex: number = 0) => {
-    const media = convertToMediaArray(property.fotos || [], property.videos || []);
-    setGalleryMedia(media);
+  const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
+    setGalleryPhotos(photos);
     setGalleryInitialIndex(initialIndex);
     setIsGalleryOpen(true);
-    
-    // Registrar interação de abertura da galeria
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const shareId = urlParams.get('share');
-      if (shareId) {
-        recordInteraction(shareId, 'media_gallery_opened', { mediaIndex: initialIndex });
-      }
-    }
-  };
-
-  const getAutoplayEmbedUrl = (url: string): string => {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1`;
-    }
-    if (url.includes('vimeo.com')) {
-      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
-      return `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&loop=1&background=1`;
-    }
-    return url;
   };
 
   
@@ -272,67 +175,25 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     <div className="fixed inset-0 bg-white z-[10010] overflow-y-auto">
       {/* Hero Section - Full screen */}
       <div className="relative h-screen w-full">
-        {/* Hero Image/Video with overlays */}
+        {/* Hero Image with overlays */}
         <div 
           className="relative h-full w-full bg-cover bg-center cursor-pointer property-hero-mobile"
           style={{
-            backgroundImage: (() => {
-              const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-              const coverMedia = allMedia[0];
-              if (!coverMedia || coverMedia.type !== 'photo') {
-                return 'url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)';
-              }
-              return `url(${coverMedia.url})`;
-            })()
+            backgroundImage: property.fotos && property.fotos.length > 0 
+              ? `url(${property.fotos[0]})` 
+              : `url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)`,
           }}
-          onClick={() => openMediaGallery(0)}
+          onClick={() => property.fotos && property.fotos.length > 0 && openPhotoGallery(property.fotos, 0)}
         >
-          {(() => {
-            const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-            const coverMedia = allMedia[0];
-            if (coverMedia?.type === 'video') {
-              return (
-                <div className="absolute inset-0 w-full h-full bg-black">
-                  {coverMedia.videoType === 'url' ? (
-                    <iframe
-                      src={getAutoplayEmbedUrl(coverMedia.url)}
-                      className="w-full h-full"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      style={{ border: 'none' }}
-                    />
-                  ) : (
-                    <video
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-full object-cover"
-                    >
-                      <source src={coverMedia.url} type="video/mp4" />
-                    </video>
-                  )}
-                </div>
-              );
-            }
-            return null;
-          })()}
           {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
           
           {/* Header with back button */}
           <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => {
-                // Se tem username/minisite_slug do broker, redireciona para minisite
-                const brokerUsername = displayBroker?.username || displayBroker?.minisite_slug;
-                if (brokerUsername && typeof window !== 'undefined') {
-                  window.location.href = `/broker/${brokerUsername}`;
-                } else {
-                  onClose();
-                }
-              }}
+              onClick={onClose}
               className="bg-black/50 hover:bg-black/70 text-white border-0 backdrop-blur-sm"
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
@@ -498,7 +359,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Action Buttons - Connected directly to image without gap */}  
       <div className="bg-white">
         <div className="px-4 pb-4">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:justify-center">
+          <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:gap-4 sm:justify-center">
             <Button 
               onClick={handleScheduleVisit}
               className="py-3 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded-xl sm:w-full sm:max-w-xs sm:py-4 sm:text-lg"
@@ -515,7 +376,6 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
               <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               Compartilhar
             </Button>
-
           </div>
         </div>
       </div>
@@ -523,133 +383,37 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Content Sections */}
       <div className="bg-white">
 
-        {/* Media Gallery Section */}
+        {/* Photo Gallery Section */}
         <section className="px-6 py-12">
-          {(() => {
-            const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-            return allMedia.length > 1 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">Galeria de Mídia</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {allMedia.slice(0, 9).map((item, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
-                        group hover:scale-105 transition-all duration-300 
-                        hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
-                        hover:brightness-110"
-                      onClick={() => openMediaGallery(index)}
-                    >
-                      {item.type === 'photo' ? (
-                        <img
-                          src={item.url}
-                          alt={`Mídia ${index + 1} do imóvel`}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      ) : (
-                        <>
-                          {item.thumbnail ? (
-                            <img
-                              src={item.thumbnail}
-                              alt={`Vídeo ${index + 1} do imóvel`}
-                              className="w-full h-full object-cover transition-all duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-black" />
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <div className="bg-white/90 rounded-full p-3">
-                              <Video className="h-6 w-6 text-primary" />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Badge "Toque para ampliar" em mobile */}
-                      <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
-                        <ZoomIn className="h-3 w-3" />
-                      </div>
-                      {index === 8 && allMedia.length > 9 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-semibold">
-                            +{allMedia.length - 8}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Seção de Vídeos */}
-          {property.videos && property.videos.length > 0 && (
+          {property.fotos && property.fotos.length > 1 && (
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Video className="h-6 w-6 text-primary" />
-                Vídeos do Imóvel
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {property.videos.map((video, index) => (
-                  <div key={index} className="space-y-2">
-                    {video.title && (
-                      <p className="text-sm font-medium text-gray-700">
-                        {video.title}
-                      </p>
-                    )}
-                    
-                    {video.type === 'url' ? (
-                      // Embed do YouTube/Vimeo
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                        {video.url.includes('youtube.com') || video.url.includes('youtu.be') ? (
-                          <iframe
-                            src={video.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                            className="w-full h-full"
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            title={video.title || `Vídeo ${index + 1}`}
-                          />
-                        ) : video.url.includes('vimeo.com') ? (
-                          <iframe
-                            src={video.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                            className="w-full h-full"
-                            allowFullScreen
-                            allow="autoplay; fullscreen; picture-in-picture"
-                            title={video.title || `Vídeo ${index + 1}`}
-                          />
-                        ) : (
-                          <video 
-                            controls 
-                            className="w-full h-full"
-                            poster={video.thumbnail}
-                          >
-                            <source src={video.url} />
-                          </video>
-                        )}
+              <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {property.fotos.slice(0, 9).map((foto, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
+                      group hover:scale-105 transition-all duration-300 
+                      hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
+                      hover:brightness-110"
+                    onClick={() => openPhotoGallery(property.fotos, index)}
+                  >
+                    <img
+                      src={foto}
+                      alt={`Foto ${index + 1} do imóvel`}
+                      className="w-full h-full object-cover transition-all duration-300"
+                    />
+                    {/* Badge "Toque para ampliar" em mobile */}
+                    <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
+                      <ZoomIn className="h-3 w-3" />
+                    </div>
+                    {index === 8 && property.fotos.length > 9 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-semibold">
+                          +{property.fotos.length - 8}
+                        </span>
                       </div>
-                    ) : (
-                      // Player HTML5 para uploads diretos
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                        <video 
-                          controls 
-                          className="w-full h-full"
-                          poster={video.thumbnail}
-                          preload="metadata"
-                        >
-                          <source src={video.url} type="video/mp4" />
-                          <source src={video.url} type="video/webm" />
-                          Seu navegador não suporta reprodução de vídeo.
-                        </video>
-                      </div>
-                    )}
-                    
-                    {video.filename && (
-                      <p className="text-xs text-gray-500">
-                        📁 {video.filename}
-                        {video.size && ` • ${(video.size / 1024 / 1024).toFixed(2)} MB`}
-                      </p>
                     )}
                   </div>
                 ))}
@@ -762,7 +526,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                   alt="Esboço do imóvel" 
                   className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
                   onClick={() => {
-                    setGalleryMedia([{ type: 'photo', url: property.sketch_url! }]);
+                    setGalleryPhotos([property.sketch_url!]);
                     setGalleryInitialIndex(0);
                     setIsGalleryOpen(true);
                   }}
@@ -941,9 +705,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </section>
       </div>
 
-      {/* Media Gallery */}
-      <MediaGallery
-        media={galleryMedia.length > 0 ? galleryMedia : convertToMediaArray(property.fotos, property.videos)}
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={property.fotos && property.fotos.length > 0 ? [property.fotos[0], ...property.fotos.slice(1)] : []}
         initialIndex={galleryInitialIndex}
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}

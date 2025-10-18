@@ -12,28 +12,24 @@ interface UseRealPlacesProps {
   zipcode?: string;
   neighborhood?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  latitude?: number;
-  longitude?: number;
   has_sea_view?: boolean;
   sea_distance?: number;
   furnishing_type?: string;
   property_type?: string;
+  city?: string;
+  state?: string;
 }
 
 export function useRealPlaces({
   zipcode,
   neighborhood,
   address,
-  city,
-  state,
-  latitude,
-  longitude,
   has_sea_view,
   sea_distance,
   furnishing_type,
-  property_type
+  property_type,
+  city,
+  state
 }: UseRealPlacesProps) {
   const [places, setPlaces] = useState<PlaceOfInterest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,9 +57,7 @@ export function useRealPlaces({
             neighborhood,
             address,
             city,
-            state,
-            latitude,
-            longitude
+            state
           }
         });
 
@@ -111,7 +105,7 @@ export function useRealPlaces({
     };
 
     fetchPlaces();
-  }, [zipcode, neighborhood, address, city, state, latitude, longitude]);
+  }, [zipcode, neighborhood, address, has_sea_view, sea_distance, furnishing_type, property_type, city, state]);
 
   return { places, loading, error };
 }
