@@ -1256,16 +1256,19 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[92vw] sm:w-[80vw] md:w-[70vw] lg:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
-              <DialogHeader>
+              <DialogContent className="w-[calc(100vw-1rem)] sm:w-[85vw] md:w-[75vw] lg:w-[65vw] xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-0">
+              <DialogHeader className="px-4 sm:px-6 pt-6">
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
                   {selectedProperty ? 'Atualize as informações do imóvel' : 'Preencha as informações do imóvel'}
                 </DialogDescription>
               </DialogHeader>
               
+              {/* Wrapper com padding controlado e overflow protection */}
+              <div className="w-full max-w-full px-3 sm:px-4 md:px-6 overflow-x-hidden">
+              
               {/* Botão Envio Flash - Fora do header para não sobrepor o X */}
-              <div className="flex justify-end px-6 pt-2">
+              <div className="flex justify-end pt-2 pb-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -1303,7 +1306,7 @@ export default function Imoveis() {
                 </div>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                 <div className="min-w-0">
                   <Label htmlFor="area">Área (m²)</Label>
                   <Input
@@ -1350,7 +1353,7 @@ export default function Imoveis() {
                   </div>
                 </div>
 
-                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
                    <div className="min-w-0">
                      <Label htmlFor="parking_spots">Vagas</Label>
                      <Input
@@ -1565,7 +1568,10 @@ export default function Imoveis() {
                 />
               </div>
 
-              <MediaUploader 
+              <div className="space-y-2 w-full">
+                <Label>Mídia (Fotos e Vídeos)</Label>
+                <div className="w-full max-w-full overflow-hidden">
+              <MediaUploader
                 media={formData.media}
                 onMediaChange={(media) => {
                   // Sincronizar media → fotos + videos
@@ -1584,6 +1590,8 @@ export default function Imoveis() {
                 watermarkText="ConectaIOS"
                 propertyId={selectedProperty?.id}
               />
+                </div>
+              </div>
 
               {/* Tour 360° Generator */}
               {Array.isArray(formData.fotos) && formData.fotos.length > 0 && (
@@ -1729,6 +1737,8 @@ export default function Imoveis() {
                 )}
               </Button>
              </div>
+             
+            </div> {/* Fechar wrapper com padding controlado */}
            </DialogContent>
         </Dialog>
         </div>
