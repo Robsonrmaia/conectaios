@@ -386,7 +386,7 @@ export default function Imoveis() {
       
       // ✅ FIX: Buscar imagens e features de cada imóvel
       const propertyIds = (data || []).map(p => p.id);
-      let imagesMap: Record<string, string[]> = {};
+      let imagesMap: Record<string, Array<{url: string, position: number, is_cover: boolean}>> = {};
       let videosMap: Record<string, any[]> = {};
       let featuresMap: Record<string, Record<string, string>> = {};
       
@@ -405,24 +405,28 @@ export default function Imoveis() {
         } else {
           console.log('✅ [ADMIN] Imagens carregadas:', imagesData?.length);
           
-          // Agrupar imagens por imovel_id com cache busting e validação de URL
-          imagesData?.forEach(img => {
-            if (!imagesMap[img.imovel_id]) {
-              imagesMap[img.imovel_id] = [];
-            }
-            // ✅ Validar que é uma URL válida do storage (não base64)
-            if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
-              imagesMap[img.imovel_id].push(img.url);
-            } else {
-              console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
-            }
-          });
+        // Agrupar imagens por imovel_id preservando is_cover e position
+        imagesData?.forEach(img => {
+          if (!imagesMap[img.imovel_id]) {
+            imagesMap[img.imovel_id] = [];
+          }
+          // ✅ Validar que é uma URL válida do storage (não base64)
+          if (img.url && (img.url.startsWith('http://') || img.url.startsWith('https://')) && !img.url.startsWith('data:')) {
+            imagesMap[img.imovel_id].push({
+              url: img.url,
+              position: img.position,
+              is_cover: img.is_cover
+            });
+          } else {
+            console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
+          }
+        });
         }
 
     // Buscar vídeos
     const { data: videosData, error: videosError } = await supabase
       .from('imovel_videos')
-      .select('imovel_id, url, filename, size, video_type, thumbnail, position')
+      .select('imovel_id, url, filename, size, video_type, thumbnail, position, is_cover')
       .in('imovel_id', propertyIds)
       .order('position', { ascending: true });
     
@@ -436,13 +440,15 @@ export default function Imoveis() {
         if (!videosMap[video.imovel_id]) {
           videosMap[video.imovel_id] = [];
         }
-        videosMap[video.imovel_id].push({
-          type: video.video_type || 'youtube',
-          url: video.url,
-          filename: video.filename,
-          size: video.size,
-          thumbnail: video.thumbnail
-        });
+          videosMap[video.imovel_id].push({
+            type: video.video_type || 'youtube',
+            url: video.url,
+            filename: video.filename,
+            size: video.size,
+            thumbnail: video.thumbnail,
+            position: video.position,
+            is_cover: video.is_cover
+          });
       });
     }
         
@@ -474,14 +480,20 @@ export default function Imoveis() {
         const photos = imagesMap[prop.id] || [];
         const videos = videosMap[prop.id] || [];
         
-        // Ordenar media para garantir que capa vem primeiro
-        const allItems = [...photos.map((url, idx) => ({ url, is_cover: false, position: idx, type: 'photo' })), ...videos.map(v => ({ ...v, type: 'video' }))];
+        // Ordenar media usando is_cover e position do banco
+        const allItems = [
+          ...photos.map(p => ({ ...p, type: 'photo' as const })),
+          ...videos.map(v => ({ ...v, type: 'video' as const }))
+        ];
+
+        // Ordenar: capa primeiro, depois por position
         allItems.sort((a, b) => {
           if (a.is_cover && !b.is_cover) return -1;
           if (!a.is_cover && b.is_cover) return 1;
           return a.position - b.position;
         });
-        
+
+        // Separar fotos e vídeos mantendo ordem
         const sortedPhotos = allItems.filter(item => item.type === 'photo').map(p => p.url);
         const sortedVideos = allItems.filter(item => item.type === 'video');
         const media = convertToMediaArray(sortedPhotos, sortedVideos);
@@ -501,9 +513,9 @@ export default function Imoveis() {
           show_on_site: prop.show_on_site || false,
           show_on_marketplace: prop.show_on_marketplace || false,
           show_on_minisite: prop.show_on_minisite || false,
-          fotos: photos,
+          fotos: sortedPhotos,
           media: media,
-          videos: videos,
+          videos: sortedVideos,
           descricao: prop.description || '',
           reference_code: prop.reference_code || '',
         banner_type: features.banner_type || 'none',
@@ -1243,7 +1255,7 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-[95vw] sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+              <DialogContent className="w-[95vw] sm:w-full sm:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
