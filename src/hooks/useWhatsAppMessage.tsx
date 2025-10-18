@@ -26,80 +26,65 @@ export function useWhatsAppMessage() {
   ) => {
     const emojis = {
       house: '🏡',
-      sparkles: '✨',
+      ruler: '📐',
       bed: '🛏️',
       bath: '🚿',
       car: '🚗',
       money: '💰',
       location: '📍',
-      ruler: '📐',
-      check: '✅'
+      target: '🎯',
+      person: '👤',
+      phone: '📞',
+      globe: '🌐',
     };
 
-    let message = `${emojis.house} *OPORTUNIDADE EXCLUSIVA*\n\n`;
+    let message = `${emojis.house} *OPORTUNIDADE EXCLUSIVA*\n`;
+    message += `*${property.titulo.toUpperCase()}*`;
     
-    // Título do imóvel
-    message += `*${property.titulo.toUpperCase()}*\n\n`;
-    
-    // Localização em destaque
+    // Localização compacta na mesma linha
     if (property.neighborhood) {
-      message += `${emojis.location} *Localização:*\n`;
-      message += `   ${property.neighborhood}\n\n`;
+      message += ` • ${property.neighborhood}`;
+    }
+    message += `\n\n`;
+    
+    // Especificações em uma linha com bullet points
+    const specs = [];
+    if (property.area > 0) specs.push(`${emojis.ruler} ${property.area}m²`);
+    if (property.quartos > 0) specs.push(`${emojis.bed} ${property.quartos} quartos`);
+    if (property.bathrooms && property.bathrooms > 0) specs.push(`${emojis.bath} ${property.bathrooms} banheiros`);
+    if (property.parking_spots && property.parking_spots > 0) specs.push(`${emojis.car} ${property.parking_spots} vagas`);
+    
+    if (specs.length > 0) {
+      message += specs.join(' • ') + '\n\n';
     }
     
-    // Especificações em formato elegante
-    message += `${emojis.sparkles} *Especificações:*\n\n`;
-    message += `${emojis.ruler} Área: *${property.area}m²*\n`;
-    message += `${emojis.bed} Quartos: *${property.quartos}*\n`;
+    // Valor em destaque (sem box ASCII)
+    message += `${emojis.money} *${formatCurrency(property.valor)}*\n\n`;
     
-    if (property.bathrooms && property.bathrooms > 0) {
-      message += `${emojis.bath} Banheiros: *${property.bathrooms}*\n`;
-    }
-    
-    if (property.parking_spots && property.parking_spots > 0) {
-      message += `${emojis.car} Vagas: *${property.parking_spots}*\n`;
-    }
-    
-    message += `\n`;
-    
-    // Valor em destaque com box
-    message += `╭─────────────────╮\n`;
-    message += `│ ${emojis.money} *VALOR*          │\n`;
-    message += `│ *${formatCurrency(property.valor)}* │\n`;
-    message += `╰─────────────────╯\n\n`;
-    
-    // Diferenciais
-    message += `${emojis.check} *Imóvel Premium*\n`;
-    message += `${emojis.check} *Localização Privilegiada*\n`;
-    message += `${emojis.check} *Pronto para Morar*\n\n`;
-    
-    // CTA com link da proposta
+    // CTA com link da proposta (incluindo shareId se tiver)
     if (presentationUrl) {
       const fullUrl = presentationUrl.startsWith('http') 
         ? presentationUrl 
         : `https://conectaios.com.br${presentationUrl}`;
       
-      message += `\n🎯 *VER PROPOSTA COMPLETA:*\n`;
-      message += `${fullUrl}\n`;
+      message += `${emojis.target} *Toque no link abaixo para ver todas as fotos e detalhes:*\n${fullUrl}\n`;
     }
     
-    // Assinatura do corretor (apenas minisite link no final)
+    // Rodapé compacto com informações do corretor
     if (brokerInfo) {
-      message += `\n👤 *${brokerInfo.name}*\n`;
-      message += `_Corretor de Imóveis_\n`;
+      message += `\n─────────────────\n`;
+      message += `${emojis.person} *${brokerInfo.name}*`;
       
       if (brokerInfo.phone) {
-        message += `📞 ${brokerInfo.phone}\n`;
+        message += ` | ${emojis.phone} ${brokerInfo.phone}`;
       }
       
-      // APENAS o link do minisite no final
       if (brokerInfo.minisite) {
-        message += `\n🌐 *Mais Imóveis:*\n`;
-        message += `https://conectaios.com.br/minisite/${brokerInfo.minisite}`;
+        message += `\n${emojis.globe} conectaios.com.br/minisite/${brokerInfo.minisite}`;
       }
     } else if (brokerName) {
-      message += `\n👤 *${brokerName}*\n`;
-      message += `_Corretor de Imóveis_`;
+      message += `\n─────────────────\n`;
+      message += `${emojis.person} *${brokerName}*`;
     }
 
     return message;

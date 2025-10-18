@@ -80,7 +80,7 @@ serve(async (req) => {
       .from('imovel_images')
       .select('url')
       .eq('imovel_id', propertyId)
-      .order('display_order', { ascending: true });
+      .order('position', { ascending: true });
 
     if (imagesError) {
       console.warn('⚠️ Erro ao buscar imagens:', imagesError);

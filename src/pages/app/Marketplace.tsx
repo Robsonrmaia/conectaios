@@ -1,5 +1,6 @@
 import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { convertToMediaArray } from '@/types/media';
 import { motion } from 'framer-motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
 import PageWrapper from '@/components/PageWrapper';
@@ -19,7 +20,7 @@ import { Building2, Search, Filter, MapPin, Bath, Bed, BedDouble, Car, User, Pho
 import { toast } from '@/components/ui/use-toast';
 import { Card } from '@/components/ui/card';
 import { PropertyBanner } from '@/components/PropertyBanner';
-import { PhotoGallery } from '@/components/PhotoGallery';
+import { MediaGallery } from '@/components/MediaGallery';
 import { FavoritesManager } from '@/components/FavoritesManager';
 import { Checkbox } from '@/components/ui/checkbox';
 
@@ -1648,8 +1649,8 @@ export default function Marketplace() {
       </Dialog>
 
       {/* Photo Gallery */}
-      <PhotoGallery
-        photos={selectedPhotos}
+      <MediaGallery
+        media={convertToMediaArray(selectedPhotos, [])}
         initialIndex={selectedPhotoIndex}
         isOpen={galleryOpen}
         onClose={() => setGalleryOpen(false)}

@@ -46,7 +46,7 @@ export function useShareTracking() {
       }
 
       // Construir URL rastreável
-      const trackableUrl = `${window.location.origin}/apresentar/${propertyId}?share=${shareId}`;
+      const trackableUrl = `${window.location.origin}/imovel/${propertyId}?share=${shareId}`;
 
       return {
         shareId,
@@ -66,32 +66,46 @@ export function useShareTracking() {
    */
   const recordView = async (shareId: string) => {
     try {
-      // Buscar o link compartilhado
+      console.log('📊 [recordView] Iniciando registro para shareId:', shareId);
+      
+      // Buscar o link compartilhado - USAR .maybeSingle() ao invés de .single()
       const { data: shareLink, error: shareLinkError } = await supabase
         .from('property_share_links')
         .select('id')
         .eq('share_id', shareId)
-        .single();
+        .maybeSingle(); // ✅ Não falha se não encontrar
 
-      if (shareLinkError || !shareLink) {
-        console.error('Link de compartilhamento não encontrado');
+      if (shareLinkError) {
+        console.error('❌ [recordView] Erro ao buscar shareLink:', shareLinkError);
         return;
       }
 
-      // Registrar visualização
-      const { error } = await supabase
+      if (!shareLink) {
+        console.warn('⚠️ [recordView] ShareId não encontrado:', shareId);
+        return;
+      }
+
+      console.log('✅ [recordView] ShareLink encontrado:', shareLink.id);
+
+      // Registrar visualização - RLS permite INSERT público
+      const { data: viewData, error: viewError } = await supabase
         .from('property_link_views')
         .insert({
           share_link_id: shareLink.id,
           user_agent: navigator.userAgent,
           referrer: document.referrer || null,
-        });
+        })
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Erro ao registrar visualização:', error);
+      if (viewError) {
+        console.error('❌ [recordView] Erro ao inserir view:', viewError);
+        return;
       }
+
+      console.log('✅ [recordView] View registrada com sucesso:', viewData);
     } catch (error) {
-      console.error('Erro ao registrar view:', error);
+      console.error('💥 [recordView] Erro fatal:', error);
     }
   };
 
@@ -135,21 +149,54 @@ export function useShareTracking() {
         .from('property_share_links')
         .select(`
           *,
+          imoveis!property_share_links_property_id_fkey (
+            id,
+            titulo,
+            valor,
+            bairro
+          ),
           property_link_views (
             id,
             viewed_at
           ),
           property_interactions (
             id,
-            interaction_type
+            interaction_type,
+            interaction_data,
+            created_at
           )
         `)
         .eq('broker_id', session.user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      if (!data || data.length === 0) return data;
 
-      return data;
+      // Buscar fotos de capa separadamente
+      const propertyIds = [...new Set(data.map(s => s.property_id))];
+      
+      const { data: coverImages } = await supabase
+        .from('imovel_images')
+        .select('imovel_id, url')
+        .in('imovel_id', propertyIds)
+        .eq('is_cover', true);
+      
+      // Criar mapa de fotos de capa
+      const coverMap: Record<string, string> = {};
+      coverImages?.forEach(img => {
+        coverMap[img.imovel_id] = img.url;
+      });
+      
+      // Adicionar cover_url aos dados
+      const enrichedData = data.map(share => ({
+        ...share,
+        imoveis: share.imoveis ? {
+          ...share.imoveis,
+          cover_url: coverMap[share.property_id] || null
+        } : null
+      }));
+
+      return enrichedData;
     } catch (error) {
       console.error('Erro ao buscar estatísticas:', error);
       return null;

@@ -1387,6 +1387,372 @@ export type Database = {
         }
         Relationships: []
       }
+      docx_client_documents: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          client_id: string | null
+          client_type: string
+          confidence_score: number | null
+          cpf: string | null
+          created_at: string | null
+          document_category: string | null
+          document_type: string | null
+          document_url: string
+          email: string | null
+          endereco: string | null
+          estado: string | null
+          extracted_data: Json | null
+          file_name: string | null
+          id: string
+          nome: string | null
+          photo_url: string | null
+          processed_at: string | null
+          processing_status: string | null
+          rg: string | null
+          telefone: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          client_id?: string | null
+          client_type: string
+          confidence_score?: number | null
+          cpf?: string | null
+          created_at?: string | null
+          document_category?: string | null
+          document_type?: string | null
+          document_url: string
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          extracted_data?: Json | null
+          file_name?: string | null
+          id?: string
+          nome?: string | null
+          photo_url?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          rg?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          client_id?: string | null
+          client_type?: string
+          confidence_score?: number | null
+          cpf?: string | null
+          created_at?: string | null
+          document_category?: string | null
+          document_type?: string | null
+          document_url?: string
+          email?: string | null
+          endereco?: string | null
+          estado?: string | null
+          extracted_data?: Json | null
+          file_name?: string | null
+          id?: string
+          nome?: string | null
+          photo_url?: string | null
+          processed_at?: string | null
+          processing_status?: string | null
+          rg?: string | null
+          telefone?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      docx_clientes: {
+        Row: {
+          cidade: string | null
+          cpf: string | null
+          created_at: string | null
+          email: string | null
+          endereco: string | null
+          id: string
+          nome: string
+          telefone: string | null
+          uf: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome: string
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cidade?: string | null
+          cpf?: string | null
+          created_at?: string | null
+          email?: string | null
+          endereco?: string | null
+          id?: string
+          nome?: string
+          telefone?: string | null
+          uf?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      docx_contract_data_bank: {
+        Row: {
+          complementary_data: Json | null
+          conjuge_locador_data: Json | null
+          conjuge_locatario_data: Json | null
+          created_at: string | null
+          document_ids: string[] | null
+          fiador_data: Json | null
+          id: string
+          imovel_data: Json | null
+          locador_data: Json | null
+          locatario_data: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          complementary_data?: Json | null
+          conjuge_locador_data?: Json | null
+          conjuge_locatario_data?: Json | null
+          created_at?: string | null
+          document_ids?: string[] | null
+          fiador_data?: Json | null
+          id?: string
+          imovel_data?: Json | null
+          locador_data?: Json | null
+          locatario_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          complementary_data?: Json | null
+          conjuge_locador_data?: Json | null
+          conjuge_locatario_data?: Json | null
+          created_at?: string | null
+          document_ids?: string[] | null
+          fiador_data?: Json | null
+          id?: string
+          imovel_data?: Json | null
+          locador_data?: Json | null
+          locatario_data?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      docx_contratos: {
+        Row: {
+          assinados_count: number | null
+          broker_id: string | null
+          clicksign_document_key: string | null
+          clicksign_document_url: string | null
+          clicksign_envelope_id: string | null
+          conectaios_client_id: string | null
+          conectaios_property_id: string | null
+          contract_html: string | null
+          created_at: string | null
+          data_inicio: string
+          detalhes_garantia: string | null
+          html_preview: string | null
+          id: string
+          locador_client_id: string | null
+          locatario_client_id: string | null
+          observacoes: string | null
+          pdf_generated_url: string | null
+          pdf_url: string | null
+          prazo_meses: number
+          provider_document_id: string | null
+          signature_status: string | null
+          status: string | null
+          tipo_garantia: string | null
+          total_signatarios: number | null
+          updated_at: string | null
+          user_id: string
+          valor_aluguel: number
+          vencimento_dia: number | null
+        }
+        Insert: {
+          assinados_count?: number | null
+          broker_id?: string | null
+          clicksign_document_key?: string | null
+          clicksign_document_url?: string | null
+          clicksign_envelope_id?: string | null
+          conectaios_client_id?: string | null
+          conectaios_property_id?: string | null
+          contract_html?: string | null
+          created_at?: string | null
+          data_inicio: string
+          detalhes_garantia?: string | null
+          html_preview?: string | null
+          id?: string
+          locador_client_id?: string | null
+          locatario_client_id?: string | null
+          observacoes?: string | null
+          pdf_generated_url?: string | null
+          pdf_url?: string | null
+          prazo_meses: number
+          provider_document_id?: string | null
+          signature_status?: string | null
+          status?: string | null
+          tipo_garantia?: string | null
+          total_signatarios?: number | null
+          updated_at?: string | null
+          user_id: string
+          valor_aluguel: number
+          vencimento_dia?: number | null
+        }
+        Update: {
+          assinados_count?: number | null
+          broker_id?: string | null
+          clicksign_document_key?: string | null
+          clicksign_document_url?: string | null
+          clicksign_envelope_id?: string | null
+          conectaios_client_id?: string | null
+          conectaios_property_id?: string | null
+          contract_html?: string | null
+          created_at?: string | null
+          data_inicio?: string
+          detalhes_garantia?: string | null
+          html_preview?: string | null
+          id?: string
+          locador_client_id?: string | null
+          locatario_client_id?: string | null
+          observacoes?: string | null
+          pdf_generated_url?: string | null
+          pdf_url?: string | null
+          prazo_meses?: number
+          provider_document_id?: string | null
+          signature_status?: string | null
+          status?: string | null
+          tipo_garantia?: string | null
+          total_signatarios?: number | null
+          updated_at?: string | null
+          user_id?: string
+          valor_aluguel?: number
+          vencimento_dia?: number | null
+        }
+        Relationships: []
+      }
+      docx_contratos_eventos: {
+        Row: {
+          contrato_id: string
+          created_at: string | null
+          descricao: string | null
+          id: string
+          metadata: Json | null
+          tipo: string
+        }
+        Insert: {
+          contrato_id: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          metadata?: Json | null
+          tipo: string
+        }
+        Update: {
+          contrato_id?: string
+          created_at?: string | null
+          descricao?: string | null
+          id?: string
+          metadata?: Json | null
+          tipo?: string
+        }
+        Relationships: []
+      }
+      docx_contratos_signatarios: {
+        Row: {
+          assinado_em: string | null
+          clicksign_signer_key: string | null
+          contrato_id: string
+          cpf: string | null
+          created_at: string | null
+          email: string
+          id: string
+          nome: string
+          status: string | null
+          tipo: string
+          updated_at: string | null
+        }
+        Insert: {
+          assinado_em?: string | null
+          clicksign_signer_key?: string | null
+          contrato_id: string
+          cpf?: string | null
+          created_at?: string | null
+          email: string
+          id?: string
+          nome: string
+          status?: string | null
+          tipo: string
+          updated_at?: string | null
+        }
+        Update: {
+          assinado_em?: string | null
+          clicksign_signer_key?: string | null
+          contrato_id?: string
+          cpf?: string | null
+          created_at?: string | null
+          email?: string
+          id?: string
+          nome?: string
+          status?: string | null
+          tipo?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      docx_field_conflicts: {
+        Row: {
+          contract_data_bank_id: string | null
+          created_at: string | null
+          field_path: string
+          id: string
+          resolved: boolean | null
+          selected_value: string | null
+          updated_at: string | null
+          user_id: string
+          values: Json | null
+        }
+        Insert: {
+          contract_data_bank_id?: string | null
+          created_at?: string | null
+          field_path: string
+          id?: string
+          resolved?: boolean | null
+          selected_value?: string | null
+          updated_at?: string | null
+          user_id: string
+          values?: Json | null
+        }
+        Update: {
+          contract_data_bank_id?: string | null
+          created_at?: string | null
+          field_path?: string
+          id?: string
+          resolved?: boolean | null
+          selected_value?: string | null
+          updated_at?: string | null
+          user_id?: string
+          values?: Json | null
+        }
+        Relationships: []
+      }
       gam_badges: {
         Row: {
           ativo: boolean
@@ -1571,6 +1937,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -1620,6 +1987,7 @@ export type Database = {
           title: string
           type?: string | null
           updated_at?: string | null
+          videos?: Json | null
           visibility?: string | null
           vista_mar?: boolean | null
           zipcode?: string | null
@@ -1669,6 +2037,7 @@ export type Database = {
           title?: string
           type?: string | null
           updated_at?: string | null
+          videos?: Json | null
           visibility?: string | null
           vista_mar?: boolean | null
           zipcode?: string | null
@@ -1861,6 +2230,73 @@ export type Database = {
           },
           {
             foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_videos: {
+        Row: {
+          created_at: string | null
+          filename: string | null
+          id: string
+          imovel_id: string
+          is_cover: boolean | null
+          position: number | null
+          size: number | null
+          storage_path: string | null
+          thumbnail: string | null
+          updated_at: string | null
+          url: string
+          video_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url: string
+          video_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id?: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url?: string
+          video_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties_market"
@@ -5060,6 +5496,41 @@ export type Database = {
         Args: { imovel_id: string }
         Returns: number
       }
+      ctrt_buscar_cliente_conectaios: {
+        Args: { p_cliente_id: string }
+        Returns: Json
+      }
+      ctrt_buscar_corretor_conectaios: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      ctrt_buscar_imovel_conectaios: {
+        Args: { p_imovel_id: string }
+        Returns: Json
+      }
+      ctrt_listar_clientes_conectaios: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cnpj: string
+          cpf: string
+          email: string
+          id: string
+          nome: string
+          telefone: string
+        }[]
+      }
+      ctrt_listar_imoveis_conectaios: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          bairro: string
+          cidade: string
+          endereco: string
+          id: string
+          matricula: string
+          uf: string
+          valor_aluguel: number
+        }[]
+      }
       ensure_broker_for_user: {
         Args: { p_user: string }
         Returns: string
@@ -5124,6 +5595,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5189,6 +5661,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5402,6 +5875,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null
@@ -5460,6 +5934,7 @@ export type Database = {
           title: string
           type: string | null
           updated_at: string | null
+          videos: Json | null
           visibility: string | null
           vista_mar: boolean | null
           zipcode: string | null

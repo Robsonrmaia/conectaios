@@ -52,6 +52,7 @@ import PublicProbe from "@/pages/PublicProbe";
 import Checkout from "@/pages/Checkout";
 import SignupComplete from "@/pages/SignupComplete";
 import PaymentPending from "@/pages/PaymentPending";
+import RelatoriosCompartilhamento from "./pages/app/RelatoriosCompartilhamento";
 
 const AtRedirect = () => {
   const { username } = useParams<{ username: string }>();
@@ -209,6 +210,7 @@ const App = () => (
                            <Route path="ajuda" element={<Ajuda />} />
                            <Route path="suporte" element={<Suporte />} />
                            <Route path="api-docs" element={<ApiDocs />} />
+                           <Route path="relatorios-compartilhamento" element={<RelatoriosCompartilhamento />} />
                            <Route path="*" element={<NotFound />} />
                         </Routes>
                       </AppLayout>
