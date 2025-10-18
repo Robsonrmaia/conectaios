@@ -1256,8 +1256,7 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-screen-md w-[calc(100vw-2rem)] max-h-[85vh] p-0">
-                <ScrollArea className="max-h-[85vh] px-4 md:px-6 py-4">
+              <DialogContent className="w-[92vw] sm:w-[80vw] md:w-[70vw] lg:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
@@ -1277,7 +1276,7 @@ export default function Imoveis() {
                   Envio Flash
                 </Button>
               </div>
-            <div className="grid gap-4 py-4 overflow-x-clip">
+            <div className="grid gap-4 py-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="min-w-0">
                   <Label htmlFor="titulo">Título</Label>
@@ -1730,7 +1729,6 @@ export default function Imoveis() {
                 )}
               </Button>
              </div>
-                </ScrollArea>
            </DialogContent>
         </Dialog>
         </div>
