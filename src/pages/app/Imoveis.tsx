@@ -1255,7 +1255,7 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[95vw] sm:w-full sm:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+              <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[75vw] lg:max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-4 md:p-6">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
