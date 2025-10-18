@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Building2, Plus, Search, Filter, MapPin, Bath, Bed, Car, Edit, Trash2, Home, Upload, Eye, Globe, FileImage, EyeOff, Wand2, Sparkles, Volume2, Droplet, Palette, Target, Zap, ChevronDown, ChevronUp, TrendingUp, Share2, Download, BarChart3, Video, X, Link as LinkIcon } from 'lucide-react';
 import { EnvioFlash } from '@/components/EnvioFlash';
@@ -1255,7 +1256,8 @@ export default function Imoveis() {
                   Adicionar Imóvel
                 </Button>
               </DialogTrigger>
-              <DialogContent className="w-[85vw] sm:w-[75vw] md:w-[65vw] lg:w-[55vw] xl:max-w-3xl max-h-[90vh] overflow-y-auto p-2 sm:p-3 md:p-4">
+              <DialogContent className="max-w-screen-md w-[calc(100vw-2rem)] max-h-[85vh] p-0">
+                <ScrollArea className="max-h-[85vh] px-4 md:px-6 py-4">
               <DialogHeader>
                 <DialogTitle>{selectedProperty ? 'Editar Imóvel' : 'Adicionar Novo Imóvel'}</DialogTitle>
                 <DialogDescription>
@@ -1275,9 +1277,9 @@ export default function Imoveis() {
                   Envio Flash
                 </Button>
               </div>
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 overflow-x-clip">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="titulo">Título</Label>
                   <Input
                     id="titulo"
@@ -1287,7 +1289,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="valor">Valor (R$)</Label>
                   <Input
                     id="valor"
@@ -1303,7 +1305,7 @@ export default function Imoveis() {
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="area">Área (m²)</Label>
                   <Input
                     id="area"
@@ -1314,7 +1316,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <Label htmlFor="quartos">Quartos</Label>
                   <Input
                     id="quartos"
@@ -1325,7 +1327,7 @@ export default function Imoveis() {
                     className="h-11"
                   />
                  </div>
-                 <div>
+                 <div className="min-w-0">
                    <Label htmlFor="bathrooms">Banheiros</Label>
                    <Input
                      id="bathrooms"
@@ -1336,7 +1338,7 @@ export default function Imoveis() {
                      className="h-11"
                    />
                  </div>
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="suites">Suítes</Label>
                     <Input
                       id="suites"
@@ -1350,7 +1352,7 @@ export default function Imoveis() {
                 </div>
 
                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                   <div>
+                   <div className="min-w-0">
                      <Label htmlFor="parking_spots">Vagas</Label>
                      <Input
                        id="parking_spots"
@@ -1360,7 +1362,7 @@ export default function Imoveis() {
                        placeholder="1"
                      />
                    </div>
-                   <div>
+                   <div className="min-w-0">
                      <Label htmlFor="listing_type">Finalidade</Label>
                      <Select value={formData.listing_type} onValueChange={(value) => setFormData({...formData, listing_type: value})}>
                        <SelectTrigger>
@@ -1373,7 +1375,7 @@ export default function Imoveis() {
                        </SelectContent>
                      </Select>
                    </div>
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="property_type">Tipo</Label>
                     <Select value={formData.property_type} onValueChange={(value) => setFormData({...formData, property_type: value})}>
                       <SelectTrigger>
@@ -1418,7 +1420,7 @@ export default function Imoveis() {
 
                 {/* CEP, Bairro, IPTU e Condomínio */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
+                          <div className="min-w-0">
                             <Label htmlFor="zipcode">CEP</Label>
                             <Input
                               id="zipcode"
@@ -1428,7 +1430,7 @@ export default function Imoveis() {
                               className="h-11"
                             />
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <Label htmlFor="neighborhood">Bairro</Label>
                             <Input
                               id="neighborhood"
@@ -1441,7 +1443,7 @@ export default function Imoveis() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
+                          <div className="min-w-0">
                             <Label htmlFor="year_built">Ano de Construção</Label>
                             <Input
                               id="year_built"
@@ -1452,7 +1454,7 @@ export default function Imoveis() {
                               className="h-11"
                             />
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <Label htmlFor="condominium_fee">Taxa de Condomínio (R$)</Label>
                             <Input
                               id="condominium_fee"
@@ -1468,7 +1470,7 @@ export default function Imoveis() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
+                          <div className="min-w-0">
                             <Label htmlFor="iptu">IPTU (R$)</Label>
                             <Input
                               id="iptu"
@@ -1484,7 +1486,7 @@ export default function Imoveis() {
                         </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="banner_type">Banner</Label>
                     <Select value={formData.banner_type} onValueChange={(value) => setFormData({...formData, banner_type: value})}>
                       <SelectTrigger>
@@ -1500,7 +1502,7 @@ export default function Imoveis() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="furnishing_type">Mobília</Label>
                     <Select value={formData.furnishing_type} onValueChange={(value: 'none' | 'furnished' | 'semi_furnished') => setFormData({...formData, furnishing_type: value})}>
                       <SelectTrigger>
@@ -1516,7 +1518,7 @@ export default function Imoveis() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
+                  <div className="min-w-0">
                     <Label htmlFor="sea_distance">Distância do Mar (metros)</Label>
                     <Input
                       id="sea_distance"
@@ -1530,7 +1532,7 @@ export default function Imoveis() {
                       Deixe vazio se não aplicável
                     </p>
                   </div>
-                  <div className="space-y-4">
+                  <div className="min-w-0 space-y-4">
                     <div className="flex items-center space-x-2">
                       <Switch
                         id="has_sea_view"
@@ -1705,9 +1707,9 @@ export default function Imoveis() {
                   )}
                 </div>
               </div>
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => {
+             </div>
+             <div className="flex justify-end gap-2">
+               <Button variant="outline" onClick={() => {
                 setIsAddDialogOpen(false);
                 setSelectedProperty(null);
               }}>
@@ -1728,6 +1730,7 @@ export default function Imoveis() {
                 )}
               </Button>
              </div>
+                </ScrollArea>
            </DialogContent>
         </Dialog>
         </div>
