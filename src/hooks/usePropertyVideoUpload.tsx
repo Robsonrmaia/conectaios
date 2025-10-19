@@ -25,12 +25,7 @@ export function usePropertyVideoUpload() {
     setUploadProgress(0);
 
     try {
-      // Validação crítica: propertyId deve existir
-      if (!propertyId) {
-        throw new Error('ID do imóvel não fornecido. Salve o imóvel antes de adicionar vídeos.');
-      }
-
-      // Validações de arquivo
+      // Validações
       if (file.size > MAX_VIDEO_SIZE) {
         throw new Error('Vídeo muito grande. Máximo 100MB permitido.');
       }
@@ -72,18 +67,7 @@ export function usePropertyVideoUpload() {
 
     } catch (error: any) {
       console.error('Upload error:', error);
-      
-      let errorMessage = 'Erro ao fazer upload do vídeo';
-      
-      if (error.message?.includes('row-level security') || error.message?.includes('policy')) {
-        errorMessage = 'Você não tem permissão para adicionar vídeos a este imóvel. Certifique-se de que o imóvel existe e pertence a você.';
-      } else if (error.message?.includes('exceeds maximum')) {
-        errorMessage = 'Arquivo muito grande. Máximo 100MB.';
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-      
-      toast.error(errorMessage);
+      toast.error(error.message || 'Erro ao fazer upload do vídeo');
       throw error;
     } finally {
       setIsUploading(false);

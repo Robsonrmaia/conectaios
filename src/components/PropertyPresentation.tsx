@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { useBroker } from '@/hooks/useBroker';
-import { convertToMediaArray, convertFromMediaArray, MediaItem } from '@/types/media';
 import { useWhatsAppMessage } from '@/hooks/useWhatsAppMessage';
 import { useRealPlaces } from '@/hooks/useRealPlaces';
 import { usePropertyPresentationState } from '@/hooks/usePropertyPresentationState';
@@ -14,7 +13,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import RealPropertyMap from './RealPropertyMap';
-import { MediaGallery } from '@/components/MediaGallery';
+import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
 
@@ -91,7 +90,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   const [brokerData, setBrokerData] = useState<any>(null);
   const [isLoadingBroker, setIsLoadingBroker] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [galleryMedia, setGalleryMedia] = useState<MediaItem[]>([]);
+  const [galleryPhotos, setGalleryPhotos] = useState<string[]>([]);
   const [galleryInitialIndex, setGalleryInitialIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -236,9 +235,8 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     window.open(propertyUrl, '_blank');
   };
 
-  const openMediaGallery = (initialIndex: number = 0) => {
-    const media = convertToMediaArray(property.fotos || [], property.videos || []);
-    setGalleryMedia(media);
+  const openPhotoGallery = (photos: string[], initialIndex: number = 0) => {
+    setGalleryPhotos(photos);
     setGalleryInitialIndex(initialIndex);
     setIsGalleryOpen(true);
     
@@ -247,21 +245,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       const urlParams = new URLSearchParams(window.location.search);
       const shareId = urlParams.get('share');
       if (shareId) {
-        recordInteraction(shareId, 'media_gallery_opened', { mediaIndex: initialIndex });
+        recordInteraction(shareId, 'photo_gallery_opened', { photoIndex: initialIndex });
       }
     }
-  };
-
-  const getAutoplayEmbedUrl = (url: string): string => {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-      const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)?.[1];
-      return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0&modestbranding=1`;
-    }
-    if (url.includes('vimeo.com')) {
-      const videoId = url.match(/vimeo\.com\/(\d+)/)?.[1];
-      return `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&loop=1&background=1`;
-    }
-    return url;
   };
 
   
@@ -272,52 +258,18 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
     <div className="fixed inset-0 bg-white z-[10010] overflow-y-auto">
       {/* Hero Section - Full screen */}
       <div className="relative h-screen w-full">
-        {/* Hero Image/Video with overlays */}
+        {/* Hero Image with overlays */}
         <div 
           className="relative h-full w-full bg-cover bg-center cursor-pointer property-hero-mobile"
           style={{
-            backgroundImage: (() => {
-              const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-              const coverMedia = allMedia[0];
-              if (!coverMedia || coverMedia.type !== 'photo') {
-                return 'url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)';
-              }
-              return `url(${coverMedia.url})`;
-            })()
+            backgroundImage: property.fotos && property.fotos.length > 0 
+              ? `url(${property.fotos[0]})` 
+              : `url(https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80)`,
           }}
-          onClick={() => openMediaGallery(0)}
+          onClick={() => property.fotos && property.fotos.length > 0 && openPhotoGallery(property.fotos, 0)}
         >
-          {(() => {
-            const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-            const coverMedia = allMedia[0];
-            if (coverMedia?.type === 'video') {
-              return (
-                <div className="absolute inset-0 w-full h-full bg-black">
-                  {coverMedia.videoType === 'url' ? (
-                    <iframe
-                      src={getAutoplayEmbedUrl(coverMedia.url)}
-                      className="w-full h-full"
-                      allow="autoplay; fullscreen; picture-in-picture"
-                      style={{ border: 'none' }}
-                    />
-                  ) : (
-                    <video
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="w-full h-full object-cover"
-                    >
-                      <source src={coverMedia.url} type="video/mp4" />
-                    </video>
-                  )}
-                </div>
-              );
-            }
-            return null;
-          })()}
           {/* Dark gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
           
           {/* Header with back button */}
           <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-center">
@@ -523,65 +475,43 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Content Sections */}
       <div className="bg-white">
 
-        {/* Media Gallery Section */}
+        {/* Photo Gallery Section */}
         <section className="px-6 py-12">
-          {(() => {
-            const allMedia = convertToMediaArray(property.fotos || [], property.videos || []);
-            return allMedia.length > 1 && (
-              <div className="mb-8">
-                <h3 className="text-xl font-semibold mb-4">Galeria de Mídia</h3>
-                <div className="grid grid-cols-3 gap-2">
-                  {allMedia.slice(0, 9).map((item, index) => (
-                    <div
-                      key={index}
-                      className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
-                        group hover:scale-105 transition-all duration-300 
-                        hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
-                        hover:brightness-110"
-                      onClick={() => openMediaGallery(index)}
-                    >
-                      {item.type === 'photo' ? (
-                        <img
-                          src={item.url}
-                          alt={`Mídia ${index + 1} do imóvel`}
-                          className="w-full h-full object-cover transition-all duration-300"
-                        />
-                      ) : (
-                        <>
-                          {item.thumbnail ? (
-                            <img
-                              src={item.thumbnail}
-                              alt={`Vídeo ${index + 1} do imóvel`}
-                              className="w-full h-full object-cover transition-all duration-300"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-black" />
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                            <div className="bg-white/90 rounded-full p-3">
-                              <Video className="h-6 w-6 text-primary" />
-                            </div>
-                          </div>
-                        </>
-                      )}
-                      {/* Badge "Toque para ampliar" em mobile */}
-                      <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full
-                        opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
-                        <ZoomIn className="h-3 w-3" />
-                      </div>
-                      {index === 8 && allMedia.length > 9 && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                          <span className="text-white font-semibold">
-                            +{allMedia.length - 8}
-                          </span>
-                        </div>
-                      )}
+          {property.fotos && property.fotos.length > 1 && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {property.fotos.slice(0, 9).map((foto, index) => (
+                  <div
+                    key={index}
+                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
+                      group hover:scale-105 transition-all duration-300 
+                      hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
+                      hover:brightness-110"
+                    onClick={() => openPhotoGallery(property.fotos, index)}
+                  >
+                    <img
+                      src={foto}
+                      alt={`Foto ${index + 1} do imóvel`}
+                      className="w-full h-full object-cover transition-all duration-300"
+                    />
+                    {/* Badge "Toque para ampliar" em mobile */}
+                    <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
+                      opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
+                      <ZoomIn className="h-3 w-3" />
                     </div>
-                  ))}
-                </div>
+                    {index === 8 && property.fotos.length > 9 && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <span className="text-white font-semibold">
+                          +{property.fotos.length - 8}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
-            );
-          })()}
+            </div>
+          )}
 
           {/* Seção de Vídeos */}
           {property.videos && property.videos.length > 0 && (
@@ -762,7 +692,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
                   alt="Esboço do imóvel" 
                   className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
                   onClick={() => {
-                    setGalleryMedia([{ type: 'photo', url: property.sketch_url! }]);
+                    setGalleryPhotos([property.sketch_url!]);
                     setGalleryInitialIndex(0);
                     setIsGalleryOpen(true);
                   }}
@@ -941,9 +871,9 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
         </section>
       </div>
 
-      {/* Media Gallery */}
-      <MediaGallery
-        media={galleryMedia.length > 0 ? galleryMedia : convertToMediaArray(property.fotos, property.videos)}
+      {/* Photo Gallery */}
+      <PhotoGallery
+        photos={property.fotos && property.fotos.length > 0 ? [property.fotos[0], ...property.fotos.slice(1)] : []}
         initialIndex={galleryInitialIndex}
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
