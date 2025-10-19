@@ -385,6 +385,7 @@ export default function Imoveis() {
       // ✅ FIX: Buscar imagens e features de cada imóvel
       const propertyIds = (data || []).map(p => p.id);
       let imagesMap: Record<string, string[]> = {};
+      let videosMap: Record<string, PropertyVideo[]> = {};
       let featuresMap: Record<string, Record<string, string>> = {};
       
       if (propertyIds.length > 0) {
@@ -413,6 +414,35 @@ export default function Imoveis() {
             } else {
               console.warn('⚠️ URL de imagem inválida (base64 ou formato incorreto) ignorada:', img.url?.substring(0, 50));
             }
+          });
+        }
+        
+        // Buscar vídeos da tabela imovel_media
+        console.log('🎬 [ADMIN] Buscando vídeos para', propertyIds.length, 'imóveis');
+        
+        const { data: videosData, error: videosError } = await supabase
+          .from('imovel_media')
+          .select('imovel_id, url, filename, size_bytes, kind')
+          .in('imovel_id', propertyIds)
+          .eq('kind', 'video')
+          .order('position', { ascending: true });
+        
+        if (videosError) {
+          console.error('❌ [ADMIN] Erro ao buscar vídeos:', videosError);
+        } else {
+          console.log('✅ [ADMIN] Vídeos carregados:', videosData?.length);
+          
+          // Agrupar vídeos por imovel_id
+          videosData?.forEach(video => {
+            if (!videosMap[video.imovel_id]) {
+              videosMap[video.imovel_id] = [];
+            }
+            videosMap[video.imovel_id].push({
+              type: 'upload',
+              url: video.url,
+              filename: video.filename || undefined,
+              size: video.size_bytes || undefined
+            });
           });
         }
         
@@ -457,7 +487,7 @@ export default function Imoveis() {
           show_on_marketplace: prop.show_on_marketplace || false,
           show_on_minisite: prop.show_on_minisite || false,
           fotos: imagesMap[prop.id] || [],
-          videos: [],
+          videos: videosMap[prop.id] || [],
           descricao: prop.description || '',
           reference_code: prop.reference_code || '',
         banner_type: features.banner_type || 'none',
@@ -748,8 +778,70 @@ export default function Imoveis() {
           } else {
             console.log('✅ Imagens salvas com sucesso:', insertedImages);
           }
-        } catch (imageError) {
-          console.error('❌ Erro inesperado ao salvar imagens:', imageError);
+        } catch (error) {
+          console.error('❌ Erro geral ao processar imagens:', error);
+        }
+      }
+
+      // ✅ FIX: Salvar vídeos na tabela imovel_media após criar/editar o imóvel
+      if (result.data?.id && formData.videos.length > 0) {
+        console.log('=== SALVANDO VÍDEOS NA TABELA ===');
+        console.log('Property ID:', result.data.id);
+        console.log('Total de vídeos:', formData.videos.length);
+        
+        try {
+          // Filtrar apenas vídeos de upload (type='upload')
+          const uploadVideos = formData.videos.filter(v => v.type === 'upload');
+          
+          if (uploadVideos.length > 0) {
+            // Preparar registros de vídeos
+            const videoRecords = uploadVideos.map((video, index) => ({
+              imovel_id: result.data.id,
+              kind: 'video',
+              url: video.url,
+              filename: video.filename || null,
+              size_bytes: video.size || null,
+              position: index,
+              is_cover: false, // vídeos não são capa por padrão
+              created_at: new Date().toISOString()
+            }));
+
+            console.log('🎬 Registros de vídeos preparados:', videoRecords);
+
+            // Se for edição, remover vídeos antigos primeiro
+            if (selectedProperty) {
+              const { error: deleteError } = await supabase
+                .from('imovel_media')
+                .delete()
+                .eq('imovel_id', result.data.id)
+                .eq('kind', 'video');
+              
+              if (deleteError) {
+                console.error('❌ Erro ao remover vídeos antigos:', deleteError);
+              } else {
+                console.log('✅ Vídeos antigos removidos');
+              }
+            }
+
+            // Inserir novos registros de vídeos
+            const { data: insertedVideos, error: videosError } = await supabase
+              .from('imovel_media')
+              .insert(videoRecords)
+              .select();
+
+            if (videosError) {
+              console.error('❌ Erro ao salvar vídeos:', videosError);
+              toast({
+                title: "Aviso",
+                description: "Imóvel salvo, mas houve erro ao salvar alguns vídeos",
+                variant: "destructive",
+              });
+            } else {
+              console.log('✅ Vídeos salvos com sucesso:', insertedVideos);
+            }
+          }
+        } catch (error) {
+          console.error('❌ Erro geral ao processar vídeos:', error);
         }
       }
 

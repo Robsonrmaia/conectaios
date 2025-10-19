@@ -1753,6 +1753,39 @@ export type Database = {
         }
         Relationships: []
       }
+      field_conflicts: {
+        Row: {
+          created_at: string | null
+          field_path: string
+          id: string
+          resolved: boolean | null
+          selected_value: string | null
+          updated_at: string | null
+          user_id: string
+          values: Json
+        }
+        Insert: {
+          created_at?: string | null
+          field_path: string
+          id?: string
+          resolved?: boolean | null
+          selected_value?: string | null
+          updated_at?: string | null
+          user_id: string
+          values?: Json
+        }
+        Update: {
+          created_at?: string | null
+          field_path?: string
+          id?: string
+          resolved?: boolean | null
+          selected_value?: string | null
+          updated_at?: string | null
+          user_id?: string
+          values?: Json
+        }
+        Relationships: []
+      }
       gam_badges: {
         Row: {
           ativo: boolean
@@ -2230,6 +2263,143 @@ export type Database = {
           },
           {
             foreignKeyName: "imovel_images_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_media: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          filename: string | null
+          height: number | null
+          id: string
+          imovel_id: string
+          is_cover: boolean | null
+          kind: string
+          position: number | null
+          size_bytes: number | null
+          updated_at: string | null
+          url: string
+          width: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          filename?: string | null
+          height?: number | null
+          id?: string
+          imovel_id: string
+          is_cover?: boolean | null
+          kind: string
+          position?: number | null
+          size_bytes?: number | null
+          updated_at?: string | null
+          url: string
+          width?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          filename?: string | null
+          height?: number | null
+          id?: string
+          imovel_id?: string
+          is_cover?: boolean | null
+          kind?: string
+          position?: number | null
+          size_bytes?: number | null
+          updated_at?: string | null
+          url?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_media_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_media_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_media_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties_market"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      imovel_videos: {
+        Row: {
+          created_at: string | null
+          filename: string | null
+          id: string
+          imovel_id: string
+          is_cover: boolean | null
+          position: number | null
+          size: number | null
+          storage_path: string | null
+          thumbnail: string | null
+          updated_at: string | null
+          url: string
+          video_type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url: string
+          video_type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          filename?: string | null
+          id?: string
+          imovel_id?: string
+          is_cover?: boolean | null
+          position?: number | null
+          size?: number | null
+          storage_path?: string | null
+          thumbnail?: string | null
+          updated_at?: string | null
+          url?: string
+          video_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "imoveis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
+            columns: ["imovel_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "imovel_videos_imovel_id_fkey"
             columns: ["imovel_id"]
             isOneToOne: false
             referencedRelation: "properties_market"
