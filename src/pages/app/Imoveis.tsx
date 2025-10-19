@@ -1551,85 +1551,76 @@ export default function Imoveis() {
                 watermarkText="ConectaIOS"
               />
               
-              {/* MediaGrid - Visualização Unificada de Fotos e Vídeos */}
+              {/* Sistema de Abas para Fotos e Vídeos */}
               {(formData.fotos.length > 0 || formData.videos.length > 0) && (
                 <div className="border-t pt-4">
-                  <div className="mb-3">
-                    <h3 className="text-sm font-medium mb-1">Galeria de Mídias</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Clique para visualizar • A primeira foto será a capa
-                    </p>
-                  </div>
-                  <MediaGrid
-                    items={[
-                      // Fotos primeiro
-                      ...formData.fotos.map((url, idx) => ({
-                        kind: 'image' as const,
-                        url,
-                        is_cover: idx === 0
-                      })),
-                      // Vídeos depois
-                      ...formData.videos.map((video) => ({
-                        kind: 'video' as const,
-                        url: video.url,
-                        filename: video.filename,
-                        is_cover: false
-                      }))
-                    ]}
-                    onRemove={(index) => {
-                      const totalPhotos = formData.fotos.length;
-                      if (index < totalPhotos) {
-                        // Remover foto
-                        const newFotos = [...formData.fotos];
-                        newFotos.splice(index, 1);
-                        setFormData({...formData, fotos: newFotos});
-                      } else {
-                        // Remover vídeo
-                        const videoIndex = index - totalPhotos;
-                        removeVideo(videoIndex);
-                      }
-                    }}
-                    onSetCover={(index) => {
-                      const totalPhotos = formData.fotos.length;
-                      if (index < totalPhotos) {
-                        // Mover foto selecionada para primeira posição
-                        const newFotos = [...formData.fotos];
-                        const [coverPhoto] = newFotos.splice(index, 1);
-                        newFotos.unshift(coverPhoto);
-                        setFormData({...formData, fotos: newFotos});
-                      } else {
-                        // Vídeos não podem ser capa ainda
-                        toast({
-                          title: "Recurso não disponível",
-                          description: "No momento, apenas fotos podem ser definidas como capa",
-                          variant: "default"
-                        });
-                      }
-                    }}
-                    editable={true}
-                  />
+                  <Tabs defaultValue="fotos" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="fotos">
+                        📷 Fotos ({formData.fotos.length})
+                      </TabsTrigger>
+                      <TabsTrigger value="videos">
+                        🎬 Vídeos ({formData.videos.length})
+                      </TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="fotos">
+                      {/* Aba de Fotos - PhotoOrderManager */}
+                      {formData.fotos.length > 0 ? (
+                        <PhotoOrderManager
+                          photos={formData.fotos}
+                          onPhotosReorder={(reorderedPhotos) => {
+                            setFormData({...formData, fotos: reorderedPhotos});
+                          }}
+                          onCoverPhotoSelect={(coverIndex) => {
+                            const newPhotos = [...formData.fotos];
+                            const [coverPhoto] = newPhotos.splice(coverIndex, 1);
+                            newPhotos.unshift(coverPhoto);
+                            setFormData({...formData, fotos: newPhotos});
+                          }}
+                          coverPhotoIndex={0}
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <FileImage className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                          <p>Nenhuma foto adicionada ainda</p>
+                        </div>
+                      )}
+                    </TabsContent>
+                    
+                    <TabsContent value="videos">
+                      {/* Aba de Vídeos - MediaGrid somente para vídeos */}
+                      {formData.videos.length > 0 ? (
+                        <MediaGrid
+                          items={formData.videos.map((video) => ({
+                            kind: 'video' as const,
+                            url: video.url,
+                            filename: video.filename,
+                            is_cover: false
+                          }))}
+                          onRemove={(index) => {
+                            removeVideo(index);
+                          }}
+                          onSetCover={() => {
+                            toast({
+                              title: "Recurso não disponível",
+                              description: "Vídeos não podem ser definidos como capa",
+                              variant: "default"
+                            });
+                          }}
+                          editable={true}
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-muted-foreground">
+                          <Video className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                          <p>Nenhum vídeo adicionado ainda</p>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </div>
               )}
               
-              {/* Photo Order Manager - mantido para reordenação avançada */}
-              {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
-                <div className="border-t pt-4">
-                  <PhotoOrderManager
-                    photos={formData.fotos}
-                    onPhotosReorder={(reorderedPhotos) => {
-                      setFormData({...formData, fotos: reorderedPhotos});
-                    }}
-                    onCoverPhotoSelect={(coverIndex) => {
-                      // Move selected photo to first position
-                      const newPhotos = [...formData.fotos];
-                      const [coverPhoto] = newPhotos.splice(coverIndex, 1);
-                      newPhotos.unshift(coverPhoto);
-                      setFormData({...formData, fotos: newPhotos});
-                    }}
-                    coverPhotoIndex={0}
-                  />
-                </div>
-              )}
 
               {/* Tour 360° Generator */}
               {Array.isArray(formData.fotos) && formData.fotos.length > 0 && (
