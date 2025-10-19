@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video } from 'lucide-react';
+import { MapPin, Calendar, Share2, Phone, Mail, MessageCircle, Copy, Building2, User, Home, Car, Bath, Bed, X, ChevronLeft, ChevronDown, ShoppingBag, Train, Hospital, GraduationCap, TreePine, Lightbulb, Palette, Package, Waves, Eye, ZoomIn, Trees, Dumbbell, Utensils, FileText, Video, Image as ImageIcon } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,8 @@ import RealPropertyMap from './RealPropertyMap';
 import { PhotoGallery } from '@/components/PhotoGallery';
 import { ConectaIOSImageProcessor } from '@/components/ConectaIOSImageProcessor';
 import { PropertyAIAssistant } from '@/components/PropertyAIAssistant';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MediaGrid } from '@/components/MediaGrid';
 
 interface PropertyVideo {
   type: 'url' | 'upload';
@@ -475,115 +477,140 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
       {/* Content Sections */}
       <div className="bg-white">
 
-        {/* Photo Gallery Section */}
+        {/* Media Gallery Section with Tabs */}
         <section className="px-6 py-12">
-          {property.fotos && property.fotos.length > 1 && (
+          {((property.fotos && property.fotos.length > 0) || (property.videos && property.videos.length > 0)) && (
             <div className="mb-8">
-              <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {property.fotos.slice(0, 9).map((foto, index) => (
-                  <div
-                    key={index}
-                    className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
-                      group hover:scale-105 transition-all duration-300 
-                      hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
-                      hover:brightness-110"
-                    onClick={() => openPhotoGallery(property.fotos, index)}
-                  >
-                    <img
-                      src={foto}
-                      alt={`Foto ${index + 1} do imóvel`}
-                      className="w-full h-full object-cover transition-all duration-300"
-                    />
-                    {/* Badge "Toque para ampliar" em mobile */}
-                    <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
-                      <ZoomIn className="h-3 w-3" />
-                    </div>
-                    {index === 8 && property.fotos.length > 9 && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="text-white font-semibold">
-                          +{property.fotos.length - 8}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Seção de Vídeos */}
-          {property.videos && property.videos.length > 0 && (
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Video className="h-6 w-6 text-primary" />
-                Vídeos do Imóvel
-              </h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {property.videos.map((video, index) => (
-                  <div key={index} className="space-y-2">
-                    {video.title && (
-                      <p className="text-sm font-medium text-gray-700">
-                        {video.title}
-                      </p>
-                    )}
-                    
-                    {video.type === 'url' ? (
-                      // Embed do YouTube/Vimeo
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                        {video.url.includes('youtube.com') || video.url.includes('youtu.be') ? (
-                          <iframe
-                            src={video.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                            className="w-full h-full"
-                            allowFullScreen
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            title={video.title || `Vídeo ${index + 1}`}
-                          />
-                        ) : video.url.includes('vimeo.com') ? (
-                          <iframe
-                            src={video.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
-                            className="w-full h-full"
-                            allowFullScreen
-                            allow="autoplay; fullscreen; picture-in-picture"
-                            title={video.title || `Vídeo ${index + 1}`}
-                          />
-                        ) : (
-                          <video 
-                            controls 
-                            className="w-full h-full"
-                            poster={video.thumbnail}
+              <Tabs defaultValue="fotos" className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6">
+                  <TabsTrigger value="fotos" className="flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Fotos ({property.fotos?.length || 0})
+                  </TabsTrigger>
+                  <TabsTrigger value="videos" className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    Vídeos ({property.videos?.length || 0})
+                  </TabsTrigger>
+                </TabsList>
+                
+                {/* Aba de Fotos */}
+                <TabsContent value="fotos">
+                  {property.fotos && property.fotos.length > 0 ? (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-4">Galeria de Fotos</h3>
+                      <div className="grid grid-cols-3 gap-2">
+                        {property.fotos.slice(0, 9).map((foto, index) => (
+                          <div
+                            key={index}
+                            className="relative aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer 
+                              group hover:scale-105 transition-all duration-300 
+                              hover:ring-4 hover:ring-blue-400/50 hover:shadow-2xl
+                              hover:brightness-110"
+                            onClick={() => openPhotoGallery(property.fotos, index)}
                           >
-                            <source src={video.url} />
-                          </video>
-                        )}
+                            <img
+                              src={foto}
+                              alt={`Foto ${index + 1} do imóvel`}
+                              className="w-full h-full object-cover transition-all duration-300"
+                            />
+                            <div className="absolute top-2 right-2 bg-blue-600/90 text-white text-xs px-2 py-1 rounded-full 
+                              opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:hidden">
+                              <ZoomIn className="h-3 w-3" />
+                            </div>
+                            {index === 8 && property.fotos.length > 9 && (
+                              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                <span className="text-white font-semibold">
+                                  +{property.fotos.length - 8}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ) : (
-                      // Player HTML5 para uploads diretos
-                      <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
-                        <video 
-                          controls 
-                          className="w-full h-full"
-                          poster={video.thumbnail}
-                          preload="metadata"
-                        >
-                          <source src={video.url} type="video/mp4" />
-                          <source src={video.url} type="video/webm" />
-                          Seu navegador não suporta reprodução de vídeo.
-                        </video>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <ImageIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">Nenhuma foto disponível</p>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                {/* Aba de Vídeos */}
+                <TabsContent value="videos">
+                  {property.videos && property.videos.length > 0 ? (
+                    <div>
+                      <h3 className="text-xl font-semibold mb-4">Vídeos do Imóvel</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {property.videos.map((video, index) => (
+                          <div key={index} className="space-y-2">
+                            {video.title && (
+                              <p className="text-sm font-medium text-gray-700">
+                                {video.title}
+                              </p>
+                            )}
+                            
+                            {video.type === 'url' ? (
+                              <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                                {video.url.includes('youtube.com') || video.url.includes('youtu.be') ? (
+                                  <iframe
+                                    src={video.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    title={video.title || `Vídeo ${index + 1}`}
+                                  />
+                                ) : video.url.includes('vimeo.com') ? (
+                                  <iframe
+                                    src={video.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                                    className="w-full h-full"
+                                    allowFullScreen
+                                    allow="autoplay; fullscreen; picture-in-picture"
+                                    title={video.title || `Vídeo ${index + 1}`}
+                                  />
+                                ) : (
+                                  <video 
+                                    controls 
+                                    className="w-full h-full"
+                                    poster={video.thumbnail}
+                                  >
+                                    <source src={video.url} />
+                                  </video>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                                <video 
+                                  controls 
+                                  className="w-full h-full"
+                                  poster={video.thumbnail}
+                                  preload="metadata"
+                                >
+                                  <source src={video.url} type="video/mp4" />
+                                  <source src={video.url} type="video/webm" />
+                                  Seu navegador não suporta reprodução de vídeo.
+                                </video>
+                              </div>
+                            )}
+                            
+                            {video.filename && (
+                              <p className="text-xs text-gray-500">
+                                📁 {video.filename}
+                                {video.size && ` • ${(video.size / 1024 / 1024).toFixed(2)} MB`}
+                              </p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    
-                    {video.filename && (
-                      <p className="text-xs text-gray-500">
-                        📁 {video.filename}
-                        {video.size && ` • ${(video.size / 1024 / 1024).toFixed(2)} MB`}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Video className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg">Nenhum vídeo disponível</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
           )}
 
