@@ -1551,7 +1551,67 @@ export default function Imoveis() {
                 watermarkText="ConectaIOS"
               />
               
-              {/* Photo Order Manager */}
+              {/* MediaGrid - Visualização Unificada de Fotos e Vídeos */}
+              {(formData.fotos.length > 0 || formData.videos.length > 0) && (
+                <div className="border-t pt-4">
+                  <div className="mb-3">
+                    <h3 className="text-sm font-medium mb-1">Galeria de Mídias</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Clique para visualizar • A primeira foto será a capa
+                    </p>
+                  </div>
+                  <MediaGrid
+                    items={[
+                      // Fotos primeiro
+                      ...formData.fotos.map((url, idx) => ({
+                        kind: 'image' as const,
+                        url,
+                        is_cover: idx === 0
+                      })),
+                      // Vídeos depois
+                      ...formData.videos.map((video) => ({
+                        kind: 'video' as const,
+                        url: video.url,
+                        filename: video.filename,
+                        is_cover: false
+                      }))
+                    ]}
+                    onRemove={(index) => {
+                      const totalPhotos = formData.fotos.length;
+                      if (index < totalPhotos) {
+                        // Remover foto
+                        const newFotos = [...formData.fotos];
+                        newFotos.splice(index, 1);
+                        setFormData({...formData, fotos: newFotos});
+                      } else {
+                        // Remover vídeo
+                        const videoIndex = index - totalPhotos;
+                        removeVideo(videoIndex);
+                      }
+                    }}
+                    onSetCover={(index) => {
+                      const totalPhotos = formData.fotos.length;
+                      if (index < totalPhotos) {
+                        // Mover foto selecionada para primeira posição
+                        const newFotos = [...formData.fotos];
+                        const [coverPhoto] = newFotos.splice(index, 1);
+                        newFotos.unshift(coverPhoto);
+                        setFormData({...formData, fotos: newFotos});
+                      } else {
+                        // Vídeos não podem ser capa ainda
+                        toast({
+                          title: "Recurso não disponível",
+                          description: "No momento, apenas fotos podem ser definidas como capa",
+                          variant: "default"
+                        });
+                      }
+                    }}
+                    editable={true}
+                  />
+                </div>
+              )}
+              
+              {/* Photo Order Manager - mantido para reordenação avançada */}
               {Array.isArray(formData.fotos) && formData.fotos.length > 1 && (
                 <div className="border-t pt-4">
                   <PhotoOrderManager
@@ -1626,40 +1686,9 @@ export default function Imoveis() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   
-                  {/* Lista de vídeos existentes */}
-                  {formData.videos.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.videos.map((video, index) => (
-                        <div 
-                          key={index} 
-                          className="flex items-center gap-3 p-3 border rounded-lg bg-muted/50"
-                        >
-                          <Video className="h-5 w-5 text-muted-foreground" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {video.type === 'url' ? '📺 URL Externa' : '📤 Upload'}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {video.type === 'url' ? video.url : video.filename}
-                            </p>
-                            {video.size && (
-                              <p className="text-xs text-muted-foreground">
-                                {(video.size / 1024 / 1024).toFixed(2)} MB
-                              </p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => removeVideo(index)}
-                            className="text-destructive hover:text-destructive"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <p className="text-sm text-muted-foreground">
+                    Os vídeos aparecerão na galeria acima junto com as fotos
+                  </p>
 
                   {/* Adicionar URL do YouTube/Vimeo */}
                   <div className="space-y-2">
