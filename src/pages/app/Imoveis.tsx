@@ -60,6 +60,8 @@ import { CITIES, DEFAULT_CITY, getCityLabel } from '@/config/cities';
 import { useSubscriptionGuard } from '@/hooks/useSubscriptionGuard';
 import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 import { usePropertyVideoUpload } from '@/hooks/usePropertyVideoUpload';
+import { VideoUploader } from '@/components/VideoUploader';
+import { MediaGrid } from '@/components/MediaGrid';
 
 interface PropertyVideo {
   type: 'url' | 'upload';
@@ -1681,42 +1683,36 @@ export default function Imoveis() {
                     </div>
                   </div>
 
-                  {/* Upload de vídeo */}
-                  <div className="border-2 border-dashed rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      onChange={handleVideoUpload}
-                      disabled={
-                        isVideoUploading || 
-                        !selectedProperty ||
-                        formData.videos.filter(v => v.type === 'upload').length >= 2
-                      }
-                      className="hidden"
-                      id="video-upload-input"
+                  {/* Upload de vídeo com VideoUploader */}
+                  {selectedProperty && (
+                    <VideoUploader
+                      propertyId={selectedProperty.id}
+                      currentVideoCount={formData.videos.filter(v => v.type === 'upload').length}
+                      onVideoUploaded={(videoData) => {
+                        console.log('🎬 Vídeo enviado:', videoData);
+                        const newVideo: PropertyVideo = {
+                          type: 'upload',
+                          url: videoData.url,
+                          filename: videoData.filename,
+                          size: videoData.size
+                        };
+                        setFormData({
+                          ...formData,
+                          videos: [...formData.videos, newVideo]
+                        });
+                      }}
                     />
-                    <label 
-                      htmlFor="video-upload-input" 
-                      className={`cursor-pointer ${
-                        formData.videos.filter(v => v.type === 'upload').length >= 2 
-                          ? 'opacity-50 cursor-not-allowed' 
-                          : ''
-                      }`}
-                    >
-                      <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                      <p className="text-sm font-medium mb-1">
-                        {isVideoUploading ? 'Enviando vídeo...' : 'Fazer upload de vídeo'}
-                      </p>
+                  )}
+                  
+                  {!selectedProperty && (
+                    <div className="border-2 border-dashed rounded-lg p-6 text-center bg-muted/50">
+                      <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                      <p className="text-sm font-medium mb-1">Salve o imóvel primeiro</p>
                       <p className="text-xs text-muted-foreground">
-                        {formData.videos.filter(v => v.type === 'upload').length >= 2
-                          ? '❌ Limite de 2 vídeos via upload atingido'
-                          : '✅ Máximo 100MB • MP4, WEBM ou MOV'}
+                        O upload de vídeos estará disponível após criar o imóvel
                       </p>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {formData.videos.filter(v => v.type === 'upload').length}/2 vídeos enviados
-                      </p>
-                    </label>
-                  </div>
+                    </div>
+                  )}
 
                 </CardContent>
               </Card>
@@ -2283,6 +2279,7 @@ export default function Imoveis() {
                           const showOnMarketplace = currentProperty.visibility === 'partners';
                           
                           // Preenche o formulário com os dados do imóvel selecionado
+                          console.log('🎬 Carregando vídeos para edição:', property.videos);
                           setFormData({
                             titulo: currentProperty.titulo,
                             valor: formatCurrencyBR(currentProperty.valor),
