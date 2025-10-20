@@ -256,6 +256,7 @@ export default function Marketplace() {
             distancia_mar,
             status,
             imovel_images!imovel_images_imovel_id_fkey(url, is_cover, position),
+            imovel_media!imovel_media_imovel_id_fkey(url, filename, size_bytes, title, media_type, kind, position),
             imovel_features!imovel_features_imovel_id_fkey(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
@@ -354,6 +355,7 @@ export default function Marketplace() {
             distancia_mar,
             status,
             imovel_images!imovel_images_imovel_id_fkey(url, is_cover, position),
+            imovel_media!imovel_media_imovel_id_fkey(url, filename, size_bytes, title, media_type, kind, position),
             imovel_features!imovel_features_imovel_id_fkey(key, value)
           `)
           .in('visibility', ['partners', 'marketplace', 'both'])
@@ -428,7 +430,15 @@ export default function Marketplace() {
             sea_distance: property.distancia_mar || null,
             has_sea_view: property.vista_mar || false,
             fotos: allPhotos,
-            videos: [],
+            videos: property.imovel_media
+              ?.filter((media: any) => media.kind === 'video')
+              ?.map((video: any) => ({
+                type: (video.media_type || 'upload') as 'upload' | 'url',
+                url: video.url,
+                filename: video.filename || undefined,
+                size: video.size_bytes || undefined,
+                title: video.title || undefined
+              })) || [],
             neighborhood: property.neighborhood || '',
             city: property.city || '',
             state: property.state || '',

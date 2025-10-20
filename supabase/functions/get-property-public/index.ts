@@ -85,10 +85,24 @@ serve(async (req) => {
     if (imagesError) {
       console.warn('⚠️ Erro ao buscar imagens:', imagesError);
     } else {
-      console.log('✅ Imagens encontradas:', images?.length || 0);
-    }
+    console.log('✅ Imagens encontradas:', images?.length || 0);
+  }
 
-    // Fetch broker info (excluding sensitive fields)
+  // Fetch property videos
+  const { data: videos, error: videosError } = await supabase
+    .from('imovel_media')
+    .select('url, filename, size_bytes, title, media_type')
+    .eq('imovel_id', propertyId)
+    .eq('kind', 'video')
+    .order('position', { ascending: true });
+
+  if (videosError) {
+    console.warn('⚠️ Erro ao buscar vídeos:', videosError);
+  } else {
+    console.log('✅ Vídeos encontrados:', videos?.length || 0);
+  }
+
+  // Fetch broker info (excluding sensitive fields)
     const { data: broker, error: brokerError } = await supabase
       .from('conectaios_brokers')
       .select('id, name, username, bio, avatar_url, cover_url, status, creci')
@@ -114,7 +128,13 @@ serve(async (req) => {
       property_type: property.type,
       descricao: property.description,
       fotos: images?.map(img => img.url) || [],
-      videos: [],
+      videos: videos?.map(video => ({
+        type: (video.media_type || 'upload') as 'upload' | 'url',
+        url: video.url,
+        filename: video.filename || undefined,
+        size: video.size_bytes || undefined,
+        title: video.title || undefined
+      })) || [],
       address: property.address,
       neighborhood: property.neighborhood,
       city: property.city,
