@@ -2280,8 +2280,10 @@ export type Database = {
           imovel_id: string
           is_cover: boolean | null
           kind: string
+          media_type: string | null
           position: number | null
           size_bytes: number | null
+          title: string | null
           updated_at: string | null
           url: string
           width: number | null
@@ -2295,8 +2297,10 @@ export type Database = {
           imovel_id: string
           is_cover?: boolean | null
           kind: string
+          media_type?: string | null
           position?: number | null
           size_bytes?: number | null
+          title?: string | null
           updated_at?: string | null
           url: string
           width?: number | null
@@ -2310,8 +2314,10 @@ export type Database = {
           imovel_id?: string
           is_cover?: boolean | null
           kind?: string
+          media_type?: string | null
           position?: number | null
           size_bytes?: number | null
+          title?: string | null
           updated_at?: string | null
           url?: string
           width?: number | null
