@@ -59,6 +59,7 @@ type Property = {
   sea_distance?: number;
   has_sea_view?: boolean;
   year_built?: number;
+  videos?: { type: 'url' | 'upload'; url: string; filename?: string; size?: number; title?: string }[];
 };
 
 type MinisiteConfig = {
@@ -258,10 +259,37 @@ export default function BrokerMinisite() {
 
         console.log('📸 Images map created:', Object.keys(imagesMap).length, 'properties with images');
 
+        // Buscar vídeos para todas as propriedades
+        const { data: videosData, error: videosError } = await supabase
+          .from('imovel_media')
+          .select('imovel_id, url, filename, size_bytes, title, media_type, kind, position')
+          .in('imovel_id', propertyIds)
+          .eq('kind', 'video')
+          .order('position', { ascending: true });
+
+        if (videosError) {
+          console.warn('⚠️ Erro ao buscar vídeos no minisite:', videosError);
+        }
+
+        const videosMap: Record<string, { type: 'url' | 'upload'; url: string; filename?: string; size?: number; title?: string }[]> = {};
+        videosData?.forEach(video => {
+          if (!videosMap[video.imovel_id]) {
+            videosMap[video.imovel_id] = [];
+          }
+          videosMap[video.imovel_id].push({
+            type: ((video.media_type || 'upload') as 'url' | 'upload'),
+            url: video.url,
+            filename: video.filename || undefined,
+            size: video.size_bytes || undefined,
+            title: video.title || undefined
+          });
+        });
+
         // Atualizar validProps com as fotos
         const propsWithImages = validProps.map(p => ({
           ...p,
-          fotos: imagesMap[p.id] || []
+          fotos: imagesMap[p.id] || [],
+          videos: videosMap[p.id] || []
         }));
 
         console.log('✅ Properties with images:', propsWithImages.filter(p => p.fotos.length > 0).length);
@@ -646,6 +674,13 @@ export default function BrokerMinisite() {
                       <div className="absolute top-3 right-3">
                         <Badge className="px-2 py-1 text-xs bg-black/70 text-white border-0">
                           {property.reference_code}
+                        </Badge>
+                      </div>
+                    )}
+                    {property.videos && property.videos.length > 0 && (
+                      <div className="absolute bottom-3 left-3">
+                        <Badge className="px-2 py-1 text-xs bg-white/80 text-gray-900 border">
+                          {property.videos.length} vídeo{property.videos.length > 1 ? 's' : ''}
                         </Badge>
                       </div>
                     )}

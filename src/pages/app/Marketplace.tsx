@@ -50,7 +50,7 @@ interface Property {
   finalidade: string;
   descricao: string;
   fotos: string[];
-  videos: string[];
+  videos?: { type: 'url' | 'upload'; url: string; filename?: string; size?: number; title?: string }[];
   user_id: string;
   owner_id: string; // ID do proprietário/corretor (equivalente a user_id)
   created_at: string;
@@ -92,7 +92,7 @@ export default function Marketplace() {
   const { user } = useAuth();
   const { speak, stop, isSpeaking, isCurrentlySpeaking } = useElevenLabsVoice();
   const { canAccessFeature, isSuspended, getBlockMessage } = useSubscriptionGuard();
-  
+
   if (isSuspended) {
     return <SubscriptionBlocker 
       status="suspended"
@@ -111,18 +111,18 @@ export default function Marketplace() {
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
   const [bedroomsFilter, setBedroomsFilter] = useState('');
-  
+
   // Filtro de cidade - Carrega última cidade selecionada ou usa padrão
   const [selectedCity, setSelectedCity] = useState<string>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.LAST_SELECTED_CITY);
     return saved || DEFAULT_CITY;
   });
-  
+
   // Salvar cidade selecionada no localStorage quando mudar
   useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.LAST_SELECTED_CITY, selectedCity);
   }, [selectedCity]);
-  
+
   // Pending filters (applied only when "Buscar" is clicked)
   const [pendingSearchTerm, setPendingSearchTerm] = useState('');
   const [pendingTypeFilter, setPendingTypeFilter] = useState('');
@@ -136,22 +136,22 @@ export default function Marketplace() {
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   // Selection states
   const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
   const [selectMode, setSelectMode] = useState(false);
-  
+
   // View mode state (declared before getItemsPerPage)
   const [viewMode, setViewMode] = useState<'cards' | 'list' | 'icons'>(() => {
     const saved = localStorage.getItem('marketplace_view_mode');
     return (saved as 'cards' | 'list' | 'icons') || 'cards';
   });
-  
+
   // Persist view mode preference
   useEffect(() => {
     localStorage.setItem('marketplace_view_mode', viewMode);
   }, [viewMode]);
-  
+
   // Dynamic items per page based on view mode
   const getItemsPerPage = useCallback(() => {
     if (currentPage === 1) {
@@ -172,16 +172,16 @@ export default function Marketplace() {
       }
     }
   }, [currentPage, viewMode]);
-  
+
   const itemsPerPage = getItemsPerPage();
   const { openChatModal, closeChatModal, modalOpen, chatUrl } = useChatExternal();
   const [recentProperties, setRecentProperties] = useState<Property[]>([]);
-  
+
   // Debug and stats states
   const [showStats, setShowStats] = useState(false);
   const [brokerStats, setBrokerStats] = useState<{[key: string]: number}>({});
   const [myPropertiesFirst, setMyPropertiesFirst] = useState(false);
-  
+
   // Apply pending filters
   const handleSearch = () => {
     setSearchTerm(pendingSearchTerm);
@@ -198,7 +198,7 @@ export default function Marketplace() {
   const fetchPublicProperties = useCallback(async (page = 0, forceRefresh = false) => {
     const cacheKey = `marketplace_properties_${page}`;
     const cacheExpiry = 5 * 60 * 1000; // 5 minutes - reduzido para melhor atualização
-    
+
     try {
       // Check cache first for this page (skip if force refresh)
       if (!forceRefresh) {
@@ -215,16 +215,16 @@ export default function Marketplace() {
       }
 
       setLoading(true);
-      
+
       // Implementação de ordenação balanceada para primeira página
       let propertiesData;
       let propertiesError;
-      
+
       if (page === 0) {
         if (import.meta.env.DEV) {
           console.log('🔄 [MARKETPLACE] Carregando imóveis públicos - página:', page);
         }
-        
+
         // Para primeira página: buscar mais dados para implementar round-robin
         const { data: allProperties, error } = await supabase
           .from('imoveis')
@@ -262,7 +262,7 @@ export default function Marketplace() {
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
           .limit(200); // Buscar mais para fazer round-robin
-          
+
         // Logging detalhado para diagnóstico
         console.log('🔍 [MARKETPLACE] Query executada:', {
           count: allProperties?.length || 0,
@@ -274,21 +274,21 @@ export default function Marketplace() {
           error: error?.message,
           errorDetails: error
         });
-        
+
         if (error) {
           console.error('❌ [MARKETPLACE] Erro na query:', error);
         }
-        
+
         if (!allProperties || allProperties.length === 0) {
           console.warn('⚠️ [MARKETPLACE] Nenhum imóvel encontrado. Verifique:');
           console.warn('  1. Existem imóveis com visibility = "partners"?');
           console.warn('  2. RLS está permitindo leitura?');
           console.warn('  3. Imóveis têm is_public = true?');
         }
-        
+
         propertiesData = allProperties;
         propertiesError = error;
-        
+
           // Implementar ordenação balanceada se temos dados
         if (propertiesData && propertiesData.length > 0) {
           // Agrupar por owner_id
@@ -297,12 +297,12 @@ export default function Marketplace() {
             acc[prop.owner_id].push(prop);
             return acc;
           }, {} as {[key: string]: any[]});
-          
+
           // Round-robin: alternar entre corretores
           const balancedProperties: any[] = [];
           const brokerQueues = Object.values(propertyGroups) as any[][];
           let maxLength = Math.max(...brokerQueues.map((queue: any[]) => queue.length));
-          
+
           for (let i = 0; i < maxLength && balancedProperties.length < 50; i++) {
             for (const queue of brokerQueues) {
               if (queue[i] && balancedProperties.length < 50) {
@@ -310,21 +310,21 @@ export default function Marketplace() {
               }
             }
           }
-          
+
           // Dar boost para imóveis verificados
           balancedProperties.sort((a, b) => {
             if (a.verified && !b.verified) return -1;
             if (!a.verified && b.verified) return 1;
             return 0;
           });
-          
+
           propertiesData = balancedProperties.slice(0, 50);
         }
       } else {
         // Páginas subsequentes: paginação normal com 12 itens
         const pageSize = 12;
         const offset = (page - 1) * 50 + (page - 1) * 12; // Ajustar offset considerando primeira página maior
-        
+
         const { data, error } = await supabase
           .from('imoveis')
           .select(`
@@ -361,9 +361,9 @@ export default function Marketplace() {
           .in('visibility', ['partners', 'marketplace', 'both'])
           .order('created_at', { ascending: false })
           .range(offset, offset + pageSize - 1);
-          
-        propertiesData = data;
-        propertiesError = error;
+
+          propertiesData = data;
+          propertiesError = error;
       }
 
       if (propertiesError) {
@@ -407,16 +407,16 @@ export default function Marketplace() {
           // Buscar foto de capa e todas as fotos
           const coverImage = property.imovel_images?.find((img: any) => img.is_cover)?.url;
           const allPhotos = property.imovel_images?.map((img: any) => img.url) || [];
-          
+
           // Extrair banner_type configurado das features
           const configuredBannerType = property.imovel_features?.find((f: any) => f.key === 'banner_type')?.value;
-          
+
           // Banner especiais apenas (sem listing_type como fallback)
           const specialBanners = ['exclusivo', 'oportunidade', 'abaixo_mercado', 'vendido', 'alugado'];
           const bannerType = (configuredBannerType && specialBanners.includes(configuredBannerType))
             ? configuredBannerType 
             : null;
-          
+
           return {
             id: property.id,
             titulo: property.title || 'Imóvel sem título',
@@ -465,7 +465,7 @@ export default function Marketplace() {
       if (page === 0) {
         setProperties(validProperties as Property[]);
         setRecentProperties(validProperties.slice(0, 8) as Property[]);
-        
+
         // Calculate broker stats para debug
         const stats = validProperties.reduce((acc, prop) => {
           const brokerName = prop.brokers?.name || 'Sem corretor';
@@ -473,32 +473,32 @@ export default function Marketplace() {
           return acc;
         }, {} as {[key: string]: number});
         setBrokerStats(stats);
-        
+
         // Cache only first page results
         localStorage.setItem(cacheKey, JSON.stringify({
           data: validProperties,
           timestamp: Date.now()
         }));
-        
+
         console.log('📊 Marketplace Stats:', stats);
         console.log('🔄 Properties loaded:', validProperties.length);
       } else {
         // Append to existing properties for pagination
         setProperties(prev => [...prev, ...(validProperties as Property[])]);
       }
-      
+
     } catch (error) {
       console.error('❌ [MARKETPLACE] Erro ao buscar imóveis:', error);
       console.error('❌ [MARKETPLACE] Stack:', (error as any)?.stack);
       console.error('❌ [MARKETPLACE] Detalhes:', (error as any)?.details);
       console.error('❌ [MARKETPLACE] Hint:', (error as any)?.hint);
       console.error('❌ [MARKETPLACE] Message:', (error as any)?.message);
-      
+
       if (page === 0) {
         // Se não há dados, não mostrar erro para listas vazias
         setProperties([]);
         setRecentProperties([]);
-        
+
         // Só mostrar toast de erro se for um erro real
         if (error && (error as any).message && !(error as any).message.includes('0 rows')) {
           toast({
@@ -527,7 +527,7 @@ export default function Marketplace() {
       });
       console.log('🧹 [MARKETPLACE] Cache limpo!');
     };
-    
+
     clearAllCaches();
     fetchPublicProperties(0, true); // Force refresh on mount with new visibility rules
   }, [fetchPublicProperties]);
@@ -548,14 +548,14 @@ export default function Marketplace() {
 
       return matchesSearch && matchesType && matchesCategoria && matchesFinalidade && matchesMinValue && matchesMaxValue && matchesNeighborhood && matchesBedrooms && matchesCity;
     });
-    
+
     // Se "Meus imóveis primeiro" ativado e usuário logado
     if (myPropertiesFirst && user) {
       const myProperties = filtered.filter(p => p.owner_id === user.id);
       const otherProperties = filtered.filter(p => p.owner_id !== user.id);
       filtered = [...myProperties, ...otherProperties];
     }
-    
+
     return filtered;
   }, [properties, searchTerm, typeFilter, categoriaFilter, finalidadeFilter, minValue, maxValue, neighborhoodFilter, bedroomsFilter, myPropertiesFirst, user, selectedCity]);
 
@@ -563,9 +563,9 @@ export default function Marketplace() {
   const totalItems = filteredProperties.length;
   const firstPageSize = 50;
   const subsequentPageSize = 12;
-  
+
   const totalPages = Math.ceil(Math.max(0, totalItems - firstPageSize) / subsequentPageSize) + (totalItems > 0 ? 1 : 0);
-  
+
   const paginatedProperties = useMemo(() => {
     if (currentPage === 1) {
       return filteredProperties.slice(0, firstPageSize);
@@ -744,7 +744,7 @@ export default function Marketplace() {
               </div>
               <Button 
                 variant="ghost" 
-                size="sm" 
+                size="sm"
                 onClick={() => setShowStats(!showStats)}
                 className="text-muted-foreground hover:text-primary"
               >
@@ -1122,6 +1122,7 @@ export default function Marketplace() {
                     </div>
                   )}
                   
+
                   {/* Property Banner */}
                   {property.banner_type && (
                     <PropertyBanner bannerType={property.banner_type} />
@@ -1132,6 +1133,13 @@ export default function Marketplace() {
                     alt={property.titulo}
                     className="w-full h-48 object-cover"
                   />
+                  {property.videos && property.videos.length > 0 && (
+                    <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
+                      <Badge variant="secondary" className="text-xs">
+                        {property.videos.length} vídeo{property.videos.length > 1 ? 's' : ''}
+                      </Badge>
+                    </div>
+                  )}
                   <div className="absolute top-2 right-2 flex gap-1">
                     <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
                       <Badge variant="secondary" className="text-xs">
@@ -1149,6 +1157,7 @@ export default function Marketplace() {
                     )}
                   </div>
                   
+
                   {/* Selection Overlay */}
                   {selectMode && selectedProperties.includes(property.id) && (
                     <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
@@ -1171,6 +1180,7 @@ export default function Marketplace() {
                 {formatCurrency(property.valor)}
               </motion.div>
                   
+
                   {/* Location Info with CEP and Neighborhood */}
                   {(property.neighborhood || property.zipcode) && (
                     <div className="flex items-center gap-2 text-xs text-muted-foreground border-l-2 border-primary/20 pl-2">
@@ -1189,6 +1199,7 @@ export default function Marketplace() {
                     </div>
                   )}
                   
+
                   {/* All property icons in one line */}
                   <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-muted-foreground flex-wrap">
                     <div className="flex items-center gap-1">
@@ -1248,7 +1259,7 @@ export default function Marketplace() {
                        </div>
                      )}
                      <div className="flex-1 min-w-0">
-                       <span>Corretor: {property.brokers?.name || property.profiles?.nome || 'Não informado'}</span>
+                       <span>Corretor: {property.brokers?.name || 'Não informado'}</span>
                        {property.brokers?.creci && (
                          <span className="block text-xs text-muted-foreground/70">CRECI: {property.brokers.creci}</span>
                        )}
@@ -1282,6 +1293,7 @@ export default function Marketplace() {
                            <span className="sr-only">Match</span>
                          </Button>
                          
+
                           <Button
                             size="sm"
                             variant="outline"
@@ -1302,6 +1314,7 @@ export default function Marketplace() {
                              <span className="sr-only">{isCurrentlySpeaking(`marketplace-${property.id}`) ? "Parar" : "Voz IA"}</span>
                            </Button>
                           
+
                              <Button
                               size="sm"
                               variant="outline"
@@ -1323,6 +1336,7 @@ export default function Marketplace() {
                              <span className="sr-only">Mensagem</span>
                            </Button>
                           
+
                          <div className="h-8 flex items-center justify-center flex-1">
                            <FavoritesManager 
                              propertyId={property.id} 
@@ -1330,6 +1344,7 @@ export default function Marketplace() {
                            />
                          </div>
                          
+
                           <div className="h-8 flex items-center justify-center flex-1">
                             <Button
                               variant="outline"
@@ -1352,7 +1367,7 @@ export default function Marketplace() {
             ))}
           </motion.div>
         )}
-        
+
         {/* Properties - List View */}
         {viewMode === 'list' && (
           <motion.div 
@@ -1431,18 +1446,20 @@ export default function Marketplace() {
                     </PaginationItem>
                   )}
                   
+
                   {/* First page */}
                   {currentPage > 2 && (
-                    <>
+                    <React.Fragment>
                       <PaginationItem>
                         <PaginationLink onClick={() => setCurrentPage(1)} className="cursor-pointer text-xs h-8 w-8">
                           1
                         </PaginationLink>
                       </PaginationItem>
                       {currentPage > 3 && <PaginationEllipsis className="h-8 w-8" />}
-                    </>
+                    </React.Fragment>
                   )}
                   
+
                   {/* Current page and neighbors */}
                   {currentPage > 1 && (
                     <PaginationItem>
@@ -1455,12 +1472,14 @@ export default function Marketplace() {
                     </PaginationItem>
                   )}
                   
+
                   <PaginationItem>
                     <PaginationLink isActive className="text-xs h-8 w-8">
                       {currentPage}
                     </PaginationLink>
                   </PaginationItem>
                   
+
                   {currentPage < totalPages && (
                     <PaginationItem>
                       <PaginationLink 
@@ -1472,9 +1491,10 @@ export default function Marketplace() {
                     </PaginationItem>
                   )}
                   
+
                   {/* Last page */}
                   {currentPage < totalPages - 1 && (
-                    <>
+                    <React.Fragment>
                       {currentPage < totalPages - 2 && <PaginationEllipsis className="h-8 w-8" />}
                       <PaginationItem>
                         <PaginationLink 
@@ -1484,9 +1504,10 @@ export default function Marketplace() {
                           {totalPages}
                         </PaginationLink>
                       </PaginationItem>
-                    </>
+                    </React.Fragment>
                   )}
                   
+
                   {currentPage < totalPages && (
                     <PaginationItem>
                       <PaginationNext 
@@ -1501,6 +1522,7 @@ export default function Marketplace() {
           </div>
         )}
 
+        {/* No results message */}
         {filteredProperties.length === 0 && (
           <motion.div 
             initial={{ opacity: 0 }}
@@ -1549,107 +1571,45 @@ export default function Marketplace() {
                 ))}
               </div>
               
-              {/* Property Details */}
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Informações do Imóvel</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Valor:</span>
-                        <span className="font-semibold text-primary">R$ {selectedProperty.valor?.toLocaleString('pt-BR')}</span>
+              {/* Videos Section */}
+              {selectedProperty.videos && selectedProperty.videos.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="font-semibold">Vídeos</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {selectedProperty.videos.map((video, index) => (
+                      <div key={index} className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                        {video.type === 'url' ? (
+                          video.url.includes('youtube.com') || video.url.includes('youtu.be') ? (
+                            <iframe
+                              src={video.url.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                              className="w-full h-full"
+                              allowFullScreen
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              title={video.title || `Vídeo ${index + 1}`}
+                            />
+                          ) : video.url.includes('vimeo.com') ? (
+                            <iframe
+                              src={video.url.replace('vimeo.com/', 'player.vimeo.com/video/')}
+                              className="w-full h-full"
+                              allowFullScreen
+                              allow="autoplay; fullscreen; picture-in-picture"
+                              title={video.title || `Vídeo ${index + 1}`}
+                            />
+                          ) : (
+                            <video controls className="w-full h-full" preload="metadata">
+                              <source src={video.url} />
+                            </video>
+                          )
+                        ) : (
+                          <video controls className="w-full h-full" preload="metadata">
+                            <source src={video.url} type="video/mp4" />
+                            <source src={video.url} type="video/webm" />
+                            Seu navegador não suporta reprodução de vídeo.
+                          </video>
+                        )}
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Área:</span>
-                        <span>{selectedProperty.area}m²</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Quartos:</span>
-                        <span>{selectedProperty.quartos}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Banheiros:</span>
-                        <span>{selectedProperty.bathrooms || 0}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Vagas:</span>
-                        <span>{selectedProperty.parking_spots || 0}</span>
-                      </div>
-                      {selectedProperty.furnishing_type && selectedProperty.furnishing_type !== 'none' && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Mobília:</span>
-                          <span>
-                            {selectedProperty.furnishing_type === 'furnished' ? 'Mobiliado' : 
-                             selectedProperty.furnishing_type === 'semi_furnished' ? 'Semi-mobiliado' : 'Não mobiliado'}
-                          </span>
-                        </div>
-                      )}
-                      {selectedProperty.sea_distance && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Distância do mar:</span>
-                          <span>
-                            {selectedProperty.sea_distance >= 1000 
-                              ? `${(selectedProperty.sea_distance / 1000).toFixed(1)}km` 
-                              : `${selectedProperty.sea_distance}m`
-                            }
-                          </span>
-                        </div>
-                      )}
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Tipo:</span>
-                        <span>{selectedProperty.listing_type === 'venda' ? 'Venda' : selectedProperty.listing_type === 'locacao' ? 'Locação' : 'Temporada'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Corretor:</span>
-                        <span>{selectedProperty.profiles?.nome || 'Não informado'}</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-semibold mb-2">Ações</h3>
-                    <div className="space-y-2">
-                      <Button 
-                        className="w-full px-3 sm:px-4 text-sm" 
-                        onClick={() => handleContactBroker(selectedProperty.profiles?.nome || 'Corretor')}
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        Entrar em Contato
-                      </Button>
-                       <Button 
-                         className="w-full px-3 sm:px-4 text-sm" 
-                         variant="outline"
-                         onClick={() => handleMatch(selectedProperty.id)}
-                       >
-                         <Target className="h-4 w-4 mr-2" />
-                         Marcar Match
-                       </Button>
-                        <Button 
-                          className="w-full px-3 sm:px-4 text-sm" 
-                          variant="outline"
-                          onClick={() => {
-                            const phone = selectedProperty.brokers?.name ? '5511999999999' : '';
-                            const message = `Olá! Vi seu imóvel "${selectedProperty.titulo}" no marketplace e gostaria de mais informações.`;
-                            if (phone) {
-                              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
-                            }
-                          }}
-                        >
-                          <MessageCircle className="h-4 w-4 mr-2" />
-                          Entrar em Contato
-                        </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Description */}
-              {selectedProperty.descricao && (
-                <div>
-                  <h3 className="font-semibold mb-2">Descrição</h3>
-                  <p className="text-muted-foreground">{selectedProperty.descricao}</p>
                 </div>
               )}
             </div>
