@@ -103,7 +103,7 @@ export function PhotoOrderManager({
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
+        <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-2">
             <Move className="h-5 w-5 text-muted-foreground" />
             <CardTitle className="text-lg font-semibold">
@@ -113,6 +113,7 @@ export function PhotoOrderManager({
               </Badge>
             </CardTitle>
           </div>
+          
           <Button
             variant="outline"
             size="sm"
@@ -120,110 +121,111 @@ export function PhotoOrderManager({
           >
             <RotateCcw className="h-4 w-4 mr-1" />
           </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="text-sm text-muted-foreground">
-              Arraste para reorganizar. O primeiro item será a capa do imóvel.
-            </div>
-            <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-              <Droppable droppableId="media">
-                {(provided, snapshot) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className={`space-y-3 ${
-                      snapshot.isDragging ? 'bg-muted/50 rounded-lg p-2' : ''
-                    }`}
-                  >
-                    {validMedia.map((item, index) => (
-                      <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {(provided, snapshot) => (
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="text-sm text-muted-foreground">
+            Arraste para reorganizar. O primeiro item será a capa do imóvel.
+          </div>
+          <DragDropContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+            <Droppable droppableId="media">
+              {(provided, snapshot) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className={`space-y-3 ${
+                    snapshot.isDragging ? 'bg-muted/50 rounded-lg p-2' : ''
+                  }`}
+                >
+                  {validMedia.map((item, index) => (
+                    <Draggable key={item.id} draggableId={item.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`
+                            flex items-center gap-4 p-3 border rounded-lg transition-all
+                            ${snapshot.isDragging ? 'shadow-lg bg-background' : 'hover:bg-muted/30'}
+                            ${item.id === coverId ? 'border-primary bg-primary/5' : ''}
+                          `}
+                        >
                           <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            className={`
-                              flex items-center gap-4 p-3 border rounded-lg transition-all
-                              ${snapshot.isDragging ? 'shadow-lg bg-background' : 'hover:bg-muted/30'}
-                              ${item.id === coverId ? 'border-primary bg-primary/5' : ''}
-                            `}
+                            {...provided.dragHandleProps}
+                            className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
                           >
-                            <div
-                              {...provided.dragHandleProps}
-                              className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
-                            >
-                              <Move className="h-4 w-4 text-muted-foreground" />
-                            </div>
-                            
-                            <div className="relative">
-                              <div className="w-16 h-16 aspect-square rounded border overflow-hidden bg-muted flex items-center justify-center">
-                                {item.type === 'photo' ? (
-                                  <img
-                                    src={item.url}
-                                    alt={`Mídia ${index + 1}`}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      (e.target as HTMLImageElement).src = '/placeholder.svg';
+                            <Move className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          
+                          <div className="relative">
+                            <div className="w-16 h-16 aspect-square rounded border overflow-hidden bg-muted flex items-center justify-center">
+                              {item.type === 'photo' ? (
+                                <img
+                                  src={item.url}
+                                  alt={`Mídia ${index + 1}`}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = '/placeholder.svg';
                                     e.target.onerror = null;
                                     return;
                                     }}
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <Video className="h-8 w-8 text-muted-foreground" />
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {item.id === coverId && (
-                                <div className="absolute top-2 right-2">
-                                  <Badge className="bg-primary text-primary-foreground text-xs">
-                                    <Star className="w-3 h-3 mr-1" />
-                                    Capa
-                                  </Badge>
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Video className="h-8 w-8 text-muted-foreground" />
                                 </div>
                               )}
                             </div>
                             
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">
-                                {item.type === 'video' ? (
-                                  <span className="flex items-center gap-1">
-                                    <Video className="h-4 w-4" />
-                                    Vídeo
-                                  </span>
-                                ) : (
-                                  <span className="flex items-center gap-1">
-                                    <Eye className="h-4 w-4" />
-                                    Foto
-                                  </span>
-                                )}
-                              </p>
-                              {item.filename && (
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {item.filename}
-                                </p>
-                              )}
-                            </div>
-                            
-                            <Button
-                              variant={item.id === coverId ? "default" : "outline"}
-                              size="sm"
-                              onClick={() => setCoverMedia(item.id)}
-                            >
-                              <Star className="h-4 w-4 mr-1" />
-                              {item.id === coverId ? 'É a capa' : 'Definir capa'}
-                            </Button>
+                            {item.id === coverId && (
+                              <div className="absolute top-2 right-2">
+                                <Badge className="bg-primary text-primary-foreground text-xs">
+                                  <Star className="w-3 h-3 mr-1" />
+                                  Capa
+                                </Badge>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          </CardContent>
-        </Card>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {item.type === 'video' ? (
+                                <span className="flex items-center gap-1">
+                                  <Video className="h-4 w-4" />
+                                  Vídeo
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1">
+                                  <Eye className="h-4 w-4" />
+                                  Foto
+                                </span>
+                              )}
+                            </p>
+                            {item.filename && (
+                              <p className="text-xs text-muted-foreground truncate">
+                                {item.filename}
+                              </p>
+                            )}
+                          </div>
+                          
+                          <Button
+                            variant={item.id === coverId ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setCoverMedia(item.id)}
+                          >
+                            <Star className="h-4 w-4 mr-1" />
+                            {item.id === coverId ? 'É a capa' : 'Definir capa'}
+                          </Button>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </CardContent>
+      </Card>
   );
 }
