@@ -142,6 +142,7 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   }, [property.user_id]);
 
 
+
   const displayBroker = brokerData || broker;
 
   const handleScheduleVisit = () => {
@@ -255,6 +256,29 @@ export function PropertyPresentation({ property, isOpen, onClose }: PropertyPres
   
   // Don't render if not open
   if (!isOpen) return null;
+
+  // Helper function to determine if cover is a video
+  const isVideoCover = (property: Property): boolean => {
+    if (!property.cover_media_id) return false;
+    return property.videos.some(video => video.id === property.cover_media_id);
+  };
+
+  // Helper function to get the cover media (photo or video)
+  const getCoverMedia = (property: Property): MediaItem | null => {
+    if (!property.cover_media_id) {
+      // If no explicit cover, use the first photo or video
+      if (property.fotos.length > 0) {
+        return { id: property.fotos[0], url: property.fotos[0], type: 'photo' };
+      }
+      if (property.videos.length > 0) {
+        return { id: property.videos[0].id, url: property.videos[0].url, type: 'video' };
+      }
+      return null;
+    }
+  };
+
+  const coverMedia = getCoverMedia(property);
+  const isVideoCover = coverMedia?.type === 'video';
 
   return (
     <div className="fixed inset-0 bg-white z-[10010] overflow-y-auto">
