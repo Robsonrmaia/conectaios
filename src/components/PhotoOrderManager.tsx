@@ -225,7 +225,8 @@ export function PhotoOrderManager({
               )}
             </Droppable>
           </DragDropContext>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
