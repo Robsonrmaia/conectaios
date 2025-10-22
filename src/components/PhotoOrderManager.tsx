@@ -222,7 +222,7 @@ export function PhotoOrderManager({
                   </div>
                 )}
               </Droppable>
-            </div>
+            </DragDropContext>
           </CardContent>
         </Card>
   );
