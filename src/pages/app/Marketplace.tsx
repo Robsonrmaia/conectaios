@@ -1612,6 +1612,150 @@ export default function Marketplace() {
                   </div>
                 </div>
               )}
+
+              {/* Price */}
+              <div className="bg-gradient-to-r from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-4 md:p-6 rounded-xl">
+                <div className="flex items-center gap-3">
+                  {/* Usando texto simples para preço para evitar import extra */}
+                  <div className="w-8 h-8 rounded-lg bg-white/70 dark:bg-white/10 flex items-center justify-center">
+                    R$
+                  </div>
+                  <div>
+                    <p className="text-sm text-green-700 dark:text-green-400">Valor do imóvel</p>
+                    <p className="text-2xl md:text-3xl font-bold text-green-800 dark:text-green-300">
+                      {formatCurrency(selectedProperty.valor || 0)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Características */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="bg-muted/50 p-4 rounded-lg text-center">
+                  <Home className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <p className="text-sm text-muted-foreground">Área</p>
+                  <p className="font-semibold">{selectedProperty.area || 0}m²</p>
+                </div>
+                <div className="bg-muted/50 p-4 rounded-lg text-center">
+                  <Bed className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <p className="text-sm text-muted-foreground">Quartos</p>
+                  <p className="font-semibold">{selectedProperty.quartos || 0}</p>
+                </div>
+                <div className="bg-muted/50 p-4 rounded-lg text-center">
+                  <Bath className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <p className="text-sm text-muted-foreground">Banheiros</p>
+                  <p className="font-semibold">{selectedProperty.bathrooms || 0}</p>
+                </div>
+                <div className="bg-muted/50 p-4 rounded-lg text-center">
+                  <Car className="h-6 w-6 mx-auto mb-2 text-primary" />
+                  <p className="text-sm text-muted-foreground">Vagas</p>
+                  <p className="font-semibold">{selectedProperty.parking_spots || 0}</p>
+                </div>
+              </div>
+
+              {/* Custos adicionais */}
+              {(selectedProperty.condominium_fee || selectedProperty.iptu) && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3">Custos adicionais</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {selectedProperty.condominium_fee && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Condomínio</p>
+                        <p className="font-medium">{formatCurrency(selectedProperty.condominium_fee)}/mês</p>
+                      </div>
+                    )}
+                    {selectedProperty.iptu && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">IPTU</p>
+                        <p className="font-medium">{formatCurrency(selectedProperty.iptu)}/ano</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Descrição */}
+              {selectedProperty.descricao && (
+                <div>
+                  <h3 className="font-semibold mb-3">Descrição</h3>
+                  <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    {selectedProperty.descricao}
+                  </p>
+                </div>
+              )}
+
+              {/* Recursos adicionais */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {selectedProperty.furnishing_type && selectedProperty.furnishing_type !== 'none' && (
+                  <div className="flex items-center gap-2">
+                    <Home className="h-4 w-4 text-primary" />
+                    <span className="text-sm">
+                      {selectedProperty.furnishing_type === 'furnished' ? 'Mobiliado' : 'Semi-mobiliado'}
+                    </span>
+                  </div>
+                )}
+                {selectedProperty.has_sea_view && (
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Vista para o mar</span>
+                  </div>
+                )}
+                {selectedProperty.sea_distance && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="text-sm">{selectedProperty.sea_distance}m do mar</span>
+                  </div>
+                )}
+                {selectedProperty.year_built && (
+                  <div className="flex items-center gap-2">
+                    {/* Reutilizando Home para evitar novo import */}
+                    <Home className="h-4 w-4 text-primary" />
+                    <span className="text-sm">Construído em {selectedProperty.year_built}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Localização */}
+              <div>
+                <h3 className="font-semibold mb-3">Localização</h3>
+                <div className="space-y-2">
+                  {selectedProperty.address && (
+                    <p className="text-sm text-muted-foreground">{selectedProperty.address}</p>
+                  )}
+                  <p className="text-sm">
+                    {selectedProperty.neighborhood && `${selectedProperty.neighborhood}, `}
+                    {selectedProperty.city}
+                    {selectedProperty.zipcode && ` - CEP: ${selectedProperty.zipcode}`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Resumo do imóvel */}
+              <div className="bg-muted/30 p-4 md:p-6 rounded-xl">
+                <h3 className="font-semibold mb-4">Resumo do imóvel</h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Código:</span>
+                    <span className="font-medium">{selectedProperty.reference_code || selectedProperty.id.slice(0, 8)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Finalidade:</span>
+                    <span className="font-medium">{selectedProperty.listing_type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Área:</span>
+                    <span className="font-medium">{selectedProperty.area || 0}m²</span>
+                  </div>
+                  {!!(selectedProperty.area && selectedProperty.valor) && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Valor/m²:</span>
+                      <span className="font-medium">
+                        {formatCurrency((selectedProperty.valor || 0) / (selectedProperty.area || 1))}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </DialogContent>
