@@ -4,6 +4,7 @@ import { Building2, Bath, Bed, Car, Eye, MapPin } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { PropertyIcons } from '@/components/PropertyIcons';
 import { Card } from '@/components/ui/card';
+import type { PropertyVideo } from '@/components/property-presentation/types';
 
 interface Property {
   id: string;
@@ -25,7 +26,7 @@ interface Property {
   has_sea_view?: boolean;
   finalidade: string;
   descricao: string;
-  videos: string[];
+  videos?: PropertyVideo[];
   user_id: string;
   owner_id: string;
   created_at: string;

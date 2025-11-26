@@ -1958,7 +1958,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean
           show_on_minisite: boolean
           show_on_site: boolean
@@ -2008,7 +2008,7 @@ export type Database = {
           property_type?: string | null
           purpose: string
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean
           show_on_minisite?: boolean
           show_on_site?: boolean
@@ -2058,7 +2058,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean
           show_on_minisite?: boolean
           show_on_site?: boolean
@@ -2945,7 +2945,7 @@ export type Database = {
           kind: string
           reply_to: string | null
           sender_id: string
-          tsv: unknown | null
+          tsv: unknown
         }
         Insert: {
           body?: string | null
@@ -2957,7 +2957,7 @@ export type Database = {
           kind?: string
           reply_to?: string | null
           sender_id: string
-          tsv?: unknown | null
+          tsv?: unknown
         }
         Update: {
           body?: string | null
@@ -2969,7 +2969,7 @@ export type Database = {
           kind?: string
           reply_to?: string | null
           sender_id?: string
-          tsv?: unknown | null
+          tsv?: unknown
         }
         Relationships: [
           {
@@ -5066,7 +5066,7 @@ export type Database = {
           property_type: string | null
           purpose: string | null
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean | null
           show_on_minisite: boolean | null
           show_on_site: boolean | null
@@ -5112,7 +5112,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string | null
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean | null
           show_on_minisite?: boolean | null
           show_on_site?: boolean | null
@@ -5158,7 +5158,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string | null
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean | null
           show_on_minisite?: boolean | null
           show_on_site?: boolean | null
@@ -5236,7 +5236,7 @@ export type Database = {
           property_type: string | null
           purpose: string | null
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean | null
           show_on_minisite: boolean | null
           show_on_site: boolean | null
@@ -5282,7 +5282,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string | null
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean | null
           show_on_minisite?: boolean | null
           show_on_site?: boolean | null
@@ -5328,7 +5328,7 @@ export type Database = {
           property_type?: string | null
           purpose?: string | null
           reference_code?: string | null
-          search_vector?: unknown | null
+          search_vector?: unknown
           show_on_marketplace?: boolean | null
           show_on_minisite?: boolean | null
           show_on_site?: boolean | null
@@ -5601,24 +5601,18 @@ export type Database = {
         }
         Returns: undefined
       }
-      calc_imovel_quality: {
-        Args: { imovel_id: string }
-        Returns: number
-      }
+      calc_imovel_quality: { Args: { imovel_id: string }; Returns: number }
       ctrt_buscar_cliente_conectaios: {
         Args: { p_cliente_id: string }
         Returns: Json
       }
-      ctrt_buscar_corretor_conectaios: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
+      ctrt_buscar_corretor_conectaios: { Args: never; Returns: Json }
       ctrt_buscar_imovel_conectaios: {
         Args: { p_imovel_id: string }
         Returns: Json
       }
       ctrt_listar_clientes_conectaios: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           cnpj: string
           cpf: string
@@ -5629,7 +5623,7 @@ export type Database = {
         }[]
       }
       ctrt_listar_imoveis_conectaios: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           bairro: string
           cidade: string
@@ -5640,14 +5634,8 @@ export type Database = {
           valor_aluguel: number
         }[]
       }
-      ensure_broker_for_user: {
-        Args: { p_user: string }
-        Returns: string
-      }
-      ensure_minisite_for_user: {
-        Args: { p_user: string }
-        Returns: string
-      }
+      ensure_broker_for_user: { Args: { p_user: string }; Returns: string }
+      ensure_minisite_for_user: { Args: { p_user: string }; Returns: string }
       find_existing_one_to_one_thread: {
         Args: { user_a: string; user_b: string }
         Returns: string
@@ -5692,7 +5680,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean
           show_on_minisite: boolean
           show_on_site: boolean
@@ -5709,6 +5697,12 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "imoveis"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       find_or_create_direct_thread: {
         Args: { user_a: string; user_b: string }
@@ -5758,7 +5752,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean
           show_on_minisite: boolean
           show_on_site: boolean
@@ -5775,6 +5769,12 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "imoveis"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       fn_profile_save: {
         Args: {
@@ -5786,46 +5786,11 @@ export type Database = {
         }
         Returns: undefined
       }
-      generate_reference_code: {
-        Args: { p_owner_id: string }
-        Returns: string
-      }
-      generate_referral_code: {
-        Args: { user_uuid?: string }
-        Returns: string
-      }
-      generate_submission_token: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_broker_olx_limit: {
-        Args: { p_broker_id: string }
-        Returns: number
-      }
-      get_security_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      gtrgm_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gtrgm_options: {
-        Args: { "": unknown }
-        Returns: undefined
-      }
-      gtrgm_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
+      generate_reference_code: { Args: { p_owner_id: string }; Returns: string }
+      generate_referral_code: { Args: { user_uuid?: string }; Returns: string }
+      generate_submission_token: { Args: never; Returns: string }
+      get_broker_olx_limit: { Args: { p_broker_id: string }; Returns: number }
+      get_security_summary: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -5833,10 +5798,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { check_user_id?: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { check_user_id?: string }; Returns: boolean }
       is_following: {
         Args: { p_follower_id: string; p_target_id: string }
         Returns: boolean
@@ -5845,10 +5807,7 @@ export type Database = {
         Args: { p_group_id: string; p_user_id: string }
         Returns: boolean
       }
-      is_member: {
-        Args: { conv_id: string; uid: string }
-        Returns: boolean
-      }
+      is_member: { Args: { conv_id: string; uid: string }; Returns: boolean }
       is_partnership_participant: {
         Args: { p_partnership_id: string; p_user_id: string }
         Returns: boolean
@@ -5927,10 +5886,7 @@ export type Database = {
         Args: { content: string; thread_id: string }
         Returns: string
       }
-      msg_start_direct: {
-        Args: { a: string; b: string }
-        Returns: string
-      }
+      msg_start_direct: { Args: { a: string; b: string }; Returns: string }
       search_imoveis: {
         Args: {
           city_filter?: string
@@ -5972,7 +5928,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean
           show_on_minisite: boolean
           show_on_site: boolean
@@ -5989,6 +5945,12 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "imoveis"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       search_properties: {
         Args: {
@@ -6031,7 +5993,7 @@ export type Database = {
           property_type: string | null
           purpose: string
           reference_code: string | null
-          search_vector: unknown | null
+          search_vector: unknown
           show_on_marketplace: boolean
           show_on_minisite: boolean
           show_on_site: boolean
@@ -6048,6 +6010,12 @@ export type Database = {
           vista_mar: boolean | null
           zipcode: string | null
         }[]
+        SetofOptions: {
+          from: "*"
+          to: "imoveis"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       send_message: {
         Args: { p_body: string; p_reply_to?: string; p_thread_id: string }
@@ -6061,6 +6029,12 @@ export type Database = {
           sender_id: string
           thread_id: string
           updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "chat_messages"
+          isOneToOne: true
+          isSetofReturn: false
         }
       }
       send_message_new: {
@@ -6076,19 +6050,15 @@ export type Database = {
           thread_id: string
           updated_at: string | null
         }
+        SetofOptions: {
+          from: "*"
+          to: "chat_messages"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      set_limit: {
-        Args: { "": number }
-        Returns: number
-      }
-      show_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      show_trgm: {
-        Args: { "": string }
-        Returns: string[]
-      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       social_get_public_posts: {
         Args: { p_limit?: number; p_offset?: number }
         Returns: {
@@ -6111,7 +6081,7 @@ export type Database = {
         }[]
       }
       social_list_my_properties: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           cover_url: string
           imovel_id: string
@@ -6119,18 +6089,9 @@ export type Database = {
           title: string
         }[]
       }
-      social_marketplace_url: {
-        Args: { p_imovel_id: string }
-        Returns: string
-      }
-      social_publish_post: {
-        Args: { p_post_id: string }
-        Returns: boolean
-      }
-      start_or_get_thread: {
-        Args: { target_user: string }
-        Returns: string
-      }
+      social_marketplace_url: { Args: { p_imovel_id: string }; Returns: string }
+      social_publish_post: { Args: { p_post_id: string }; Returns: boolean }
+      start_or_get_thread: { Args: { target_user: string }; Returns: string }
       user_thread_ids: {
         Args: { p_user_id: string }
         Returns: {

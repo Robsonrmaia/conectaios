@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Bath, Bed } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
+import type { PropertyVideo } from '@/components/property-presentation/types';
 
 interface Property {
   id: string;
@@ -22,7 +23,7 @@ interface Property {
   has_sea_view?: boolean;
   finalidade: string;
   descricao: string;
-  videos: string[];
+  videos?: PropertyVideo[];
   user_id: string;
   owner_id: string;
   created_at: string;
