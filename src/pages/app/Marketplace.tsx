@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, useMemo, useCallback } from 'react';
+import { useState, useEffect, Suspense, useMemo, useCallback, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AnimatedCard } from '@/components/AnimatedCard';
@@ -36,6 +36,8 @@ import { SubscriptionBlocker } from '@/components/SubscriptionBlocker';
 import { PropertyListView } from '@/components/marketplace/PropertyListView';
 import { PropertyIconView } from '@/components/marketplace/PropertyIconView';
 
+import type { PropertyVideo } from '@/components/property-presentation/types';
+
 interface Property {
   id: string;
   titulo: string;
@@ -50,7 +52,7 @@ interface Property {
   finalidade: string;
   descricao: string;
   fotos: string[];
-  videos?: { type: 'url' | 'upload'; url: string; filename?: string; size?: number; title?: string }[];
+  videos?: PropertyVideo[];
   user_id: string;
   owner_id: string; // ID do proprietário/corretor (equivalente a user_id)
   created_at: string;
@@ -61,12 +63,14 @@ interface Property {
   city?: string;
   state?: string;
   zipcode?: string;
+  address?: string;
   condominium_fee?: number;
   iptu?: number;
   reference_code?: string;
   verified?: boolean;
   banner_type?: string | null;
   status?: string;
+  year_built?: number;
   profiles?: {
     nome: string;
   } | null;
@@ -1449,14 +1453,14 @@ export default function Marketplace() {
 
                   {/* First page */}
                   {currentPage > 2 && (
-                    <React.Fragment>
+                    <Fragment>
                       <PaginationItem>
                         <PaginationLink onClick={() => setCurrentPage(1)} className="cursor-pointer text-xs h-8 w-8">
                           1
                         </PaginationLink>
                       </PaginationItem>
                       {currentPage > 3 && <PaginationEllipsis className="h-8 w-8" />}
-                    </React.Fragment>
+                    </Fragment>
                   )}
                   
 
@@ -1494,7 +1498,7 @@ export default function Marketplace() {
 
                   {/* Last page */}
                   {currentPage < totalPages - 1 && (
-                    <React.Fragment>
+                    <Fragment>
                       {currentPage < totalPages - 2 && <PaginationEllipsis className="h-8 w-8" />}
                       <PaginationItem>
                         <PaginationLink 
@@ -1504,7 +1508,7 @@ export default function Marketplace() {
                           {totalPages}
                         </PaginationLink>
                       </PaginationItem>
-                    </React.Fragment>
+                    </Fragment>
                   )}
                   
 

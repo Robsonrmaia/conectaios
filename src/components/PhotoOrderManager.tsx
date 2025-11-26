@@ -119,7 +119,7 @@ export function PhotoOrderManager({
                 <div
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className={`space-y-3 ${snapshot.isDragging ? 'bg-muted/50 rounded-lg p-2' : ''}`}
+                  className={`space-y-3 ${snapshot.isDraggingOver ? 'bg-muted/50 rounded-lg p-2' : ''}`}
                 >
                   {validPhotos.map((url, index) => (
                     <Draggable key={`${url}-${index}`} draggableId={`photo-${index}`} index={index}>
